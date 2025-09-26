@@ -1,0 +1,23 @@
+<div class="cards-container">
+    {{#if hasCards}}
+        <div class="card" id="currentCard">
+            <img src="{{currentCard.image}}" alt="{{currentCard.name}}" class="card-image">
+            <div class="card-info">
+                <div class="card-name">{{currentCard.name}}</div>
+                <div class="card-age">{{currentCard.age}} лет</div>
+                {{#if currentCard.description}}
+                    <div class="card-description">{{currentCard.description}}</div>
+                {{/if}}
+            </div>
+            <div class="card-actions">
+                <button class="btn-action btn-dislike" id="dislikeBtn">✕</button>
+                <button class="btn-action btn-like" id="likeBtn">♥</button>
+            </div>
+        </div>
+    {{else}}
+        <div class="no-cards">
+            <h2>Карточки закончились!</h2>
+            <p>Попробуйте позже</p>
+        </div>
+    {{/if}}
+</div>
