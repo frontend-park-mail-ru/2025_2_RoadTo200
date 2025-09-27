@@ -7,7 +7,17 @@ const cardsData = {
     4: {id:4, Name: 'Misha', Age: "19", Description: 'Block helpers have more features, such as the ability to create an else section (used, for instance, by the built-in if helper).', img1: 'https://images.unsplash.com/photo-1725653811863-8ca1776e126a?q=80&w=928&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'},
 }
 
-router.route('/cards/action').post(function(req, res, next) {
+// Middleware для применения к конкретным роутам
+const applyAuth = (req, res, next) => {
+    const requireAuth = req.app.locals.requireAuth;
+    if (requireAuth) {
+        requireAuth(req, res, next);
+    } else {
+        next();
+    }
+};
+
+router.route('/cards/action').post(applyAuth, function(req, res, next) {
     
     const { card_id, action, timestamp } = req.body;
 
@@ -20,7 +30,7 @@ router.route('/cards/action').post(function(req, res, next) {
     res.status(200).json({ status: 'ok', message: 'Действие успешно зарегистрировано' });
 })
 
-router.route('/cards/:cardId').get(function(req, res, next) {
+router.route('/cards/:cardId').get(applyAuth, function(req, res, next) {
     const id = req.params.cardId;
     if(id && cardsData[id]) {
         res.json(cardsData[id]);
@@ -29,9 +39,8 @@ router.route('/cards/:cardId').get(function(req, res, next) {
     }
 })
 
-router.route('/cards/').get(function(req, res, next) {
+router.route('/cards/').get(applyAuth, function(req, res, next) {
     res.json(cardsData);
 })
-
 
 module.exports = router;

@@ -1,7 +1,10 @@
+import { AuthUtils } from './src/utils/auth.js';
+
 export class Route {
-  constructor(path, component) {
+  constructor(path, component, requireAuth = false) {
     this.path = path;
     this.component = component;
+    this.requireAuth = requireAuth;
   }
 }
 
@@ -47,6 +50,28 @@ export class Router {
 
     if (!route) {
         return;
+    }
+
+    // Проверяем аутентификацию для защищенных роутов
+    if (route.requireAuth) {
+      const isAuthenticated = await AuthUtils.checkAuth();
+      if (!isAuthenticated) {
+        // Редирект на страницу логина
+        if (currentPath !== '/login') {
+          this.navigateTo('/login');
+          return;
+        }
+      }
+    } else if (currentPath === '/login' || currentPath === '/register') {
+      // Если пользователь уже авторизован и пытается зайти на login/register
+      console.log('Checking auth for login/register page...');
+      const isAuthenticated = await AuthUtils.checkAuth();
+      console.log('Auth check result:', isAuthenticated);
+      if (isAuthenticated) {
+        console.log('User is authenticated, redirecting to main...');
+        this.navigateTo('/');
+        return;
+      }
     }
 
     const root = document.getElementById('root');

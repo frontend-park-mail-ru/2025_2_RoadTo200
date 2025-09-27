@@ -1,5 +1,7 @@
 import { Route, Router} from "./router.js";
-import mainPage from "./src/pages/mainPage/main.js"
+import mainPage from "./src/pages/mainPage/main.js";
+import loginPage from "./src/pages/loginPage/Login.js";
+import registerPage from "./src/pages/registerPage/register.js";
 
 
 const notFoundComponent = {
@@ -15,8 +17,10 @@ const notFoundComponent = {
 
 
 const routes = [
-  new Route('/', mainPage),
-  new Route('*', notFoundComponent)
+  new Route('/', mainPage, true), // Главная страница требует аутентификации
+  new Route('/login', loginPage, false),
+  new Route('/register', registerPage, false),
+  new Route('*', notFoundComponent, false)
 ];
 
 const router = new Router(routes);

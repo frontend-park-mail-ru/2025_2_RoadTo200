@@ -1,6 +1,7 @@
 import Card from '../../components/Card/card.js';
+import { AuthUtils } from '../../utils/auth.js';
 
-const API_URL = 'http://localhost:3000/api/cards/';
+const API_URL = 'http://127.0.0.1:3000/api/cards/';
 const TEMPLATE_PATH = './src/pages/mainPage/main.hbs'; 
 
 let cardsData = []; 
@@ -30,9 +31,8 @@ const sendActionToServer = async (cardId, actionType) => {
     try {
         const response = await fetch(url, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            credentials: 'include', // Включаем куки
+            headers: AuthUtils.getAuthHeaders(),
             body: JSON.stringify({ 
                 card_id: cardId, 
                 action: actionType, 
@@ -61,7 +61,10 @@ const animateCardOut = (cardElement, direction) => {
 
 const mainPage = {
     getData: async () => {
-        const response = await fetch(API_URL);
+        const response = await fetch(API_URL, {
+            credentials: 'include', // Включаем куки
+            headers: AuthUtils.getAuthHeaders()
+        });
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const apiData = await response.json();
         
@@ -151,6 +154,16 @@ const mainPage = {
                 pageContainer = document.querySelector('.cards-container');
                 if (pageContainer) {
                     mainPage.initCardActions(); 
+                }
+                
+                // Добавляем обработчик для кнопки выхода
+                const logoutBtn = document.getElementById('logoutBtn');
+                if (logoutBtn) {
+                    logoutBtn.addEventListener('click', async () => {
+                        await AuthUtils.logout();
+                        window.history.pushState(null, null, '/login');
+                        window.dispatchEvent(new PopStateEvent('popstate'));
+                    });
                 }
             }, 0); 
         }
