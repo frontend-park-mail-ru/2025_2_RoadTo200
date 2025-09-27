@@ -55,16 +55,21 @@ router.route('/auth/login').post(function(req, res, next) {
 
     console.log(`Вход пользователя: ${email}`);
 
-    // Создаем простой токен
-    const token = `user_${user.id}_${Date.now()}`;
+    // Создаем сессию
+    const sessionId = `sess_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     
-    // Добавляем токен в активные токены
-    const activeTokens = req.app.locals.activeTokens;
-    activeTokens.add(token);
+    // Сохраняем данные сессии
+    const sessions = req.app.locals.sessions;
+    sessions.set(sessionId, {
+        userId: user.id,
+        email: user.email,
+        name: user.name,
+        createdAt: new Date()
+    });
 
-    // Устанавливаем куки (без cookie-parser!)
+    // Устанавливаем куки с sessionId
     res.setHeader('Set-Cookie', [
-        `authToken=${token}; HttpOnly; Path=/; Max-Age=86400; SameSite=Lax`
+        `sessionId=${sessionId}; HttpOnly; Path=/; Max-Age=86400; SameSite=Lax`
         // Max-Age=86400 = 24 часа
     ]);
 
@@ -77,34 +82,43 @@ router.route('/auth/login').post(function(req, res, next) {
 
 // Роут для проверки аутентификации
 router.route('/auth/check').get(function(req, res, next) {
-    const token = req.headers.cookie 
-        ? req.headers.cookie.split('; ').find(row => row.startsWith('authToken='))?.split('=')[1]
+    const sessionId = req.headers.cookie 
+        ? req.headers.cookie.split('; ').find(row => row.startsWith('sessionId='))?.split('=')[1]
         : null;
     
-    const activeTokens = req.app.locals.activeTokens;
+    const sessions = req.app.locals.sessions;
     
-    if (!token || !activeTokens.has(token)) {
+    if (!sessionId || !sessions.has(sessionId)) {
         return res.status(401).json({ authenticated: false });
     }
     
-    res.status(200).json({ authenticated: true });
+    const sessionData = sessions.get(sessionId);
+    res.status(200).json({ 
+        authenticated: true,
+        user: {
+            email: sessionData.email,
+            name: sessionData.name
+        }
+    });
 });
 
 // Роут для выхода
 router.route('/auth/logout').post(function(req, res, next) {
-    const token = req.headers.cookie 
-        ? req.headers.cookie.split('; ').find(row => row.startsWith('authToken='))?.split('=')[1]
+    const sessionId = req.headers.cookie 
+        ? req.headers.cookie.split('; ').find(row => row.startsWith('sessionId='))?.split('=')[1]
         : null;
     
-    const activeTokens = req.app.locals.activeTokens;
+    const sessions = req.app.locals.sessions;
     
-    if (token) {
-        activeTokens.delete(token);
+    if (sessionId && sessions.has(sessionId)) {
+        sessions.delete(sessionId); // Удаляем сессию
+        console.log(`Сессия ${sessionId} удалена`);
     }
     
-    // Удаляем куки
+    // Удаляем куки (включая старые)
     res.setHeader('Set-Cookie', [
-        'authToken=; HttpOnly; Path=/; Max-Age=0; SameSite=Lax'
+        'sessionId=; HttpOnly; Path=/; Max-Age=0; SameSite=Lax',
+        'authToken=; HttpOnly; Path=/; Max-Age=0; SameSite=Lax' // Удаляем старые токен-куки
     ]);
     
     res.status(200).json({ status: 'ok', message: 'Выход выполнен успешно' });

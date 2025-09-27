@@ -1,7 +1,16 @@
-// Утилиты для аутентификации через куки
+// Утилиты для аутентификации через сессии
 const API_BASE = 'http://127.0.0.1:3000/api';
 
 export const AuthUtils = {
+    // Очистить старые куки (для миграции с токенов на сессии)
+    clearOldCookies() {
+        // Удаляем старые authToken куки если они есть
+        if (this.getCookie('authToken')) {
+            document.cookie = 'authToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+            console.log('Cleared old authToken cookie');
+        }
+    },
+
     // Получить значение куки по имени
     getCookie(name) {
         const value = `; ${document.cookie}`;
@@ -10,14 +19,14 @@ export const AuthUtils = {
         return null;
     },
 
-    // Получить токен из куки
-    getToken() {
-        return this.getCookie('authToken');
+    // Получить sessionId из куки
+    getSessionId() {
+        return this.getCookie('sessionId');
     },
 
-    // Проверить наличие токена
-    hasToken() {
-        return !!this.getToken();
+    // Проверить наличие сессии
+    hasSession() {
+        return !!this.getSessionId();
     },
 
     // Получить заголовки для запроса (куки передаются автоматически)
@@ -27,9 +36,12 @@ export const AuthUtils = {
         };
     },
 
-    // Проверить валидность токена на сервере
+    // Проверить валидность сессии на сервере
     async checkAuth() {
-        console.log('Checking auth, current cookies:', document.cookie);
+        // Очищаем старые куки при каждой проверке
+        this.clearOldCookies();
+        
+        console.log('Checking session, current cookies:', document.cookie);
         
         try {
             const response = await fetch(`${API_BASE}/auth/check`, {

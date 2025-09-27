@@ -9,20 +9,22 @@ app.use(cors({
 
 const PORT = 3000;
 
-// Простое хранилище активных токенов (в реальном приложении - база данных)
-const activeTokens = new Set();
+// Простое хранилище сессий (в реальном приложении - база данных или Redis)
+const sessions = new Map(); // sessionId -> { userId, email, name, createdAt }
 
-// Middleware для проверки аутентификации через куки
+// Middleware для проверки аутентификации через сессии
 const requireAuth = (req, res, next) => {
-    const token = req.headers.cookie 
-        ? req.headers.cookie.split('; ').find(row => row.startsWith('authToken='))?.split('=')[1]
+    const sessionId = req.headers.cookie 
+        ? req.headers.cookie.split('; ').find(row => row.startsWith('sessionId='))?.split('=')[1]
         : null;
     
-    if (!token || !activeTokens.has(token)) {
+    if (!sessionId || !sessions.has(sessionId)) {
         return res.status(401).json({ error: 'Необходима авторизация' });
     }
     
-    req.userToken = token;
+    const sessionData = sessions.get(sessionId);
+    req.user = sessionData; // Передаем данные пользователя в запрос
+    req.sessionId = sessionId;
     next();
 };
 
@@ -38,7 +40,7 @@ const authRouter = require('./routers/auth');
 
 // Экспортируем middleware для использования в роутерах
 app.locals.requireAuth = requireAuth;
-app.locals.activeTokens = activeTokens;
+app.locals.sessions = sessions;
 
 // ВАЖНО: сначала подключаем роуты аутентификации (без middleware)
 app.use('/api', authRouter);
