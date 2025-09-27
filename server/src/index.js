@@ -9,8 +9,7 @@ app.use(cors({
 
 const PORT = 3000;
 
-// Простое хранилище сессий (в реальном приложении - база данных или Redis)
-const sessions = new Map(); // sessionId -> { userId, email, name, createdAt }
+const sessions = new Map(); 
 
 // Middleware для проверки аутентификации через сессии
 const requireAuth = (req, res, next) => {
