@@ -2,10 +2,8 @@
     background-color: #ffffff;
     padding: 2.5rem 2rem;
     border-radius: var(--border-radius-large);
-    box-shadow: 0 15px 30px var(--color-shadow);
     width: 100%;
     max-width: 450px; 
-    transition: transform 0.3s ease;
     max-height: fit-content;
 }
 

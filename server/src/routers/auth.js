@@ -35,8 +35,6 @@ router.route('/auth/register').post(function(req, res, next) {
         id: Date.now()
     };
 
-    console.log(usersData);
-
     console.log(`Регистрация пользователя: ${email}`);
 
     res.status(200).json({ status: 'ok', message: 'Регистрация успешна' });
