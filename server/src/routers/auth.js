@@ -27,17 +27,27 @@ router.route('/auth/register').post(function(req, res, next) {
     }
 
     // Сохранение пользователя
-    usersData[email] = {
+    const newUser = {
         email,
         password,
         name,
         age: ageNum,
         id: Date.now()
     };
+    
+    usersData[email] = newUser;
 
     console.log(`Регистрация пользователя: ${email}`);
 
-    res.status(200).json({ status: 'ok', message: 'Регистрация успешна' });
+    // Создаем сессию сразу после регистрации
+    req.session.userId = newUser.id;
+    req.session.userEmail = newUser.email;
+
+    res.status(200).json({ 
+        status: 'ok', 
+        message: 'Регистрация успешна',
+        user: { email: newUser.email, name: newUser.name }
+    });
 });
 
 router.route('/auth/login').post(function(req, res, next) {
