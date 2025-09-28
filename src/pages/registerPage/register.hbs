@@ -1,0 +1,20 @@
+<div class="container">
+    <div class="form-container">
+        <h1 class="form-title">Регистрация</h1>
+        
+        {{#if error}}
+        <div class="error">{{error}}</div>
+        {{/if}}
+        
+        <form id="registerForm">
+            <input type="email" id="email" class="form-input" placeholder="Email" required>
+            <input type="password" id="password" class="form-input" placeholder="Пароль" minlength="6" required>
+            <input type="password" id="passwordConfirm" class="form-input" placeholder="Подтвердите пароль" minlength="6" required>
+            <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
+        </form>
+        
+        <div class="link">
+            Уже есть аккаунт? <a href="/login" Link> Войти</a>
+        </div>
+    </div>
+</div>

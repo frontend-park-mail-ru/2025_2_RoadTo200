@@ -1,0 +1,46 @@
+{
+  "name": "tinderroadto200",
+  "version": "1.0.0",
+  "description": "Vk technopark",
+  "main": "index.js",
+  "scripts": {
+    "start": "concurrently \"npm run server\" \"npm run client\"",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "client": "npx http-server . -p 8080 -o --cors -c-1 -P http://localhost:8080? -M '{\".js\":\"application/javascript\"}'",
+    "server": "nodemon server/src/index.js",
+    "build": "webpack --mode production",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "express-session": "^1.17.3",
+    "handlebars": "^4.7.8"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "css-loader": "^6.10.0",
+    "eslint": "^8.57.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-prettier": "^5.5.4",
+    "handlebars-loader": "^1.7.3",
+    "html-webpack-plugin": "^5.6.0",
+    "nodemon": "^3.1.0",
+    "style-loader": "^3.3.4",
+    "webpack": "^5.90.3",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^5.0.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/frontend-park-mail-ru/2025_2_RoadTo200.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/frontend-park-mail-ru/2025_2_RoadTo200/issues"
+  },
+  "homepage": "https://github.com/frontend-park-mail-ru/2025_2_RoadTo200#readme"
+}

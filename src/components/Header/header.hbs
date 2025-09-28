@@ -1,0 +1,16 @@
+<header class="app-header">
+    <div class="header-content">
+        <div class="title-with-heart">
+            {{{smallHeartHtml}}}
+            <h1 class="app-title">Tinder</h1>
+        </div>
+        <div class="header-right">
+            {{#if isAuthenticated}}
+                <span class="welcome-text">Привет, {{userName}}!</span>
+                <button id="logoutBtn" class="logout-btn">
+                    <span>Выйти</span>
+                </button>
+            {{/if}}
+        </div>
+    </div>
+</header>

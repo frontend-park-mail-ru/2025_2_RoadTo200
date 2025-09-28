@@ -1,0 +1,35 @@
+.heart-small {
+    height: 25px;
+    width: 25px;
+    background: #ffffff;
+    position: relative;
+    transform: rotate(-45deg);
+    animation: heartbeat 1.2s ease-in-out infinite;
+}
+
+.heart-small:before,
+.heart-small:after {
+    content: '';
+    position: absolute;
+    height: 25px;
+    width: 25px;
+    background: #ffffff;
+    border-radius: 50%;
+}
+
+.heart-small:before {
+    top: -50%;
+}
+
+.heart-small:after {
+    right: -50%;
+}
+
+@keyframes heartbeat {
+    0%, 28%, 70%, 100% {
+        transform: rotate(-45deg) scale(1.0);
+    }
+    14%, 42% {
+        transform: rotate(-45deg) scale(1.15);
+    }
+}
