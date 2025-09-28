@@ -51,20 +51,7 @@ const fetchTemplate = async (path) => {
 const sendLoginRequest = async (email, password) => {
     try {
     const data = await AuthApi.login(email, password);
-    // return result;
-
-    // const url = `${API_URL}login`;
-
-    // try {
-    //     const response = await fetch(url, {
-    //         method: 'POST',
-    //         credentials: 'include', 
-    //         headers: {
-    //             'Content-Type': 'application/json',
-    //         },
-    //         body: JSON.stringify({ email, password })
-    //     });
-  
+    
     if (data.status !== 'ok') {
         console.error(`Ошибка входа`, data.statusText);
         return { success: false, error: data.message || 'Ошибка входа' };

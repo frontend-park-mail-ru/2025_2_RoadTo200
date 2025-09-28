@@ -7,15 +7,7 @@ class CardApi {
     constructor(baseURL = API_URL) {
         this.baseURL = baseURL;
     }
-
-    // /**
-    //  * Вспомогательный метод для получения токена аутентификации.
-    //  * @returns {string|null} Токен или null, если не найден.
-    //  */
-    // _getAuthToken() {
-    //     return localStorage.getItem('authToken'); 
-    // }
-
+    
     /**
      * GET /cards/
      * Получить все карточек

@@ -36,7 +36,7 @@ const clearError = () => {
     if (errorDiv) {
         errorDiv.remove();
     }
-};
+};  
 
 const fetchTemplate = async (path) => {
     try {
@@ -57,10 +57,9 @@ const fetchTemplate = async (path) => {
 
 const sendRegisterRequest = async (email, password, name, age) => {
     // const url = `${API_URL}register`;
-
     try {
         const data = await AuthApi.register(email, password, name, age);
-        
+
         // const response = await fetch(url, {
         //     method: 'POST',
         //     headers: {
