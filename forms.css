@@ -10,11 +10,7 @@
 .form-title {
     font-size: 2rem;
     font-weight: 700;
-    color: var(--color-text-dark);
-    /* Градиент для заголовка */
-    background: -webkit-linear-gradient(45deg, var(--color-primary-dark), var(--color-primary-light));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: var(--color-primary-dark);
     margin: 0 0 1.5rem 0;
     text-align: center;
 }
@@ -33,6 +29,7 @@
 .link {
     text-align: center;
     margin-top: 1.5rem;
+    color: var(--color-text-dark);
 }
 
 .link a {
@@ -63,7 +60,6 @@
 }
 .form-input:focus {
     border-color: var(--color-primary-light);
-    box-shadow: 0 0 0 3px rgba(253, 41, 123, 0.3);
     background-color: #ffffff;
 }
 
@@ -78,7 +74,7 @@
     border: none;
     outline: none;
     margin-top: 0.5rem;
-
+    transition: all 0.3s ease;
     background-image: linear-gradient(to right, var(--color-primary-dark) 0%, var(--color-primary-light) 100%);
     border-radius: var(--border-radius-large);
     box-shadow: 0 8px 15px rgba(253, 41, 123, 0.4);

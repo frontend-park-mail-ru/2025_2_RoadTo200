@@ -1,5 +1,5 @@
 .app-header {
-    background: linear-gradient(90deg, var(--color-primary-light) 20%, rgba(255, 153, 169, 0.0) 100%);
+    background: linear-gradient(90deg, #ff4b72 50%, rgba(255, 153, 168, 0) 80%);
     position: fixed;
     top: 0;
     left: 0;
