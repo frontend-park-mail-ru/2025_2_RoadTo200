@@ -23,7 +23,6 @@ body {
     --border-radius-large: 30px;
 }
 
-
 .container{
   display: flex;
   justify-content: center;

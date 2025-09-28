@@ -4,34 +4,50 @@
     top: 0;
     left: 0;
     right: 0;
+    height: 80px;
 }
+
 .header-content {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1rem 2rem;
+    padding: 0 32px;
+    height: 100%;
 }
 
-.app-title {
+.title-with-heart {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.app-title, .welcome-text {
     color: white;
+    font-weight: 700;
+    font-size: 32px;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
 }
 
 .logout-btn {
-    background: rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.2);
     border: 2px solid rgba(255,255,255,0.4);
     border-radius: 25px;
     color: white;
-    padding: 0.7rem 1.5rem;
+    padding: 8px 20px;
     cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: 0 4px 15px rgba(255, 88, 100, 0.2);
-    font-weight: 600;
+    font-weight: 700;
 }
 
 .logout-btn:hover {
-    background: rgba(255,255,255,0.25);
+    background: rgba(255,255,255,0.3);
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(255, 88, 100, 0.4);
 }
 
 body {

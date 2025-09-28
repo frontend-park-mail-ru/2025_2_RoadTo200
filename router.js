@@ -1,5 +1,6 @@
 import { AuthUtils } from './src/utils/auth.js';
 import Header from './src/components/Header/header.js';
+import BigHeart from './src/components/BigHeart/bigHeart.js';
 
 export class Route {
   constructor(path, component, requireAuth = false) {
@@ -56,11 +57,14 @@ export class Router {
     // Получаем контейнеры
     const root = document.getElementById('root');
     const headerContainer = document.getElementById('header-container');
+    const bigHeartContainer = document.getElementById('big-heart-container');
 
-    // Проверяем аутентификацию для защищенных роутов
-    if (route.requireAuth) {
-      const isAuthenticated = await AuthUtils.checkAuth();
-      if (!isAuthenticated) {
+    // Всегда показываем хедер и большое сердце, но с разным содержимым
+    if (headerContainer) {
+      // Проверяем аутентификацию для определения версии хедера
+      const isAuthenticated = route.requireAuth ? await AuthUtils.checkAuth() : await AuthUtils.checkAuth();
+      
+      if (route.requireAuth && !isAuthenticated) {
         // Редирект на страницу логина
         if (currentPath !== '/login') {
           this.navigateTo('/login');
@@ -68,31 +72,27 @@ export class Router {
         }
       }
       
-      // Если пользователь аутентифицирован, показываем хедер
-      if (headerContainer && isAuthenticated) {
-        const headerHtml = await Header.render();
-        headerContainer.innerHTML = headerHtml;
-        // Инициализируем обработчики событий хедера
-        setTimeout(() => {
-          Header.initEventListeners();
-        }, 0);
-      }
-    } else {
-      // Для неаутентифицированных страниц скрываем хедер
-      if (headerContainer) {
-        headerContainer.innerHTML = '';
-      }
+      // Рендерим хедер с информацией о статусе аутентификации
+      const headerHtml = await Header.render(isAuthenticated);
+      headerContainer.innerHTML = headerHtml;
       
-      if (currentPath === '/login' || currentPath === '/register') {
-        // Если пользователь уже авторизован и пытается зайти на login/register
-        console.log('Checking auth for login/register page...');
-        const isAuthenticated = await AuthUtils.checkAuth();
-        console.log('Auth check result:', isAuthenticated);
-        if (isAuthenticated) {
-          console.log('User is authenticated, redirecting to main...');
-          this.navigateTo('/');
-          return;
-        }
+      // Рендерим большое сердце на всех страницах
+      const bigHeartHtml = await BigHeart.render();
+      bigHeartContainer.innerHTML = bigHeartHtml;
+      
+      // Инициализируем обработчики событий хедера
+      setTimeout(() => {
+        Header.initEventListeners();
+      }, 0);
+    }
+
+    // Проверки для login/register страниц
+    if (currentPath === '/login' || currentPath === '/register') {
+      const isAuthenticated = await AuthUtils.checkAuth();
+      if (isAuthenticated) {
+        console.log('User is authenticated, redirecting to main...');
+        this.navigateTo('/');
+        return;
       }
     }
 

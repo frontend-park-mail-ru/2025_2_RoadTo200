@@ -69,7 +69,18 @@ router.route('/auth/login').post(function(req, res, next) {
 // Роут для проверки аутентификации
 router.route('/auth/check').get(function(req, res, next) {
     if (req.session.userId) {
-        return res.status(200).json({ authenticated: true });
+        // Находим пользователя по ID из сессии
+        const user = Object.values(usersData).find(u => u.id === req.session.userId);
+        if (user) {
+            return res.status(200).json({ 
+                authenticated: true, 
+                user: { 
+                    email: user.email, 
+                    name: user.name,
+                    age: user.age 
+                } 
+            });
+        }
     }
     
     res.status(401).json({ authenticated: false });
