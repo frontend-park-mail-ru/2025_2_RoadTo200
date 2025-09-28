@@ -13,31 +13,31 @@ class AuthApi {
      * @param {Object} options Настройки запроса.
      * @returns {Promise<Response>} Ответ сервера.
      */
-    async handleFetch(endpoint, options = {}) {
-        const url = `${this.baseURL}${endpoint}`;
+    // async handleFetch(endpoint, options = {}) {
+    //     const url = `${this.baseURL}${endpoint}`;
         
-        const fetchOptions = {
-            ...options,
-            credentials: 'include', 
-            headers: {
-                'Content-Type': 'application/json',
-                ...options.headers 
-            }
-        }; 
+    //     const fetchOptions = {
+    //         ...options,
+    //         credentials: 'include', 
+    //         headers: {
+    //             'Content-Type': 'application/json',
+    //             ...options.headers 
+    //         }
+    //     }; 
 
-        try { 
-            const response = await fetch(url, fetchOptions);
+    //     try { 
+    //         const response = await fetch(url, fetchOptions);
             
-            if (!response.ok) {
-                throw new Error(`Request failed with status ${response.status}`);
-            }
+    //         if (!response.ok) {
+    //             throw new Error(`Request failed with status ${response.status}`);
+    //         }
 
-            return response.json();
-        }
-        catch(error) {
-            throw error;
-        }
-    }
+    //         return response.json();
+    //     }
+    //     catch(error) {
+    //         throw error;
+    //     }
+    // }
 
     /**
      * POST /auth/register - Регистрация.
@@ -52,7 +52,7 @@ class AuthApi {
             method: 'POST',
             body: JSON.stringify({ email, password, name, age }),
         };
-        return this.handleFetch('/register', options);
+        return handleFetch( this.baseURL, '/register', options);
     }
 
     /**
@@ -66,7 +66,7 @@ class AuthApi {
             method: 'POST',
             body: JSON.stringify({ email, password }),
         };
-        return this.handleFetch('/login', options);
+        return handleFetch( this.baseURL, '/login', options);
     }
 
     /**
@@ -74,7 +74,7 @@ class AuthApi {
      * @returns {Promise<{authenticated: boolean}>} 
      */
     async checkAuth() {
-        return this.handleFetch('/check', { method: 'GET' });
+        return handleFetch( this.baseURL, '/check', { method: 'GET' });
     }
 
     /**
@@ -82,7 +82,7 @@ class AuthApi {
      * @returns {Promise<Object>} 
      */
     async logout() {
-        return this.handleFetch('/logout', { method: 'POST' });
+        return handleFetch( this.baseURL, '/logout', { method: 'POST' });
     }
 }
 

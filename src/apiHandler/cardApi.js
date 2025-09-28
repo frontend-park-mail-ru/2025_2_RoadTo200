@@ -17,46 +17,12 @@ class CardApi {
     // }
 
     /**
-     * Вспомогательная функция добавляющая токен аутентификации и отправляющая запрос
-     * @param {string} endpoint Относительный путь.
-     * @param {Object} options Настройки запроса.
-     * @returns {Promise<Response>} Ответ сервера.
-     */
-    async handleFetch(endpoint, options = {}) {
-        const url = `${this.baseURL}${endpoint}`;
-        
-        const headers = {
-            'Content-Type': 'application/json',
-            ...options.headers 
-        };
-
-        const fetchOptions = {
-            ...options,
-            headers: headers,
-            credentials: 'include'
-        }; 
-
-        try { 
-            const response = await fetch(url, fetchOptions); 
-
-            if (!response.ok){
-                throw new Error(`Request failed with status ${response.status}`);
-            }
-
-            return response.json();
-        }
-        catch(error) {
-            throw error;
-        }
-    }
-
-    /**
      * GET /cards/
      * Получить все карточек
      * @returns {Promise<Object>} Объект с данными всех карточек.
      */
     async getAllCards() {
-        return this.handleFetch('/cards/', { method: 'GET' });
+        return handleFetch( this.baseURL, '/cards/', { method: 'GET' });
     }
 
     /**
@@ -66,7 +32,7 @@ class CardApi {
      * @returns {Promise<Object>} Объект с данными карточки.
      */
     async getCardById(cardId) {
-        return this.handleFetch(`/cards/${cardId}`, { method: 'GET' });
+        return handleFetch( this.baseURL, `/cards/${cardId}`, { method: 'GET' });
     }
 
     /**
@@ -88,7 +54,7 @@ class CardApi {
             }),
         };
         
-        return this.handleFetch('/cards/action', options);
+        return handleFetch( this.baseURL, '/cards/action', options);
     }
 
 }
