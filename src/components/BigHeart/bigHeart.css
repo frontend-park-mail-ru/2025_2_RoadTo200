@@ -1,7 +1,6 @@
 .big-heart-container {
   position: fixed;
-  top: 60%;
-  left: 90%; 
+  left: 85%; 
   transform: translateY(-50%);
   z-index: -1; 
   pointer-events: none; 
