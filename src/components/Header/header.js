@@ -1,4 +1,6 @@
 import { AuthUtils } from '../../utils/auth.js';
+import AuthApi from '../../apiHandler/authApi.js';
+import SmallHeart from '../SmallHeart/smallHeart.js';
 
 const TEMPLATE_PATH = './src/components/Header/header.hbs';
 
@@ -16,10 +18,25 @@ const fetchTemplate = async (path) => {
 };
 
 const Header = {
-    render: async () => {
+    render: async (isAuthenticated = false) => {
         const templateString = await fetchTemplate(TEMPLATE_PATH);
         const template = Handlebars.compile(templateString);
-        return template({});
+        
+        let userName = '';
+        if (isAuthenticated) {
+            try {
+                const userInfo = await AuthApi.checkAuth();
+                userName = userInfo.user?.name;
+            } catch (error) {
+                console.error('Ошибка получения данных пользователя:', error);
+                userName = 'Пользователь';
+            }
+        }
+        
+        // Рендерим маленькое сердце
+        const smallHeartHtml = await SmallHeart.render();
+        
+        return template({ isAuthenticated, userName, smallHeartHtml });
     },
 
     initEventListeners: () => {
