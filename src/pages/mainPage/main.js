@@ -137,15 +137,6 @@ const mainPage = {
                 if (pageContainer) {
                     mainPage.initCardActions(); 
                 }
-                
-                const logoutBtn = document.getElementById('logoutBtn');
-                if (logoutBtn) {
-                    logoutBtn.addEventListener('click', async () => {
-                        await AuthUtils.logout();
-                        window.history.pushState(null, null, '/login');
-                        window.dispatchEvent(new PopStateEvent('popstate'));
-                    });
-                }
             }, 0); 
         }
 

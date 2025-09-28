@@ -1,4 +1,5 @@
 import { AuthUtils } from './src/utils/auth.js';
+import Header from './src/components/Header/header.js';
 
 export class Route {
   constructor(path, component, requireAuth = false) {
@@ -52,6 +53,10 @@ export class Router {
         return;
     }
 
+    // Получаем контейнеры
+    const root = document.getElementById('root');
+    const headerContainer = document.getElementById('header-container');
+
     // Проверяем аутентификацию для защищенных роутов
     if (route.requireAuth) {
       const isAuthenticated = await AuthUtils.checkAuth();
@@ -62,19 +67,34 @@ export class Router {
           return;
         }
       }
-    } else if (currentPath === '/login' || currentPath === '/register') {
-      // Если пользователь уже авторизован и пытается зайти на login/register
-      console.log('Checking auth for login/register page...');
-      const isAuthenticated = await AuthUtils.checkAuth();
-      console.log('Auth check result:', isAuthenticated);
-      if (isAuthenticated) {
-        console.log('User is authenticated, redirecting to main...');
-        this.navigateTo('/');
-        return;
+      
+      // Если пользователь аутентифицирован, показываем хедер
+      if (headerContainer && isAuthenticated) {
+        const headerHtml = await Header.render();
+        headerContainer.innerHTML = headerHtml;
+        // Инициализируем обработчики событий хедера
+        setTimeout(() => {
+          Header.initEventListeners();
+        }, 0);
+      }
+    } else {
+      // Для неаутентифицированных страниц скрываем хедер
+      if (headerContainer) {
+        headerContainer.innerHTML = '';
+      }
+      
+      if (currentPath === '/login' || currentPath === '/register') {
+        // Если пользователь уже авторизован и пытается зайти на login/register
+        console.log('Checking auth for login/register page...');
+        const isAuthenticated = await AuthUtils.checkAuth();
+        console.log('Auth check result:', isAuthenticated);
+        if (isAuthenticated) {
+          console.log('User is authenticated, redirecting to main...');
+          this.navigateTo('/');
+          return;
+        }
       }
     }
-
-    const root = document.getElementById('root');
 
     if (root) {
       const contentHtml = await route.component.render();
