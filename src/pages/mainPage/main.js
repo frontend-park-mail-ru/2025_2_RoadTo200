@@ -68,14 +68,16 @@ const mainPage = {
             const nextCardData = cardsData[currentCardIndex];
             
             const cardHtml = await Card.render(nextCardData);
-            
+            console.log(nextCardData);
             if (pageContainer) {
                 pageContainer.insertAdjacentHTML('beforeend', cardHtml); 
                 mainPage.initCardActions(); 
             }
         } else {
+            // [Log] {id: 3, Name: "Dima", Age: "20", Description: "Block expressions allow you to define helpers that…mplate with a different context than the current.", img1: "https://images.unsplash.com/photo-1741732311869-09…xMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"} (main.js, line 71)
             if (pageContainer) {
-                pageContainer.innerHTML = '<h1>На этом все</h1>'; 
+                const cardHtml = await Card.render({img1: './src/assets/image.png', noActions: 'True'});
+                pageContainer.insertAdjacentHTML('beforeend', cardHtml);
             }
         }
     },

@@ -88,6 +88,7 @@
 .dislike {
   color: #ff5864;
   font-weight: bold;
+  border-color: #ff5864;
 }
 
 .superLike {
@@ -100,7 +101,12 @@
   color: #64e9a0;
   font-size: 30px;
   border-color: #64e9a0;
-  box-shadow: 0 4px 10px rgba(100, 233, 160, 0.4);
+}
+
+.reload { 
+  color: #ff5864;
+  font-size: 30px;
+  border-color: #ff5864;
 }
 
 .action-button:hover {

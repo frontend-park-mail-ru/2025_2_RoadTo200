@@ -8,7 +8,7 @@ app.use(cors({
     credentials: true
 }));
 
-const PORT = 3000;
+const PORT = 8000;
 
 // Настройка сессий
 app.use(session({

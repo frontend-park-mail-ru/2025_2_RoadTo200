@@ -1,7 +1,7 @@
 import handleFetch from './handler.js';
+import serverURL from './serverURL.JS';
 
-
-const API_URL = 'http://127.0.0.1:3000/api'
+const API_URL = serverURL + '/api'
 
 class CardApi { 
     constructor(baseURL = API_URL) {
