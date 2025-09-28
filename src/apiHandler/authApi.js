@@ -12,14 +12,13 @@ class AuthApi {
      * POST /auth/register - Регистрация.
      * @param {string} email 
      * @param {string} password 
-     * @param {string} name 
-     * @param {number|string} age 
+     * @param {string} passwordConfirm 
      * @returns {Promise<Object>} 
      */
-    async register(email, password, name, age) {
+    async register(email, password, passwordConfirm) {
         const options = {
             method: 'POST',
-            body: JSON.stringify({ email, password, name, age }),
+            body: JSON.stringify({ email, password, passwordConfirm }),
         };
         return handleFetch( this.baseURL, '/register', options);
     }

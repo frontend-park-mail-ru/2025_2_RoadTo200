@@ -8,13 +8,8 @@ const validateEmail = (email) => {
     return emailRegExp.test(email) && !/<script|javascript:|on\w+=/i.test(email);
 };
 
-const validateName = (name) => {
-    return /^[a-zA-Zа-яА-Я\s]{2,50}$/.test(name);
-};
-
-const validateAge = (age) => {
-    const ageNum = parseInt(age, 10);
-    return !isNaN(ageNum) && ageNum >= 18 && ageNum <= 100;
+const validatePasswordConfirm = (password, passwordConfirm) => {
+    return password === passwordConfirm;
 };
 
 const validatePassword = (password) => {
@@ -87,9 +82,9 @@ const fetchTemplate = async (path) => {
     }
 };
 
-const sendRegisterRequest = async (email, password, name, age) => {
+const sendRegisterRequest = async (email, password, passwordConfirm) => {
     try {
-        const data = await AuthApi.register(email, password, name, age);
+        const data = await AuthApi.register(email, password, passwordConfirm);
         console.log('Регистрация успешна');
         return { success: true };
     } catch (error) {
@@ -113,32 +108,11 @@ const registerPage = {
                 
                 clearError();
                 
-                const name = document.getElementById('name').value.trim();
-                const age = document.getElementById('age').value;
                 const email = document.getElementById('email').value.trim();
                 const password = document.getElementById('password').value;
+                const passwordConfirm = document.getElementById('passwordConfirm').value;
                 
                 // Валидация
-                if (!name) {
-                    showError(form, 'Введите имя');
-                    return;
-                }
-                
-                if (!validateName(name)) {
-                    showError(form, 'Имя должно содержать от 2 до 50 символов и только буквы');
-                    return;
-                }
-                
-                if (!age) {
-                    showError(form, 'Введите возраст');
-                    return;
-                }
-                
-                if (!validateAge(age)) {
-                    showError(form, 'Возраст должен быть от 18 до 100 лет');
-                    return;
-                }
-                
                 if (!email) {
                     showError(form, 'Введите email');
                     return;
@@ -159,7 +133,17 @@ const registerPage = {
                     return;
                 }
                 
-                const result = await sendRegisterRequest(email, password, name, age);
+                if (!passwordConfirm) {
+                    showError(form, 'Введите подтверждение пароля');
+                    return;
+                }
+                
+                if (!validatePasswordConfirm(password, passwordConfirm)) {
+                    showError(form, 'Пароли не совпадают');
+                    return;
+                }
+                
+                const result = await sendRegisterRequest(email, password, passwordConfirm);
                 
                 if (result.success) {
                     window.history.pushState(null, null, '/');

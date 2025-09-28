@@ -5,9 +5,9 @@ const usersData = {};
 
 router.route('/auth/register').post(function(req, res, next) {
     
-    const { email, password, name, age } = req.body;
+    const { email, password, passwordConfirm } = req.body;
 
-    if (!email || !password || !name || !age) {
+    if (!email || !password || !passwordConfirm) {
         return res.status(400).json({ error: 'Все поля обязательны' });
     }
 
@@ -21,17 +21,15 @@ router.route('/auth/register').post(function(req, res, next) {
         return res.status(400).json({ error: 'Пароль должен быть не менее 6 символов' });
     }
 
-    const ageNum = parseInt(age);
-    if (ageNum < 18 || ageNum > 100) {
-        return res.status(400).json({ error: 'Возраст должен быть от 18 до 100 лет' });
+    // Проверка совпадения паролей
+    if (password !== passwordConfirm) {
+        return res.status(400).json({ error: 'Пароли не совпадают' });
     }
 
     // Сохранение пользователя
     const newUser = {
         email,
         password,
-        name,
-        age: ageNum,
         id: Date.now()
     };
     
@@ -46,7 +44,7 @@ router.route('/auth/register').post(function(req, res, next) {
     res.status(200).json({ 
         status: 'ok', 
         message: 'Регистрация успешна',
-        user: { email: newUser.email, name: newUser.name }
+        user: { email: newUser.email, name: 'Пользователь' }
     });
 });
 
@@ -72,7 +70,7 @@ router.route('/auth/login').post(function(req, res, next) {
     res.status(200).json({ 
         status: 'ok', 
         message: 'Вход выполнен успешно',
-        user: { email: user.email, name: user.name } 
+        user: { email: user.email, name: 'Пользователь' } 
     });
 });
 
@@ -86,8 +84,7 @@ router.route('/auth/check').get(function(req, res, next) {
                 authenticated: true, 
                 user: { 
                     email: user.email, 
-                    name: user.name,
-                    age: user.age 
+                    name: 'Пользователь'
                 } 
             });
         }
