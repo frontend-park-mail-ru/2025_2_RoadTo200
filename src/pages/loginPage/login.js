@@ -132,16 +132,11 @@ const loginPage = {
                 const result = await sendLoginRequest(email, password);
                 
                 if (result.success) {
-                    // Куки устанавливаются автоматически сервером
-                    // Токен больше не нужно сохранять в localStorage
-                    console.log('Login successful, cookies:', document.cookie);
+                    console.log('Login successful');
                     
-                    // Делаем небольшую паузу, чтобы куки успели установиться
-                    setTimeout(() => {
-                        console.log('Redirecting to main page...');
-                        window.history.pushState(null, null, '/');
-                        window.dispatchEvent(new PopStateEvent('popstate'));
-                    }, 100);
+                    // Перенаправляем на главную страницу
+                    window.history.pushState(null, null, '/');
+                    window.dispatchEvent(new PopStateEvent('popstate'));
                 } else {
                     showError(form, result.error);
                 }

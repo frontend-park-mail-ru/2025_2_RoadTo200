@@ -24,7 +24,7 @@ class AuthApi {
     }
 
     /**
-     * POST /auth/login - Вход пользователя. Устанавливает authToken.
+     * POST /auth/login - Вход пользователя. Создает сессию.
      * @param {string} email 
      * @param {string} password 
      * @returns {Promise<Object>} 
@@ -46,7 +46,7 @@ class AuthApi {
     }
 
     /**
-     * POST /auth/logout - Выход пользователя..
+     * POST /auth/logout - Выход пользователя. Удаляет сессию.
      * @returns {Promise<Object>} 
      */
     async logout() {

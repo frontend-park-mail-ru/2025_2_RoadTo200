@@ -55,18 +55,9 @@ router.route('/auth/login').post(function(req, res, next) {
 
     console.log(`Вход пользователя: ${email}`);
 
-    // Создаем простой токен
-    const token = `user_${user.id}_${Date.now()}`;
-    
-    // Добавляем токен в активные токены
-    const activeTokens = req.app.locals.activeTokens;
-    activeTokens.add(token);
-
-    // Устанавливаем куки (без cookie-parser!)
-    res.setHeader('Set-Cookie', [
-        `authToken=${token}; HttpOnly; Path=/; Max-Age=86400; SameSite=Lax`
-        // Max-Age=86400 = 24 часа
-    ]);
+    // Создаем сессию
+    req.session.userId = user.id;
+    req.session.userEmail = user.email;
 
     res.status(200).json({ 
         status: 'ok', 
@@ -77,37 +68,22 @@ router.route('/auth/login').post(function(req, res, next) {
 
 // Роут для проверки аутентификации
 router.route('/auth/check').get(function(req, res, next) {
-    const token = req.headers.cookie 
-        ? req.headers.cookie.split('; ').find(row => row.startsWith('authToken='))?.split('=')[1]
-        : null;
-    
-    const activeTokens = req.app.locals.activeTokens;
-    
-    if (!token || !activeTokens.has(token)) {
-        return res.status(401).json({ authenticated: false });
+    if (req.session.userId) {
+        return res.status(200).json({ authenticated: true });
     }
     
-    res.status(200).json({ authenticated: true });
+    res.status(401).json({ authenticated: false });
 });
 
 // Роут для выхода
 router.route('/auth/logout').post(function(req, res, next) {
-    const token = req.headers.cookie 
-        ? req.headers.cookie.split('; ').find(row => row.startsWith('authToken='))?.split('=')[1]
-        : null;
-    
-    const activeTokens = req.app.locals.activeTokens;
-    
-    if (token) {
-        activeTokens.delete(token);
-    }
-    
-    // Удаляем куки
-    res.setHeader('Set-Cookie', [
-        'authToken=; HttpOnly; Path=/; Max-Age=0; SameSite=Lax'
-    ]);
-    
-    res.status(200).json({ status: 'ok', message: 'Выход выполнен успешно' });
+    req.session.destroy((err) => {
+        if (err) {
+            return res.status(500).json({ error: 'Ошибка при выходе' });
+        }
+        res.clearCookie('connect.sid'); // Имя куки по умолчанию для express-session
+        res.status(200).json({ status: 'ok', message: 'Выход выполнен успешно' });
+    });
 });
 
 module.exports = router;

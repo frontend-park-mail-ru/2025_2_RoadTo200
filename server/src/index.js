@@ -1,5 +1,6 @@
 const cors = require('cors');
 const express = require('express');
+const session = require('express-session');
 
 const app = express();
 app.use(cors({
@@ -9,20 +10,23 @@ app.use(cors({
 
 const PORT = 3000;
 
-// Простое хранилище активных токенов (в реальном приложении - база данных)
-const activeTokens = new Set();
+// Настройка сессий
+app.use(session({
+    secret: 'your-secret-key-change-in-production',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        secure: false, // true для HTTPS
+        httpOnly: true,
+        maxAge: 24 * 60 * 60 * 1000 // 24 часа
+    }
+}));
 
-// Middleware для проверки аутентификации через куки
+// Middleware для проверки аутентификации через сессии
 const requireAuth = (req, res, next) => {
-    const token = req.headers.cookie 
-        ? req.headers.cookie.split('; ').find(row => row.startsWith('authToken='))?.split('=')[1]
-        : null;
-    
-    if (!token || !activeTokens.has(token)) {
+    if (!req.session.userId) {
         return res.status(401).json({ error: 'Необходима авторизация' });
     }
-    
-    req.userToken = token;
     next();
 };
 
@@ -38,7 +42,6 @@ const authRouter = require('./routers/auth');
 
 // Экспортируем middleware для использования в роутерах
 app.locals.requireAuth = requireAuth;
-app.locals.activeTokens = activeTokens;
 
 // ВАЖНО: сначала подключаем роуты аутентификации (без middleware)
 app.use('/api', authRouter);
