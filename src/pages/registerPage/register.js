@@ -21,6 +21,38 @@ const validatePassword = (password) => {
     return password.length >= 6 && !/<script|javascript:|on\w+=/i.test(password);
 };
 
+const getErrorMessage = (error) => {
+    // Ошибки сети
+    if (error.isNetworkError || (error.message && error.message.includes('Network connection failed'))) {
+        return 'Нет соединения с сервером. Проверьте интернет-соединение';
+    }
+    
+    // Ошибки с кодом статуса
+    if (error.status) {
+        // Приоритет сообщению от сервера
+        if (error.details && (error.details.message || error.details.error)) {
+            return error.details.message || error.details.error;
+        }
+        
+        // Fallback сообщения для статусов
+        switch (error.status) {
+            case 400:
+                return 'Неверные данные для регистрации';
+            case 401:
+                return 'Не удалось подтвердить данные для регистрации';
+            case 409:
+                return 'Пользователь с таким email уже существует';
+            case 500:
+                return 'Ошибка сервера. Попробуйте позже';
+            default:
+                return 'Не удалось создать аккаунт';
+        }
+    }
+    
+    // Общие ошибки
+    return error.message || 'Произошла неожиданная ошибка';
+};
+
 const showError = (form, message) => {
     let errorDiv = document.querySelector('.error');
     if (!errorDiv) {
@@ -56,29 +88,14 @@ const fetchTemplate = async (path) => {
 };
 
 const sendRegisterRequest = async (email, password, name, age) => {
-    // const url = `${API_URL}register`;
     try {
         const data = await AuthApi.register(email, password, name, age);
-
-        // const response = await fetch(url, {
-        //     method: 'POST',
-        //     headers: {
-        //         'Content-Type': 'application/json',
-        //     },
-        //     body: JSON.stringify({  })
-        // });
-
-       
-        if (!data.status) {
-            console.error(`Ошибка регистрации`, data.statusText);
-            return { success: false, error: data.message || 'Ошибка регистрации' };
-        } else {
-            console.log(`Регистрация успешна`);
-            return { success: true };
-        }
+        console.log('Регистрация успешна');
+        return { success: true };
     } catch (error) {
-        console.error('Ошибка', error);
-        return { success: false, error: 'Ошибка сети' };
+        console.error('Ошибка при регистрации:', error);
+        const errorMessage = getErrorMessage(error);
+        return { success: false, error: errorMessage };
     }
 };
 

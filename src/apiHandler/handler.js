@@ -18,11 +18,26 @@ export async function handleFetch(baseURL, endpoint, options = {}) {
   
   try {
     const response = await fetch(url, fetchOptions);
+    
     if (!response.ok) {
-      throw new Error(`Request failed with status ${response.status}`);
+      let errorDetails = null;
+      try {
+        errorDetails = await response.json();
+      } catch (e) {
+        // Игнорируем, если не JSON
+      }
+      
+      const error = new Error(`Request failed with status ${response.status}`);
+      error.status = response.status;
+      error.details = errorDetails;
+      throw error;
     }
+    
     return response.json();
   } catch (error) {
+    if (error.name === 'TypeError') {
+      error.isNetworkError = true;
+    }
     throw error;
   }
 }
