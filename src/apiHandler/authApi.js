@@ -1,7 +1,7 @@
 import handleFetch from './handler.js';
 import serverURL from './serverURL.JS';
 
-const API_URL = serverURL + '/api' + '/auth';
+const API_URL = serverURL + '/api'
 
 class AuthApi { 
     constructor(baseURL = API_URL) {
