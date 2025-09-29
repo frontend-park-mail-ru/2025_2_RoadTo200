@@ -1,7 +1,7 @@
 import handleFetch from './handler.js';
 import serverURL from './serverURL.JS';
 
-const API_URL = `${serverURL  }/api` + `/auth`;
+const API_URL = `${serverURL  }/api`;
 
 class AuthApi { 
     constructor(baseURL = API_URL) {
@@ -42,7 +42,7 @@ class AuthApi {
      * @returns {Promise<{authenticated: boolean}>} 
      */
     async checkAuth() {
-        return handleFetch( this.baseURL, '/check', { method: 'GET' });
+        return handleFetch( this.baseURL, '/session', { method: 'GET' });
     }
 
     /**

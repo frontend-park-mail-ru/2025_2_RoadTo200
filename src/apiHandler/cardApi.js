@@ -14,7 +14,7 @@ class CardApi {
      * @returns {Promise<Object>} Объект с данными всех карточек.
      */
     async getAllCards() {
-        return handleFetch( this.baseURL, '/cards/', { method: 'GET' });
+        return handleFetch( this.baseURL, '/feed', { method: 'GET' });
     }
 
     /**
@@ -24,7 +24,7 @@ class CardApi {
      * @returns {Promise<Object>} Объект с данными карточки.
      */
     async getCardById(cardId) {
-        return handleFetch( this.baseURL, `/cards/${cardId}`, { method: 'GET' });
+        return handleFetch( this.baseURL, `/feed/${cardId}`, { method: 'GET' });
     }
 
     /**
@@ -46,7 +46,7 @@ class CardApi {
             }),
         };
         
-        return handleFetch( this.baseURL, '/cards/action', options);
+        return handleFetch( this.baseURL, '/swipe', options);
     }
 
 }

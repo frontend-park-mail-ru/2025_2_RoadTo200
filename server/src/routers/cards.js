@@ -17,7 +17,7 @@ const applyAuth = (req, res, next) => {
     }
 };
 
-router.route('/cards/action').post(applyAuth, (req, res, next) => {
+router.route('/swipe').post(applyAuth, (req, res, next) => {
     
     const { card_id, action, timestamp } = req.body;
 
@@ -30,7 +30,7 @@ router.route('/cards/action').post(applyAuth, (req, res, next) => {
     res.status(200).json({ status: 'ok', message: 'Действие зарегистрировано' });
 })
 
-router.route('/cards/:cardId').get(applyAuth, (req, res, next) => {
+router.route('/feed/:cardId').get(applyAuth, (req, res, next) => {
     const id = req.params.cardId;
     if(id && cardsData[id]) {
         res.json(cardsData[id]);
@@ -39,7 +39,7 @@ router.route('/cards/:cardId').get(applyAuth, (req, res, next) => {
     }
 })
 
-router.route('/cards/').get(applyAuth, (req, res, next) => {
+router.route('/feed/').get(applyAuth, (req, res, next) => {
     res.json(cardsData);
 })
 
