@@ -83,29 +83,27 @@
   cursor: pointer;
   transition: transform 0.2s, box-shadow 0.2s;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  font-weight: bold;
+  font-size: 30px;
 }
 
 .dislike {
   color: #ff5864;
-  font-weight: bold;
   border-color: #ff5864;
 }
 
 .superLike {
   color: #00bfff;
-  font-size: 18px;
   border-color: #00bfff;
 }
 
 .like {
   color: #64e9a0;
-  font-size: 30px;
   border-color: #64e9a0;
 }
 
 .reload { 
   color: #ff5864;
-  font-size: 30px;
   border-color: #ff5864;
 }
 
