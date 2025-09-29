@@ -1,0 +1,31 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+    background: linear-gradient(135deg, var(--color-primary-light) 0%, #FF6B8B 50%, #FF99A9 100%);
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    min-height: 100vh;
+    margin: 0;
+}
+
+:root {
+    --color-primary-light: #FF5864;
+    --color-primary-dark: #FD297B; 
+    --color-text-light: #ffffff;
+    --color-text-dark: #333333;
+    --border-radius-large: 30px;
+}
+
+.container{
+  display: flex;
+  justify-content: center;
+  justify-items: center;
+  align-items: center;
+}

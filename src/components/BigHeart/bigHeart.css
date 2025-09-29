@@ -1,0 +1,43 @@
+.big-heart-container {
+  position: fixed;
+  left: 85%; 
+  transform: translateY(-50%);
+  z-index: -1; 
+  pointer-events: none; 
+}
+
+.heart-big {
+  height: 300px;
+  width: 300px;
+  background: var(--color-primary-light);
+  position: relative;
+  transform: rotate(-45deg);
+  animation: bigHeartbeat 3s ease-in-out infinite;
+}
+
+.heart-big:before,
+.heart-big:after {
+  content: '';
+  position: absolute;
+  height: 300px;
+  width: 300px;
+  background: var(--color-primary-light);
+  border-radius: 50%;
+}
+
+.heart-big:before {
+  top: -50%;
+}
+
+.heart-big:after {
+  right: -50%;
+}
+
+@keyframes bigHeartbeat {
+  0%, 70%, 100% {
+    transform: rotate(-45deg) scale(1.0);
+  }
+  35% {
+    transform: rotate(-45deg) scale(1.05);
+  }
+}
