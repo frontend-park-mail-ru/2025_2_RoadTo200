@@ -5,14 +5,12 @@ import registerPage from "./src/pages/registerPage/register.js";
 
 
 const notFoundComponent = {
-  render: () => {
-    return `
+  render: () => `
       <div class="page">
         <h1>404</h1>
         <a href="/" Link>← Вернуться на главную</a>
       </div>
-    `;
-  }
+    `
 };
 
 

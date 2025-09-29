@@ -85,12 +85,10 @@ const mainPage = {
                 pageContainer.insertAdjacentHTML('beforeend', cardHtml); 
                 mainPage.initCardActions(); 
             }
-        } else {
-            if (pageContainer) {
+        } else if (pageContainer) {
                 const cardHtml = await Card.render({img1: './src/assets/image.png', noActions: 'True'});
                 pageContainer.insertAdjacentHTML('beforeend', cardHtml);
             }
-        }
     },
 
     initCardActions: () => {

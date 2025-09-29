@@ -9,7 +9,8 @@
     "client": "npx http-server . -p 8080 -o --cors -c-1 -P http://localhost:8080? -M '{\".js\":\"application/javascript\"}'",
     "server": "nodemon server/src/index.js",
     "build": "webpack --mode production",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "dependencies": {
     "cors": "^2.8.5",

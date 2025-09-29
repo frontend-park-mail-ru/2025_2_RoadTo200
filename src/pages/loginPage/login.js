@@ -9,9 +9,7 @@ const validateEmail = (email) => {
     return emailRegExp.test(email) && !/<script|javascript:|on\w+=/i.test(email);
 };
 
-const validatePassword = (password) => {
-    return password.length >= 6 && !/<script|javascript:|on\w+=/i.test(password);
-};
+const validatePassword = (password) => password.length >= 6 && !/<script|javascript:|on\w+=/i.test(password);
 
 const getErrorMessage = (error) => {
     // Ошибки сети
@@ -103,9 +101,7 @@ const sendLoginRequest = async (email, password) => {
  * @property {function(): Promise<string>} render
  */
 const loginPage = {
-    getData: async () => {
-        return {};
-    },
+    getData: async () => ({}),
 
     initFormActions: () => {
         const form = document.getElementById('loginForm');

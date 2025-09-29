@@ -3,7 +3,7 @@ const router = require('express').Router();
 // Временное хранилище пользователей (в реальном проекте - база данных)
 const usersData = {};
 
-router.route('/auth/register').post(function(req, res, next) {
+router.route('/auth/register').post((req, res, next) => {
     
     const { email, password, passwordConfirm } = req.body;
 
@@ -48,7 +48,7 @@ router.route('/auth/register').post(function(req, res, next) {
     });
 });
 
-router.route('/auth/login').post(function(req, res, next) {
+router.route('/auth/login').post((req, res, next) => {
     
     const { email, password } = req.body;
 
@@ -75,7 +75,7 @@ router.route('/auth/login').post(function(req, res, next) {
 });
 
 // Роут для проверки аутентификации
-router.route('/auth/check').get(function(req, res, next) {
+router.route('/auth/check').get((req, res, next) => {
     if (req.session.userId) {
         // Находим пользователя по ID из сессии
         const user = Object.values(usersData).find(u => u.id === req.session.userId);
@@ -94,7 +94,7 @@ router.route('/auth/check').get(function(req, res, next) {
 });
 
 // Роут для выхода
-router.route('/auth/logout').post(function(req, res, next) {
+router.route('/auth/logout').post((req, res, next) => {
     req.session.destroy((err) => {
         if (err) {
             return res.status(500).json({ error: 'Ошибка при выходе' });

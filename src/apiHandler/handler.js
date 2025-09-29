@@ -12,7 +12,7 @@ export async function handleFetch(baseURL, endpoint, options = {}) {
   };
   const fetchOptions = {
     ...options,
-    headers: headers,
+    headers,
     credentials: 'include'
   };
   

@@ -1,7 +1,7 @@
 import handleFetch from './handler.js';
 import serverURL from './serverURL.JS';
 
-const API_URL = serverURL + '/api'
+const API_URL = `${serverURL  }/api`
 
 class CardApi { 
     constructor(baseURL = API_URL) {
@@ -41,8 +41,8 @@ class CardApi {
             method: 'POST',
             body: JSON.stringify({
                 card_id: cardId,
-                action: action,
-                timestamp: timestamp,
+                action,
+                timestamp,
             }),
         };
         

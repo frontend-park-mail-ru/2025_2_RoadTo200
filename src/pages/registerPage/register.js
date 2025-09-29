@@ -1,20 +1,16 @@
 // const API_URL = 'http://127.0.0.1:3000/api/auth/';
-const TEMPLATE_PATH = './src/pages/registerPage/register.hbs';
-
 import AuthApi from '../../apiHandler/authApi.js';
+
+const TEMPLATE_PATH = './src/pages/registerPage/register.hbs';
 
 const validateEmail = (email) => {
     const emailRegExp = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     return emailRegExp.test(email) && !/<script|javascript:|on\w+=/i.test(email);
 };
 
-const validatePasswordConfirm = (password, passwordConfirm) => {
-    return password === passwordConfirm;
-};
+const validatePasswordConfirm = (password, passwordConfirm) => password === passwordConfirm;
 
-const validatePassword = (password) => {
-    return password.length >= 6 && !/<script|javascript:|on\w+=/i.test(password);
-};
+const validatePassword = (password) => password.length >= 6 && !/<script|javascript:|on\w+=/i.test(password);
 
 const getErrorMessage = (error) => {
     // Ошибки сети
@@ -105,9 +101,7 @@ const sendRegisterRequest = async (email, password, passwordConfirm) => {
  * @property {function(): Promise<string>} render
  */
 const registerPage = {
-    getData: async () => {
-        return {};
-    },
+    getData: async () => ({}),
 
     initFormActions: () => {
         const form = document.getElementById('registerForm');
