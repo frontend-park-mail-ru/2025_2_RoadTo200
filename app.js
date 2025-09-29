@@ -17,7 +17,7 @@ const notFoundComponent = {
 
 
 const routes = [
-  new Route('/', mainPage, true), // Главная страница требует аутентификации
+  new Route('/', mainPage, true),
   new Route('/login', loginPage, false),
   new Route('/register', registerPage, false),
   new Route('*', notFoundComponent, false)

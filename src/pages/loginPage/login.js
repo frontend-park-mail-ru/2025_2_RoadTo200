@@ -2,7 +2,6 @@ import { AuthUtils } from '../../utils/auth.js';
 
 import AuthApi from '../../apiHandler/authApi.js';
 
-// const API_URL = 'http://127.0.0.1:3000/api/auth/';
 const TEMPLATE_PATH = './src/pages/loginPage/login.hbs';
 
 const validateEmail = (email) => {
@@ -80,6 +79,12 @@ const fetchTemplate = async (path) => {
     }
 };
 
+/**
+ * Отправляет запрос на вход через AuthApi.
+ * @param {string} email Email.
+ * @param {string} password Пароль.
+ * @returns {Promise<{success: boolean, data?: Object, error?: string}>} Результат запроса.
+ */
 const sendLoginRequest = async (email, password) => {
     try {
         const data = await AuthApi.login(email, password);
@@ -91,6 +96,12 @@ const sendLoginRequest = async (email, password) => {
     }
 };
 
+/**
+ * Объект страницы входа.
+ * @property {function(): Promise<Object>} getData
+ * @property {function(): void} initFormActions
+ * @property {function(): Promise<string>} render
+ */
 const loginPage = {
     getData: async () => {
         return {};
@@ -108,7 +119,6 @@ const loginPage = {
                 const email = document.getElementById('email').value.trim();
                 const password = document.getElementById('password').value;
                 
-                // Валидация
                 if (!email) {
                     showError(form, 'Введите email');
                     return;
@@ -134,7 +144,6 @@ const loginPage = {
                 if (result.success) {
                     console.log('Login successful');
                     
-                    // Перенаправляем на главную страницу
                     window.history.pushState(null, null, '/');
                     window.dispatchEvent(new PopStateEvent('popstate'));
                 } else {

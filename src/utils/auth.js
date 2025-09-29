@@ -1,10 +1,19 @@
-// Утилиты для аутентификации через сессии
-const API_BASE = 'http://127.0.0.1:3000/api';
+// const API_BASE = 'http://127.0.0.1:3000/api';
 
 import AuthApi from '../apiHandler/authApi.js';
 
+/**
+ * Утилиты управления сессиями.
+ * @namespace
+ * @property {function(): Promise<boolean>} checkAuth
+ * @property {function(): Promise<void>} logout
+ */
 export const AuthUtils = {
-    // Проверить валидность сессии на сервере
+   
+    /**
+     * Отправляет запрос к API, чтобы подтвердить статус авторизации.
+     * @returns {Promise<boolean>} true - если пользователь авторизан.
+     */
     async checkAuth() {
         console.log('Checking session auth');
         
@@ -18,7 +27,10 @@ export const AuthUtils = {
         }
     },
 
-    // Выход из системы
+    /**
+     * Завершает сессию на сервере.
+     * @returns {Promise<void>}
+     */
     async logout() {
         try {
             await AuthApi.logout();

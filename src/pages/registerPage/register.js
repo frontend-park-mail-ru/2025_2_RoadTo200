@@ -24,12 +24,10 @@ const getErrorMessage = (error) => {
     
     // Ошибки с кодом статуса
     if (error.status) {
-        // Приоритет сообщению от сервера
         if (error.details && (error.details.message || error.details.error)) {
             return error.details.message || error.details.error;
         }
         
-        // Fallback сообщения для статусов
         switch (error.status) {
             case 400:
                 return 'Неверные данные для регистрации';
@@ -44,7 +42,6 @@ const getErrorMessage = (error) => {
         }
     }
     
-    // Общие ошибки
     return error.message || 'Произошла неожиданная ошибка';
 };
 
@@ -82,6 +79,13 @@ const fetchTemplate = async (path) => {
     }
 };
 
+/**
+ * Отправляет запрос на регистрацию через AuthApi.
+ * @param {string} email Email.
+ * @param {string} password Пароль.
+ * @param {string} passwordConfirm Подтверждение пароля.
+ * @returns {Promise<{success: boolean, error: string}>} Результат запроса.
+ */
 const sendRegisterRequest = async (email, password, passwordConfirm) => {
     try {
         const data = await AuthApi.register(email, password, passwordConfirm);
@@ -94,6 +98,12 @@ const sendRegisterRequest = async (email, password, passwordConfirm) => {
     }
 };
 
+/**
+ * Объект страницы регистрации.
+ * @property {function(): Promise<Object>} getData
+ * @property {function(): void} initFormActions
+ * @property {function(): Promise<string>} render
+ */
 const registerPage = {
     getData: async () => {
         return {};

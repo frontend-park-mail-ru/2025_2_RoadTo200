@@ -4,6 +4,11 @@ import SmallHeart from '../SmallHeart/smallHeart.js';
 
 const TEMPLATE_PATH = './src/components/Header/header.hbs';
 
+/**
+ * Загрузка шаблона.
+ * @param {string} path Путь до шаблона.
+ * @returns {Promise<string>} Шаблон в виде строки.
+ */
 const fetchTemplate = async (path) => {
     try {
         const response = await fetch(path);
@@ -17,7 +22,18 @@ const fetchTemplate = async (path) => {
     }
 };
 
+/**
+ * Объект хедера.
+ * @property {function(boolean=): Promise<string>} render
+ * @property {function(): void} initEventListeners
+ */
 const Header = {
+
+    /**
+     * Отрисовывает компонент хедера.
+     * @param {boolean} [isAuthenticated] Флаг, указывающий, авторизован ли пользователь.
+     * @returns {Promise<string>} HTML код компонента.
+     */
     render: async (isAuthenticated = false) => {
         const templateString = await fetchTemplate(TEMPLATE_PATH);
         const template = Handlebars.compile(templateString);
@@ -26,7 +42,7 @@ const Header = {
         if (isAuthenticated) {
             try {
                 const userInfo = await AuthApi.checkAuth();
-                userName = userInfo.user?.name;
+                userName = userInfo.user?.email;
             } catch (error) {
                 console.error('Ошибка получения данных пользователя:', error);
                 userName = 'Пользователь';
@@ -39,6 +55,10 @@ const Header = {
         return template({ isAuthenticated, userName, smallHeartHtml });
     },
 
+    /**
+     * Инициализирует обработчики событий.
+     * @returns {void}
+     */
     initEventListeners: () => {
         if (typeof window !== 'undefined') {
             const logoutBtn = document.getElementById('logoutBtn');
@@ -46,7 +66,6 @@ const Header = {
                 logoutBtn.addEventListener('click', async () => {
                     try {
                         await AuthUtils.logout();
-                        // Перенаправляем на страницу входа
                         window.history.pushState(null, null, '/login');
                         window.dispatchEvent(new PopStateEvent('popstate'));
                     } catch (error) {
