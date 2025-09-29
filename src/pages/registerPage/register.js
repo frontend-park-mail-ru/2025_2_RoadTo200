@@ -85,7 +85,6 @@ const fetchTemplate = async (path) => {
 const sendRegisterRequest = async (email, password, passwordConfirm) => {
     try {
         const data = await AuthApi.register(email, password, passwordConfirm);
-        console.log('Регистрация успешна');
         return { success: true };
     } catch (error) {
         console.error('Ошибка при регистрации:', error);

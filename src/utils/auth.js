@@ -15,11 +15,8 @@ export const AuthUtils = {
      * @returns {Promise<boolean>} true - если пользователь авторизан.
      */
     async checkAuth() {
-        console.log('Checking session auth');
-        
         try {
             const response = await AuthApi.checkAuth();
-            console.log('Session check result:', response);
             return response.authenticated || false;
         } catch (error) {
             console.error('Ошибка проверки аутентификации:', error);
@@ -34,7 +31,6 @@ export const AuthUtils = {
     async logout() {
         try {
             await AuthApi.logout();
-            console.log('Logged out successfully');
         } catch (error) {
             console.error('Ошибка при выходе:', error);
         }

@@ -35,8 +35,6 @@ router.route('/auth/register').post((req, res, next) => {
     
     usersData[email] = newUser;
 
-    console.log(`Регистрация пользователя: ${email}`);
-
     // Создаем сессию сразу после регистрации
     req.session.userId = newUser.id;
     req.session.userEmail = newUser.email;
@@ -60,9 +58,6 @@ router.route('/auth/login').post((req, res, next) => {
     if (!user || user.password !== password) {
         return res.status(400).json({ error: 'Неверный email или пароль' });
     }
-
-    console.log(`Вход пользователя: ${email}`);
-
     // Создаем сессию
     req.session.userId = user.id;
     req.session.userEmail = user.email;

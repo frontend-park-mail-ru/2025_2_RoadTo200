@@ -42,9 +42,10 @@
 
 .logout-btn {
     background: rgba(255,255,255,0.2);
+    color: var(--color-primary-light);
     border: 2px solid rgba(255,255,255,0.4);
     border-radius: 25px;
-    color: white;
+    background-color: #ffffff;
     padding: 8px 20px;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -54,7 +55,6 @@
 }
 
 .logout-btn:hover {
-    background: rgba(255,255,255,0.3);
     transform: translateY(-2px);
 }
 

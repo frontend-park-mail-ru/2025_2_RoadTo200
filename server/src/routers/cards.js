@@ -25,7 +25,7 @@ router.route('/cards/action').post(applyAuth, (req, res, next) => {
         return res.status(400).json({ error: 'card_id или action' });
     }
 
-    console.log(`Card ID: ${card_id}: Action: ${action}`);
+    // console.log(`Card ID: ${card_id}: Action: ${action}`);
 
     res.status(200).json({ status: 'ok', message: 'Действие зарегистрировано' });
 })

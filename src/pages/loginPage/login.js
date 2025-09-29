@@ -138,7 +138,6 @@ const loginPage = {
                 const result = await sendLoginRequest(email, password);
                 
                 if (result.success) {
-                    console.log('Login successful');
                     
                     window.history.pushState(null, null, '/');
                     window.dispatchEvent(new PopStateEvent('popstate'));

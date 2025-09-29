@@ -94,7 +94,6 @@ export class Router {
     if (currentPath === '/login' || currentPath === '/register') {
       const isAuthenticated = await AuthUtils.checkAuth();
       if (isAuthenticated) {
-        console.log('User is authenticated, redirecting to main...');
         this.navigateTo('/');
         return;
       }
