@@ -1,5 +1,9 @@
 const TEMPLATE_PATH = './src/components/BigHeart/bigHeart.hbs';
 
+/**
+ * @param {string} path путь до шаблона
+ * @returns {Promise<string>} шаблон в виде строки
+ */
 const fetchTemplate = async (path) => {
     try {
         const response = await fetch(path);

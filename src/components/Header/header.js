@@ -26,14 +26,13 @@ const Header = {
         if (isAuthenticated) {
             try {
                 const userInfo = await AuthApi.checkAuth();
-                userName = userInfo.user?.name;
+                userName = userInfo.user?.email;
             } catch (error) {
                 console.error('Ошибка получения данных пользователя:', error);
                 userName = 'Пользователь';
             }
         }
         
-        // Рендерим маленькое сердце
         const smallHeartHtml = await SmallHeart.render();
         
         return template({ isAuthenticated, userName, smallHeartHtml });
@@ -46,7 +45,6 @@ const Header = {
                 logoutBtn.addEventListener('click', async () => {
                     try {
                         await AuthUtils.logout();
-                        // Перенаправляем на страницу входа
                         window.history.pushState(null, null, '/login');
                         window.dispatchEvent(new PopStateEvent('popstate'));
                     } catch (error) {
