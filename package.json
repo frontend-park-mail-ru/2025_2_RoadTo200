@@ -4,9 +4,9 @@
   "description": "Vk technopark",
   "main": "index.js",
   "scripts": {
-    "start": "concurrently \"npm run server\" \"npm run client\"",
-    "dev": "concurrently \"npm run server\" \"npm run client\"",
-    "client": "npx http-server . -p 8080 -o --cors -c-1 -P http://localhost:8080? -M '{\".js\":\"application/javascript\"}'",
+    "start": "npm run client",
+    "dev": "npm run client",
+    "client": "npx http-server . -p 8001 -o --cors -c-1 -P http://localhost:8001? -M '{\".js\":\"application/javascript\"}'",
     "server": "nodemon server/src/index.js",
     "build": "webpack --mode production",
     "lint": "eslint ."

@@ -42,7 +42,7 @@ class AuthApi {
      * @returns {Promise<{authenticated: boolean}>} 
      */
     async checkAuth() {
-        return handleFetch( this.baseURL, '/check', { method: 'GET' });
+        return handleFetch( this.baseURL, '/session', { method: 'GET' });
     }
 
     /**
