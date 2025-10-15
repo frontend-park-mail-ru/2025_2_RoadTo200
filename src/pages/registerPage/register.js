@@ -1,5 +1,5 @@
-// const API_URL = 'http://127.0.0.1:3000/api/auth/';
-import AuthApi from '../../apiHandler/authApi.js';
+import AuthStore from '../../flux/auth/authStore.js'
+import AuthActions from '../../flux/auth/authActions.js'
 
 const TEMPLATE_PATH = './src/pages/registerPage/register.hbs';
 
@@ -13,12 +13,10 @@ const validatePasswordConfirm = (password, passwordConfirm) => password === pass
 const validatePassword = (password) => password.length >= 6 && !/<script|javascript:|on\w+=/i.test(password);
 
 const getErrorMessage = (error) => {
-    // Ошибки сети
     if (error.isNetworkError || (error.message && error.message.includes('Network connection failed'))) {
         return 'Нет соединения с сервером. Проверьте интернет-соединение';
     }
     
-    // Ошибки с кодом статуса
     if (error.status) {
         if (error.details && (error.details.message || error.details.error)) {
             return error.details.message || error.details.error;
@@ -76,24 +74,6 @@ const fetchTemplate = async (path) => {
 };
 
 /**
- * Отправляет запрос на регистрацию через AuthApi.
- * @param {string} email Email.
- * @param {string} password Пароль.
- * @param {string} passwordConfirm Подтверждение пароля.
- * @returns {Promise<{success: boolean, error: string}>} Результат запроса.
- */
-const sendRegisterRequest = async (email, password, passwordConfirm) => {
-    try {
-        const data = await AuthApi.register(email, password, passwordConfirm);
-        return { success: true };
-    } catch (error) {
-        console.error('Ошибка при регистрации:', error);
-        const errorMessage = getErrorMessage(error);
-        return { success: false, error: errorMessage };
-    }
-};
-
-/**
  * Объект страницы регистрации.
  * @property {function(): Promise<Object>} getData
  * @property {function(): void} initFormActions
@@ -146,19 +126,35 @@ const registerPage = {
                     return;
                 }
                 
-                const result = await sendRegisterRequest(email, password, passwordConfirm);
-                
-                if (result.success) {
-                    window.history.pushState(null, null, '/');
-                    window.dispatchEvent(new PopStateEvent('popstate'));
-                } else {
-                    showError(form, result.error);
-                }
+                AuthActions.sendRegisterRequest(email, password, passwordConfirm);
             };
 
             form.removeEventListener('submit', handleRegister);
             form.addEventListener('submit', handleRegister);
         }
+    },
+
+    onStoreChange: (state) => {
+        const form = document.getElementById('registerForm');
+        
+        if (!form) return;
+
+        if (state.user) {
+            clearError();
+            window.history.pushState(null, null, '/');
+            window.dispatchEvent(new PopStateEvent('popstate'));
+        } else if (state.error) {
+            const errorMessage = getErrorMessage(state.error);
+            showError(form, errorMessage);
+        }
+    },
+
+    subscribe: () => {
+        AuthStore.addSub(registerPage.onStoreChange);
+    },
+
+    unsubscribe: () => {
+        AuthStore.removeSub(registerPage.onStoreChange);
     },
 
     render: async () => {
@@ -172,6 +168,7 @@ const registerPage = {
         
         if (typeof window !== 'undefined') {
             setTimeout(() => {
+                registerPage.subscribe();
                 registerPage.initFormActions();
             }, 0);
         }
