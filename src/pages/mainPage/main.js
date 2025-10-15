@@ -1,8 +1,4 @@
 import Card from '../../components/Card/card.js';
-
-import CardStore from '../../flux/card/cardStore.js';
-import CardActions from '../../flux/card/cardActions.js';
-
 import { AuthUtils } from '../../utils/auth.js';
 
 import cardApi from '../../apiHandler/cardApi.js';
@@ -30,7 +26,15 @@ const fetchTemplate = async (path) => {
     }
 };
 
-let currentDisplayedIndex = 0;
+/**
+ * Отправляет действие пользователя (лайк/дизлайк/суперлайк) на сервер.
+ * @param {string} cardId ID карточки над которой выполнено действие.
+ * @param {'like' | 'dislike' | 'superlike'} actionType Тип действия.
+ * @returns {Promise<void>}
+ */
+const sendActionToServer = async (cardId, actionType) => {
+    const res = await cardApi.postCardAction(cardId, actionType);
+};
 
 const animateCardOut = (cardElement, direction) => {
     cardElement.classList.add(`swipe-out-${direction}`); 
@@ -50,43 +54,44 @@ const animateCardOut = (cardElement, direction) => {
  */
 const mainPage = {
     getData: async () => {
-        await CardActions.getAllCards();
-        const state = CardStore.getState();
+        // const response = await fetch(API_URL, {
+        //     credentials: 'include', // Включаем куки
+        //     headers: AuthUtils.getAuthHeaders()
+        // });
+        // if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        // const apiData = await response.json();
+
+        const apiData = await cardApi.getAllCards();
         
-        if (state.error) {
-            console.error('Ошибка при получении карточек:', state.error);
-            return { cards: [] };
-        }
-        
+        cardsData = Object.values(apiData); 
+        currentCardIndex = 0;
+
+        const initialCard = cardsData.length > 0 ? cardsData[currentCardIndex] : null;
+
         return {
-            cards: state.cards.length > 0 ? [state.cards[0]] : []
+            cards: initialCard ? [initialCard] : []
         };
     },
 
     renderNextCard: async () => {
-        const state = CardStore.getState();
-        const pageContainer = document.querySelector('.cards-container');
         
-        if (!pageContainer || state.cards.length === 0) return;
-        
-        currentDisplayedIndex++;
-        
-        if (currentDisplayedIndex < state.cards.length) {
-            const nextCardData = state.cards[currentDisplayedIndex];
+        currentCardIndex++;
+
+        if (currentCardIndex < cardsData.length) {
+            const nextCardData = cardsData[currentCardIndex];
+            
             const cardHtml = await Card.render(nextCardData);
-            pageContainer.insertAdjacentHTML('beforeend', cardHtml);
-            mainPage.initCardActions();
-        } else {
-            const cardHtml = await Card.render({
-                img1: './src/assets/image.png',
-                noActions: 'True'
-            });
-            pageContainer.insertAdjacentHTML('beforeend', cardHtml);
-        }
+            if (pageContainer) {
+                pageContainer.insertAdjacentHTML('beforeend', cardHtml); 
+                mainPage.initCardActions(); 
+            }
+        } else if (pageContainer) {
+                const cardHtml = await Card.render({img1: './src/assets/image.png', noActions: 'True'});
+                pageContainer.insertAdjacentHTML('beforeend', cardHtml);
+            }
     },
 
     initCardActions: () => {
-        const pageContainer = document.querySelector('.cards-container');
         const currentCardElement = pageContainer?.querySelector('.card');
 
         if (currentCardElement) {
@@ -110,9 +115,9 @@ const mainPage = {
                     return;
                 }
                 
-                CardActions.swipeCard(cardId, actionType);
+                sendActionToServer(cardId, actionType);
 
-                animateCardOut(currentCardElement, direction);
+                animateCardOut(currentCardElement, direction); 
             };
 
             const actionButtons = currentCardElement.querySelectorAll('.card-actions button');
@@ -121,20 +126,6 @@ const mainPage = {
                 button.addEventListener('click', handleAction);
             });
         }
-    },
-
-    onStoreChange: (state) => {
-        if (state.error) {
-            console.error('mainPage: Error:', state.error);
-        }
-    },
-
-     subscribe: () => {
-        CardStore.addSub(mainPage.onStoreChange);
-    },
-
-    unsubscribe: () => {
-        CardStore.removeSub(mainPage.onStoreChange);
     },
     
     render: async () => {
@@ -155,7 +146,6 @@ const mainPage = {
             setTimeout(() => {
                 pageContainer = document.querySelector('.cards-container');
                 if (pageContainer) {
-                    mainPage.subscribe();
                     mainPage.initCardActions(); 
                 }
             }, 0); 

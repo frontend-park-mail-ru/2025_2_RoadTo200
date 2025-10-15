@@ -1,5 +1,6 @@
-import AuthStore from '../../flux/auth/authStore.js'
-import AuthActions from '../../flux/auth/authActions.js'
+import { AuthUtils } from '../../utils/auth.js';
+
+import AuthApi from '../../apiHandler/authApi.js';
 
 const TEMPLATE_PATH = './src/pages/loginPage/login.hbs';
 
@@ -77,6 +78,23 @@ const fetchTemplate = async (path) => {
 };
 
 /**
+ * Отправляет запрос на вход через AuthApi.
+ * @param {string} email Email.
+ * @param {string} password Пароль.
+ * @returns {Promise<{success: boolean, data?: Object, error?: string}>} Результат запроса.
+ */
+const sendLoginRequest = async (email, password) => {
+    try {
+        const data = await AuthApi.login(email, password);
+        return { success: true, data: data.user };
+    } catch (error) {
+        console.error('Ошибка при входе:', error);
+        const errorMessage = getErrorMessage(error);
+        return { success: false, error: errorMessage };
+    }
+};
+
+/**
  * Объект страницы входа.
  * @property {function(): Promise<Object>} getData
  * @property {function(): void} initFormActions
@@ -117,35 +135,20 @@ const loginPage = {
                     return;
                 }
                 
-                await AuthActions.sendLoginRequest(email, password);
+                const result = await sendLoginRequest(email, password);
+                
+                if (result.success) {
+                    
+                    window.history.pushState(null, null, '/');
+                    window.dispatchEvent(new PopStateEvent('popstate'));
+                } else {
+                    showError(form, result.error);
+                }
             };
 
             form.removeEventListener('submit', handleLogin);
             form.addEventListener('submit', handleLogin);
         }
-    },
-
-    onStoreChange: (state) => {
-        const form = document.getElementById('loginForm');
-        
-        if (!form) return;
-
-        if (state.user) {
-            clearError();
-            window.history.pushState(null, null, '/');
-            window.dispatchEvent(new PopStateEvent('popstate'));
-        } else if (state.error) {
-            const errorMessage = getErrorMessage(state.error);
-            showError(form, errorMessage);
-        }
-    },
-
-    subscribe: () => {
-        AuthStore.addSub(loginPage.onStoreChange);
-    },
-
-    unsubscribe: () => {
-        AuthStore.removeSub(loginPage.onStoreChange);
     },
 
     render: async () => {
@@ -159,7 +162,6 @@ const loginPage = {
         
         if (typeof window !== 'undefined') {
             setTimeout(() => {
-                loginPage.subscribe();
                 loginPage.initFormActions();
             }, 0);
         }
