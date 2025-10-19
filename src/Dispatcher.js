@@ -1,6 +1,7 @@
 class Dispatcher {
 
     constructor(){
+        console.log("created disp")
         this.subscribers = [];
     }
 
@@ -9,6 +10,7 @@ class Dispatcher {
     }
 
     process(action){
+        console.log(this.subscribers)
         for (let store of this.subscribers){
             store.handleAction(action)
         }
@@ -16,4 +18,4 @@ class Dispatcher {
 
 };
 
-export default new Dispatcher();
+export const dispatcher = new Dispatcher();

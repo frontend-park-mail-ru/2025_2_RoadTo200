@@ -1,7 +1,12 @@
+import './src/pages/loginPage/loginStore.js';
+import './src/pages/mainPage/mainStore.js';
+import './src/pages/registerPage/registerStore.js';
+import './src/components/Header/headerStore.js';
+
 import { Route, Router} from "./router.js";
-import mainPage from "./src/pages/mainPage/main.js";
-import loginPage from "./src/pages/loginPage/login.js";
-import registerPage from "./src/pages/registerPage/register.js";
+import { main } from "./src/pages/mainPage/main.js";
+import { login } from "./src/pages/loginPage/login.js";
+import { register } from "./src/pages/registerPage/register.js";
 
 
 const notFoundComponent = {
@@ -15,9 +20,9 @@ const notFoundComponent = {
 
 
 const routes = [
-  new Route('/', mainPage, true),
-  new Route('/login', loginPage, false),
-  new Route('/register', registerPage, false),
+  new Route('/', main, true),
+  new Route('/login', login, false),
+  new Route('/register', register, false),
   new Route('*', notFoundComponent, false)
 ];
 

@@ -1,7 +1,13 @@
 const router = require('express').Router();
 
-// Временное хранилище пользователей (в реальном проекте - база данных)
-const usersData = {};
+const usersData = {
+    'test@test.test': {
+        email: 'test@test.test',
+        password: 'test@test.test',
+        id: 1,
+        name: 'test'
+    },
+};
 
 router.route('/register').post((req, res, next) => {
     
