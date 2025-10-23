@@ -34,7 +34,7 @@ class CardApi {
      * @param {string} action Выполненное действие (e.g., 'like', 'dislike')
      * @returns {Promise<Object>} Объект с подтверждением.
      */
-    async postCardAction(cardId, action) {
+    async postCardInteraction(cardId, action) {
         const timestamp = new Date().toISOString();
 
         const options = {

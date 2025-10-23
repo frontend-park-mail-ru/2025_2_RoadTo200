@@ -23,7 +23,7 @@ class MainStore {
                 break;
 
             case Actions.SEND_CARD_ACTION:
-                await this.sendCardAction(action.payload.cardId, action.payload.actionType);
+                await this.sendCardInteraction(action.payload.cardId, action.payload.actionType);
                 break;
 
             default:
@@ -46,9 +46,9 @@ class MainStore {
         }
     }
 
-    async sendCardAction(cardId, actionType) {
+    async sendCardInteraction(cardId, actionType) {
         try {
-            await CardApi.postCardAction(cardId, actionType);
+            await CardApi.postCardInteraction(cardId, actionType);
         } catch (error) {
             alert("ошибка отправки реакции");
         }

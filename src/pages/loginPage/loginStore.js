@@ -16,7 +16,6 @@ class LoginStore {
                 await login.render();
                 break;
             
-            // хз насчет этого: насколько это адекватно flux'у или лучше сделать LOGIN_SUCCESS и LOGIN_REJECT, а реквест делать во вью?
             case Actions.REQUEST_LOGIN:
                 await this.processLogin(action.payload);
                 break;

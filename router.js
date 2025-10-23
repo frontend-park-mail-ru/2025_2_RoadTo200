@@ -1,5 +1,5 @@
 import { AuthUtils } from './src/utils/auth.js';
-import Header from './src/components/Header/header.js';
+import { header } from './src/components/Header/header.js';
 import BigHeart from './src/components/BigHeart/bigHeart.js';
 import { dispatcher } from './src/Dispatcher.js';
 import { Actions } from './src/actions.js';
@@ -97,14 +97,14 @@ export class Router {
 
     if (headerContainer && currentPath !== '/login' && currentPath !== '/register') {
       try {
-        const headerHtml = await Header.render(isAuthenticated);
+        const headerHtml = await header.render(isAuthenticated);
         headerContainer.innerHTML = headerHtml;
         
         const bigHeartHtml = await BigHeart.render();
         bigHeartContainer.innerHTML = bigHeartHtml;
         
         setTimeout(() => {
-          Header.initEventListeners();
+          header.initEventListeners();
         }, 0);
       } catch (error) {
         console.error('Error rendering header:', error);
@@ -122,7 +122,6 @@ export class Router {
       dispatcher.process({ type: Actions.RENDER_LOGIN });
       return;
     } else if (currentPath === '/register') {
-      console.log('Router: Dispatching RENDER_REGISTER');
       dispatcher.process({ type: Actions.RENDER_REGISTER });
       return;
     }

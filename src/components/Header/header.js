@@ -18,8 +18,7 @@ const fetchTemplate = async (path) => {
         }
         return await response.text();
     } catch (error) {
-        console.error('Ошибка загрузки шаблона хедера:', error);
-        return '<header class="app-header"><div class="header-content"><h1>RoadTo200</h1></div></header>';
+        alert("загрузка header");
     }
 };
 
@@ -28,14 +27,19 @@ const fetchTemplate = async (path) => {
  * @property {function(boolean=): Promise<string>} render
  * @property {function(): void} initEventListeners
  */
-const Header = {
+export class Header {
+    parent;
+
+    constructor(parent) {
+        this.parent = parent;
+    }
 
     /**
      * Отрисовывает компонент хедера.
      * @param {boolean} [isAuthenticated] Флаг, указывающий, авторизован ли пользователь.
      * @returns {Promise<string>} HTML код компонента.
      */
-    render: async (headerData = {}) => {
+    async render(headerData = {}) {
         const { user, isAuthenticated } = headerData;
         
         const templateString = await fetchTemplate(TEMPLATE_PATH);
@@ -50,23 +54,28 @@ const Header = {
         
         const smallHeartHtml = await SmallHeart.render();
         
-        return template({ isAuthenticated, userName, smallHeartHtml });
-    },
+        const renderedHtml = template({ isAuthenticated, userName, smallHeartHtml });
+        
+        this.parent.innerHTML = renderedHtml;
+        this.initEventListeners();
+    }
 
     /**
      * Инициализирует обработчики событий.
      * @returns {void}
      */
-    initEventListeners: () => {
+    initEventListeners() {
         if (typeof window !== 'undefined') {
-            const logoutBtn = document.getElementById('logoutBtn');
+            const logoutBtn = this.parent.querySelector('#logoutBtn');
+            
             if (logoutBtn) {
-                logoutBtn.addEventListener('click', async () => {
+                logoutBtn.addEventListener('click', () => {
                     dispatcher.process({ type: Actions.REQUEST_LOGOUT });
-                });
+                }, { once: true });
             }
         }
     }
 };
 
-export default Header;
+const rootElement = document.getElementById('header-root-element');
+export const header = new Header(rootElement);

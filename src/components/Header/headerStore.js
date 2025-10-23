@@ -1,6 +1,7 @@
 import { dispatcher } from '../../Dispatcher.js';
 import { Actions } from '../../actions.js';
-import Header from './header.js';
+
+import { Header } from './header.js'; 
 
 import AuthApi from '../../apiHandler/authApi.js';
 
@@ -9,12 +10,17 @@ const headerRootElement = document.getElementById('header-container');
 class HeaderStore{
     user; 
     isAuthenticated;
+    
+    headerComponent; 
 
     constructor() {
         this.user = null;
         this.isAuthenticated = false;
         
         dispatcher.register(this);
+
+        this.headerComponent = new Header(headerRootElement);
+    
     }
 
     async handleAction(action) {
@@ -84,7 +90,7 @@ class HeaderStore{
     }
 
     async renderHeader() {
-        if (!headerRootElement) {
+        if (!this.headerComponent) {
             return;
         }
 
@@ -93,15 +99,7 @@ class HeaderStore{
             isAuthenticated: this.isAuthenticated
         };
         
-        try {
-            const renderedHtml = await Header.render(headerData);
-            headerRootElement.innerHTML = renderedHtml;
-            
-            Header.initEventListeners();
-
-        } catch (error) {
-            alert("ошибка отрисовки хедера"); 
-        }
+        await this.headerComponent.render(headerData);
     }
 }
 
