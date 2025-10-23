@@ -1,5 +1,6 @@
-import { AuthUtils } from '../../utils/auth.js';
-import AuthApi from '../../apiHandler/authApi.js';
+import { Actions } from '../../actions.js';
+import { dispatcher } from '../../Dispatcher.js';
+
 import SmallHeart from '../SmallHeart/smallHeart.js';
 
 const TEMPLATE_PATH = './src/components/Header/header.hbs';
@@ -17,8 +18,7 @@ const fetchTemplate = async (path) => {
         }
         return await response.text();
     } catch (error) {
-        console.error('Ошибка загрузки шаблона хедера:', error);
-        return '<header class="app-header"><div class="header-content"><h1>RoadTo200</h1></div></header>';
+        alert("загрузка header");
     }
 };
 
@@ -27,54 +27,55 @@ const fetchTemplate = async (path) => {
  * @property {function(boolean=): Promise<string>} render
  * @property {function(): void} initEventListeners
  */
-const Header = {
+export class Header {
+    parent;
+
+    constructor(parent) {
+        this.parent = parent;
+    }
 
     /**
      * Отрисовывает компонент хедера.
      * @param {boolean} [isAuthenticated] Флаг, указывающий, авторизован ли пользователь.
      * @returns {Promise<string>} HTML код компонента.
      */
-    render: async (isAuthenticated = false) => {
+    async render(headerData = {}) {
+        const { user, isAuthenticated } = headerData;
+        
         const templateString = await fetchTemplate(TEMPLATE_PATH);
         const template = Handlebars.compile(templateString);
         
         let userName = '';
-        if (isAuthenticated) {
-            try {
-                const userInfo = await AuthApi.checkAuth();
-                userName = userInfo.user?.email;
-            } catch (error) {
-                console.error('Ошибка получения данных пользователя:', error);
-                userName = 'Пользователь';
-            }
+        if (isAuthenticated && user && user.email) {
+            userName = user.email;
+        } else if (isAuthenticated) {
+            userName = 'Пользователь';
         }
         
-        // Рендерим маленькое сердце
         const smallHeartHtml = await SmallHeart.render();
         
-        return template({ isAuthenticated, userName, smallHeartHtml });
-    },
+        const renderedHtml = template({ isAuthenticated, userName, smallHeartHtml });
+        
+        this.parent.innerHTML = renderedHtml;
+        this.initEventListeners();
+    }
 
     /**
      * Инициализирует обработчики событий.
      * @returns {void}
      */
-    initEventListeners: () => {
+    initEventListeners() {
         if (typeof window !== 'undefined') {
-            const logoutBtn = document.getElementById('logoutBtn');
+            const logoutBtn = this.parent.querySelector('#logoutBtn');
+            
             if (logoutBtn) {
-                logoutBtn.addEventListener('click', async () => {
-                    try {
-                        await AuthUtils.logout();
-                        window.history.pushState(null, null, '/login');
-                        window.dispatchEvent(new PopStateEvent('popstate'));
-                    } catch (error) {
-                        console.error('Ошибка при выходе:', error);
-                    }
-                });
+                logoutBtn.addEventListener('click', () => {
+                    dispatcher.process({ type: Actions.REQUEST_LOGOUT });
+                }, { once: true });
             }
         }
     }
 };
 
-export default Header;
+const rootElement = document.getElementById('header-root-element');
+export const header = new Header(rootElement);
