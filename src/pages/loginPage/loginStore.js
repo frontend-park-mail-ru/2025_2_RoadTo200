@@ -32,7 +32,11 @@ class LoginStore {
             window.history.pushState(null, null, '/');
             window.dispatchEvent(new PopStateEvent('popstate'));
         } catch (error) {
-            alert("Ошибка при входе"); // пока что так, насчет ошибок Илья работает
+            // Отправляем ошибку через Flux архитектуру
+            dispatcher.process({
+                type: Actions.LOGIN_ERROR,
+                payload: { message: error.message || 'Неверный email или пароль' }
+            });
         }
     }
 }

@@ -75,6 +75,17 @@ export class Header {
             }
         }
     }
+
+    /**
+     * Обновляет состояние аутентификации без перерисовки хедера.
+     * @param {boolean} isAuthenticated Флаг аутентификации.
+     * @returns {void}
+     */
+    updateAuthState(isAuthenticated) {
+        // Можно обновить только нужные элементы, если хедер уже отрисован
+        // Пока просто логируем
+        console.log('Header auth state updated:', isAuthenticated);
+    }
 };
 
 const rootElement = document.getElementById('header-root-element');

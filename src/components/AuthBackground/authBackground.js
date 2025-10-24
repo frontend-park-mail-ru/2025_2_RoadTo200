@@ -10,15 +10,17 @@ export class AuthBackground {
     }
 
     render() {
+        // Если уже отрисован, ничего не делаем
+        if (this.circles.length > 0) {
+            return;
+        }
+
         const tablet = this.container.querySelector('.circle-activity-tablet');
         if (!tablet) return;
 
         // Получаем текст из содержимого div
         const textContent = tablet.textContent.trim();
-        tablet.textContent = ''; // Очищаем, чтобы заполнить кружками и текстом
-
-        this.circles = [];
-        this.textElements = [];
+        tablet.textContent = ''; 
 
         // Получаем конфигурацию из CSS переменных
         const computedStyle = getComputedStyle(tablet);
@@ -111,13 +113,13 @@ export class AuthBackground {
             this.circles.forEach((circle) => {
                 const element = circle.getElement();
                 if (element) {
-                    element.style.transform = `translate3d(${circlePosition - 1800}px, -400px, 0)`;
+                    element.style.transform = `translate3d(${circlePosition - 2500}px,-500px, 0)`;
                 }
             });
 
             this.textElements.forEach((textEl) => {
                 const element = textEl;
-                element.style.transform = `translate3d(${textPosition - 1800}px, -400px, 0)`;
+                element.style.transform = `translate3d(${textPosition - 2500}px, -500px, 0)`;
             });
             
             this.animationId = requestAnimationFrame(animate);

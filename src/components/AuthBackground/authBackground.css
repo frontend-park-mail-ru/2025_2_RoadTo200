@@ -6,6 +6,7 @@
     z-index: 0;
     overflow: hidden;
     background: linear-gradient(135deg, #fef5f7 0%, #fff9fa 100%);
+    display: none; /* Скрыто по умолчанию, показывается только на страницах логина/регистрации */
 }
 
 .circle-activity-tablet {

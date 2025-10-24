@@ -31,8 +31,11 @@ class RegisterStore {
             window.history.pushState(null, null, '/');
             window.dispatchEvent(new PopStateEvent('popstate'));
         } catch (error) {
-
-            alert("Ошибка при регистрации"); 
+            // Отправляем ошибку через Flux архитектуру
+            dispatcher.process({
+                type: Actions.REGISTER_ERROR,
+                payload: { message: error.message || 'Неверный email или пароль' }
+            });
         }
     }
 }
