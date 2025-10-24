@@ -1,6 +1,7 @@
 import { AuthUtils } from './src/utils/auth.js';
 import { header } from './src/components/Header/header.js';
-import BigHeart from './src/components/BigHeart/bigHeart.js';
+import { menu } from './src/components/Menu/menu.js';
+
 import { dispatcher } from './src/Dispatcher.js';
 import { Actions } from './src/actions.js';
 
@@ -25,11 +26,49 @@ export class Route {
  * Класс управляющий навигацией.
  */
 export class Router {
+  fallbackRoute;
+  routes;
+  currentPath = null;
+  rootElement;
+
+  headerContainer = null;
+  menuContainer = null;
+  contentContainer = null;
+
   constructor(routes) {
     this.fallbackRoute = routes.find(r => r.path === '*');
     this.routes = routes.filter(r => r.path !== '*');
-    this.currentPath = null;
-    this.init();
+
+    this.rootElement = document.getElementById('root');
+    
+    this.setupRootContainers();
+    
+    Promise.resolve().then(() => this.init());
+  }
+
+  setupRootContainers() {
+    this.rootElement.innerHTML = `
+        <div class="page-layout"> 
+            
+            <div id="menu-container-internal"></div>
+            
+            <div class="main-column">
+                <div id="header-container-internal"></div>
+                <div id="content-container"></div>
+            </div>
+            
+        </div>
+    `;
+
+    this.headerContainer = this.rootElement.querySelector('#header-container-internal');
+    this.menuContainer = this.rootElement.querySelector('#menu-container-internal');
+    this.contentContainer = this.rootElement.querySelector('#content-container');
+
+    header.parent = this.headerContainer;
+    menu.parent = this.menuContainer;
+
+    dispatcher.process({ type: Actions.RENDER_HEADER });
+    dispatcher.process({ type: Actions.RENDER_MENU});
   }
 
   init() {
@@ -88,55 +127,32 @@ export class Router {
     }
 
     if (currentPath !== '/login' && currentPath !== '/register') {
-      dispatcher.process({ type: Actions.RENDER_HEADER });
+
+      this.headerContainer.style.display = 'block';
+      this.menuContainer.style.display = 'block';
+      
+      // dispatcher.process({ type: Actions.RENDER_HEADER });
+      // dispatcher.process({ type: Actions.RENDER_MENU})
+
+    }else{
+      this.headerContainer.style.display = 'none';
+      this.menuContainer.style.display = 'none';
     }
 
-    const headerContainer = document.getElementById('header-container');
-    const bigHeartContainer = document.getElementById('big-heart-container');
-    const root = document.getElementById('root');
-
-    if (headerContainer && currentPath !== '/login' && currentPath !== '/register') {
-      try {
-        const headerHtml = await header.render(isAuthenticated);
-        headerContainer.innerHTML = headerHtml;
-        
-        const bigHeartHtml = await BigHeart.render();
-        bigHeartContainer.innerHTML = bigHeartHtml;
-        
-        setTimeout(() => {
-          header.initEventListeners();
-        }, 0);
-      } catch (error) {
-        console.error('Error rendering header:', error);
-      }
+    if (this.contentContainer) {
+        this.contentContainer.innerHTML = '';
     }
 
-    if (root) {
-      root.innerHTML = '';
+    if (route && route.component) {
+        route.component.parent = this.contentContainer;
     }
 
     if (currentPath === '/') {
       dispatcher.process({ type: Actions.RENDER_MAIN });
-      return;
     }else if (currentPath === '/login') {
       dispatcher.process({ type: Actions.RENDER_LOGIN });
-      return;
     } else if (currentPath === '/register') {
       dispatcher.process({ type: Actions.RENDER_REGISTER });
-      return;
-    }
-
-    if (root) {
-      try {
-        const contentHtml = await route.component.render();
-        root.innerHTML = contentHtml;
-        
-        if (route.component.controller) {
-          await route.component.controller();
-        }
-      } catch (error) {
-        console.error('Error rendering component:', error);
-      }
     }
   }
 }

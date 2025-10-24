@@ -1,9 +1,4 @@
 .app-header {
-    background: linear-gradient(90deg, #ff4b72 50%, rgba(255, 153, 168, 0) 80%);
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
     height: 80px;
 }
 
@@ -15,18 +10,11 @@
     height: 100%;
 }
 
-.title-with-heart {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
 
-
-.app-title, .welcome-text {
-    color: white;
+welcome-text {
+    color: black;
     font-weight: 700;
     font-size: 32px;
-    font-family: "Semantic", system-ui;
 }
 
 .welcome-text {
@@ -35,6 +23,7 @@
 }
 
 .header-right {
+    margin-left: auto;
     display: flex;
     align-items: center;
     gap: 16px;
@@ -56,8 +45,4 @@
 
 .logout-btn:hover {
     transform: translateY(-2px);
-}
-
-body {
-    padding-top: 80px;
 }

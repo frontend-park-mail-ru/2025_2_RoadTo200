@@ -1,7 +1,6 @@
 import { Actions } from '../../actions.js';
 import { dispatcher } from '../../Dispatcher.js';
 
-import SmallHeart from '../SmallHeart/smallHeart.js';
 
 const TEMPLATE_PATH = './src/components/Header/header.hbs';
 
@@ -52,9 +51,7 @@ export class Header {
             userName = 'Пользователь';
         }
         
-        const smallHeartHtml = await SmallHeart.render();
-        
-        const renderedHtml = template({ isAuthenticated, userName, smallHeartHtml });
+        const renderedHtml = template({ isAuthenticated, userName });
         
         this.parent.innerHTML = renderedHtml;
         this.initEventListeners();
@@ -77,5 +74,4 @@ export class Header {
     }
 };
 
-const rootElement = document.getElementById('header-root-element');
-export const header = new Header(rootElement);
+export const header = new Header(document.createElement('div'));

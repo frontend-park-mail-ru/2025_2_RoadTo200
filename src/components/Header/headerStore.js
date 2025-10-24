@@ -1,11 +1,9 @@
 import { dispatcher } from '../../Dispatcher.js';
 import { Actions } from '../../actions.js';
 
-import { Header } from './header.js'; 
+import { header } from './header.js'; 
 
 import AuthApi from '../../apiHandler/authApi.js';
-
-const headerRootElement = document.getElementById('header-container'); 
 
 class HeaderStore{
     user; 
@@ -19,15 +17,13 @@ class HeaderStore{
         
         dispatcher.register(this);
 
-        this.headerComponent = new Header(headerRootElement);
+        this.headerComponent = header;
     
     }
 
     async handleAction(action) {
         switch (action.type) {
             case Actions.RENDER_HEADER:
-                await this.processCheckAuth();
-                console.log(this.user);
                 await this.renderHeader(); 
                 break;
 
@@ -93,7 +89,17 @@ class HeaderStore{
         if (!this.headerComponent) {
             return;
         }
-
+        
+        if (this.user === null) {
+        try {
+            const response = await AuthApi.checkAuth();
+            this.user = response.user || null;
+            this.isAuthenticated = !!this.user;
+        } catch (error) {
+                this.user = null;
+                this.isAuthenticated = false;
+            }
+        }
         const headerData = {
             user: this.user,
             isAuthenticated: this.isAuthenticated
