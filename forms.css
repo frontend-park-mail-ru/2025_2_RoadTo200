@@ -5,6 +5,9 @@
     width: 100%;
     max-width: 450px; 
     max-height: fit-content;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    position: relative;
+    z-index: 2;
 }
 
 .form-title {
@@ -75,7 +78,7 @@
     outline: none;
     margin-top: 0.5rem;
     transition: all 0.3s ease;
-    background-image: linear-gradient(to right, var(--color-primary-dark) 0%, var(--color-primary-light) 100%);
+    background: linear-gradient(to right, var(--color-primary-dark) 0%, var(--color-primary-light) 100%);
     border-radius: var(--border-radius-large);
     box-shadow: 0 8px 15px rgba(253, 41, 123, 0.4);
 

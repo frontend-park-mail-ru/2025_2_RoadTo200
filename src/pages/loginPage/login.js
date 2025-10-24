@@ -1,7 +1,9 @@
-const TEMPLATE_PATH = './src/pages/loginPage/login.hbs';
-
 import { dispatcher } from '../../Dispatcher.js';
 import { Actions } from '../../actions.js';
+import { AuthBackground } from '../../components/AuthBackground/authBackground.js';
+import { Header } from '../../components/Header/header.js';
+
+const TEMPLATE_PATH = './src/pages/loginPage/login.hbs';
 
 // 
 // const validateEmail = (email) => {
@@ -46,9 +48,13 @@ const fetchTemplate = async (path) => {
 
 export class LoginPage {
     parent;
+    authBackground;
+    authHeader;
 
     constructor(parent) {
         this.parent = parent;
+        this.authBackground = null;
+        this.authHeader = null;
     }
 
     async render() {
@@ -63,7 +69,25 @@ export class LoginPage {
         newDiv.innerHTML = pageTemplate({});
         this.parent.appendChild(newDiv);
 
+        this.initHeader();
         this.initFormActions();
+        this.initBackground();
+    }
+
+    initHeader() {
+        const headerContainer = document.querySelector('.header-container');
+        if (headerContainer) {
+            this.authHeader = new Header(headerContainer);
+            this.authHeader.render({ isAuthenticated: false });
+        }
+    }
+
+    initBackground() {
+        const bgContainer = document.querySelector('.auth-background');
+        if (bgContainer) {
+            this.authBackground = new AuthBackground(bgContainer);
+            this.authBackground.render();
+        }
     }
 
     handleLogin = async (event) => {
