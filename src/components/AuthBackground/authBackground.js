@@ -1,7 +1,7 @@
 import { CircleActivity, getAvailableSvgIcons } from '../CircleActivity/circleActivity.js';
 
 export class AuthBackground {
-    constructor(container) {
+    constructor(container = null) {
         this.container = container;
         this.animationId = null;
         this.circles = [];
@@ -9,26 +9,36 @@ export class AuthBackground {
         this.svgIcons = getAvailableSvgIcons();
     }
 
+    setContainer(container) {
+        if (!container) {
+            throw new Error('AuthBackground requires a container element');
+        }
+        this.container = container;
+    }
+
     render() {
-        // Если уже отрисован, ничего не делаем
+        // Если уже отрисован, ничего не делаем (синглтон рендерится только раз)
         if (this.circles.length > 0) {
             return;
         }
 
         const tablet = this.container.querySelector('.circle-activity-tablet');
-        if (!tablet) return;
+        if (!tablet) {
+            console.error('AuthBackground: .circle-activity-tablet not found in container!');
+            return;
+        }
 
         // Получаем текст из содержимого div
         const textContent = tablet.textContent.trim();
         tablet.textContent = ''; 
 
-        // Получаем конфигурацию из CSS переменных
-        const computedStyle = getComputedStyle(tablet);
-        const rows = parseInt(computedStyle.getPropertyValue('--bg-rows'), 10);
-        const cols = parseInt(computedStyle.getPropertyValue('--bg-cols'), 10);
-        const circleSpacing = parseInt(computedStyle.getPropertyValue('--bg-circle-spacing'), 10);
-        const verticalSpacing = parseInt(computedStyle.getPropertyValue('--bg-vertical-spacing'), 10);
-        const circleSize = parseInt(computedStyle.getPropertyValue('--bg-circle-size'), 10);
+        const rows = 12;
+        const cols = 29;
+        const circleSpacing = 184;
+        const verticalSpacing = 232;
+        const circleSize = 140;
+        const circleSpeed = 2;
+        const textSpeed = 1;
 
         let iconIndex = 0;
 
@@ -88,9 +98,8 @@ export class AuthBackground {
         const tablet = this.container.querySelector('.circle-activity-tablet');
         if (!tablet) return;
 
-        const computedStyle = getComputedStyle(tablet);
-        const circleSpeedNum = parseInt(computedStyle.getPropertyValue('--bg-circle-speed'), 10);
-        const textSpeedNum = parseInt(computedStyle.getPropertyValue('--bg-text-speed'), 10);
+        const circleSpeed = 2;
+        const textSpeed = 1;
         
         let circlePosition = 0;
         let textPosition = 0;
@@ -100,12 +109,12 @@ export class AuthBackground {
         const textResetPoint = textWidth + 60;
 
         const animate = () => {
-            circlePosition += circleSpeedNum;
+            circlePosition += circleSpeed;
             if (circlePosition >= circleResetPoint) {
                 circlePosition -= circleResetPoint;
             }
 
-            textPosition += textSpeedNum;
+            textPosition += textSpeed;
             if (textPosition >= textResetPoint) {
                 textPosition -= textResetPoint;
             }
@@ -150,3 +159,6 @@ export class AuthBackground {
         }
     }
 }
+
+// Создаем синглтон, как в login.js и register.js
+export const authBackground = new AuthBackground();

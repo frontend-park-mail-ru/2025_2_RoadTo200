@@ -82,9 +82,11 @@ export class Header {
      * @returns {void}
      */
     updateAuthState(isAuthenticated) {
-        // Можно обновить только нужные элементы, если хедер уже отрисован
-        // Пока просто логируем
-        console.log('Header auth state updated:', isAuthenticated);
+        // Обновление состояния без полной перерисовки
+        // В данном случае хедер уже отрисован и не требует изменений
+        if (this.parent) {
+            console.log('Header auth state updated:', isAuthenticated);
+        }
     }
 };
 

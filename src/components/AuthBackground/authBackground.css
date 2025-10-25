@@ -6,32 +6,20 @@
     z-index: 0;
     overflow: hidden;
     background: linear-gradient(135deg, #fef5f7 0%, #fff9fa 100%);
-    display: none; /* Скрыто по умолчанию, показывается только на страницах логина/регистрации */
-}
+    display: block; /* Обеспечиваем отображение фона */
 
 .circle-activity-tablet {
-    /* Конфигурация через CSS переменные */
-    --bg-circle-spacing: 184;
-    --bg-vertical-spacing: 232;
-    --bg-circle-size: 140;
-    --bg-text-size: 32px;
-    --bg-rotation: -30deg;
-    --bg-rows: 12;
-    --bg-cols: 29;
-    --bg-circle-speed: 2;
-    --bg-text-speed: 1;
-    
     position: relative;
     width: 100%;
     height: 100%;
-    transform: rotate(var(--bg-rotation));
+    transform: rotate(-30deg); /* Поворот фона */
 }
 
 /* Текстовая надпись на фоне */
 .background-text {
     position: absolute;
     white-space: nowrap;
-    font-size: var(--bg-text-size);
+    font-size: 32px;
     font-weight: 700;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     background: linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary-light) 100%);

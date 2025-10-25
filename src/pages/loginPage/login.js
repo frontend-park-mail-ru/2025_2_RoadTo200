@@ -1,6 +1,5 @@
 import { dispatcher } from '../../Dispatcher.js';
 import { Actions } from '../../actions.js';
-import { Header } from '../../components/Header/header.js';
 
 const TEMPLATE_PATH = './src/pages/loginPage/login.hbs';
 
@@ -74,11 +73,8 @@ const fetchTemplate = async (path) => {
 export class LoginPage {
     parent;
 
-    authHeader;
-
     constructor(parent) {
         this.parent = parent;
-        this.authHeader = null;
         
         // Регистрируем LoginPage в Dispatcher для получения ошибок
         dispatcher.register(this);
@@ -114,17 +110,16 @@ export class LoginPage {
         newDiv.innerHTML = pageTemplate({});
         this.parent.appendChild(newDiv);
 
-        this.initHeader();
         this.initPasswordToggles();
         this.initFormActions();
-    }
-
-    initHeader() {
-        const headerContainer = document.querySelector('.header-container');
-        if (headerContainer) {
-            this.authHeader = new Header(headerContainer);
-            this.authHeader.render({ isAuthenticated: false });
-        }
+        
+        // После того как страница отрендерена, показываем фон
+        // Используем двойной requestAnimationFrame для гарантии применения стилей
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                dispatcher.process({ type: Actions.RENDER_AUTH_BACKGROUND });
+            });
+        });
     }
 
     initPasswordToggles() {
