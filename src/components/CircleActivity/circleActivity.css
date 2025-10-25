@@ -57,19 +57,3 @@
     height: 180px;
 }
 
-/* Цветовые варианты */
-.circle-activity.variant-pink {
-    background: linear-gradient(135deg, #FD297B 0%, #FF5864 100%);
-}
-
-.circle-activity.variant-orange {
-    background: linear-gradient(135deg, #FF5864 0%, #FF8E53 100%);
-}
-
-.circle-activity.variant-purple {
-    background: linear-gradient(135deg, #FD297B 0%, #B721FF 100%);
-}
-
-.circle-activity.variant-light {
-    background: linear-gradient(135deg, #FF8E53 0%, #FFB199 100%);
-}
