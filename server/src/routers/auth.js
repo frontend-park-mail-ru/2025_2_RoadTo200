@@ -7,6 +7,12 @@ const usersData = {
         id: 1,
         name: 'test'
     },
+    'misha@misha.ru': {
+        email: 'misha@misha.ru',
+        password: 'misha@misha.ru',
+        id: 2,
+        name: 'misha'
+    },
 };
 
 router.route('/register').post((req, res, next) => {

@@ -1,10 +1,6 @@
 .app-header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
     height: 80px;
-    z-index: 100;
+
 }
 
 .header-content {
@@ -16,10 +12,6 @@
 }
 
 
-welcome-text {
-    color: black;
-    font-weight: 700;
-    font-size: 32px;
 .app-title {
     background: linear-gradient(90deg, #ff4b72 0%, #ff99a8 100%);
     -webkit-background-clip: text;
@@ -65,8 +57,4 @@ welcome-text {
 .logout-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(255, 75, 114, 0.4);
-}
-
-body {
-    padding-top: 80px;
 }
