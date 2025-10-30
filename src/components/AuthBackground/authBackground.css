@@ -35,10 +35,10 @@
     pointer-events: none;
 }
 
-/* Обеспечиваем, что контейнер находится под контентом */
 .container {
     position: relative;
     z-index: 1;
+    height: 100vh;
 }
 
 .form-container {

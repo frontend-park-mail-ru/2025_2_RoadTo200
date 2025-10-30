@@ -19,6 +19,7 @@ class LoginStore {
             case Actions.REQUEST_LOGIN:
                 await this.processLogin(action.payload);
                 break;
+            
         }
     }
 

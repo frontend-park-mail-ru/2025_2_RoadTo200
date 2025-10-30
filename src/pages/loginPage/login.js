@@ -90,13 +90,7 @@ export class LoginPage {
         }
     }
 
-    showError(message) {
-        const errorDiv = document.querySelector('.error-message');
-        if (errorDiv) {
-            errorDiv.textContent = message;
-            errorDiv.style.display = 'block';
-        }
-    }
+    
 
     async render() {
         this.parent.innerHTML = '';

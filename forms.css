@@ -3,11 +3,13 @@
     padding: 2.5rem 2rem;
     border-radius: var(--border-radius-large);
     width: 450px;
-    max-width: 450px; /*pixelperfect, check how to deal with it later*/
+    max-width: 450px;
     max-height: fit-content;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
     position: relative;
+    margin: 0 auto;
     z-index: 2;
+    
 }
 
 .form-title {
