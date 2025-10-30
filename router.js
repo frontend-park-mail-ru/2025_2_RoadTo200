@@ -5,6 +5,13 @@ import { menu } from './src/components/Menu/menu.js';
 import { dispatcher } from './src/Dispatcher.js';
 import { Actions } from './src/actions.js';
 
+// Импортируем store'ы для их инициализации
+import './src/pages/loginPage/loginStore.js';
+import './src/pages/registerPage/registerStore.js';
+import './src/pages/mainPage/mainStore.js';
+import './src/components/Header/headerStore.js';
+import './src/components/AuthBackground/authBackgroundStore.js';
+
 /**
  * Класс маршрута.
  */
@@ -126,6 +133,7 @@ export class Router {
       return;
     }
 
+    // Скрываем фон на неавторизационных страницах
     if (currentPath !== '/login' && currentPath !== '/register') {
 
       this.headerContainer.style.display = 'block';
@@ -145,6 +153,13 @@ export class Router {
 
     if (route && route.component) {
         route.component.parent = this.contentContainer;
+      dispatcher.process({ type: Actions.RENDER_HEADER });
+      dispatcher.process({ type: Actions.HIDE_AUTH_BACKGROUND });
+    }
+
+    const root = document.getElementById('root');
+    if (root) {
+      root.innerHTML = '';
     }
 
     if (currentPath === '/') {
@@ -153,6 +168,33 @@ export class Router {
       dispatcher.process({ type: Actions.RENDER_LOGIN });
     } else if (currentPath === '/register') {
       dispatcher.process({ type: Actions.RENDER_REGISTER });
+      return;
+    }
+    
+    if (currentPath === '/login') {
+      dispatcher.process({ type: Actions.RENDER_LOGIN });
+      return;
+    }
+    
+    if (currentPath === '/register') {
+      dispatcher.process({ type: Actions.RENDER_REGISTER });
+      return;
+    }
+    
+    // Скрываем фон на других страницах
+    dispatcher.process({ type: Actions.HIDE_AUTH_BACKGROUND });
+
+    if (root) {
+      try {
+        const contentHtml = await route.component.render();
+        root.innerHTML = contentHtml;
+        
+        if (route.component.controller) {
+          await route.component.controller();
+        }
+      } catch (error) {
+        console.error('Error rendering component:', error);
+      }
     }
   }
 }

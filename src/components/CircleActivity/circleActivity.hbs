@@ -1,0 +1,9 @@
+{{!-- 
+  Шаблон для CircleActivity компонента
+  Можно использовать, если нужно рендерить через Handlebars
+--}}
+<div class="circle-activity {{className}}" style="width: {{size}}px; height: {{size}}px; opacity: {{opacity}};">
+  {{#if svgPath}}
+    <img src="{{svgPath}}" alt="activity icon" class="circle-activity-icon">
+  {{/if}}
+</div>

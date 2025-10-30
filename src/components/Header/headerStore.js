@@ -9,11 +9,13 @@ class HeaderStore{
     user; 
     isAuthenticated;
     
-    headerComponent; 
+    headerComponent;
+    isHeaderRendered;
 
     constructor() {
         this.user = null;
         this.isAuthenticated = false;
+        this.isHeaderRendered = false;
         
         dispatcher.register(this);
 
@@ -59,6 +61,8 @@ class HeaderStore{
             await AuthApi.logout(); 
 
             this.user = null;
+            this.isAuthenticated = false;
+            this.isHeaderRendered = false;
 
             dispatcher.process({
                 type: Actions.AUTH_STATE_UPDATED,
@@ -106,6 +110,20 @@ class HeaderStore{
         };
         
         await this.headerComponent.render(headerData);
+
+        // Рендерим хедер только один раз
+        if (!this.isHeaderRendered) {
+            const headerData = {
+                user: this.user,
+                isAuthenticated: this.isAuthenticated
+            };
+            
+            await this.headerComponent.render(headerData);
+            this.isHeaderRendered = true;
+        } else {
+            // Только обновляем состояние без полной перерисовки
+            this.headerComponent.updateAuthState(this.isAuthenticated);
+        }
     }
 }
 

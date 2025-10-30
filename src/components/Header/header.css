@@ -1,5 +1,10 @@
 .app-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
     height: 80px;
+    z-index: 100;
 }
 
 .header-content {
@@ -15,11 +20,25 @@ welcome-text {
     color: black;
     font-weight: 700;
     font-size: 32px;
+.app-title {
+    background: linear-gradient(90deg, #ff4b72 0%, #ff99a8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 700;
+    font-size: 32px;
+    font-family: "Inter", system-ui, -apple-system, sans-serif;
+    margin: 0;
 }
 
 .welcome-text {
-    font-size: 18px;
+    background: linear-gradient(90deg, #ff4b72 0%, #ff99a8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
     font-weight: 700;
+    font-size: 18px;
+    font-family: "Inter", system-ui, -apple-system, sans-serif;
 }
 
 .header-right {
@@ -30,19 +49,24 @@ welcome-text {
 }
 
 .logout-btn {
-    background: rgba(255,255,255,0.2);
-    color: var(--color-primary-light);
-    border: 2px solid rgba(255,255,255,0.4);
+    background: linear-gradient(90deg, #ff4b72 0%, #ff99a8 100%);
+    color: white;
+    border: none;
     border-radius: 25px;
-    background-color: #ffffff;
-    padding: 8px 20px;
+    padding: 10px 24px;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(255, 88, 100, 0.2);
+    box-shadow: 0 4px 15px rgba(255, 75, 114, 0.3);
     font-weight: 700;
     font-size: 16px;
+    font-family: "Inter", system-ui, -apple-system, sans-serif;
 }
 
 .logout-btn:hover {
     transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 75, 114, 0.4);
+}
+
+body {
+    padding-top: 80px;
 }

@@ -3,10 +3,12 @@ export const Actions = {
     // login
     RENDER_LOGIN: "RENDER_LOGIN",
     REQUEST_LOGIN: "REQUEST_LOGIN",
+    LOGIN_ERROR: "LOGIN_ERROR",
 
     // register
     REQUEST_REGISTER: "REQUEST_REGISTER",
     RENDER_REGISTER: "RENDER_REGISTER",
+    REGISTER_ERROR: "REGISTER_ERROR",
 
     // main
     RENDER_MAIN: "RENDER_MAIN",
@@ -34,4 +36,8 @@ export const Actions = {
     
     // my profile
     RENDER_MYCARD: "RENDER_MYCARD",
+    
+    // auth background
+    RENDER_AUTH_BACKGROUND: "RENDER_AUTH_BACKGROUND",
+    HIDE_AUTH_BACKGROUND: "HIDE_AUTH_BACKGROUND",
 }
