@@ -7,8 +7,6 @@
 body {
     
     font-family: 'Inter', sans-serif;
-    display: flex;
-    justify-content: center;
     align-items: center;
 
     min-height: 100vh;
@@ -28,6 +26,25 @@ body {
   justify-content: center;
   justify-items: center;
   align-items: center;
+}
+
+.page-layout {
+  display: flex;
+  height: 100vh;
+  background-color: #ffffff;
+}
+
+#menu-container-internal {
+    width: 280px; 
+    
+    padding: 20px 0;
+    border-right: 1px solid #eee;
+}
+
+.main-column {
+   width: 100%;
+  display: flex;
+  flex-direction: column; 
   position: relative;
   z-index: 1;
 }

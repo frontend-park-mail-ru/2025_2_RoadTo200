@@ -15,12 +15,11 @@
     height: 100%;
 }
 
-.title-with-heart {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
 
+welcome-text {
+    color: black;
+    font-weight: 700;
+    font-size: 32px;
 .app-title {
     background: linear-gradient(90deg, #ff4b72 0%, #ff99a8 100%);
     -webkit-background-clip: text;
@@ -43,6 +42,7 @@
 }
 
 .header-right {
+    margin-left: auto;
     display: flex;
     align-items: center;
     gap: 16px;

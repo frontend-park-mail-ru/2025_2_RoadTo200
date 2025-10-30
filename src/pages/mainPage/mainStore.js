@@ -42,7 +42,7 @@ class MainStore {
             main.setCards(cards);
             
         } catch (error) {
-            alert("ошибка полученяи карт"); // 
+            alert("ошибка получения карточек"); // 
         }
     }
 

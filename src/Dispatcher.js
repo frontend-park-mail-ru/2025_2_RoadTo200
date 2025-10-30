@@ -5,7 +5,9 @@ class Dispatcher {
     }
 
     register(store) { 
+        
         this.subscribers.push(store);
+        console.log(this.subscribers);
     }
 
     process(action){

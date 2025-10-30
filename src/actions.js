@@ -21,6 +21,21 @@ export const Actions = {
     // auth
     AUTH_STATE_UPDATED: "AUTH_STATE_UPDATED",
     REQUEST_LOGOUT: "REQUEST_LOGOUT",
+
+    // menu
+    RENDER_MENU: "RENDER_MENU",
+
+    // cards
+    RENDER_CARDS: "RENDER_CARDS",
+    
+    // matches
+    RENDER_MATCHES: "RENDER_MATCHES",
+    
+    // chats
+    RENDER_CHATS: "RENDER_CHATS",
+    
+    // my profile
+    RENDER_MYCARD: "RENDER_MYCARD",
     
     // auth background
     RENDER_AUTH_BACKGROUND: "RENDER_AUTH_BACKGROUND",

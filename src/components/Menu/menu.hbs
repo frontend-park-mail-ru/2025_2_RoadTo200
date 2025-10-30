@@ -1,0 +1,17 @@
+<nav class="sidebar">
+    <div class="sidebar-header">
+        {{{smallHeartHtml}}}
+        <h2 class="app-name">Терабития</h2>
+    </div>
+
+    <ul class="menu-list">
+        {{#each menuItems}}
+            <li class="menu-item {{#if isActive}}active{{/if}}" data-route="{{route}}">
+                <a href="#" class="menu-link">
+                    <img src="{{../SVG_PATH_BASE}}{{icon}}" alt="{{name}}" class="menu-icon">
+                    {{name}}
+                </a>
+            </li>
+        {{/each}}
+    </ul>
+</nav>
