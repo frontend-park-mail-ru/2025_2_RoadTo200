@@ -4,17 +4,16 @@ import { Actions } from '../../actions.js';
 const TEMPLATE_PATH = './src/pages/loginPage/login.hbs';
 
 /**
- * Валидация email согласно RFC 5322 с поддержкой SMTPUTF8 (unicode/emoji)
+ * Валидация email RFC 5322 SMTPUTF8 
  */
 const validateEmail = (email) => {
-    // Поддержка SMTPUTF8 - emoji и unicode символы
     const emailRegex = /^[\p{L}\p{N}.!#$%&'*+/=?^_`{|}~-]+@[\p{L}\p{N}](?:[\p{L}\p{N}-]{0,61}[\p{L}\p{N}])?(?:\.[\p{L}\p{N}](?:[\p{L}\p{N}-]{0,61}[\p{L}\p{N}])?)*$/u;
     
     if (!emailRegex.test(email)) {
         return false;
     }
     
-    // Проверка длины local-part (до @)
+    // Проверка длины до @
     const atIndex = email.indexOf('@');
     if (atIndex === -1) return false;
     
@@ -83,6 +82,7 @@ export class LoginPage {
     async handleAction(action) {
         switch (action.type) {
             case Actions.LOGIN_ERROR:
+                console.log('LOGIN_ERROR received:', action.payload);
                 this.showError(action.payload.message);
                 break;
             default:
@@ -90,7 +90,32 @@ export class LoginPage {
         }
     }
 
-    
+    showError(message) {
+        console.log('showError called with:', message);
+        
+        // Try multiple selectors to find the error div
+        let errorDiv = document.querySelector('.error-message');
+        
+        if (!errorDiv) {
+            errorDiv = document.querySelector('#loginDiv .error-message');
+        }
+        
+        if (!errorDiv) {
+            errorDiv = document.querySelector('#loginForm .error-message');
+        }
+        
+        console.log('errorDiv found:', errorDiv);
+        console.log('errorDiv exists:', !!errorDiv);
+        
+        if (errorDiv) {
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            console.log('Error displayed successfully');
+        } else {
+            console.error('Could not find .error-message element in DOM');
+            console.log('Current DOM:', document.body.innerHTML);
+        }
+    }
 
     async render() {
         this.parent.innerHTML = '';
@@ -108,7 +133,6 @@ export class LoginPage {
         this.initFormActions();
         
         // После того как страница отрендерена, показываем фон
-        // Используем двойной requestAnimationFrame для гарантии применения стилей
         requestAnimationFrame(() => {
             requestAnimationFrame(() => {
                 dispatcher.process({ type: Actions.RENDER_AUTH_BACKGROUND });

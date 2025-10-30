@@ -1,0 +1,14 @@
+<div class="match-card {{#if isExpired}}expired{{/if}}" data-match-id="{{id}}">
+  <div class="match-image-wrapper">
+    <div class="match-timer-container">
+      <span class="match-timer">{{timer}}</span>
+      {{#if isNew}}
+      <span class="match-badge">Новый</span>
+      {{/if}}
+    </div>
+    <img class="match-image" src="{{image}}" alt="{{name}}">
+    <div class="match-info">
+      <h3 class="match-name">{{name}}, {{age}}</h3>
+    </div>
+  </div>
+</div>

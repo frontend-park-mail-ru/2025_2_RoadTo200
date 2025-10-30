@@ -39,6 +39,7 @@ app.use(express.urlencoded({extended: true}));
 
 const cardsRouter = require('./routers/cards');
 const authRouter = require('./routers/auth');
+const matchesRouter = require('./routers/matches');
 
 // Экспортируем middleware для использования в роутерах
 app.locals.requireAuth = requireAuth;
@@ -47,6 +48,8 @@ app.locals.requireAuth = requireAuth;
 app.use('/api', authRouter);
 // Затем подключаем защищенные роуты карточек
 app.use('/api', cardsRouter);
+// Подключаем роуты мэтчей
+app.use('/api/matches', matchesRouter);
 
 app.listen(PORT, onStart);
 

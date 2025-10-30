@@ -1,0 +1,13 @@
+<div class="matches-page">
+    <div class="matches-grid">
+        {{#each matches}}
+            {{{this}}}
+        {{/each}}
+    </div>
+    
+    {{#if noMatches}}
+    <div class="no-matches">
+        <p>У вас пока нет мэтчей</p>
+    </div>
+    {{/if}}
+</div>
