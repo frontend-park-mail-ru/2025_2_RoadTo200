@@ -17,7 +17,7 @@ export class AuthBackground {
     }
 
     render() {
-        // Если уже отрисован, ничего не делаем (синглтон рендерится только раз)
+        // Если уже отрисован, ничего не делаем
         if (this.circles.length > 0) {
             return;
         }
@@ -33,7 +33,7 @@ export class AuthBackground {
         tablet.textContent = ''; 
 
         const rows = 12;
-        const cols = 29;
+        const cols = 34;
         const circleSpacing = 184;
         const verticalSpacing = 232;
         const circleSize = 140;
@@ -159,6 +159,4 @@ export class AuthBackground {
         }
     }
 }
-
-// Создаем синглтон, как в login.js и register.js
 export const authBackground = new AuthBackground();
