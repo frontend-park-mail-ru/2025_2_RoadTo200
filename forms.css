@@ -2,8 +2,8 @@
     background-color: #ffffff;
     padding: 2.5rem 2rem;
     border-radius: var(--border-radius-large);
-    width: 450px; /* Фиксированная ширина 450px как в Figma */
-    max-width: 450px; 
+    width: 450px;
+    max-width: 450px; /*pixelperfect, check how to deal with it later*/
     max-height: fit-content;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
     position: relative;
@@ -18,17 +18,17 @@
     text-align: center;
 }
 
-/* Новый стиль ошибок как на скриншоте */
+
 .error-message {
     background-color: transparent;
     color: #ff4b72;
     padding: 0;
     text-align: center;
-    margin: 0 0 0.5rem 0; /* Размещение между полями и кнопкой */
+    margin: 0 0 0.5rem 0; /* между полями и кнопкой */
     font-weight: 400;
     font-size: 0.875rem;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    min-height: 1.25rem; /* Резервируем место для ошибки */
+    min-height: 1.25rem; /*  место для ошибки */
 }
 
 .error {
@@ -42,7 +42,7 @@
     border: 1px solid var(--color-primary-light);
 }
 
-/* Обёртка для input с глазиком */
+/* input с глазиком */
 .input-wrapper {
     position: relative;
     margin-bottom: 1rem;

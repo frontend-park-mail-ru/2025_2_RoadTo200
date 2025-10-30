@@ -92,10 +92,9 @@ export class Router {
       return;
     }
 
-    // Управление хедером через Flux
+    // Скрываем фон на неавторизационных страницах
     if (currentPath !== '/login' && currentPath !== '/register') {
       dispatcher.process({ type: Actions.RENDER_HEADER });
-      // Скрываем фон на неавторизационных страницах
       dispatcher.process({ type: Actions.HIDE_AUTH_BACKGROUND });
     }
 
