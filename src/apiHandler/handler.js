@@ -27,7 +27,17 @@ export async function handleFetch(baseURL, endpoint, options = {}) {
         // Игнорируем, если не JSON
       }
       
-      const error = new Error(`Request failed with status ${response.status}`);
+      // Формируем понятное сообщение об ошибке
+      let errorMessage = 'Неверный email или пароль';
+      if (errorDetails && errorDetails.error) {
+        errorMessage = errorDetails.error;
+      } else if (response.status === 500) {
+        errorMessage = 'Ошибка сервера. Попробуйте позже';
+      } else if (response.status === 404) {
+        errorMessage = 'Сервис недоступен';
+      }
+      
+      const error = new Error(errorMessage);
       error.status = response.status;
       error.details = errorDetails;
       throw error;
@@ -36,6 +46,7 @@ export async function handleFetch(baseURL, endpoint, options = {}) {
     return response.json();
   } catch (error) {
     if (error.name === 'TypeError') {
+      error.message = 'Ошибка соединения с сервером';
       error.isNetworkError = true;
     }
     throw error;

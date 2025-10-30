@@ -2,9 +2,12 @@
     background-color: #ffffff;
     padding: 2.5rem 2rem;
     border-radius: var(--border-radius-large);
-    width: 100%;
-    max-width: 450px; 
+    width: 450px;
+    max-width: 450px; /*pixelperfect, check how to deal with it later*/
     max-height: fit-content;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    position: relative;
+    z-index: 2;
 }
 
 .form-title {
@@ -13,6 +16,19 @@
     color: var(--color-primary-dark);
     margin: 0 0 1.5rem 0;
     text-align: center;
+}
+
+
+.error-message {
+    background-color: transparent;
+    color: #ff4b72;
+    padding: 0;
+    text-align: center;
+    margin: 0 0 0.5rem 0; /* между полями и кнопкой */
+    font-weight: 400;
+    font-size: 0.875rem;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    min-height: 1.25rem; /*  место для ошибки */
 }
 
 .error {
@@ -24,6 +40,43 @@
     margin-bottom: 1.5rem;
     font-weight: 500;
     border: 1px solid var(--color-primary-light);
+}
+
+/* input с глазиком */
+.input-wrapper {
+    position: relative;
+    margin-bottom: 1rem;
+}
+
+.password-wrapper {
+    position: relative;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.5;
+    transition: opacity 0.3s ease;
+    z-index: 10;
+}
+
+.password-toggle:hover {
+    opacity: 1;
+}
+
+.eye-icon {
+    width: 25px;
+    height: 17px;
+    display: block;
 }
 
 .link {
@@ -56,8 +109,20 @@
     transition: border-color 0.3s, box-shadow 0.3s, background-color 0.3s;
     outline: none;
     box-sizing: border-box; 
-    margin-bottom: 1rem;
 }
+
+.input-wrapper .form-input {
+    margin-bottom: 0;
+}
+
+.password-wrapper .form-input {
+    padding-right: 3.5rem;
+}
+
+.form-input.error-input {
+    border-color: #ff4b72;
+}
+
 .form-input:focus {
     border-color: var(--color-primary-light);
     background-color: #ffffff;
@@ -75,7 +140,7 @@
     outline: none;
     margin-top: 0.5rem;
     transition: all 0.3s ease;
-    background-image: linear-gradient(to right, var(--color-primary-dark) 0%, var(--color-primary-light) 100%);
+    background: linear-gradient(to right, var(--color-primary-dark) 0%, var(--color-primary-light) 100%);
     border-radius: var(--border-radius-large);
     box-shadow: 0 8px 15px rgba(253, 41, 123, 0.4);
 

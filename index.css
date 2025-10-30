@@ -5,7 +5,7 @@
 }
 
 body {
-    background: linear-gradient(135deg, var(--color-primary-light) 0%, #FF6B8B 50%, #FF99A9 100%);
+    
     font-family: 'Inter', sans-serif;
     display: flex;
     justify-content: center;
@@ -28,4 +28,6 @@ body {
   justify-content: center;
   justify-items: center;
   align-items: center;
+  position: relative;
+  z-index: 1;
 }

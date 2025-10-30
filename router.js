@@ -1,8 +1,13 @@
 import { AuthUtils } from './src/utils/auth.js';
-import { header } from './src/components/Header/header.js';
-import BigHeart from './src/components/BigHeart/bigHeart.js';
 import { dispatcher } from './src/Dispatcher.js';
 import { Actions } from './src/actions.js';
+
+// Импортируем store'ы для их инициализации
+import './src/pages/loginPage/loginStore.js';
+import './src/pages/registerPage/registerStore.js';
+import './src/pages/mainPage/mainStore.js';
+import './src/components/Header/headerStore.js';
+import './src/components/AuthBackground/authBackgroundStore.js';
 
 /**
  * Класс маршрута.
@@ -87,30 +92,13 @@ export class Router {
       return;
     }
 
+    // Скрываем фон на неавторизационных страницах
     if (currentPath !== '/login' && currentPath !== '/register') {
       dispatcher.process({ type: Actions.RENDER_HEADER });
+      dispatcher.process({ type: Actions.HIDE_AUTH_BACKGROUND });
     }
 
-    const headerContainer = document.getElementById('header-container');
-    const bigHeartContainer = document.getElementById('big-heart-container');
     const root = document.getElementById('root');
-
-    if (headerContainer && currentPath !== '/login' && currentPath !== '/register') {
-      try {
-        const headerHtml = await header.render(isAuthenticated);
-        headerContainer.innerHTML = headerHtml;
-        
-        const bigHeartHtml = await BigHeart.render();
-        bigHeartContainer.innerHTML = bigHeartHtml;
-        
-        setTimeout(() => {
-          header.initEventListeners();
-        }, 0);
-      } catch (error) {
-        console.error('Error rendering header:', error);
-      }
-    }
-
     if (root) {
       root.innerHTML = '';
     }
@@ -118,13 +106,20 @@ export class Router {
     if (currentPath === '/') {
       dispatcher.process({ type: Actions.RENDER_MAIN });
       return;
-    }else if (currentPath === '/login') {
+    }
+    
+    if (currentPath === '/login') {
       dispatcher.process({ type: Actions.RENDER_LOGIN });
       return;
-    } else if (currentPath === '/register') {
+    }
+    
+    if (currentPath === '/register') {
       dispatcher.process({ type: Actions.RENDER_REGISTER });
       return;
     }
+    
+    // Скрываем фон на других страницах
+    dispatcher.process({ type: Actions.HIDE_AUTH_BACKGROUND });
 
     if (root) {
       try {

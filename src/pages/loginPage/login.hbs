@@ -1,17 +1,25 @@
+<div class="header-container"></div>
+
 <div class="container">
     <div class="form-container">
         <h1 class="form-title">Вход</h1>
         
-        {{#if error}}
-            <div class="error">{{error}}</div>
-        {{/if}}
-        
-        <form id="loginForm">
-            <input type="email" id="email" class="form-input" placeholder="Email" required>
-            <input type="password" id="password" class="form-input" placeholder="Пароль" required>
+        <form id="loginForm" novalidate>
+            <div class="input-wrapper">
+                <input type="email" id="email" class="form-input" placeholder="Email">
+            </div>
+            <div class="input-wrapper password-wrapper">
+                <input type="password" id="password" class="form-input" placeholder="Пароль">
+                <button type="button" class="password-toggle" aria-label="Показать пароль">
+                    <img src="./src/assets/Eyes/close_eye.svg" alt="Показать пароль" class="eye-icon">
+                </button>
+            </div>
+            
+            <div class="error-message" style="display: none;"></div>
+            
             <button type="submit" class="btn btn-primary">Войти</button>
         </form>
-        
+
         <div class="link">
             Нет аккаунта? <a href="/register" Link> Зарегистрироваться </a>
         </div>
