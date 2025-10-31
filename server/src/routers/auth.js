@@ -1,19 +1,5 @@
 const router = require('express').Router();
-
-const usersData = {
-    'test@test.test': {
-        email: 'test@test.test',
-        password: 'test@test.test',
-        id: 1,
-        name: 'test'
-    },
-    'misha@misha.ru': {
-        email: 'misha@misha.ru',
-        password: 'misha@misha.ru',
-        id: 2,
-        name: 'misha'
-    },
-};
+const usersData = require('../fake_db/users');
 
 router.route('/register').post((req, res, next) => {
     
@@ -24,7 +10,8 @@ router.route('/register').post((req, res, next) => {
     }
 
     // Проверка существования пользователя
-    if (usersData[email]) {
+    const existingUser = usersData.users.find(user => user.email === email);
+    if (existingUser) {
         return res.status(400).json({ error: 'Пользователь с таким email уже существует' });
     }
 
@@ -42,10 +29,12 @@ router.route('/register').post((req, res, next) => {
     const newUser = {
         email,
         password,
-        id: Date.now()
+        id: Date.now(),
+        name: email.split('@')[0] // Генерируем имя из email
     };
     
-    usersData[email] = newUser;
+    // Добавляем нового пользователя в массив
+    usersData.users.push(newUser);
 
     // Создаем сессию сразу после регистрации
     req.session.userId = newUser.id;
@@ -54,7 +43,7 @@ router.route('/register').post((req, res, next) => {
     res.status(200).json({ 
         status: 'ok', 
         message: 'Регистрация успешна',
-        user: { email: newUser.email, name: 'Пользователь' }
+        user: { email: newUser.email, name: newUser.name }
     });
 });
 
@@ -66,10 +55,11 @@ router.route('/login').post((req, res, next) => {
         return res.status(400).json({ error: 'Email и пароль обязательны' });
     }
 
-    const user = usersData[email];
+    const user = usersData.users.find(user => user.email === email);
     if (!user || user.password !== password) {
         return res.status(400).json({ error: 'Неверный email или пароль' });
     }
+    
     // Создаем сессию
     req.session.userId = user.id;
     req.session.userEmail = user.email;
@@ -77,7 +67,7 @@ router.route('/login').post((req, res, next) => {
     res.status(200).json({ 
         status: 'ok', 
         message: 'Вход выполнен успешно',
-        user: { email: user.email, name: 'Пользователь' } 
+        user: { email: user.email, name: user.name } 
     });
 });
 
@@ -85,13 +75,13 @@ router.route('/login').post((req, res, next) => {
 router.route('/session').get((req, res, next) => {
     if (req.session.userId) {
         // Находим пользователя по ID из сессии
-        const user = Object.values(usersData).find(u => u.id === req.session.userId);
+        const user = usersData.users.find(user => user.id === req.session.userId);
         if (user) {
             return res.status(200).json({ 
                 authenticated: true, 
                 user: { 
                     email: user.email, 
-                    name: 'Пользователь'
+                    name: user.name
                 } 
             });
         }

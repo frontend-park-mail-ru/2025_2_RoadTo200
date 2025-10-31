@@ -1,6 +1,7 @@
 const cors = require('cors');
 const express = require('express');
 const session = require('express-session');
+const path = require('path'); // Добавьте эту строку
 
 const app = express();
 app.use(cors({
@@ -36,6 +37,9 @@ function onStart(){
 
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
+
+// ДОБАВЬТЕ ЭТУ СТРОКУ ДЛЯ СТАТИЧЕСКИХ ФАЙЛОВ
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 const cardsRouter = require('./routers/cards');
 const authRouter = require('./routers/auth');
