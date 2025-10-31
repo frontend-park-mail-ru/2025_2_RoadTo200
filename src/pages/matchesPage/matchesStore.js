@@ -24,7 +24,6 @@ class MatchesStore {
                 break;
 
             case Actions.RENDER_MATCH_PROFILE:
-                this.renderMatchProfile(action.payload);
                 break;
 
             default:
@@ -86,8 +85,6 @@ class MatchesStore {
         });
     }
 
-    renderMatchProfile(payload = {}) {    
-    }
 
 }
 

@@ -22,7 +22,8 @@ const fetchTemplate = async (path) => {
         }
         return await response.text();
     } catch (error) {
-        alert("загрузка menu");
+        console.error('Ошибка загрузки шаблона меню:', error);
+        return '';
     }
 };
 
@@ -58,8 +59,10 @@ export class Menu{
 
     initEventListeners() {
         if (typeof window !== 'undefined') {
+            if (!this.parent) return;
             const sidebar = this.parent.querySelector('.sidebar');
-            
+            if (!sidebar) return; // template may be empty or not contain .sidebar
+
             sidebar.addEventListener('click', (event) => {
                 const menuItem = event.target.closest('.menu-item');
                 if (menuItem) {
