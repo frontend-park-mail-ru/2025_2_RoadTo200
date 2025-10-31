@@ -1,9 +1,11 @@
 import './src/pages/loginPage/loginStore.js';
 import './src/pages/mainPage/mainStore.js';
 import './src/pages/registerPage/registerStore.js';
+import './src/pages/matchesPage/matchesStore.js';
 import './src/components/Header/headerStore.js';
 import './src/components/Menu/menuStore.js';
 import './src/components/AuthBackground/authBackgroundStore.js';
+import './src/components/MatchCard/matchCardStore.js';
 
 import { Route, Router} from "./router.js";
 import { main } from "./src/pages/mainPage/main.js";

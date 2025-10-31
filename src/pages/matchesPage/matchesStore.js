@@ -8,6 +8,7 @@ const UPDATE_INTERVAL = 60 * 1000;
 
 class MatchesStore {
     timerId;
+
     matches;
     
     constructor() {
@@ -22,6 +23,10 @@ class MatchesStore {
                 await this.renderMatches();
                 break;
 
+            case Actions.RENDER_MATCH_PROFILE:
+                this.renderMatchProfile(action.payload);
+                break;
+
             default:
                 break;
         }
@@ -29,22 +34,23 @@ class MatchesStore {
 
     async renderMatches() {
         try {
-            // Set the parent to contentContainer
+           
             const contentContainer = document.getElementById('content-container');
             if (contentContainer) {
                 matches.parent = contentContainer;
             }
 
-            // Then fetch and display matches
+            
             const matchesData = await MatchesApi.getAllMatches();
             this.matches = Array.isArray(matchesData) ? matchesData : Object.values(matchesData || []);
+
             this.updateDerivedFields();
             matches.setMatches(this.matches);
 
             if (!this.timerId) {
                 this.timerId = setInterval(() => {
                     this.updateDerivedFields();
-                    // перерисуем лишь UI через компонент
+                    
                     matches.setMatches(this.matches);
                 }, UPDATE_INTERVAL);
             }
@@ -78,6 +84,9 @@ class MatchesStore {
                 isNew: !!m.isNew
             };
         });
+    }
+
+    renderMatchProfile(payload = {}) {    
     }
 
 }

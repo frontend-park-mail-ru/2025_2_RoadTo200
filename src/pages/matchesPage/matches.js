@@ -5,54 +5,63 @@ import MatchCard from '../../components/MatchCard/matchCard.js';
 const TEMPLATE_PATH = './src/pages/matchesPage/matches.hbs';
 
 const fetchTemplate = async (path) => {
-    try {
-        const response = await fetch(path);
-        if (!response.ok) {
-            throw new Error('Ошибка: Не удалось загрузить шаблон');
-        }
-        return await response.text();
-    } catch (error) {
-        console.error('Error loading template:', error);
-        return '<h1>Ошибка: Не удалось загрузить шаблон</h1>'; 
-    }
+    const response = await fetch(path);
+    if (!response.ok) throw new Error('Ошибка: не удалось загрузить шаблон');
+    return await response.text();
 };
 
 export class MatchesPage {
-    parent;
+    parent = null;
 
-    matchesData;
+    matchesData = [];
 
     constructor(parent) {
         this.parent = parent;
-        this.matchesData = [];
     }
 
     async render() {
-        this.parent.innerHTML = '';
+        if (!this.parent) {
+            console.warn('MatchesPage: parent not assigned');
+            return;
+        }
 
         const pageTemplateString = await fetchTemplate(TEMPLATE_PATH);
         const pageTemplate = Handlebars.compile(pageTemplateString);
 
-        const matchCardsHtmlPromises = this.matchesData.map(match => MatchCard.render(match));
-        const matchCardsHtml = await Promise.all(matchCardsHtmlPromises);
+        const matchCardsHtml = await Promise.all(
+            this.matchesData.map(match => MatchCard.render(match))
+        );
 
         const renderedHtml = pageTemplate({
             matches: matchCardsHtml,
             noMatches: this.matchesData.length === 0
         });
 
-        this.parent.innerHTML = '';
-        const newDiv = document.createElement('div');
-        newDiv.id = 'matchesDiv';
-        newDiv.innerHTML = renderedHtml;
-        this.parent.appendChild(newDiv);
+        this.parent.innerHTML = renderedHtml;
+        this.addEventListeners();
     }
 
-    setMatches(matchesArr) {
-        // ожидаем массив с уже вычисленными полями timer/isExpired
+    addEventListeners() {
+        const matchCards = this.parent.querySelectorAll('.match-card');
+        matchCards.forEach(card => {
+            card.addEventListener('click', (e) => {
+                e.preventDefault();
+                const matchId = card.dataset.matchId;
+                if (!matchId) return;
+                
+                dispatcher.process({
+                    type: Actions.MATCH_CARD_CLICK,
+                    payload: { matchId }
+                });
+
+            });
+        });
+    }
+
+    async setMatches(matchesArr) {
         this.matchesData = Array.isArray(matchesArr) ? matchesArr : Object.values(matchesArr || []);
-        this.render();
+        await this.render();
     }
 }
 
-export const matches = new MatchesPage(document.createElement('div'));
+export const matches = new MatchesPage(null);

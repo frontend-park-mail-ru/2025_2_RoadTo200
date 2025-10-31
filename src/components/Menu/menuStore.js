@@ -33,6 +33,7 @@ class MenuStore{
             case Actions.RENDER_MATCHES:
             case Actions.RENDER_CHATS:
             case Actions.RENDER_MYCARD:
+            case Actions.RENDER_MATCH_PROFILE:
                 if (action.payload && action.payload.route) {
                     this.currentRoute = action.payload.route;
                     await this.renderMenu();

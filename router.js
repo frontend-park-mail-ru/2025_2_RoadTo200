@@ -8,9 +8,7 @@ import { Actions } from './src/actions.js';
 import './src/pages/loginPage/loginStore.js';
 import './src/pages/registerPage/registerStore.js';
 import './src/pages/mainPage/mainStore.js';
-import './src/pages/matchesPage/matchesStore.js';
 import './src/components/Header/headerStore.js';
-import './src/components/Menu/menuStore.js';
 import './src/components/AuthBackground/authBackgroundStore.js';
 
 
@@ -82,7 +80,7 @@ export class Router {
         menu.parent = this.menuContainer;
 
         dispatcher.process({ type: Actions.RENDER_HEADER });
-        dispatcher.process({ type: Actions.RENDER_MENU});
+        
     }
 
     init() {
@@ -99,7 +97,7 @@ export class Router {
                 const href = link.getAttribute('href') || link.href;
                 try {
                     const url = new URL(href, window.location.origin);
-                    this.navigateTo(url.pathname);
+                    this.navigateTo(url.pathname + url.search);
                 } catch (error) {
                     console.error('Invalid URL:', error);
                     this.navigateTo('/');
@@ -109,17 +107,20 @@ export class Router {
     }
 
     navigateTo(url) {
-        history.pushState(null, null, url);
+        window.history.pushState(null, null, url);
         this.loadRoute();
     }
 
     async loadRoute() {
-        const currentPath = location.pathname;
+        let currentPath = window.location.pathname;
 
         if (this.currentPath === currentPath) {
             return;
         }
         this.currentPath = currentPath;
+
+        const matchProfileMatch = currentPath.match(/^\/matches\/([^/]+)$/);
+        currentPath = matchProfileMatch ? '/matches' : currentPath;
 
         let route = this.routes.find(r => r.path === currentPath);
 
@@ -151,7 +152,7 @@ export class Router {
         this.menuContainer.style.display = isAuthPage ? 'none' : 'block';
 
         if (this.contentContainer) {
-            this.contentContainer.innerHTML = ''; 
+            this.contentContainer.innerHTML = '';
         }
 
         if (route && route.component) {
@@ -159,27 +160,36 @@ export class Router {
         }
 
         let renderActionType = null;
-        let routeName = null;
+        const actionPayload = {};
 
         if (currentPath === '/') {
             renderActionType = Actions.RENDER_MAIN;
-            routeName = 'main';
+            actionPayload.route = 'main';
         } else if (currentPath === '/login') {
             renderActionType = Actions.RENDER_LOGIN;
         } else if (currentPath === '/register') {
             renderActionType = Actions.RENDER_REGISTER;
         } else if (currentPath === '/matches') {
-            renderActionType = Actions.RENDER_MATCHES;
-            routeName = 'matches';
+            actionPayload.route = 'matches';
+            if (matchProfileMatch) {
+                const [, matchId] = matchProfileMatch;
+                actionPayload.matchId = matchId;
+                renderActionType = Actions.RENDER_MATCH_PROFILE;
+            } else {
+                renderActionType = Actions.RENDER_MATCHES;
+            }
         }
     
         if (renderActionType) {
-            const payload = routeName ? { route: routeName } : {};
-            dispatcher.process({ type: renderActionType, payload });
+            const action = { type: renderActionType };
+            if (Object.keys(actionPayload).length > 0) {
+                action.payload = actionPayload;
+            }
+            dispatcher.process(action);
         }
 
         if (isAuthPage) {
-            dispatcher.process({ type: Actions.SHOW_AUTH_BACKGROUND });
+            dispatcher.process({ type: Actions.RENDER_AUTH_BACKGROUND });
         } else {
             dispatcher.process({ type: Actions.HIDE_AUTH_BACKGROUND });
         }
@@ -193,8 +203,8 @@ export class Router {
             
                 if (this.contentContainer) {
                     this.contentContainer.innerHTML = contentHtml;
-                } else {
-                    root.innerHTML += contentHtml;
+                } else if (this.rootElement) {
+                    this.rootElement.innerHTML += contentHtml;
                 }
             
                 if (route.component.controller) {

@@ -30,6 +30,7 @@ export const Actions = {
     
     // matches
     RENDER_MATCHES: "RENDER_MATCHES",
+    RENDER_MATCH_PROFILE: "RENDER_MATCH_PROFILE",
     
     // chats
     RENDER_CHATS: "RENDER_CHATS",

@@ -21,3 +21,39 @@
 .no-matches p {
     margin: 0;
 }
+
+.match-profile-placeholder {
+    padding: 40px;
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.match-profile-placeholder h1 {
+    font-size: 32px;
+    margin-bottom: 20px;
+    color: var(--color-primary-dark, #333);
+}
+
+.match-profile-placeholder p {
+    font-size: 18px;
+    margin: 10px 0;
+    color: #666;
+}
+
+.match-profile-placeholder a {
+    display: inline-block;
+    margin-top: 30px;
+    padding: 12px 24px;
+    background: linear-gradient(90deg, var(--color-primary-dark), var(--color-primary-light));
+    color: white;
+    text-decoration: none;
+    border-radius: 24px;
+    font-weight: 500;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.match-profile-placeholder a:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}

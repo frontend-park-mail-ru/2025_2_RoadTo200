@@ -71,7 +71,7 @@ export class Menu{
                     if (itemData && itemData.actionType) {
                         const path = itemData.route === 'main' ? '/' : `/${itemData.route}`;
 
-                        history.pushState({ route: clickedRoute }, null, path);
+                        window.history.pushState({ route: clickedRoute }, null, path);
 
                         window.dispatchEvent(new Event('popstate'));
 
