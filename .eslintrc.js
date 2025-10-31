@@ -26,6 +26,28 @@ module.exports = {
        'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
        'import/prefer-default-export': 'off',
 
+       // 1. Разрешить несколько классов в файле - пока проблемы только в роутере, где класс Router и Route вместе
+        'max-classes-per-file': 'off',
+        
+        // 2. Разрешить унарные операторы (++, --)
+        'no-plusplus': 'off',
+        
+        // 3. Разрешить использование расширений файлов в импортах - разобраться потом, почему проект не билдится без расширений
+        'import/extensions': [
+            'error',
+            'ignorePackages',
+            {
+                js: 'always',
+                jsx: 'always',
+                ts: 'always',
+                tsx: 'always',
+            },
+        ],
+        'indent': ['error', 4, {
+            'SwitchCase': 1,
+            'ignoredNodes': ['TemplateLiteral']
+        }],
 
    },
+
 };

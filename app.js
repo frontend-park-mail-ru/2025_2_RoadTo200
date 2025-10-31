@@ -9,6 +9,7 @@ import { Route, Router} from "./router.js";
 import { main } from "./src/pages/mainPage/main.js";
 import { login } from "./src/pages/loginPage/login.js";
 import { register } from "./src/pages/registerPage/register.js";
+import { matches } from "./src/pages/matchesPage/matches.js";
 
 
 const notFoundComponent = {
@@ -25,7 +26,8 @@ const routes = [
   new Route('/', main, true),
   new Route('/login', login, false),
   new Route('/register', register, false),
-  new Route('*', notFoundComponent, false)
+  new Route('*', notFoundComponent, false),
+  new Route('/matches', matches, true)
 ];
 
 const router = new Router(routes);

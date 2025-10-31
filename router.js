@@ -1,6 +1,7 @@
 import { AuthUtils } from './src/utils/auth.js';
 import { header } from './src/components/Header/header.js';
 import { menu } from './src/components/Menu/menu.js';
+import { matchesPage } from './src/pages/matchesPage/matches.js';
 
 import { dispatcher } from './src/Dispatcher.js';
 import { Actions } from './src/actions.js';
@@ -12,6 +13,7 @@ import './src/pages/matchesPage/matchesStore.js';
 import './src/components/Header/headerStore.js';
 import './src/components/Menu/menuStore.js';
 import './src/components/AuthBackground/authBackgroundStore.js';
+
 
 /**
  * Класс маршрута.
