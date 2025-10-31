@@ -22,6 +22,7 @@ class MenuStore{
         switch (action.type) {
             case Actions.RENDER_MENU:
                 if (action.payload && action.payload.route) {
+                    if (this.currentRoute === action.payload.route) return;
                     this.currentRoute = action.payload.route;
                 }
                 await this.renderMenu(); 

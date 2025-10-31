@@ -1,32 +1,32 @@
 module.exports = {
-   root: true,
+    root: true,
 
 
-   env: {
-       browser: true,
-       es2021: true,
-       node: true,
-   },
+    env: {
+        browser: true,
+        es2021: true,
+        node: true,
+    },
 
 
-   extends: [
-       'eslint:recommended',  
-       'airbnb-base',
-       'prettier',
-   ],
+    extends: [
+        'eslint:recommended',  
+        'airbnb-base',
+        'prettier',
+    ],
 
 
-   parserOptions: {
-       ecmaVersion: 'latest',
-       sourceType: 'module', 
-   },
-   rules: {
-       'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'off',
-       'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
-       'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
-       'import/prefer-default-export': 'off',
+    parserOptions: {
+        ecmaVersion: 'latest',
+        sourceType: 'module', 
+    },
+    rules: {
+        'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'off',
+        'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
+        'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+        'import/prefer-default-export': 'off',
 
-       // 1. Разрешить несколько классов в файле - пока проблемы только в роутере, где класс Router и Route вместе
+        // 1. Разрешить несколько классов в файле - пока проблемы только в роутере, где класс Router и Route вместе
         'max-classes-per-file': 'off',
         
         // 2. Разрешить унарные операторы (++, --)
@@ -48,6 +48,6 @@ module.exports = {
             'ignoredNodes': ['TemplateLiteral']
         }],
 
-   },
+    },
 
 };

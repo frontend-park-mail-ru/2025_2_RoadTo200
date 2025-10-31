@@ -11,7 +11,7 @@ class Dispatcher {
     }
 
     process(action){
-        for (let store of this.subscribers){
+        for (const store of this.subscribers){
             store.handleAction(action)
         }
     }

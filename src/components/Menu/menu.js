@@ -36,10 +36,14 @@ export class Menu{
     async render(menuData = {}){
         const { currentRoute = 'main' } = menuData;
 
-        const menuItems = MENU_ITEMS_DATA.map(item => ({
-            ...item,
-            isActive: item.route === currentRoute,
-        }));
+        const menuItems = MENU_ITEMS_DATA.map(item => {
+            const path = item.route === 'main' ? '/' : `/${item.route}`;
+            return {
+                ...item,
+                isActive: item.route === currentRoute,
+                path
+            };
+        });
 
         const templateString = await fetchTemplate(TEMPLATE_PATH);
         const template = Handlebars.compile(templateString);
@@ -65,6 +69,12 @@ export class Menu{
                     const itemData = MENU_ITEMS_DATA.find(item => item.route === clickedRoute);
 
                     if (itemData && itemData.actionType) {
+                        const path = itemData.route === 'main' ? '/' : `/${itemData.route}`;
+
+                        history.pushState({ route: clickedRoute }, null, path);
+
+                        window.dispatchEvent(new Event('popstate'));
+
                         dispatcher.process({ 
                             type: itemData.actionType,
                             payload: { route: clickedRoute } 

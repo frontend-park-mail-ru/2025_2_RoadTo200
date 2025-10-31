@@ -1,16 +1,3 @@
-/**
- * CircleActivity - компонент для создания кружка с SVG иконкой
- * Можно использовать как отдельно, так и в составе других компонентов
- * 
- * Пример использования:
- * const circle = new CircleActivity({
- *   svgPath: './src/assets/ActivityCircleSVG/smile.svg',
- *   size: 124,
- *   opacity: 0.5
- * });
- * container.appendChild(circle.render());
- */
-
 export class CircleActivity {
     /**
      * @param {Object} options - Настройки кружка

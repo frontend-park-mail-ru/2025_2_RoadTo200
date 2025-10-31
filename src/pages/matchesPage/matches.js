@@ -19,13 +19,12 @@ const fetchTemplate = async (path) => {
 
 export class MatchesPage {
     parent;
+
     matchesData;
-    timers;
 
     constructor(parent) {
         this.parent = parent;
         this.matchesData = [];
-        this.timers = [];
     }
 
     async render() {
@@ -34,75 +33,25 @@ export class MatchesPage {
         const pageTemplateString = await fetchTemplate(TEMPLATE_PATH);
         const pageTemplate = Handlebars.compile(pageTemplateString);
 
-        const matchCardsHtml = [];
-        
-        for (const match of this.matchesData) {
-            const cardHtml = await MatchCard.render(match);
-            matchCardsHtml.push(cardHtml);
-        }
+        const matchCardsHtmlPromises = this.matchesData.map(match => MatchCard.render(match));
+        const matchCardsHtml = await Promise.all(matchCardsHtmlPromises);
 
         const renderedHtml = pageTemplate({
             matches: matchCardsHtml,
             noMatches: this.matchesData.length === 0
         });
 
+        this.parent.innerHTML = '';
         const newDiv = document.createElement('div');
         newDiv.id = 'matchesDiv';
         newDiv.innerHTML = renderedHtml;
         this.parent.appendChild(newDiv);
-
-        this.startTimers();
     }
 
-    setMatches(matches) {
-        this.matchesData = Object.values(matches);
+    setMatches(matchesArr) {
+        // ожидаем массив с уже вычисленными полями timer/isExpired
+        this.matchesData = Array.isArray(matchesArr) ? matchesArr : Object.values(matchesArr || []);
         this.render();
-    }
-
-    startTimers() {
-        // Clear existing timers
-        this.timers.forEach(timer => clearInterval(timer));
-        this.timers = [];
-
-        this.matchesData.forEach((match, index) => {
-            const timer = setInterval(() => {
-                this.updateMatchTimer(match.id);
-            }, 1000);
-            this.timers.push(timer);
-        });
-    }
-
-    updateMatchTimer(matchId) {
-        const match = this.matchesData.find(m => m.id === matchId);
-        if (!match) return;
-
-        const now = Date.now();
-        const expiresAt = new Date(match.expiresAt).getTime();
-        const timeLeft = expiresAt - now;
-
-        const cardElement = document.querySelector(`[data-match-id="${matchId}"]`);
-        if (!cardElement) return;
-
-        if (timeLeft <= 0) {
-            // Match expired - blur it
-            cardElement.classList.add('expired');
-            
-        } else {
-            // Update timer
-            const hours = Math.floor(timeLeft / (1000 * 60 * 60));
-            const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-            
-            const timerElement = cardElement.querySelector('.match-timer');
-            if (timerElement) {
-                timerElement.textContent = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
-            }
-        }
-    }
-
-    cleanup() {
-        // Clean up timers when leaving the page
-        this.timers.forEach(timer => clearInterval(timer));
-        this.timers = [];
     }
 }
 

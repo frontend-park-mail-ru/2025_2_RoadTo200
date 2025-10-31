@@ -6,10 +6,12 @@ import { header } from './header.js';
 import AuthApi from '../../apiHandler/authApi.js';
 
 class HeaderStore{
-    user; 
+    user;
+ 
     isAuthenticated;
     
     headerComponent;
+
     isHeaderRendered;
 
     constructor() {
@@ -95,11 +97,11 @@ class HeaderStore{
         }
         
         if (this.user === null) {
-        try {
-            const response = await AuthApi.checkAuth();
-            this.user = response.user || null;
-            this.isAuthenticated = !!this.user;
-        } catch (error) {
+            try {
+                const response = await AuthApi.checkAuth();
+                this.user = response.user || null;
+                this.isAuthenticated = !!this.user;
+            } catch (error) {
                 this.user = null;
                 this.isAuthenticated = false;
             }

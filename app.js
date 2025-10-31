@@ -13,7 +13,7 @@ import { matches } from "./src/pages/matchesPage/matches.js";
 
 
 const notFoundComponent = {
-  render: () => `
+    render: () => `
       <div class="page">
         <h1>404</h1>
         <a href="/" Link>← Вернуться на главную</a>
@@ -23,11 +23,11 @@ const notFoundComponent = {
 
 
 const routes = [
-  new Route('/', main, true),
-  new Route('/login', login, false),
-  new Route('/register', register, false),
-  new Route('*', notFoundComponent, false),
-  new Route('/matches', matches, true)
+    new Route('/', main, true),
+    new Route('/login', login, false),
+    new Route('/register', register, false),
+    new Route('*', notFoundComponent, false),
+    new Route('/matches', matches, true)
 ];
 
 const router = new Router(routes);

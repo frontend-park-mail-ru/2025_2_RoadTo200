@@ -1,13 +1,15 @@
 .match-card {
-    width: 203px;
-    height: 275px;
-    border-radius: var(--border-radius-large, 16px);
+    width: 100%;
+    max-width: 203px;
+    aspect-ratio: 203 / 275;
+    border-radius: var(--border-radius-large, 30px);
     overflow: hidden;
     background-color: #fff;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     cursor: pointer;
-    transition: transform 0.2s, box-shadow 0.2s, filter 0.3s;
+    transition: transform 0.2s, box-shadow 0.2s;
     position: relative;
+    font-family: "Inter", system-ui;
 }
 
 .match-card:hover {
@@ -26,46 +28,36 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.match-image-wrapper {
-    position: relative;
-    width: 100%;
-    height: 100%;
+.match-popups {
+    position: absolute;
+    top: 10px;
+    display: flex;
+    gap: 8px;
+    z-index: 10;
+    padding: 8px 8px;
+    border-radius: 16px;
+    font-size: 16px;
+    font-weight: 500;
+    color: #fff;
+    background: linear-gradient(90deg, var(--color-primary-dark), var(--color-primary-light));
+}
+
+.match-timer  {
+    left: 10px;
+}
+
+.match-badge {
+    right: 10px;
 }
 
 .match-image {
     width: 100%;
     height: 100%;
-    object-fit: cover;
-}
-
-.match-timer-container {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    display: flex;
-    gap: 8px;
-    z-index: 10;
-}
-
-.match-timer {
-    background: linear-gradient(to right, var(--color-primary-dark) 0%, var(--color-primary-light) 100%);
-    color: #fff;
-    padding: 4px 10px;
-    border-radius: 12px;
-    font-size: 16px;
-    font-weight: 500;
-    font-family: "Inter", system-ui;
-}
-
-.match-badge {
-    position: absolute;
-    left: 110px;
-    background: linear-gradient(to right, var(--color-primary-dark) 0%, var(--color-primary-light) 100%);
-    color: #fff;
-    padding: 4px 10px;
-    border-radius: 12px;
-    font-size: 16px;
-    font-weight: 500;
+    display: block;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    position: relative;
 }
 
 .match-info {
@@ -74,15 +66,21 @@
     left: 0;
     right: 0;
     padding: 12px;
-    background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
     color: #fff;
     text-align: center;
 }
 
 .match-name {
-    margin: 0;
     font-size: 24px;
     font-weight: 700;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-    font-family: "Inter", system-ui;
+}
+
+.card-gradient-overlay {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 1), transparent);
+    pointer-events: none;
 }
