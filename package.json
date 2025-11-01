@@ -16,7 +16,8 @@
     "cors": "^2.8.5",
     "express": "^4.18.2",
     "express-session": "^1.17.3",
-    "handlebars": "^4.7.8"
+    "handlebars": "^4.7.8",
+    "multer": "^2.0.2"
   },
   "devDependencies": {
     "concurrently": "^8.2.2",

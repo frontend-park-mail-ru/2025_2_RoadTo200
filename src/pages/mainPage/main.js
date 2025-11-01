@@ -66,6 +66,13 @@ export class MainPage {
         newDiv.innerHTML = renderedHtml;
         this.parent.appendChild(newDiv);
 
+        document.addEventListener('click', (event) => {
+            if (event.target.classList.contains('card-image')) {
+                Card.handleImageNavigation(event);
+            }
+        });
+
+
         dispatcher.process({ type: Actions.GET_CARDS });
     }
 

@@ -11,19 +11,18 @@ app.use(cors({
 
 const PORT = 8080;
 
-// Настройка сессий
+
 app.use(session({
     secret: 'your-secret-key-change-in-production',
     resave: false,
     saveUninitialized: false,
     cookie: {
-        secure: false, // true для HTTPS
+        secure: false,
         httpOnly: true,
         maxAge: 24 * 60 * 60 * 1000 // 24 часа
     }
 }));
 
-// Middleware для проверки аутентификации через сессии
 const requireAuth = (req, res, next) => {
     if (!req.session.userId) {
         return res.status(401).json({ error: 'Необходима авторизация' });
@@ -38,12 +37,12 @@ function onStart(){
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 
-// ДОБАВЬТЕ ЭТУ СТРОКУ ДЛЯ СТАТИЧЕСКИХ ФАЙЛОВ
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 const cardsRouter = require('./routers/cards');
 const authRouter = require('./routers/auth');
 const matchesRouter = require('./routers/matches');
+const profileRouter = require('./routers/profile');
 
 // Экспортируем middleware для использования в роутерах
 app.locals.requireAuth = requireAuth;
@@ -54,6 +53,8 @@ app.use('/api', authRouter);
 app.use('/api', cardsRouter);
 // Подключаем роуты мэтчей
 app.use('/api/matches', matchesRouter);
+// Подключаем роуты профилей
+app.use('/api/profile', profileRouter);
 
 app.listen(PORT, onStart);
 

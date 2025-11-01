@@ -169,6 +169,8 @@ export class Router {
             renderActionType = Actions.RENDER_LOGIN;
         } else if (currentPath === '/register') {
             renderActionType = Actions.RENDER_REGISTER;
+        } else if (currentPath === '/me') {
+            renderActionType = Actions.RENDER_MYCARD;
         } else if (currentPath === '/matches') {
             actionPayload.route = 'matches';
             if (matchProfileMatch) {
