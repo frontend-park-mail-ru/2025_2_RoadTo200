@@ -22,6 +22,7 @@ class MenuStore{
         switch (action.type) {
             case Actions.RENDER_MENU:
                 if (action.payload && action.payload.route) {
+                    if (this.currentRoute === action.payload.route) return;
                     this.currentRoute = action.payload.route;
                 }
                 await this.renderMenu(); 
@@ -32,6 +33,7 @@ class MenuStore{
             case Actions.RENDER_MATCHES:
             case Actions.RENDER_CHATS:
             case Actions.RENDER_MYCARD:
+            case Actions.RENDER_MATCH_PROFILE:
                 if (action.payload && action.payload.route) {
                     this.currentRoute = action.payload.route;
                     await this.renderMenu();

@@ -33,6 +33,8 @@ class LoginStore {
             window.history.pushState(null, null, '/');
             window.dispatchEvent(new PopStateEvent('popstate'));
         } catch (error) {
+            console.log('Login error caught:', error);
+            console.log('Error message:', error.message);
             
             dispatcher.process({
                 type: Actions.LOGIN_ERROR,

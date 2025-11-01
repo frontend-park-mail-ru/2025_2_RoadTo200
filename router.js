@@ -11,49 +11,55 @@ import './src/pages/mainPage/mainStore.js';
 import './src/components/Header/headerStore.js';
 import './src/components/AuthBackground/authBackgroundStore.js';
 
+
 /**
  * Класс маршрута.
  */
 export class Route {
-  /**
+    /**
    * Конструктор.
    * @param {string} path (/login, /register ...).
    * @param {Object} component Компонент для отрисовки.
    * @param {boolean} [requireAuth=false] Обязательность авторизации для просмотра.
    */
-  constructor(path, component, requireAuth = false) {
-    this.path = path;
-    this.component = component;
-    this.requireAuth = requireAuth;
-  }
+    constructor(path, component, requireAuth = false) {
+        this.path = path;
+        this.component = component;
+        this.requireAuth = requireAuth;
+    }
 }
 
 /**
  * Класс управляющий навигацией.
  */
 export class Router {
-  fallbackRoute;
-  routes;
-  currentPath = null;
-  rootElement;
+    fallbackRoute;
 
-  headerContainer = null;
-  menuContainer = null;
-  contentContainer = null;
+    routes;
 
-  constructor(routes) {
-    this.fallbackRoute = routes.find(r => r.path === '*');
-    this.routes = routes.filter(r => r.path !== '*');
+    currentPath = null;
 
-    this.rootElement = document.getElementById('root');
+    rootElement;
+
+    headerContainer = null;
+
+    menuContainer = null;
+
+    contentContainer = null;
+
+    constructor(routes) {
+        this.fallbackRoute = routes.find(r => r.path === '*');
+        this.routes = routes.filter(r => r.path !== '*');
+
+        this.rootElement = document.getElementById('root');
     
-    this.setupRootContainers();
+        this.setupRootContainers();
     
-    Promise.resolve().then(() => this.init());
-  }
+        Promise.resolve().then(() => this.init());
+    }
 
-  setupRootContainers() {
-    this.rootElement.innerHTML = `
+    setupRootContainers() {
+        this.rootElement.innerHTML = `
         <div class="page-layout"> 
             
             <div id="menu-container-internal"></div>
@@ -66,124 +72,147 @@ export class Router {
         </div>
     `;
 
-    this.headerContainer = this.rootElement.querySelector('#header-container-internal');
-    this.menuContainer = this.rootElement.querySelector('#menu-container-internal');
-    this.contentContainer = this.rootElement.querySelector('#content-container');
+        this.headerContainer = this.rootElement.querySelector('#header-container-internal');
+        this.menuContainer = this.rootElement.querySelector('#menu-container-internal');
+        this.contentContainer = this.rootElement.querySelector('#content-container');
 
-    header.parent = this.headerContainer;
-    menu.parent = this.menuContainer;
+        header.parent = this.headerContainer;
+        menu.parent = this.menuContainer;
 
-    dispatcher.process({ type: Actions.RENDER_HEADER });
-    dispatcher.process({ type: Actions.RENDER_MENU});
-  }
-
-  init() {
-    this.loadRoute();
-    
-    window.addEventListener('popstate', () => {
-      this.loadRoute();
-    });
-    
-    document.addEventListener('click', (e) => {
-      if (e.target.matches('[Link]')) {
-        e.preventDefault();
-        const url = e.target.href || e.target.getAttribute('href');
-        if (url) {
-          this.navigateTo(url);
-        }
-      }
-    });
-  }
-
-  navigateTo(url) {
-    history.pushState(null, null, url);
-    this.loadRoute();
-  }
-
-  async loadRoute() {
-    const currentPath = location.pathname;
-
-    if (this.currentPath === currentPath) {
-      return;
-    }
-    this.currentPath = currentPath;
-
-    let route = this.routes.find(r => r.path === currentPath);
-
-    if (!route && this.fallbackRoute) {
-      route = this.fallbackRoute;
-    }
-
-    if (!route) {
-      return;
-    }
-
-    const isAuthenticated = await AuthUtils.checkAuth();
-
-    if (route.requireAuth && !isAuthenticated) {
-      if (currentPath !== '/login') {
-        this.navigateTo('/login');
-        return;
-      }
-    }
-
-    if ((currentPath === '/login' || currentPath === '/register') && isAuthenticated) {
-      this.navigateTo('/');
-      return;
-    }
-
-    const isAuthPage = currentPath === '/login' || currentPath === '/register';
-    
-    this.headerContainer.style.display = isAuthPage ? 'none' : 'block';
-    this.menuContainer.style.display = isAuthPage ? 'none' : 'block';
-
-    if (this.contentContainer) {
-        this.contentContainer.innerHTML = ''; 
-    }
-
-    if (route && route.component) {
-        route.component.parent = this.contentContainer;
-    }
-
-    let renderActionType = null;
-
-    if (currentPath === '/') {
-      renderActionType = Actions.RENDER_MAIN;
-    } else if (currentPath === '/login') {
-      renderActionType = Actions.RENDER_LOGIN;
-    } else if (currentPath === '/register') {
-      renderActionType = Actions.RENDER_REGISTER;
-    }
-    
-    if (renderActionType) {
-        dispatcher.process({ type: renderActionType });
-    }
-
-    if (isAuthPage) {
-    } else {
+        dispatcher.process({ type: Actions.RENDER_HEADER });
         
-        dispatcher.process({ type: Actions.HIDE_AUTH_BACKGROUND });
     }
-    
-    dispatcher.process({ type: Actions.RENDER_HEADER });
-    dispatcher.process({ type: Actions.RENDER_MENU });
 
-    if (route && route.component && !renderActionType) {
-        try {
-            const contentHtml = await route.component.render();
-            
-            if (this.contentContainer) {
-              this.contentContainer.innerHTML = contentHtml;
+    init() {
+        this.loadRoute();
+    
+        window.addEventListener('popstate', () => {
+            this.loadRoute();
+        });
+    
+        document.addEventListener('click', (e) => {
+            const link = e.target.closest('[Link]');
+            if (link) {
+                e.preventDefault();
+                const href = link.getAttribute('href') || link.href;
+                try {
+                    const url = new URL(href, window.location.origin);
+                    this.navigateTo(url.pathname + url.search);
+                } catch (error) {
+                    console.error('Invalid URL:', error);
+                    this.navigateTo('/');
+                }
+            }
+        });
+    }
+
+    navigateTo(url) {
+        window.history.pushState(null, null, url);
+        this.loadRoute();
+    }
+
+    async loadRoute() {
+        let currentPath = window.location.pathname;
+
+        if (this.currentPath === currentPath) {
+            return;
+        }
+        this.currentPath = currentPath;
+
+        const matchProfileMatch = currentPath.match(/^\/matches\/([^/]+)$/);
+        currentPath = matchProfileMatch ? '/matches' : currentPath;
+
+        let route = this.routes.find(r => r.path === currentPath);
+
+        if (!route && this.fallbackRoute) {
+            route = this.fallbackRoute;
+        }
+
+        if (!route) {
+            return;
+        }
+
+        const isAuthenticated = await AuthUtils.checkAuth();
+
+        if (route.requireAuth && !isAuthenticated) {
+            if (currentPath !== '/login') {
+                this.navigateTo('/login');
+                return;
+            }
+        }
+
+        if ((currentPath === '/login' || currentPath === '/register') && isAuthenticated) {
+            this.navigateTo('/');
+            return;
+        }
+
+        const isAuthPage = currentPath === '/login' || currentPath === '/register';
+    
+        this.headerContainer.style.display = isAuthPage ? 'none' : 'block';
+        this.menuContainer.style.display = isAuthPage ? 'none' : 'block';
+
+        if (this.contentContainer) {
+            this.contentContainer.innerHTML = '';
+        }
+
+        if (route && route.component) {
+            route.component.parent = this.contentContainer;
+        }
+
+        let renderActionType = null;
+        const actionPayload = {};
+
+        if (currentPath === '/') {
+            renderActionType = Actions.RENDER_MAIN;
+            actionPayload.route = 'main';
+        } else if (currentPath === '/login') {
+            renderActionType = Actions.RENDER_LOGIN;
+        } else if (currentPath === '/register') {
+            renderActionType = Actions.RENDER_REGISTER;
+        } else if (currentPath === '/matches') {
+            actionPayload.route = 'matches';
+            if (matchProfileMatch) {
+                const [, matchId] = matchProfileMatch;
+                actionPayload.matchId = matchId;
+                renderActionType = Actions.RENDER_MATCH_PROFILE;
             } else {
-              root.innerHTML += contentHtml;
+                renderActionType = Actions.RENDER_MATCHES;
             }
+        }
+    
+        if (renderActionType) {
+            const action = { type: renderActionType };
+            if (Object.keys(actionPayload).length > 0) {
+                action.payload = actionPayload;
+            }
+            dispatcher.process(action);
+        }
+
+        if (isAuthPage) {
+            dispatcher.process({ type: Actions.RENDER_AUTH_BACKGROUND });
+        } else {
+            dispatcher.process({ type: Actions.HIDE_AUTH_BACKGROUND });
+        }
+    
+        dispatcher.process({ type: Actions.RENDER_HEADER });
+        dispatcher.process({ type: Actions.RENDER_MENU });
+
+        if (route && route.component && !renderActionType) {
+            try {
+                const contentHtml = await route.component.render();
             
-            if (route.component.controller) {
-              await route.component.controller();
+                if (this.contentContainer) {
+                    this.contentContainer.innerHTML = contentHtml;
+                } else if (this.rootElement) {
+                    this.rootElement.innerHTML += contentHtml;
+                }
+            
+                if (route.component.controller) {
+                    await route.component.controller();
+                }
+            } catch (error) {
+                console.error('Error rendering component:', error);
             }
-        } catch (error) {
-            console.error('Error rendering component:', error);
         }
     }
-  }
 }

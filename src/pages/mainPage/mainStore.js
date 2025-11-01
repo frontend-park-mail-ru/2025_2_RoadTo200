@@ -6,7 +6,8 @@ import CardApi from "../../apiHandler/cardApi.js"
 
 class MainStore {
 
-    cards; 
+    cards;
+ 
     constructor() {
         this.cards = [];
         dispatcher.register(this);

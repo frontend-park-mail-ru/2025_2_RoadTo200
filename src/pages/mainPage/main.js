@@ -42,7 +42,9 @@ const animateCardOut = (cardElement, direction) => {
  */
 export class MainPage {
     parent;
+
     currentCardIndex;
+
     cardsData;
 
     constructor(parent) {

@@ -22,7 +22,8 @@ const fetchTemplate = async (path) => {
         }
         return await response.text();
     } catch (error) {
-        alert("загрузка menu");
+        console.error('Ошибка загрузки шаблона меню:', error);
+        return '';
     }
 };
 
@@ -36,10 +37,14 @@ export class Menu{
     async render(menuData = {}){
         const { currentRoute = 'main' } = menuData;
 
-        const menuItems = MENU_ITEMS_DATA.map(item => ({
-            ...item,
-            isActive: item.route === currentRoute,
-        }));
+        const menuItems = MENU_ITEMS_DATA.map(item => {
+            const path = item.route === 'main' ? '/' : `/${item.route}`;
+            return {
+                ...item,
+                isActive: item.route === currentRoute,
+                path
+            };
+        });
 
         const templateString = await fetchTemplate(TEMPLATE_PATH);
         const template = Handlebars.compile(templateString);
@@ -54,8 +59,10 @@ export class Menu{
 
     initEventListeners() {
         if (typeof window !== 'undefined') {
+            if (!this.parent) return;
             const sidebar = this.parent.querySelector('.sidebar');
-            
+            if (!sidebar) return; // template may be empty or not contain .sidebar
+
             sidebar.addEventListener('click', (event) => {
                 const menuItem = event.target.closest('.menu-item');
                 if (menuItem) {
@@ -65,6 +72,12 @@ export class Menu{
                     const itemData = MENU_ITEMS_DATA.find(item => item.route === clickedRoute);
 
                     if (itemData && itemData.actionType) {
+                        const path = itemData.route === 'main' ? '/' : `/${itemData.route}`;
+
+                        window.history.pushState({ route: clickedRoute }, null, path);
+
+                        window.dispatchEvent(new Event('popstate'));
+
                         dispatcher.process({ 
                             type: itemData.actionType,
                             payload: { route: clickedRoute } 
