@@ -26,6 +26,8 @@ export class ProfilePage {
     }
 
     addEventListeners() {
+        dispatcher.process({ type: Actions.RENDER_MENU, payload: { route: 'me' } });
+
         this.parent.querySelectorAll('.edit-icon-small').forEach(icon => {
             icon.addEventListener('click', (e) => {
                 const { target: fieldName, type: fieldType } = e.currentTarget.dataset;

@@ -46,6 +46,8 @@ class MatchesStore {
             this.updateDerivedFields();
             matches.setMatches(this.matches);
 
+            
+
             if (!this.timerId) {
                 this.timerId = setInterval(() => {
                     this.updateDerivedFields();
