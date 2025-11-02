@@ -112,7 +112,7 @@ export class MainPage {
             this.currentCardIndex++;
         } else {
             const cardHtml = await Card.render({
-                img1: './src/assets/image.png',
+                images: [{ imageUrl: './src/assets/image.png' }],
                 noActions: 'True'
             });
             pageContainer.insertAdjacentHTML('beforeend', cardHtml);
