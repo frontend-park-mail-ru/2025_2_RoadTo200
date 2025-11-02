@@ -1,10 +1,10 @@
-<header class="app-header">
-    <div class="header-content">
+<header class="header">
+    <div class="header__content">
         
-        <div class="header-right">
+        <div class="header__right">
             {{#if isAuthenticated}}
-                <span class="welcome-text">Привет, {{userName}}!</span>
-                <button id="logoutBtn" class="logout-btn">
+                <span class="header__welcome-text">Привет, {{userName}}!</span>
+                <button id="logoutBtn" class="header__logout-btn">
                     <span>Выйти</span>
                 </button>
             {{/if}}

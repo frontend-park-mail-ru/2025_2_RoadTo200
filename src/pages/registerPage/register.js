@@ -31,7 +31,7 @@ const validateEmail = (email) => {
 };
 
 const showError = (message) => {
-    const errorDiv = document.querySelector('.error-message');
+    const errorDiv = document.querySelector('.form__error-message');
     if (errorDiv) {
         errorDiv.textContent = message;
         errorDiv.style.display = 'block';
@@ -39,14 +39,14 @@ const showError = (message) => {
 };
 
 const clearError = () => {
-    const errorDiv = document.querySelector('.error-message');
+    const errorDiv = document.querySelector('.form__error-message');
     if (errorDiv) {
         errorDiv.textContent = '';
         errorDiv.style.display = 'none';
     }
     
-    document.querySelectorAll('.form-input').forEach(input => {
-        input.classList.remove('error-input');
+    document.querySelectorAll('.form__input').forEach(input => {
+        input.classList.remove('form__error-input');
     });
 };
 
@@ -88,7 +88,7 @@ export class RegisterPage {
     }
 
     showError(message) {
-        const errorDiv = document.querySelector('.error-message');
+        const errorDiv = document.querySelector('.form__error-message');
         if (errorDiv) {
             errorDiv.textContent = message;
             errorDiv.style.display = 'block';
@@ -120,11 +120,11 @@ export class RegisterPage {
     }
 
     initPasswordToggles() {
-        const toggleButtons = document.querySelectorAll('.password-toggle');
+        const toggleButtons = document.querySelectorAll('.form__password-toggle');
         
         toggleButtons.forEach(button => {
             button.addEventListener('click', () => {
-                const wrapper = button.closest('.password-wrapper');
+                const wrapper = button.closest('.form__password-wrapper');
                 const input = wrapper.querySelector('input');
                 const icon = button.querySelector('.eye-icon');
                 
@@ -155,40 +155,40 @@ export class RegisterPage {
         
         // Проверка на пустые поля
         if (!email) {
-            emailInput.classList.add('error-input');
+            emailInput.classList.add('form__error-input');
             showError('Введите email');
             return;
         }
         
         if (!password) {
-            passwordInput.classList.add('error-input');
+            passwordInput.classList.add('form__error-input');
             showError('Введите пароль');
             return;
         }
         
         if (!passwordConfirm) {
-            passwordConfirmInput.classList.add('error-input');
+            passwordConfirmInput.classList.add('form__error-input');
             showError('Подтвердите пароль');
             return;
         }
         
         // Валидация email
         if (!validateEmail(email)) {
-            emailInput.classList.add('error-input');
+            emailInput.classList.add('form__error-input');
             showError('Некорректный email');
             return;
         }
         
         // Валидация пароля
         if (password.length < 6) {
-            passwordInput.classList.add('error-input');
+            passwordInput.classList.add('form__error-input');
             showError('Пароль должен содержать минимум 6 символов');
             return;
         }
         
         // Проверка совпадения паролей
         if (password !== passwordConfirm) {
-            passwordInput.classList.add('error-input');
+            passwordInput.classList.add('form__error-input');
             passwordConfirmInput.classList.add('error-input');
             showError('Пароли не совпадают');
             return;

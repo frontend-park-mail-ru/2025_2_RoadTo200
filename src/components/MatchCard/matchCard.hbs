@@ -1,16 +1,16 @@
-<div class="match-card {{#if isExpired}}expired{{/if}}" data-match-id="{{id}}" role="article" aria-label="{{name}}, {{age}}">
-  <div class="match-image" style="background-image: url('{{image}}')">
+<div class="match-card match-card{{#if isExpired}}-expired{{else}}-active{{/if}}" data-match-id="{{id}}" role="article" aria-label="{{name}}, {{age}}">
+  <div class="match-card__image" style="background-image: url('{{image}}')">
 
-      <span class="match-timer match-popups">{{timer}}</span>
+      <span class="match-card__timer match-card__popups">{{timer}}</span>
       {{#if isNew}}
-        <span class="match-badge match-popups">Новый</span>
+        <span class="match-card__badge match-card__popups">Новый</span>
       {{/if}}
 
 
-    <div class="card-gradient-overlay"></div>
+    <div class="match-card__gradient-overlay"></div>
 
-    <div class="match-info">
-      <h3 class="match-name">{{name}}, {{age}}</h3>
+    <div class="match-card__info">
+      <h3 class="match-card__name">{{name}}, {{age}}</h3>
     </div>
   </div>
 </div>

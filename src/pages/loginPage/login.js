@@ -33,7 +33,7 @@ const validateEmail = (email) => {
 };
 
 const showError = (message) => {
-    const errorDiv = document.querySelector('.error-message');
+    const errorDiv = document.querySelector('.form__error-message');
     if (errorDiv) {
         errorDiv.textContent = message;
         errorDiv.style.display = 'block';
@@ -41,15 +41,15 @@ const showError = (message) => {
 };
 
 const clearError = () => {
-    const errorDiv = document.querySelector('.error-message');
+    const errorDiv = document.querySelector('.form__error-message');
     if (errorDiv) {
         errorDiv.textContent = '';
         errorDiv.style.display = 'none';
     }
     
     // Убираем красную обводку с полей
-    document.querySelectorAll('.form-input').forEach(input => {
-        input.classList.remove('error-input');
+    document.querySelectorAll('.form__input').forEach(input => {
+        input.classList.remove('form__error-input');
     });
 };
 
@@ -94,14 +94,14 @@ export class LoginPage {
         console.log('showError called with:', message);
         
         // Try multiple selectors to find the error div
-        let errorDiv = document.querySelector('.error-message');
+        let errorDiv = document.querySelector('.form__error-message');
         
         if (!errorDiv) {
-            errorDiv = document.querySelector('#loginDiv .error-message');
+            errorDiv = document.querySelector('#loginDiv .form__error-message');
         }
         
         if (!errorDiv) {
-            errorDiv = document.querySelector('#loginForm .error-message');
+            errorDiv = document.querySelector('#loginForm .form__error-message');
         }
         
         console.log('errorDiv found:', errorDiv);
@@ -141,11 +141,11 @@ export class LoginPage {
     }
 
     initPasswordToggles() {
-        const toggleButtons = document.querySelectorAll('.password-toggle');
+        const toggleButtons = document.querySelectorAll('.form__password-toggle');
         
         toggleButtons.forEach(button => {
             button.addEventListener('click', () => {
-                const wrapper = button.closest('.password-wrapper');
+                const wrapper = button.closest('.form__password-wrapper');
                 const input = wrapper.querySelector('input');
                 const icon = button.querySelector('.eye-icon');
                 
@@ -174,27 +174,27 @@ export class LoginPage {
         
         // Проверка на пустые поля
         if (!email) {
-            emailInput.classList.add('error-input');
+            emailInput.classList.add('form__error-input');
             showError('Введите email');
             return;
         }
         
         if (!password) {
-            passwordInput.classList.add('error-input');
+            passwordInput.classList.add('form__error-input');
             showError('Введите пароль');
             return;
         }
         
         // Валидация email
         if (!validateEmail(email)) {
-            emailInput.classList.add('error-input');
+            emailInput.classList.add('form__error-input');
             showError('Некорректный email');
             return;
         }
         
         // Валидация пароля
         if (password.length < 6) {
-            passwordInput.classList.add('error-input');
+            passwordInput.classList.add('form__error-input');
             showError('Пароль должен содержать минимум 6 символов');
             return;
         }

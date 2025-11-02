@@ -64,7 +64,7 @@ export class Menu{
             if (!sidebar) return; // template may be empty or not contain .sidebar
 
             sidebar.addEventListener('click', (event) => {
-                const menuItem = event.target.closest('.menu-item');
+                const menuItem = event.target.closest('.sidebar__item');
                 if (menuItem) {
                     event.preventDefault(); 
                     

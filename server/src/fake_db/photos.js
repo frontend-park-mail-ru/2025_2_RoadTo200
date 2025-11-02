@@ -7,7 +7,7 @@ module.exports = {
             imageUrl: "/uploads/users/blue2.png",
             isPrimary: true,
             order: 1,
-            isDeleted: false
+            isDeleted: true
         },
         {
             id: 2,
