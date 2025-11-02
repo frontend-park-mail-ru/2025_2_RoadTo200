@@ -51,6 +51,7 @@ export class MainPage {
         this.parent = parent;
         this.currentCardIndex = 0;
         this.cardsData = [];
+        this.swipeThreshold = 100; // Minimum swipe distance in pixels
     }
 
     async render() {
@@ -71,7 +72,6 @@ export class MainPage {
                 Card.handleImageNavigation(event);
             }
         });
-
 
         dispatcher.process({ type: Actions.GET_CARDS });
     }
@@ -119,12 +119,91 @@ export class MainPage {
         }
     }
 
+    initSwipe(cardElement, cardId) {
+        let startX, startY, endX, endY;
+        let isDragging = false;
+
+        const startSwipe = (e) => {
+            isDragging = true;
+            
+            const pageX = e.type.includes('touch') ? e.touches[0].pageX : e.pageX;
+            const pageY = e.type.includes('touch') ? e.touches[0].pageY : e.pageY;
+            
+            startX = pageX;
+            startY = pageY;
+            endX = pageX;
+            endY = pageY;
+
+            
+            e.preventDefault();
+        };
+
+        const moveSwipe = (e) => {
+            if (!isDragging) return;
+
+            const pageX = e.type.includes('touch') ? e.touches[0].pageX : e.pageX;
+            const pageY = e.type.includes('touch') ? e.touches[0].pageY : e.pageY;
+
+            endX = pageX;
+            endY = pageY;
+
+            const deltaX = endX - startX;
+            const deltaY = endY - startY;
+
+            cardElement.style.transform = `translate(${deltaX - 200}px, ${deltaY}px) rotate(${deltaX * 0.1}deg)`;
+            
+        };
+
+        const stopSwipe = () => {
+            if (!isDragging) return;
+            isDragging = false;
+
+            const deltaX = endX - startX;
+            const deltaY = endY - startY;
+
+            let direction = '';
+            let actionType = '';
+
+            if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > this.swipeThreshold) {
+      
+                if (deltaX > 0) {
+                    direction = 'right';
+                    actionType = 'like';
+                } else {
+                    direction = 'left';
+                    actionType = 'dislike';
+                }
+            } else if (deltaY < 0 && Math.abs(deltaY) > this.swipeThreshold) {
+                direction = 'up';
+                actionType = 'superlike';
+            }
+
+            if (direction && actionType) {
+                dispatcher.process({ 
+                    type: Actions.SEND_CARD_ACTION, 
+                    payload: { cardId, actionType } 
+                });
+
+                animateCardOut(cardElement, direction);
+            } else {
+                cardElement.style.transform = 'translate(-220px, 0) rotate(0deg)';
+            }
+        };
+
+        cardElement.addEventListener('mousedown', startSwipe);
+        cardElement.addEventListener('mousemove', moveSwipe);
+        cardElement.addEventListener('mouseup', stopSwipe);
+
+    }
+
     initCardActions() {
         const pageContainer = document.querySelector('.cards-container');
         const currentCardElement = pageContainer?.querySelector('.card:last-child');
 
         if (currentCardElement) {
             const cardId = currentCardElement.getAttribute('data-id');
+
+            this.initSwipe(currentCardElement, cardId);
 
             const handleAction = async (event) => {
                 const button = event.currentTarget;
