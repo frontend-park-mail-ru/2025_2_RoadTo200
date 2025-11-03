@@ -11,6 +11,7 @@ import './src/pages/registerPage/registerStore.js';
 import './src/pages/mainPage/mainStore.js';
 import './src/components/Header/headerStore.js';
 import './src/components/AuthBackground/authBackgroundStore.js';
+import './src/components/SettingsMenu/settingsMenuStore.js';
 
 
 /**

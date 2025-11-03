@@ -16,7 +16,6 @@ const MENU_ITEMS_DATA = [
     }
 ];
 
-
 const fetchTemplate = async (path) => {
     try {
         const response = await fetch(path);
@@ -46,6 +45,7 @@ export class SettingsMenu {
         }));
 
         const templateString = await fetchTemplate(TEMPLATE_PATH);
+        // eslint-disable-next-line no-undef
         const template = Handlebars.compile(templateString);
 
         const renderedHtml = template({ menuItems });
@@ -55,25 +55,24 @@ export class SettingsMenu {
     }
 
     initEventListeners() {
-        if (typeof window !== 'undefined') {
-            if (!this.parent) return;
-            const sidebar = this.parent.querySelector('.settings-sidebar');
-            if (!sidebar) return;
+        if (!this.parent) return;
+        
+        const sidebar = this.parent.querySelector('.settings-sidebar');
+        if (!sidebar) return;
 
-            sidebar.addEventListener('click', (event) => {
-                const menuItem = event.target.closest('.menu-item');
-                if (menuItem) {
-                    event.preventDefault();
-                    
-                    const clickedTab = menuItem.dataset.tab;
+        sidebar.addEventListener('click', (event) => {
+            const menuItem = event.target.closest('.menu-item');
+            if (menuItem) {
+                event.preventDefault();
+                
+                const clickedTab = menuItem.dataset.tab;
 
-                    dispatcher.process({ 
-                        type: Actions.SWITCH_SETTINGS_TAB,
-                        payload: { tab: clickedTab } 
-                    });
-                }
-            });
-        }
+                dispatcher.process({ 
+                    type: Actions.SWITCH_SETTINGS_TAB,
+                    payload: { tab: clickedTab } 
+                });
+            }
+        });
     }
 }
 
