@@ -1,7 +1,7 @@
 import { Actions } from "../../actions.js";
 import { dispatcher } from "../../Dispatcher.js";
 import { profile } from "./profile.js";
-import ProfileApi from "../../apiHandler/ProfileApi.js";
+import ProfileApi from "../../apiHandler/profileApi.js";
 
 class ProfileStore {
     profileData = {};

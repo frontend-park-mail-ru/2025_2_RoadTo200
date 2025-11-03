@@ -3,10 +3,12 @@ import './src/pages/mainPage/mainStore.js';
 import './src/pages/registerPage/registerStore.js';
 import './src/pages/matchesPage/matchesStore.js';
 import './src/pages/profilePage/profileStore.js';
+import './src/pages/settingsPage/settingsStore.js';
 import './src/components/Header/headerStore.js';
 import './src/components/Menu/menuStore.js';
 import './src/components/AuthBackground/authBackgroundStore.js';
 import './src/components/MatchCard/matchCardStore.js';
+import './src/components/ProfileMenu/profileMenuStore.js';
 
 import { Route, Router} from "./router.js";
 import { main } from "./src/pages/mainPage/main.js";
@@ -14,6 +16,7 @@ import { login } from "./src/pages/loginPage/login.js";
 import { register } from "./src/pages/registerPage/register.js";
 import { matches } from "./src/pages/matchesPage/matches.js";
 import { profile } from "./src/pages/profilePage/profile.js";
+import { settings } from "./src/pages/settingsPage/settings.js";
 
 
 const notFoundComponent = {
@@ -32,7 +35,8 @@ const routes = [
     new Route('/register', register, false),
     new Route('*', notFoundComponent, false),
     new Route('/matches', matches, true),
-    new Route('/me', profile, true)
+    new Route('/me', profile, true),
+    new Route('/settings', settings, true)
 ];
 
 const router = new Router(routes);

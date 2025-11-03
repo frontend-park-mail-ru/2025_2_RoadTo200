@@ -70,6 +70,17 @@ export class Header {
                     dispatcher.process({ type: Actions.REQUEST_LOGOUT });
                 }, { once: true });
             }
+
+            // В будущем заменить на иконку профиля
+            const userEmailBtn = this.parent.querySelector('#userEmailBtn');
+            if (userEmailBtn) {
+                userEmailBtn.addEventListener('click', () => {
+                    dispatcher.process({ 
+                        type: Actions.TOGGLE_PROFILE_MENU,
+                        payload: { isVisible: true }
+                    });
+                });
+            }
         }
     }
 

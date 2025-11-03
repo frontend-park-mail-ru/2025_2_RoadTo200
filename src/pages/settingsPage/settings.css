@@ -1,0 +1,109 @@
+.settings-page {
+    display: flex;
+    height: 100%;
+    background: #fff;
+}
+
+.settings-menu-container {
+    width: 280px;
+    border-right: 1px solid #e5e7eb;
+    flex-shrink: 0;
+}
+
+.settings-sidebar {
+    width: 100%;
+    height: 100%;
+    padding: 32px 0 0 0;
+    box-sizing: border-box;
+    background: #fff;
+}
+
+.settings-title {
+    color: #1a1a1a;
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    padding: 0 32px 32px 32px;
+    margin: 0;
+}
+
+.settings-content {
+    flex: 1;
+    padding: 60px 80px;
+    overflow-y: auto;
+    max-width: 800px;
+}
+
+.settings-section {
+    max-width: 600px;
+}
+
+.settings-section-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0 0 32px 0;
+}
+
+.settings-subsection-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin: 32px 0 20px 0;
+}
+
+.form-group {
+    margin-bottom: 24px;
+}
+
+.form-label {
+    display: block;
+    font-size: 15px;
+    font-weight: 500;
+    color: #4b4b4b;
+    margin-bottom: 8px;
+}
+
+.settings-page .error-message {
+    background-color: transparent;
+    color: #ff4b72;
+    padding: 0;
+    text-align: left;
+    margin: 4px 0 0 0;
+    font-weight: 400;
+    font-size: 0.875rem;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    min-height: 1.25rem;
+    display: block;
+}
+
+.settings-page .input-wrapper {
+    margin-bottom: 0;
+}
+
+.divider {
+    height: 1px;
+    background: #e5e7eb;
+    margin: 48px 0;
+}
+
+.btn-danger {
+    width: 100%;
+    padding: 1rem 1.5rem;
+    font-size: 1.125rem;
+    font-weight: 600;
+    line-height: 1.5;
+    color: var(--color-text-light);
+    cursor: pointer;
+    border: none;
+    outline: none;
+    transition: all 0.3s ease;
+    background: linear-gradient(to right, #ff4b72 0%, #ff1744 100%);
+    border-radius: var(--border-radius-large);
+    box-shadow: 0 8px 15px rgba(255, 75, 114, 0.4);
+}
+
+.btn-danger:hover {
+    box-shadow: 0 15px 20px rgba(255, 75, 114, 0.6);
+    transform: translateY(-2px);
+}

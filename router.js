@@ -1,6 +1,7 @@
 import { AuthUtils } from './src/utils/auth.js';
 import { header } from './src/components/Header/header.js';
 import { menu } from './src/components/Menu/menu.js';
+import { profileMenu } from './src/components/ProfileMenu/profileMenu.js';
 
 import { dispatcher } from './src/Dispatcher.js';
 import { Actions } from './src/actions.js';
@@ -45,6 +46,8 @@ export class Router {
 
     menuContainer = null;
 
+    profileMenuContainer = null;
+
     contentContainer = null;
 
     constructor(routes) {
@@ -70,16 +73,20 @@ export class Router {
             </div>
             
         </div>
+        <div id="profile-menu-container"></div>
     `;
 
         this.headerContainer = this.rootElement.querySelector('#header-container-internal');
         this.menuContainer = this.rootElement.querySelector('#menu-container-internal');
         this.contentContainer = this.rootElement.querySelector('#content-container');
+        this.profileMenuContainer = this.rootElement.querySelector('#profile-menu-container');
 
         header.parent = this.headerContainer;
         menu.parent = this.menuContainer;
+        profileMenu.parent = this.profileMenuContainer;
 
         dispatcher.process({ type: Actions.RENDER_HEADER });
+        dispatcher.process({ type: Actions.RENDER_PROFILE_MENU });
         
     }
 
@@ -171,6 +178,9 @@ export class Router {
             renderActionType = Actions.RENDER_REGISTER;
         } else if (currentPath === '/me') {
             renderActionType = Actions.RENDER_MYCARD;
+        } else if (currentPath === '/settings') {
+            renderActionType = Actions.RENDER_SETTINGS;
+            actionPayload.route = 'settings';
         } else if (currentPath === '/matches') {
             actionPayload.route = 'matches';
             if (matchProfileMatch) {
