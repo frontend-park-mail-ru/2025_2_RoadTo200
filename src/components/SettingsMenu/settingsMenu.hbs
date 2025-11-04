@@ -5,10 +5,13 @@
         {{#each menuItems}}
             <li class="menu-item {{#if isActive}}active{{/if}}" data-tab="{{tab}}">
                 <a href="#" class="menu-link">
-                    <svg class="menu-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    {{!-- <svg c width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         {{{icon}}}
-                    </svg>
+                    </svg> --}}
+                    <img src="{{ icon }}" lass="menu-icon" alt="">
                     {{name}}
+
+                    
                 </a>
             </li>
         {{/each}}

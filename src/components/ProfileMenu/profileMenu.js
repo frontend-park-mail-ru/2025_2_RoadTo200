@@ -5,9 +5,9 @@ const TEMPLATE_PATH = './src/components/ProfileMenu/profileMenu.hbs';
 const SVG_PATH_BASE = './src/assets/menu/';
 
 const MENU_ITEMS_DATA = [
-    { name: 'Моя Анкета', icon: 'myCard.svg', route: 'me', action: null, isLogout: false },
-    { name: 'Настройки', icon: 'home.svg', route: 'settings', action: null, isLogout: false },
-    { name: 'Выйти', icon: 'explore.svg', route: null, action: 'logout', isLogout: true },
+    { name: 'Моя Анкета', icon: 'profileMenu__profile.svg', route: 'me', action: null, isLogout: false },
+    { name: 'Настройки', icon: 'settings.svg', route: 'settings', action: null, isLogout: false },
+    { name: 'Выйти', icon: 'exit.svg', route: null, action: 'logout', isLogout: true },
 ];
 
 const fetchTemplate = async (path) => {

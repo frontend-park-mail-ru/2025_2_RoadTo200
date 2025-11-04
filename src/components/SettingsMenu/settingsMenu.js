@@ -7,12 +7,12 @@ const MENU_ITEMS_DATA = [
     { 
         name: 'Профиль', 
         tab: 'profile',
-        icon: 'myCard.svg'
+        icon: './src/assets/settings__profile.svg'
     },
     { 
         name: 'Безопасность', 
         tab: 'security',
-        icon: 'home.svg'
+        icon: './src/assets/settings__security.svg'
     }
 ];
 
