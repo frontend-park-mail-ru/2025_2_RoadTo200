@@ -169,6 +169,8 @@ export class Router {
             renderActionType = Actions.RENDER_LOGIN;
         } else if (currentPath === '/register') {
             renderActionType = Actions.RENDER_REGISTER;
+        } else if (currentPath === '/me') {
+            renderActionType = Actions.RENDER_MYCARD;
         } else if (currentPath === '/matches') {
             actionPayload.route = 'matches';
             if (matchProfileMatch) {
@@ -195,7 +197,9 @@ export class Router {
         }
     
         dispatcher.process({ type: Actions.RENDER_HEADER });
-        dispatcher.process({ type: Actions.RENDER_MENU });
+
+        const menuRoute = actionPayload.route || (currentPath === '/' ? 'main' : currentPath.replace(/^\//, '').split('/')[0]);
+        dispatcher.process({ type: Actions.RENDER_MENU, payload: { route: menuRoute } });
 
         if (route && route.component && !renderActionType) {
             try {

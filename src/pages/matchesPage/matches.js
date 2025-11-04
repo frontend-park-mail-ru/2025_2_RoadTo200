@@ -39,6 +39,7 @@ export class MatchesPage {
 
         this.parent.innerHTML = renderedHtml;
         this.addEventListeners();
+        dispatcher.process({ type: Actions.RENDER_MENU, payload: { route: 'matches' } });
     }
 
     addEventListeners() {

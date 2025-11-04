@@ -11,14 +11,14 @@ const MENU_ITEMS_DATA = [
     { name: 'Анкеты', icon: 'explore.svg', route: 'cards', actionType: Actions.RENDER_CARDS },
     { name: 'Мэтчи', icon: 'matches.svg', route: 'matches', actionType: Actions.RENDER_MATCHES },
     { name: 'Чаты', icon: 'chats.svg', route: 'chats', actionType: Actions.RENDER_CHATS },
-    { name: 'Моя Анкета', icon: 'myCard.svg', route: 'myprofile', actionType: Actions.RENDER_MYCARD },
+    { name: 'Моя Анкета', icon: 'myCard.svg', route: 'me', actionType: Actions.RENDER_MYCARD },
 ];
 
 const fetchTemplate = async (path) => {
     try {
         const response = await fetch(path);
         if (!response.ok) {
-            throw new Error('Ошибка: Не удалось загрузить шаблон хедера');
+            throw new Error('Ошибка: Не удалось загрузить шаблон меню');
         }
         return await response.text();
     } catch (error) {
@@ -74,14 +74,13 @@ export class Menu{
                     if (itemData && itemData.actionType) {
                         const path = itemData.route === 'main' ? '/' : `/${itemData.route}`;
 
-                        window.history.pushState({ route: clickedRoute }, null, path);
-
-                        window.dispatchEvent(new Event('popstate'));
-
                         dispatcher.process({ 
-                            type: itemData.actionType,
+                            type: Actions.RENDER_MENU,
                             payload: { route: clickedRoute } 
                         });
+
+                        window.history.pushState({ route: clickedRoute }, null, path);
+                        window.dispatchEvent(new PopStateEvent('popstate'));
                     }
                 }
             });

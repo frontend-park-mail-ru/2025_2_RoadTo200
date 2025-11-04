@@ -38,9 +38,11 @@ class MatchCardStore {
         window.dispatchEvent(new PopStateEvent("popstate"));
     }
 
+    //функция заглушка для обработки рендера профиля мэтча
     onMatchProfileRender(payload = {}) {
         const { matchId } = payload;
 
+        
         if (matchId) {
             this.selectedMatchId = matchId;
         }

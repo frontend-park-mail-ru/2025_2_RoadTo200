@@ -21,14 +21,17 @@ class MenuStore{
     async handleAction(action) {
         switch (action.type) {
             case Actions.RENDER_MENU:
+
+                
                 if (action.payload && action.payload.route) {
-                    if (this.currentRoute === action.payload.route) return;
                     this.currentRoute = action.payload.route;
+                } else if (typeof window !== 'undefined') {
+                    const path = window.location.pathname || '/';
+                    this.currentRoute = path === '/' ? 'main' : path.replace(/^\//, '').split('/')[0];
                 }
-                await this.renderMenu(); 
+                await this.renderMenu();
                 break;
-            
-            case Actions.RENDER_MAIN:
+            case Actions.RENDER_MAIN: //?? 
             case Actions.RENDER_CARDS:
             case Actions.RENDER_MATCHES:
             case Actions.RENDER_CHATS:
