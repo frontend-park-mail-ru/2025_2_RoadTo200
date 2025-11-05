@@ -1,7 +1,7 @@
 import { Actions } from '../../actions.js';
 import { dispatcher } from '../../Dispatcher.js';
 
-const TEMPLATE_PATH = './src/components/SettingsMenu/settingsMenu.hbs';
+const TEMPLATE_PATH = '/src/components/SettingsMenu/settingsMenu.hbs';
 
 const MENU_ITEMS_DATA = [
     { 

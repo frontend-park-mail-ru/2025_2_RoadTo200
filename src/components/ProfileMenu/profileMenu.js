@@ -1,8 +1,10 @@
 import { Actions } from '../../actions.js';
 import { dispatcher } from '../../Dispatcher.js';
 
-const TEMPLATE_PATH = './src/components/ProfileMenu/profileMenu.hbs';
-const SVG_PATH_BASE = './src/assets/menu/';
+/* global Handlebars */
+
+const TEMPLATE_PATH = '/src/components/ProfileMenu/profileMenu.hbs';
+const SVG_PATH_BASE = '/src/assets/menu/';
 
 const MENU_ITEMS_DATA = [
     { name: 'Моя Анкета', icon: 'myCard.svg', route: 'me', action: null, isLogout: false },
@@ -78,6 +80,11 @@ export class ProfileMenu {
 
                     if (action === 'logout') {
                         dispatcher.process({ type: Actions.REQUEST_LOGOUT });
+                        dispatcher.process({ 
+                            type: Actions.TOGGLE_PROFILE_MENU,
+                            payload: { isVisible: false }
+                        });
+                        
                     } else if (route) {
                         dispatcher.process({ 
                             type: Actions.TOGGLE_PROFILE_MENU,

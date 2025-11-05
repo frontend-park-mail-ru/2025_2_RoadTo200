@@ -1,4 +1,6 @@
-const TEMPLATE_PATH = './src/components/BigHeart/bigHeart.hbs';
+/* global Handlebars */
+
+const TEMPLATE_PATH = '/src/components/BigHeart/bigHeart.hbs';
 
 /**
  * Загрузка шаблона

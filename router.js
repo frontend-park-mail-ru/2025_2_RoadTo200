@@ -120,7 +120,7 @@ export class Router {
     }
 
     async loadRoute() {
-        let currentPath = window.location.pathname;
+        const currentPath = window.location.pathname;
 
         if (this.currentPath === currentPath) {
             return;
@@ -128,9 +128,9 @@ export class Router {
         this.currentPath = currentPath;
 
         const matchProfileMatch = currentPath.match(/^\/matches\/([^/]+)$/);
-        currentPath = matchProfileMatch ? '/matches' : currentPath;
+        const normalizedPath = matchProfileMatch ? '/matches' : currentPath;
 
-        let route = this.routes.find(r => r.path === currentPath);
+        let route = this.routes.find(r => r.path === normalizedPath);
 
         if (!route && this.fallbackRoute) {
             route = this.fallbackRoute;
@@ -143,18 +143,18 @@ export class Router {
         const isAuthenticated = await AuthUtils.checkAuth();
 
         if (route.requireAuth && !isAuthenticated) {
-            if (currentPath !== '/login') {
+            if (normalizedPath !== '/login') {
                 this.navigateTo('/login');
                 return;
             }
         }
 
-        if ((currentPath === '/login' || currentPath === '/register') && isAuthenticated) {
+        if ((normalizedPath === '/login' || normalizedPath === '/register') && isAuthenticated) {
             this.navigateTo('/');
             return;
         }
 
-        const isAuthPage = currentPath === '/login' || currentPath === '/register';
+        const isAuthPage = normalizedPath === '/login' || normalizedPath === '/register';
     
         this.headerContainer.style.display = isAuthPage ? 'none' : 'block';
         this.menuContainer.style.display = isAuthPage ? 'none' : 'block';
@@ -170,19 +170,19 @@ export class Router {
         let renderActionType = null;
         const actionPayload = {};
 
-        if (currentPath === '/') {
+        if (normalizedPath === '/') {
             renderActionType = Actions.RENDER_MAIN;
             actionPayload.route = 'main';
-        } else if (currentPath === '/login') {
+        } else if (normalizedPath === '/login') {
             renderActionType = Actions.RENDER_LOGIN;
-        } else if (currentPath === '/register') {
+        } else if (normalizedPath === '/register') {
             renderActionType = Actions.RENDER_REGISTER;
-        } else if (currentPath === '/me') {
+        } else if (normalizedPath === '/me') {
             renderActionType = Actions.RENDER_MYCARD;
-        } else if (currentPath === '/settings') {
+        } else if (normalizedPath === '/settings') {
             renderActionType = Actions.RENDER_SETTINGS;
             actionPayload.route = 'settings';
-        } else if (currentPath === '/matches') {
+        } else if (normalizedPath === '/matches') {
             actionPayload.route = 'matches';
             if (matchProfileMatch) {
                 const [, matchId] = matchProfileMatch;
@@ -209,7 +209,7 @@ export class Router {
     
         dispatcher.process({ type: Actions.RENDER_HEADER });
 
-        const menuRoute = actionPayload.route || (currentPath === '/' ? 'main' : currentPath.replace(/^\//, '').split('/')[0]);
+        const menuRoute = actionPayload.route || (normalizedPath === '/' ? 'main' : normalizedPath.replace(/^\//, '').split('/')[0]);
         dispatcher.process({ type: Actions.RENDER_MENU, payload: { route: menuRoute } });
 
         if (route && route.component && !renderActionType) {

@@ -3,8 +3,10 @@ import { dispatcher } from '../../Dispatcher.js';
 
 import SmallHeart from '../SmallHeart/smallHeart.js';
 
-const TEMPLATE_PATH = './src/components/Menu/menu.hbs';
-const SVG_PATH_BASE = './src/assets/menu/';
+/* global Handlebars */
+
+const TEMPLATE_PATH = '/src/components/Menu/menu.hbs';
+const SVG_PATH_BASE = '/src/assets/menu/';
 
 const MENU_ITEMS_DATA = [
     { name: 'Главная', icon: 'home.svg', route: 'main', actionType: Actions.RENDER_MAIN },
@@ -23,7 +25,7 @@ const fetchTemplate = async (path) => {
         return await response.text();
     } catch (error) {
         console.error('Ошибка загрузки шаблона меню:', error);
-        return '';
+        return '<div></div>'; // Return empty div instead of empty string
     }
 };
 

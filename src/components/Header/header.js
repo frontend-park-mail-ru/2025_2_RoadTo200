@@ -1,8 +1,9 @@
 import { Actions } from '../../actions.js';
 import { dispatcher } from '../../Dispatcher.js';
 
+/* global Handlebars */
 
-const TEMPLATE_PATH = './src/components/Header/header.hbs';
+const TEMPLATE_PATH = '/src/components/Header/header.hbs';
 
 /**
  * Загрузка шаблона.
@@ -17,7 +18,8 @@ const fetchTemplate = async (path) => {
         }
         return await response.text();
     } catch (error) {
-        alert("загрузка header");
+        console.error("Ошибка загрузки header:", error);
+        return '<div></div>'; // Return empty div instead of undefined
     }
 };
 

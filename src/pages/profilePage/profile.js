@@ -1,7 +1,7 @@
 import { dispatcher } from '../../Dispatcher.js';
 import { Actions } from '../../actions.js';
 
-const TEMPLATE_PATH = './src/pages/profilePage/profile.hbs';
+const TEMPLATE_PATH = '/src/pages/profilePage/profile.hbs';
 
 const fetchTemplate = async (path) => {
     const response = await fetch(path);

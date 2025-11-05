@@ -4,7 +4,7 @@ import { dispatcher } from '../../Dispatcher.js';
 import { Actions } from '../../actions.js';
 
 
-const TEMPLATE_PATH = './src/pages/mainPage/main.hbs'; 
+const TEMPLATE_PATH = '/src/pages/mainPage/main.hbs'; 
 
 const fetchTemplate = async (path) => {
     try {

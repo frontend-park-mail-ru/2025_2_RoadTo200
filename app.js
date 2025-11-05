@@ -2,6 +2,7 @@ import './src/pages/loginPage/loginStore.js';
 import './src/pages/mainPage/mainStore.js';
 import './src/pages/registerPage/registerStore.js';
 import './src/pages/matchesPage/matchesStore.js';
+import './src/pages/matchProfilePage/matchProfileStore.js';
 import './src/pages/profilePage/profileStore.js';
 import './src/pages/settingsPage/settingsStore.js';
 import './src/components/Header/headerStore.js';
