@@ -12,3 +12,5 @@
 # Менторы
 - Ярослав Кузьмин (_backend_) - [yarikTri](https://github.com/yarikTri)
 - Алик Нигматуллин (_frontend_) - [BigBullas](https://github.com/BigBullas)
+- UX: Ченцова Дарья
+- СУБД: Конопкин Евгений
