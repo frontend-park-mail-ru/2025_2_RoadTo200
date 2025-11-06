@@ -115,6 +115,48 @@ class ProfileApi {
         
         return await response.json();
     }
+
+    async changePassword(oldPassword, newPassword) {
+        const response = await fetch(`${this.baseURL}/changeProfile`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include',
+            body: JSON.stringify({
+                action: 'changePassword',
+                oldPassword,
+                newPassword
+            })
+        });
+        
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({ error: 'Unknown error' }));
+            throw new Error(error.error || `HTTP ${response.status}`);
+        }
+        
+        return await response.json();
+    }
+
+    async deleteAccount() {
+        const response = await fetch(`${this.baseURL}/changeProfile`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include',
+            body: JSON.stringify({
+                action: 'deleteAccount'
+            })
+        });
+        
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({ error: 'Unknown error' }));
+            throw new Error(error.error || `HTTP ${response.status}`);
+        }
+        
+        return await response.json();
+    }
 }
 
 export default new ProfileApi(API_URL);

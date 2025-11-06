@@ -1,6 +1,7 @@
 import { Actions } from '../../actions.js';
 import { dispatcher } from '../../Dispatcher.js';
 
+
 const TEMPLATE_PATH = '/src/components/SettingsMenu/settingsMenu.hbs';
 
 const MENU_ITEMS_DATA = [
@@ -57,11 +58,11 @@ export class SettingsMenu {
     initEventListeners() {
         if (!this.parent) return;
         
-        const sidebar = this.parent.querySelector('.settings-sidebar');
+        const sidebar = this.parent.querySelector('.sidebar');
         if (!sidebar) return;
 
         sidebar.addEventListener('click', (event) => {
-            const menuItem = event.target.closest('.menu-item');
+            const menuItem = event.target.closest('.sidebar__item');
             if (menuItem) {
                 event.preventDefault();
                 

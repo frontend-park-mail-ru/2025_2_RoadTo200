@@ -1,17 +1,14 @@
-<nav class="settings-sidebar">
-    <h2 class="settings-title">Настройки</h2>
+<nav class="sidebar">
+    <div class="sidebar__header">
+        <h2 class="sidebar__name">Настройки</h2>
+    </div>
 
-    <ul class="menu-list">
+    <ul class="sidebar__list">
         {{#each menuItems}}
-            <li class="menu-item {{#if isActive}}active{{/if}}" data-tab="{{tab}}">
-                <a href="#" class="menu-link">
-                    {{!-- <svg c width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        {{{icon}}}
-                    </svg> --}}
-                    <img src="{{ icon }}" lass="menu-icon" alt="">
+            <li class="sidebar__item sidebar__item{{#if isActive}}-active{{else}}-disabled{{/if}}" data-tab="{{tab}}">
+                <a href="#" class="sidebar__link sidebar__link{{#if isActive}}-active{{else}}-disabled{{/if}}">
+                    <img src="{{icon}}" alt="{{name}}" class="sidebar__icon sidebar__icon{{#if isActive}}-active{{else}}-disabled{{/if}}">
                     {{name}}
-
-                    
                 </a>
             </li>
         {{/each}}
