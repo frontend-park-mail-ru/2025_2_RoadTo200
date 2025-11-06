@@ -4,7 +4,7 @@
     padding: 20px;
 }
 
-.profile-content {
+.profile-page__content{
     display: flex;
     gap: 40px;
 }
@@ -15,13 +15,12 @@
     gap: 15px;
 }
 
-.profile-details {
+.details {
     flex: 1;
     min-width: 0;
 }
 
-
-.photo-card {
+.photo-grid__card{
     height: 350px;
     width: 300px;
     border-radius: 12px;
@@ -30,14 +29,14 @@
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
 }
 
-.photo-card-image {
+.photo-grid__image {
     width: 100%;
     height: 100%;
     background-size: cover;
     background-position: center;
 }
 
-.delete-photo-btn {
+.photo-grid__delete-btn{
     position: absolute;
     top: 10px;
     right: 10px;
@@ -55,15 +54,13 @@
     justify-content: center;
 }
 
-.delete-photo-btn img {
+.photo-grid__icon-delete {
     width: 16px;
     height: 16px;
     display: block;
 }
 
-
-
-.add-photo-placeholder {
+.photo-grid__add {
     width: 100%;
     height: 100%;
     display: flex;
@@ -72,13 +69,13 @@
     background: linear-gradient(135deg, #ffb3c1 0%, #ff7f90 100%);
 }
 
-.add-photo-placeholder .plus-icon {
+.photo-grid__icon-plus{
     font-size: 48px;
     color: rgba(255, 255, 255, 0.7);
     font-weight: 300;
 }
 
-.section-title {
+.details__section-title {
     font-size: 18px;
     font-weight: 600;
 
@@ -92,32 +89,32 @@
     gap: 8px;
 }
 
-.section-text {
+.details__section-text {
     font-size: 14px;
     line-height: 1.6;
     color: #555555;
     margin-bottom: 20px;
 }
 
-.edit-icon-small {
+.details__icon-edit {
     width: 16px;
     height: 16px;
     display: inline-block;
     cursor: pointer;
 }
 
-.edit-icon-small.editing {
+.details__icon-edit-editing {
     opacity: 0;
 }
 
-.interests-tags {
+.details__tags {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
     margin-bottom: 20px;
 }
 
-.interest-tag {
+.details__tag {
     display: inline-flex;
     align-items: center;
     padding: 5px 12px;
@@ -135,7 +132,7 @@
     overflow: hidden;
 }
 
-.delete-interest-layer {
+.details__delete-layer {
     position: absolute;
     top: 0;
     left: 0;
@@ -156,11 +153,11 @@
     visibility: hidden;
 }
 
-.interest-tag:hover .delete-interest-layer {
+.details__tag:hover .details__delete-layer {
     visibility: visible;
 }
 
-.add-tag-button {
+.details__tag-add {
     background: none;
     border: 1px solid var(--color-primary-dark);
     color: var(--color-primary-dark);
@@ -171,7 +168,7 @@
     transition: background-color 0.2s;
 }
 
-.edit-input {
+.details__edit-input {
     width: 100%;
     border: 1px solid #ccc;
     border-radius: 6px;
@@ -183,18 +180,18 @@
     outline: none;
 }
 
-.edit-input:focus {
+.details__edit-input:focus {
     border-color: var(--color-primary-dark);
     box-shadow: 0 0 0 2px rgba(253, 41, 123, 0.2);
 }
 
-.edit-textarea {
+.details__edit-textarea {
     min-height: 80px;
     resize: vertical;
 }
 
 
-.new-interest-input {
+.details__new-interest-input {
     display: inline-flex;
     padding: 5px 12px;
     font-size: 14px;
@@ -206,13 +203,13 @@
     outline: none;
 }
 
-.icon-section {
+.details__icons {
     display: flex;
     gap: 20px;
     margin-bottom: 25px;
 }
 
-.icon-circle {
+.details__icon-circle {
     width: 60px;
     height: 60px;
     border-radius: 50%;
@@ -225,13 +222,13 @@
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
-.plus-icon-circle {
+.details__icon-circle-plus {
     background-color: #ffffff;
     border: 1px solid var(--color-primary-dark);
     box-shadow: none;
 }
 
-.plus-icon-circle .plus-icon {
+.details__icon-plus {
 
     font-size: 32px;
     line-height: 1;

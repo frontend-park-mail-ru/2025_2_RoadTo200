@@ -28,7 +28,7 @@ class AuthBackgroundStore {
             bgElement = document.createElement('div');
             bgElement.className = 'auth-background';
             bgElement.innerHTML = `
-                <div class="circle-activity-tablet" aria-hidden="true">
+                <div class="auth-background__circle-activity-tablet" aria-hidden="true">
                     Сайт для поиска друзей и партнеров
                 </div>
             `;

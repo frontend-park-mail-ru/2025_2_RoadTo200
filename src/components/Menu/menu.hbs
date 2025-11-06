@@ -1,14 +1,14 @@
 <nav class="sidebar">
-    <div class="sidebar-header">
+    <div class="sidebar__header">
         {{{smallHeartHtml}}}
-        <h2 class="app-name">Терабития</h2>
+        <h2 class="sidebar__name">Терабития</h2>
     </div>
 
-    <ul class="menu-list">
+    <ul class="sidebar__list">
         {{#each menuItems}}
-            <li class="menu-item {{#if isActive}}active{{/if}}" data-route="{{route}}">
-                <a href="#" class="menu-link">
-                    <img src="{{../SVG_PATH_BASE}}{{icon}}" alt="{{name}}" class="menu-icon">
+            <li class="sidebar__item sidebar__item{{#if isActive}}-active{{else}}-disabled{{/if}}" data-route="{{route}}">
+                <a href="#" class="sidebar__link sidebar__link{{#if isActive}}-active{{else}}-disabled{{/if}}">
+                    <img src="{{../SVG_PATH_BASE}}{{icon}}" alt="{{name}}" class="sidebar__icon sidebar__icon{{#if isActive}}-active{{else}}-disabled{{/if}}">
                     {{name}}
                 </a>
             </li>

@@ -1,20 +1,20 @@
-<div class="card" id="cardS" data-id="{{id}}" data-images-json='{{{imagesJson}}}'>
-  <div class="card-image-wrapper">
-    <img class="card-image" src="{{images.0.imageUrl}}" alt="{{Name}}" data-index="0">
-    <div class="card-info">
-      <h2 class="card-name">{{Name}}, {{Age}}</h2>
-      <p class="card-description">{{Description}}</p>
+<div class="card" id="cards" data-id="{{id}}" data-images-json='{{{imagesJson}}}'>
+  <div class="card__wrapper">
+    <img class="card__image" src="{{images.0.imageUrl}}" alt="{{Name}}" data-index="0">
+    <div class="card__info">
+      <h2 class="card__name">{{Name}}, {{Age}}</h2>
+      <p class="card__description">{{Description}}</p>
     </div>
   </div>
   {{#if noActions}}
-  <div class="card-actions">
-    <button class="reload action-button" onClick="window.location.reload();">&#8634;</button>
+  <div class="card__actions">
+    <button class="card__button card__button-reload" onClick="window.location.reload();">&#8634;</button>
   </div>
   {{else}}
-  <div class="card-actions">
-    <button class="dislike action-button">&#10006;</button>
-    <button class="superLike action-button">&#9733;</button>
-    <button class="like action-button">&#9829;</button>
+  <div class="card__actions">
+    <button class="card__button card__button-dislike">&#10006;</button>
+    <button class="card__button card__button-superLike ">&#9733;</button>
+    <button class="card__button card__button-like">&#9829;</button>
   </div>
   {{/if}}
 </div>

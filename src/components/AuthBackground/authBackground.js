@@ -22,9 +22,9 @@ export class AuthBackground {
             return;
         }
 
-        const tablet = this.container.querySelector('.circle-activity-tablet');
+        const tablet = this.container.querySelector('.auth-background__circle-activity-tablet');
         if (!tablet) {
-            console.error('AuthBackground: .circle-activity-tablet not found in container!');
+            console.error('AuthBackground: .auth-background__circle-activity-tablet not found in container!');
             return;
         }
 
@@ -48,7 +48,7 @@ export class AuthBackground {
                     svgPath: this.svgIcons[iconIndex % this.svgIcons.length],
                     size: circleSize,
                     opacity: 0.5,
-                    className: 'background-variant',
+                    className: 'auth-background__background-variant',
                 });
                 
                 const element = circle.render();
@@ -80,7 +80,7 @@ export class AuthBackground {
         
         for (let i = 0; i < numberOfTexts; i += 1) {
             const textElement = document.createElement('div');
-            textElement.className = 'background-text';
+            textElement.className = 'auth-background__background-text';
             textElement.textContent = textContent;
             
             const baseX = i * textSpacing - 200;
@@ -95,7 +95,7 @@ export class AuthBackground {
     }
 
     startAnimation(textContent, circleSpacing) {
-        const tablet = this.container.querySelector('.circle-activity-tablet');
+        const tablet = this.container.querySelector('.auth-background__circle-activity-tablet');
         if (!tablet) return;
 
         const circleSpeed = 2;
@@ -153,7 +153,7 @@ export class AuthBackground {
         });
         this.textElements = [];
 
-        const tablet = this.container.querySelector('.circle-activity-tablet');
+        const tablet = this.container.querySelector('.auth-background__circle-activity-tablet');
         if (tablet) {
             tablet.innerHTML = '';
         }

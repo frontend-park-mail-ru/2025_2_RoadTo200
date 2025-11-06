@@ -1,18 +1,18 @@
 import { Actions } from '../../actions.js';
 import { dispatcher } from '../../Dispatcher.js';
 
-const TEMPLATE_PATH = './src/components/SettingsMenu/settingsMenu.hbs';
+const TEMPLATE_PATH = '/src/components/SettingsMenu/settingsMenu.hbs';
 
 const MENU_ITEMS_DATA = [
     { 
         name: 'Профиль', 
         tab: 'profile',
-        icon: 'myCard.svg'
+        icon: './src/assets/settings__profile.svg'
     },
     { 
         name: 'Безопасность', 
         tab: 'security',
-        icon: 'home.svg'
+        icon: './src/assets/settings__security.svg'
     }
 ];
 

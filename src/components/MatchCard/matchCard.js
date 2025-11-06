@@ -1,4 +1,6 @@
-const TEMPLATE_PATH = './src/components/MatchCard/matchCard.hbs';
+/* global Handlebars */
+
+const TEMPLATE_PATH = '/src/components/MatchCard/matchCard.hbs';
 
 const fetchTemplate = async (path) => {
     try {
