@@ -52,18 +52,6 @@ class AuthApi {
     async logout() {
         return handleFetch( this.baseURL, '/logout', { method: 'POST' });
     }
-
-    async changePassword(oldPassword, newPassword) {
-        const options = {
-            method: 'POST',
-            body: JSON.stringify({ oldPassword, newPassword }),
-        };
-        return handleFetch(this.baseURL, '/change-password', options);
-    }
-
-    async deleteAccount() {
-        return handleFetch(this.baseURL, '/delete-account', { method: 'POST' });
-    }
 }
 
 export default new AuthApi(API_URL);

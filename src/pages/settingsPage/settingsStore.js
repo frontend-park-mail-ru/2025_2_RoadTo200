@@ -2,7 +2,6 @@ import { Actions } from '../../actions.js';
 import { dispatcher } from '../../Dispatcher.js';
 import { settings } from './settings.js';
 import ProfileApi from '../../apiHandler/profileApi.js';
-import AuthApi from '../../apiHandler/authApi.js';
 
 class SettingsStore {
     currentTab = 'profile';
@@ -151,7 +150,7 @@ class SettingsStore {
         }
 
         try {
-            await AuthApi.changePassword(oldPassword, newPassword);
+            await ProfileApi.changePassword(oldPassword, newPassword);
             this.updateView();
         } catch {
             settings.showErrors({ oldPasswordError: 'Неверный пароль' });
@@ -160,7 +159,7 @@ class SettingsStore {
 
     async deleteAccount() {
         try {
-            await AuthApi.deleteAccount();
+            await ProfileApi.deleteAccount();
             
             window.history.pushState(null, null, '/login');
             window.dispatchEvent(new PopStateEvent('popstate'));
