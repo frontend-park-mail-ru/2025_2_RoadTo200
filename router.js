@@ -171,8 +171,14 @@ export class Router {
         const actionPayload = {};
 
         if (normalizedPath === '/') {
-            renderActionType = Actions.RENDER_MAIN;
-            actionPayload.route = 'main';
+            // Редирект с главной на /cards
+            this.navigateTo('/cards');
+            return;
+        }
+        
+        if (normalizedPath === '/cards') {
+            renderActionType = Actions.RENDER_CARDS;
+            actionPayload.route = 'cards';
         } else if (normalizedPath === '/login') {
             renderActionType = Actions.RENDER_LOGIN;
         } else if (normalizedPath === '/register') {

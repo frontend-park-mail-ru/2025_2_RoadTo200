@@ -32,6 +32,7 @@ const notFoundComponent = {
 
 const routes = [
     new Route('/', main, true),
+    new Route('/cards', main, true),
     new Route('/login', login, false),
     new Route('/register', register, false),
     new Route('*', notFoundComponent, false),

@@ -16,6 +16,7 @@ class MainStore {
     async handleAction(action) {
         switch (action.type) {
             case Actions.RENDER_MAIN:
+            case Actions.RENDER_CARDS:
                 await main.render();
                 break;
 
@@ -58,7 +59,9 @@ class MainStore {
             
         } catch (error) {
             console.error('Error getting cards:', error);
-            alert("ошибка получения карточек");
+            // Показываем пустой список вместо alert
+            this.cards = [];
+            main.setCards([]);
         }
     }
 
@@ -66,7 +69,8 @@ class MainStore {
         try {
             await CardApi.postCardInteraction(cardId, actionType);
         } catch (error) {
-            alert("ошибка отправки реакции");
+            console.error('Error sending card action:', error);
+            // Тихо игнорируем ошибку свайпа, пользователь увидит, что карточка не исчезла
         }
     }
 }

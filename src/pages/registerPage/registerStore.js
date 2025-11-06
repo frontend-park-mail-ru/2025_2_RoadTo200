@@ -31,10 +31,12 @@ class RegisterStore {
             window.history.pushState(null, null, '/');
             window.dispatchEvent(new PopStateEvent('popstate'));
         } catch (error) {
+            console.error('Registration error:', error);
             
+            // Показываем пользователю дружелюбное сообщение
             dispatcher.process({
                 type: Actions.REGISTER_ERROR,
-                payload: { message: error.message || 'Неверный email или пароль' }
+                payload: { message: 'Ошибка при регистрации. Проверьте данные и попробуйте снова.' }
             });
         }
     }

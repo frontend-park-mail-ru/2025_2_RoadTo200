@@ -33,12 +33,12 @@ class LoginStore {
             window.history.pushState(null, null, '/');
             window.dispatchEvent(new PopStateEvent('popstate'));
         } catch (error) {
-            console.log('Login error caught:', error);
-            console.log('Error message:', error.message);
+            console.error('Login error:', error);
             
+            // Показываем пользователю дружелюбное сообщение, а не raw ошибку с бекенда
             dispatcher.process({
                 type: Actions.LOGIN_ERROR,
-                payload: { message: error.message || 'Неверный email или пароль' }
+                payload: { message: 'Неверный email или пароль' }
             });
         }
     }

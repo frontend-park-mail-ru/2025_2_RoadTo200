@@ -75,7 +75,10 @@ class HeaderStore{
             window.dispatchEvent(new PopStateEvent('popstate'));
             
         } catch (error) {
-            alert("Ошибка при выходе");
+            console.error("Logout error:", error);
+            // Всё равно редиректим на /login даже если logout запрос упал
+            window.history.pushState(null, null, '/login');
+            window.dispatchEvent(new PopStateEvent('popstate'));
         }
     }
 
@@ -87,7 +90,7 @@ class HeaderStore{
             await this.renderHeader();
 
         } catch (error) {
-            alert("Ошибка в обновлении хедера"); 
+            console.error("Error updating user state:", error);
         }
     }
 

@@ -49,16 +49,17 @@ class SettingsStore {
         settings.parent = container;
 
         try {
-            const res = await ProfileApi.getProfile();
-            if (res.status === 'ok' && res.profile) {
-                const p = res.profile;
-                this.profileData = {
-                    name: p.name || '',
-                    birthdate: p.birthdate || '',
-                    email: p.email || '',
-                };
-            }
-        } catch {
+            const response = await ProfileApi.getProfile();
+            console.log('Settings: Profile response:', response);
+            
+            const user = response.user || {};
+            this.profileData = {
+                name: user.name || '',
+                birthdate: user.birth_date ? this.formatDate(user.birth_date) : '',
+                email: user.email || '',
+            };
+        } catch (error) {
+            console.error('Error loading profile for settings:', error);
             this.profileData = { name: '', birthdate: '', email: '' };
         }
 
@@ -68,6 +69,14 @@ class SettingsStore {
         }
 
         await settings.render(this.profileData, this.currentTab);
+    }
+    
+    formatDate(dateString) {
+        const date = new Date(dateString);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}.${month}.${year}`;
     }
 
     updateView() {
@@ -105,13 +114,14 @@ class SettingsStore {
         }
 
         try {
-            const response = await ProfileApi.updateProfileInfo({ name, email });
-            if (response.status === 'ok') {
-                this.profileData = { name, birthdate, email };
-                this.updateView();
-            }
+            await ProfileApi.updateProfileInfo({ name, email });
+            console.log('Profile settings updated successfully');
+            
+            this.profileData = { name, birthdate, email };
+            this.updateView();
         } catch (err) {
-            settings.showErrors({ emailError: err.message || 'Ошибка при обновлении профиля' });
+            console.error('Error updating profile settings:', err);
+            settings.showErrors({ emailError: 'Ошибка при обновлении профиля' });
         }
     }
 
@@ -151,9 +161,11 @@ class SettingsStore {
 
         try {
             await ProfileApi.changePassword(oldPassword, newPassword);
+            console.log('Password changed successfully');
             this.updateView();
-        } catch {
-            settings.showErrors({ oldPasswordError: 'Неверный пароль' });
+        } catch (error) {
+            console.error('Error changing password:', error);
+            settings.showErrors({ oldPasswordError: 'Неверный старый пароль' });
         }
     }
 

@@ -100,20 +100,30 @@ class ProfileStore {
 
             if (!field || value === undefined) return;
 
-            const updateData = { [field]: value };
-            const response = await ProfileApi.updateProfileInfo(updateData);
+            // Маппинг полей фронтенда в поля бекенда
+            const fieldMapping = {
+                'description': 'bio',
+                'name': 'name',
+                'musician': 'bio', // Временно сохраняем в bio
+                'quote': 'bio'     // Временно сохраняем в bio
+            };
 
-            console.log('Update profile response:', response);
+            const backendField = fieldMapping[field] || field;
+            const updateData = { [backendField]: value };
+            
+            console.log('Updating profile field:', field, '→', backendField, 'with value:', value);
 
-            // Бекенд возвращает { user: {...}, preferences: {...}, photos: [...] }
-            const user = response.user || {};
+            await ProfileApi.updateProfileInfo(updateData);
 
-            this.profileData.description = user.bio || "";
-            this.profileData.name = user.name || "";
-            this.profileData.age = user.birth_date ? this.calculateAge(user.birth_date) : "";
+            console.log('Profile field updated successfully');
+
+            // После успешного обновления перезагружаем профиль
+            await this.renderProfile();
+            
         } catch (error) {
             console.error('Error updating profile:', error);
-            await this.renderProfile();
+            // Показываем пользователю понятное сообщение
+            console.error('Не удалось сохранить изменения');
         }
     }
 
@@ -171,12 +181,12 @@ class ProfileStore {
                             errorMessage = 'Ошибка сервера при загрузке фотографий';
                         } else if (error.message.includes('Необходима авторизация')) {
                             errorMessage = 'Сессия истекла. Пожалуйста, войдите снова';
-                        } else {
-                            errorMessage = error.message;
                         }
+                        // Не показываем сырую ошибку с бекенда пользователю
                     }
 
-                    console.error(errorMessage);
+                    // Можно показать errorMessage пользователю через UI
+                    alert(errorMessage);
                 }
             };
 
