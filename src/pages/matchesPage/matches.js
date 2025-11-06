@@ -2,7 +2,7 @@ import { dispatcher } from '../../Dispatcher.js';
 import { Actions } from '../../actions.js';
 import MatchCard from '../../components/MatchCard/matchCard.js';
 
-const TEMPLATE_PATH = './src/pages/matchesPage/matches.hbs';
+const TEMPLATE_PATH = '/src/pages/matchesPage/matches.hbs';
 
 const fetchTemplate = async (path) => {
     const response = await fetch(path);
@@ -39,6 +39,7 @@ export class MatchesPage {
 
         this.parent.innerHTML = renderedHtml;
         this.addEventListeners();
+        dispatcher.process({ type: Actions.RENDER_MENU, payload: { route: 'matches' } });
     }
 
     addEventListeners() {

@@ -1,7 +1,7 @@
 import { dispatcher } from '../../Dispatcher.js';
 import { Actions } from '../../actions.js';
 
-const TEMPLATE_PATH = './src/pages/profilePage/profile.hbs';
+const TEMPLATE_PATH = '/src/pages/profilePage/profile.hbs';
 
 const fetchTemplate = async (path) => {
     const response = await fetch(path);
@@ -26,6 +26,8 @@ export class ProfilePage {
     }
 
     addEventListeners() {
+        dispatcher.process({ type: Actions.RENDER_MENU, payload: { route: 'me' } });
+
         this.parent.querySelectorAll('.details__icon-edit').forEach(icon => {
             icon.addEventListener('click', (e) => {
                 const { target: fieldName, type: fieldType } = e.currentTarget.dataset;

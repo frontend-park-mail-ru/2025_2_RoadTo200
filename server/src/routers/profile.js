@@ -78,7 +78,9 @@ router.route('/changeProfile').post(applyAuth, uploadPhotos, (req, res, next) =>
             description, 
             quote, 
             musician,
-            photoId 
+            photoId,
+            oldPassword,
+            newPassword
         } = req.body;
 
         let result = {};
@@ -99,14 +101,32 @@ router.route('/changeProfile').post(applyAuth, uploadPhotos, (req, res, next) =>
                 if (!photoId) {
                     return res.status(400).json({ error: 'photoId обязателен для удаления' });
                 }
-                result = deleteUserPhoto(parseInt(photoId));
+                result = deleteUserPhoto(parseInt(photoId, 10));
                 break;
 
             case 'setPrimaryPhoto':
                 if (!photoId) {
                     return res.status(400).json({ error: 'photoId обязателен для установки основной фото' });
                 }
-                result = setPrimaryPhoto(userId, parseInt(photoId));
+                result = setPrimaryPhoto(userId, parseInt(photoId, 10));
+                break;
+
+            case 'changePassword':
+                if (!oldPassword || !newPassword) {
+                    return res.status(400).json({ error: 'Необходимо указать старый и новый пароль' });
+                }
+                result = changePassword(user, oldPassword, newPassword);
+                if (!result.success) {
+                    return res.status(400).json({ error: result.error });
+                }
+                break;
+
+            case 'deleteAccount':
+                result = deleteAccount(userId);
+                if (result.success) {
+                    req.session.destroy();
+                    return res.status(200).json({ status: 'ok', message: 'Аккаунт удален' });
+                }
                 break;
 
             default:
@@ -171,6 +191,45 @@ function handlePhotoUpload(userId, files) {
         data: {
             newPhotos: newPhotosWithUrls
         }
+    };
+}
+
+function changePassword(user, oldPassword, newPassword) {
+    // В реальном приложении здесь должна быть проверка хеша пароля
+    if (user.password !== oldPassword) {
+        return {
+            success: false,
+            error: 'Неверный старый пароль'
+        };
+    }
+
+    if (newPassword.length < 6) {
+        return {
+            success: false,
+            error: 'Пароль должен содержать минимум 6 символов'
+        };
+    }
+
+    user.password = newPassword;
+    return {
+        success: true,
+        message: 'Пароль успешно изменен'
+    };
+}
+
+function deleteAccount(userId) {
+    const userIndex = usersData.users.findIndex(u => u.id === userId);
+    if (userIndex === -1) {
+        return {
+            success: false,
+            error: 'Пользователь не найден'
+        };
+    }
+
+    usersData.users.splice(userIndex, 1);
+    return {
+        success: true,
+        message: 'Аккаунт успешно удален'
     };
 }
 

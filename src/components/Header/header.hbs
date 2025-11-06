@@ -3,10 +3,8 @@
         
         <div class="header__right">
             {{#if isAuthenticated}}
-                <span class="header__welcome-text">Привет, {{userName}}!</span>
-                <button id="logoutBtn" class="header__logout-btn">
-                    <span>Выйти</span>
-                </button>
+                <span class="header__welcome-text" id="userEmailBtn">Привет, {{userName}}</span>
+                
             {{/if}}
         </div>
     </div>

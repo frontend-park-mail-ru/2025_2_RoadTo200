@@ -1,4 +1,6 @@
-const CARD_TEMPLATE_PATH = './src/components/Card/card.hbs';
+/* global Handlebars */
+
+const CARD_TEMPLATE_PATH = '/src/components/Card/card.hbs';
 
 /**
  * Загрузка шаблона

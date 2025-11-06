@@ -1,7 +1,7 @@
 import { dispatcher } from '../../Dispatcher.js';
 import { Actions } from '../../actions.js';
 
-const TEMPLATE_PATH = './src/pages/loginPage/login.hbs';
+const TEMPLATE_PATH = '/src/pages/loginPage/login.hbs';
 
 /**
  * Валидация email RFC 5322 SMTPUTF8 
