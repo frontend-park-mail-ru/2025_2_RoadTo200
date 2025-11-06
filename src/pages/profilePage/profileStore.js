@@ -32,41 +32,55 @@ class ProfileStore {
     async renderProfile() {
         try {
             const response = await ProfileApi.getProfile();
+            
+            console.log('Profile API response:', response);
 
-            if (response.status === 'ok' && response.profile) {
-                const apiProfile = response.profile;
+            // Бекенд возвращает { user: {...}, preferences: {...}, photos: [...] }
+            const user = response.user || {};
+            const photos = response.photos || [];
 
-                this.profileData = {
-                    description: apiProfile.description || "",
-                    musician: apiProfile.musician || "",
-                    quote: apiProfile.quote || "",
-                    name: apiProfile.name || "",
-                    age: apiProfile.age || "",
-                    interests: [
-                        { id: 1, name: "Рыбалка" },
-                        { id: 2, name: "Кино" },
-                        { id: 3, name: "Живопись" },
-                    ],
-                    photoCards: this.transformPhotosToCards(apiProfile.photos)
-                };
+            this.profileData = {
+                description: user.bio || "",
+                musician: "", // Нет в API
+                quote: "", // Нет в API
+                name: user.name || "",
+                age: user.birth_date ? this.calculateAge(user.birth_date) : "",
+                interests: [
+                    { id: 1, name: "Рыбалка" },
+                    { id: 2, name: "Кино" },
+                    { id: 3, name: "Живопись" },
+                ],
+                photoCards: this.transformPhotosToCards(photos)
+            };
 
-                const contentContainer = document.getElementById('content-container');
-                if (contentContainer) {
-                    profile.parent = contentContainer;
-                }
-
-                profile.render(this.profileData);
+            const contentContainer = document.getElementById('content-container');
+            if (contentContainer) {
+                profile.parent = contentContainer;
             }
+
+            profile.render(this.profileData);
         } catch (error) {
+            console.error('Error loading profile:', error);
         }
+    }
+    
+    calculateAge(birthDate) {
+        const birth = new Date(birthDate);
+        const today = new Date();
+        let age = today.getFullYear() - birth.getFullYear();
+        const monthDiff = today.getMonth() - birth.getMonth();
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+            age--;
+        }
+        return age;
     }
 
     transformPhotosToCards(photos) {
         const photoCards = photos.map(photo => ({
             id: photo.id,
-            image: photo.imageUrl,
+            image: photo.photo_url, // Бекенд возвращает photo_url, а не imageUrl
             isUserPhoto: true,
-            isPrimary: photo.isPrimary || false
+            isPrimary: photo.is_primary || photo.display_order === 0 || false
         }));
 
         if (photoCards.length < 4) {
@@ -89,16 +103,16 @@ class ProfileStore {
             const updateData = { [field]: value };
             const response = await ProfileApi.updateProfileInfo(updateData);
 
-            if (response.status === 'ok' && response.profile) {
-                const apiProfile = response.profile;
+            console.log('Update profile response:', response);
 
-                this.profileData.description = apiProfile.description || "";
-                this.profileData.musician = apiProfile.musician || "";
-                this.profileData.quote = apiProfile.quote || "";
-                this.profileData.name = apiProfile.name || "";
-                this.profileData.age = apiProfile.age || "";
-            }
+            // Бекенд возвращает { user: {...}, preferences: {...}, photos: [...] }
+            const user = response.user || {};
+
+            this.profileData.description = user.bio || "";
+            this.profileData.name = user.name || "";
+            this.profileData.age = user.birth_date ? this.calculateAge(user.birth_date) : "";
         } catch (error) {
+            console.error('Error updating profile:', error);
             await this.renderProfile();
         }
     }
@@ -110,11 +124,15 @@ class ProfileStore {
 
             const response = await ProfileApi.deletePhoto(photoId);
 
-            if (response.status === 'ok' && response.profile && response.profile.photos) {
-                this.profileData.photoCards = this.transformPhotosToCards(response.profile.photos);
+            console.log('Delete photo response:', response);
+
+            // Бекенд возвращает { user: {...}, preferences: {...}, photos: [...] }
+            if (response.photos) {
+                this.profileData.photoCards = this.transformPhotosToCards(response.photos);
                 profile.render(this.profileData);
             }
         } catch (error) {
+            console.error('Error deleting photo:', error);
         }
     }
 
@@ -132,12 +150,15 @@ class ProfileStore {
                 try {
                     const response = await ProfileApi.uploadPhoto(files);
 
-                    if (response.status === 'ok' && response.profile) {
-                        this.profileData.photoCards = this.transformPhotosToCards(response.profile.photos);
+                    console.log('Upload photo response:', response);
+
+                    // Бекенд возвращает { photos: [...] }
+                    if (response.photos) {
+                        this.profileData.photoCards = this.transformPhotosToCards(response.photos);
                         profile.render(this.profileData);
-        
                     }
                 } catch (error) {
+                    console.error('Error uploading photo:', error);
                     let errorMessage = 'Ошибка при загрузке фотографий';
 
                     if (error.message) {
@@ -152,12 +173,13 @@ class ProfileStore {
                         }
                     }
 
-                    alert(errorMessage);
+                    console.error(errorMessage);
                 }
             };
 
             fileInput.click();
         } catch (error) {
+            console.error('Error in addPhoto:', error);
         }
     }
 }

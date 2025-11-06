@@ -40,8 +40,32 @@ class MatchesStore {
             }
 
             
-            const matchesData = await MatchesApi.getAllMatches();
-            this.matches = Array.isArray(matchesData) ? matchesData : Object.values(matchesData || []);
+            const response = await MatchesApi.getAllMatches();
+            
+            // Бекенд возвращает { matches: [...], total, limit, offset }
+            const matchesArray = response.matches || [];
+            
+            // Преобразуем структуру данных
+            this.matches = matchesArray.map(item => {
+                const match = item.match || {};
+                const user = item.user || {};
+                
+                // Используем matched_at для расчета времени истечения (24 часа)
+                const matchedAt = match.matched_at ? new Date(match.matched_at) : new Date();
+                const expiresAt = new Date(matchedAt.getTime() + 24 * 60 * 60 * 1000);
+                
+                return {
+                    id: user.id || match.id,
+                    name: user.name || 'Unknown',
+                    age: user.birth_date ? this.calculateAge(user.birth_date) : null,
+                    photo: user.photo_url || '/src/assets/image.png',
+                    matchId: match.id,
+                    matchedAt: matchedAt.toISOString(),
+                    expiresAt: expiresAt.toISOString(),
+                    isNew: this.isMatchNew(matchedAt),
+                    isActive: match.is_active !== false
+                };
+            });
 
             this.updateDerivedFields();
             matches.setMatches(this.matches);
@@ -60,6 +84,24 @@ class MatchesStore {
             console.error('Error loading matches:', error);
             matches.setMatches([]);
         }
+    }
+    
+    calculateAge(birthDate) {
+        const birth = new Date(birthDate);
+        const today = new Date();
+        let age = today.getFullYear() - birth.getFullYear();
+        const monthDiff = today.getMonth() - birth.getMonth();
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+            age--;
+        }
+        return age;
+    }
+    
+    isMatchNew(matchedAt) {
+        const now = new Date();
+        const matched = new Date(matchedAt);
+        const hoursSinceMatch = (now - matched) / (1000 * 60 * 60);
+        return hoursSinceMatch < 1; // Новый если меньше часа назад
     }
 
     updateDerivedFields() {

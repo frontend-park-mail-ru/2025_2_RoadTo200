@@ -35,15 +35,30 @@ class MainStore {
     async getCards() {
         
         try {
-            const cards = await CardApi.getAllCards();
+            const response = await CardApi.getAllCards();
 
-            console.log(cards)
+            console.log('API Response:', response);
             
-            this.cards = cards;
-            main.setCards(cards);
+            // Бекенд возвращает { users: [], limit, offset, total }
+            // Преобразуем в формат, который ожидает фронтенд
+            const cards = response.users || [];
+            
+            // Преобразуем структуру данных
+            const transformedCards = cards.map(user => ({
+                id: user.id,
+                name: user.name,
+                age: user.age,
+                description: user.description || '',
+                images: user.images ? user.images.map(url => ({ imageUrl: url })) : [],
+                photosCount: user.photosCount || 0
+            }));
+            
+            this.cards = transformedCards;
+            main.setCards(transformedCards);
             
         } catch (error) {
-            alert("ошибка получения карточек"); // 
+            console.error('Error getting cards:', error);
+            alert("ошибка получения карточек");
         }
     }
 

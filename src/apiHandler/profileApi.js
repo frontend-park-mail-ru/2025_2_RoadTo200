@@ -1,6 +1,6 @@
-import serverURL from './serverURL.js';
+import serverURL from './serverURL.JS';
 
-const API_URL = `${serverURL}/api/profile`;
+const API_URL = `${serverURL}/api`;
 
 class ProfileApi {
     constructor(baseURL = API_URL) {
@@ -9,7 +9,7 @@ class ProfileApi {
 
     async getProfile() {
         
-        const response = await fetch(`${this.baseURL}/profile`, { 
+        const response = await fetch(`${this.baseURL}/profile/profile`, { 
             method: 'GET',
             credentials: 'include'
         });
@@ -23,7 +23,7 @@ class ProfileApi {
     }
 
     async updateProfileInfo(profileData) {
-        const response = await fetch(`${this.baseURL}/changeProfile`, {
+        const response = await fetch(`${this.baseURL}/profile/changeProfile`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -48,11 +48,11 @@ class ProfileApi {
         formData.append('action', 'uploadPhotos');
         
         const photoArray = Array.isArray(photos) ? photos : [photos];
-        photoArray.forEach((photo, index) => {
+        photoArray.forEach((photo) => {
             formData.append('photos', photo);
         });
         
-        const response = await fetch(`${this.baseURL}/changeProfile`, {
+        const response = await fetch(`${this.baseURL}/profile/uploadPhotos`, {
             method: 'POST',
             credentials: 'include',
             body: formData
@@ -75,7 +75,7 @@ class ProfileApi {
     }
 
     async deletePhoto(photoId) {
-        const response = await fetch(`${this.baseURL}/changeProfile`, {
+        const response = await fetch(`${this.baseURL}/profile/changeProfile`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -83,7 +83,7 @@ class ProfileApi {
             credentials: 'include',
             body: JSON.stringify({
                 action: 'deletePhoto',
-                photoId: photoId
+                photoId
             })
         });
         
@@ -96,7 +96,7 @@ class ProfileApi {
     }
 
     async setPrimaryPhoto(photoId) {
-        const response = await fetch(`${this.baseURL}/changeProfile`, {
+        const response = await fetch(`${this.baseURL}/profile/changeProfile`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -104,7 +104,7 @@ class ProfileApi {
             credentials: 'include',
             body: JSON.stringify({
                 action: 'setPrimaryPhoto',
-                photoId: photoId
+                photoId
             })
         });
         
@@ -117,7 +117,7 @@ class ProfileApi {
     }
 
     async changePassword(oldPassword, newPassword) {
-        const response = await fetch(`${this.baseURL}/changeProfile`, {
+        const response = await fetch(`${this.baseURL}/profile/changeProfile`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -139,7 +139,7 @@ class ProfileApi {
     }
 
     async deleteAccount() {
-        const response = await fetch(`${this.baseURL}/changeProfile`, {
+        const response = await fetch(`${this.baseURL}/profile/changeProfile`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

@@ -175,7 +175,7 @@ export class MainPage {
                 }
             } else if (deltaY < 0 && Math.abs(deltaY) > this.swipeThreshold) {
                 direction = 'up';
-                actionType = 'superlike';
+                actionType = 'super_like';
             }
 
             if (direction && actionType) {
@@ -218,7 +218,7 @@ export class MainPage {
                     actionType = 'like';
                 } else if (button.classList.contains('card__button-superLike')) {
                     direction = 'up';
-                    actionType = 'superlike';
+                    actionType = 'super_like';
                 } else {
                     return;
                 }

@@ -1,7 +1,7 @@
 import handleFetch from './handler.js';
 import serverURL from './serverURL.JS';
 
-const API_URL = `${serverURL}/api/matches`;
+const API_URL = `${serverURL}/api`;
 
 class MatchesApi {
     constructor(baseURL = API_URL) {
@@ -13,7 +13,7 @@ class MatchesApi {
      * @returns {Promise<Object>} Object with all matches
      */
     async getAllMatches() {
-        return handleFetch(this.baseURL, '', { method: 'GET' });
+        return handleFetch(this.baseURL, '/matches', { method: 'GET' });
     }
 
     /**
@@ -22,7 +22,7 @@ class MatchesApi {
      * @returns {Promise<Object>} Match data
      */
     async getMatch(matchId) {
-        return handleFetch(this.baseURL, `/${matchId}`, { method: 'GET' });
+        return handleFetch(this.baseURL, `/matches/${matchId}`, { method: 'GET' });
     }
 }
 
