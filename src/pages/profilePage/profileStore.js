@@ -120,17 +120,21 @@ class ProfileStore {
     async deletePhoto(payload) {
         try {
             const { photoId } = payload;
-            if (!photoId) return;
+            if (!photoId || photoId === 'placeholder') {
+                console.warn('Invalid photoId:', photoId);
+                return;
+            }
 
+            console.log('Deleting photo with ID:', photoId);
+            
             const response = await ProfileApi.deletePhoto(photoId);
 
             console.log('Delete photo response:', response);
 
-            // Бекенд возвращает { user: {...}, preferences: {...}, photos: [...] }
-            if (response.photos) {
-                this.profileData.photoCards = this.transformPhotosToCards(response.photos);
-                profile.render(this.profileData);
-            }
+            // Бекенд возвращает только { message: "..." }
+            // Нужно перезапросить профиль для получения актуального списка фото
+            await this.renderProfile();
+            
         } catch (error) {
             console.error('Error deleting photo:', error);
         }
@@ -152,11 +156,10 @@ class ProfileStore {
 
                     console.log('Upload photo response:', response);
 
-                    // Бекенд возвращает { photos: [...] }
-                    if (response.photos) {
-                        this.profileData.photoCards = this.transformPhotosToCards(response.photos);
-                        profile.render(this.profileData);
-                    }
+                    // Бекенд возвращает { photos: [...] } - только загруженные фото
+                    // Нужно перезапросить профиль для получения всех фото
+                    await this.renderProfile();
+                    
                 } catch (error) {
                     console.error('Error uploading photo:', error);
                     let errorMessage = 'Ошибка при загрузке фотографий';

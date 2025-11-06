@@ -49,10 +49,10 @@ export class ProfilePage {
                 e.preventDefault();
                 const photoCard = e.currentTarget.closest('.photo-grid__card');
                 const photoId = photoCard?.dataset.photoId;
-                if (photoId) {
+                if (photoId && photoId !== 'placeholder') {
                     dispatcher.process({
                         type: Actions.DELETE_PHOTO,
-                        payload: { photoId: parseInt(photoId) }
+                        payload: { photoId } // Передаем как строку (UUID), не parseInt!
                     });
                 }
             });

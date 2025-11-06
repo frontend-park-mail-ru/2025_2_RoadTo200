@@ -75,6 +75,12 @@ class ProfileApi {
     }
 
     async deletePhoto(photoId) {
+        if (!photoId) {
+            throw new Error('photo ID is required');
+        }
+        
+        console.log('Deleting photo with ID:', photoId, 'Type:', typeof photoId);
+        
         const response = await fetch(`${this.baseURL}/profile/changeProfile`, {
             method: 'POST',
             headers: {
@@ -83,7 +89,7 @@ class ProfileApi {
             credentials: 'include',
             body: JSON.stringify({
                 action: 'deletePhoto',
-                photoId
+                photo_id: photoId // Бекенд ожидает photo_id (snake_case)
             })
         });
         
@@ -96,6 +102,10 @@ class ProfileApi {
     }
 
     async setPrimaryPhoto(photoId) {
+        if (!photoId) {
+            throw new Error('photo ID is required');
+        }
+        
         const response = await fetch(`${this.baseURL}/profile/changeProfile`, {
             method: 'POST',
             headers: {
@@ -104,7 +114,7 @@ class ProfileApi {
             credentials: 'include',
             body: JSON.stringify({
                 action: 'setPrimaryPhoto',
-                photoId
+                photo_id: photoId // Бекенд ожидает photo_id (snake_case)
             })
         });
         
