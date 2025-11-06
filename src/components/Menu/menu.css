@@ -1,19 +1,17 @@
 .sidebar {
     width: 100%;
     height: 100%;
-    padding: 32px 0 0 0;
-    box-sizing: border-box;
-    background: #fff;
 }
 
-.sidebar-header {
+.sidebar__header {
     display: flex;
     align-items: center;
-    padding: 0 32px 38px 32px;
+
+    padding: 32px;
     gap: 20px;
 }
 
-.sidebar-header .heart-icon {
+.sidebar__icon {
     color: #ff477e;
     font-size: 48px;  
     margin-right: 14px;
@@ -21,26 +19,26 @@
     align-items: center;
 }
 
-.sidebar-header .app-name {
+.sidebar__name {
     color: #ff477e;
     font-size: 32px;
     font-weight: 700;
     letter-spacing: -1px;
 }
 
-.menu-list {
+.sidebar__list {
     list-style: none;
     padding: 0 24px;
     margin: 0;
 }
 
-.menu-item {
+.sidebar__item {
     margin-bottom: 16px;
     border-radius: 22px;
     transition: background 0.18s;
 }
 
-.menu-link {
+.sidebar__link {
     display: flex;
     align-items: center;
     text-decoration: none;
@@ -52,36 +50,20 @@
     transition: color 0.15s;
 }
 
-.menu-link .menu-icon {
+.sidebar__icon {
     width: 28px;
     height: 28px;
+
     fill: #ff477e;
+    
     margin-right: 10px;
     flex-shrink: 0;
 }
 
-.menu-item:not(.active) .menu-link {
-    color: #4b4b4b;
-    font-weight: 500;
-}
-
-.menu-item:not(.active) .menu-icon {
-    fill: #999;
-}
-
-.menu-item:not(.active):hover {
+.sidebar__item-disabled:hover {
     background: #f6f6f6;
 }
 
-.menu-item.active {
+.sidebar__item-active {
     background: #ffe6ee;
-}
-
-.menu-item.active .menu-link {
-    color: #ff477e;
-    font-weight: 600;
-}
-
-.menu-item.active .menu-icon {
-    fill: #ff477e;
 }

@@ -28,7 +28,7 @@ export class ProfilePage {
     addEventListeners() {
         dispatcher.process({ type: Actions.RENDER_MENU, payload: { route: 'me' } });
 
-        this.parent.querySelectorAll('.edit-icon-small').forEach(icon => {
+        this.parent.querySelectorAll('.details__icon-edit').forEach(icon => {
             icon.addEventListener('click', (e) => {
                 const { target: fieldName, type: fieldType } = e.currentTarget.dataset;
                 if (e.currentTarget.classList.contains('editing') || !fieldName) return;
@@ -36,7 +36,7 @@ export class ProfilePage {
             });
         });
 
-        const addPlaceholder = this.parent.querySelector('.add-photo-placeholder');
+        const addPlaceholder = this.parent.querySelector('.photo-grid__add');
         if (addPlaceholder) {
             addPlaceholder.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -44,10 +44,10 @@ export class ProfilePage {
             });
         }
 
-        this.parent.querySelectorAll('.delete-photo-btn').forEach(button => {
+        this.parent.querySelectorAll('.photo-grid__delete-btn').forEach(button => {
             button.addEventListener('click', (e) => {
                 e.preventDefault();
-                const photoCard = e.currentTarget.closest('.photo-card');
+                const photoCard = e.currentTarget.closest('.photo-grid__card');
                 const photoId = photoCard?.dataset.photoId;
                 if (photoId) {
                     dispatcher.process({
@@ -67,12 +67,13 @@ export class ProfilePage {
             });
         }
 
-        this.parent.querySelectorAll('.delete-interest-layer').forEach(layer => {
+        this.parent.querySelectorAll('.details__delete-layer').forEach(layer => {
             layer.addEventListener('click', (e) => {
                 e.stopPropagation();
-                const tag = e.currentTarget.closest('.interest-tag');
+                const tag = e.currentTarget.closest('.details__tag');
                 const interestId = tag?.dataset.interestId;
                 if (interestId) {
+                    console.log(interestId);
                     dispatcher.process({
                         type: Actions.DELETE_INTEREST,
                         payload: { id: parseInt(interestId) }
@@ -86,7 +87,7 @@ export class ProfilePage {
         const wrapper = this.parent.querySelector(`#${fieldName}`);
         if (!wrapper) return;
 
-        const currentTextElement = wrapper.querySelector('.current-text');
+        const currentTextElement = wrapper.querySelector('.details__section-text-current');
         if (!currentTextElement) return;
 
         const isBlockQuote = currentTextElement.tagName === 'BLOCKQUOTE';
@@ -95,7 +96,7 @@ export class ProfilePage {
 
         const isParagraph = fieldType === 'paragraph';
         const inputElement = document.createElement(isParagraph ? 'textarea' : 'input');
-        inputElement.className = `edit-input edit-${isParagraph ? 'textarea' : 'single-line'}`;
+        inputElement.className = `details__edit-input details__edit-${isParagraph ? 'textarea' : 'single-line'}`;
         inputElement.value = currentValue;
 
         currentTextElement.style.display = 'none';
@@ -148,7 +149,7 @@ export class ProfilePage {
         inputElement.type = 'text';
         inputElement.id = 'new-interest-input-field';
         inputElement.placeholder = 'Введите увлечение';
-        inputElement.className = 'interest-tag new-interest-input';
+        inputElement.className = 'details__tag details__new-interest-input';
 
         addTagButton.parentNode.insertBefore(inputElement, addTagButton);
         addTagButton.style.display = 'none';

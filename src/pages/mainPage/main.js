@@ -51,7 +51,7 @@ export class MainPage {
         this.parent = parent;
         this.currentCardIndex = 0;
         this.cardsData = [];
-        this.swipeThreshold = 100; // Minimum swipe distance in pixels
+        this.swipeThreshold = 100;
     }
 
     async render() {
@@ -68,7 +68,7 @@ export class MainPage {
         this.parent.appendChild(newDiv);
 
         document.addEventListener('click', (event) => {
-            if (event.target.classList.contains('card-image')) {
+            if (event.target.classList.contains('card__image')) {
                 Card.handleImageNavigation(event);
             }
         });
@@ -210,13 +210,13 @@ export class MainPage {
                 let direction = '';
                 let actionType = '';
 
-                if (button.classList.contains('dislike')) {
+                if (button.classList.contains('card__button-dislike')) {
                     direction = 'left';
                     actionType = 'dislike';
-                } else if (button.classList.contains('like')) {
+                } else if (button.classList.contains('card__button-like')) {
                     direction = 'right';
                     actionType = 'like';
-                } else if (button.classList.contains('superLike')) {
+                } else if (button.classList.contains('card__button-superLike')) {
                     direction = 'up';
                     actionType = 'superlike';
                 } else {
@@ -231,7 +231,7 @@ export class MainPage {
                 animateCardOut(currentCardElement, direction);
             };
 
-            const actionButtons = currentCardElement.querySelectorAll('.card-actions button');
+            const actionButtons = currentCardElement.querySelectorAll('button');
             actionButtons.forEach(button => {
                 button.removeEventListener('click', handleAction);
                 button.addEventListener('click', handleAction);

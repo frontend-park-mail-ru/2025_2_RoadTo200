@@ -1,4 +1,11 @@
-.form-container {
+.form {
+    height: 100vh;
+    display: flex;
+    justify-items: center;
+    align-items: center;
+}
+
+.form__container {
     background-color: #ffffff;
     padding: 2.5rem 2rem;
     border-radius: var(--border-radius-large);
@@ -12,7 +19,7 @@
     
 }
 
-.form-title {
+.form__title {
     font-size: 2rem;
     font-weight: 700;
     color: var(--color-primary-dark);
@@ -21,7 +28,7 @@
 }
 
 
-.error-message {
+.form__error-message {
     background-color: transparent;
     color: #ff4b72;
     padding: 0;
@@ -33,7 +40,7 @@
     min-height: 1.25rem; /*  место для ошибки */
 }
 
-.error {
+.form__error {
     background-color: #ffdddd;
     color: var(--color-primary-dark);
     padding: 10px 15px;
@@ -45,16 +52,16 @@
 }
 
 /* input с глазиком */
-.input-wrapper {
+.form__input-wrapper {
     position: relative;
     margin-bottom: 1rem;
 }
 
-.password-wrapper {
+.form__password-wrapper {
     position: relative;
 }
 
-.password-toggle {
+.form__password-toggle {
     position: absolute;
     right: 1rem;
     top: 50%;
@@ -71,7 +78,7 @@
     z-index: 10;
 }
 
-.password-toggle:hover {
+.form__password-toggle:hover {
     opacity: 1;
 }
 
@@ -81,25 +88,25 @@
     display: block;
 }
 
-.link {
+.form__link {
     text-align: center;
     margin-top: 1.5rem;
     color: var(--color-text-dark);
 }
 
-.link a {
+.form__a {
     color: var(--color-primary-dark);
     text-decoration: none;
     font-weight: 600;
     transition: color 0.2s ease;
 }
 
-.link a:hover {
+.form__a:hover {
     color: var(--color-primary-light);
     text-decoration: underline;
 }
 
-.form-input {
+.form__input {
     width: 100%;
     padding: 1rem 1.25rem;
     font-size: 1rem;
@@ -113,24 +120,16 @@
     box-sizing: border-box; 
 }
 
-.input-wrapper .form-input {
-    margin-bottom: 0;
-}
-
-.password-wrapper .form-input {
-    padding-right: 3.5rem;
-}
-
-.form-input.error-input {
+.form__error-input {
     border-color: #ff4b72;
 }
 
-.form-input:focus {
+.form__input:focus {
     border-color: var(--color-primary-light);
     background-color: #ffffff;
 }
 
-.btn-primary {
+.form__btn-primary {
     width: 100%;
     padding: 1rem 1.5rem;
     font-size: 1.125rem;
@@ -148,7 +147,8 @@
 
 }
 
-.btn-primary:hover {
+.form__btn-primary:hover {
     box-shadow: 0 15px 20px rgba(253, 41, 123, 0.6);
     transform: translateY(-2px);
 }
+
