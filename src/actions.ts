@@ -47,6 +47,7 @@ export const Actions = {
     UPDATE_PROFILE_FIELD: "UPDATE_PROFILE_FIELD",
     DELETE_PHOTO: "DELETE_PHOTO",
     ADD_PHOTO: "ADD_PHOTO",
+    UPDATE_ACTIVITY: "UPDATE_ACTIVITY",
     ADD_INTEREST: "ADD_INTEREST",
     DELETE_INTEREST: "DELETE_INTEREST",
     
@@ -154,6 +155,10 @@ export interface ConnectivityPayload {
     isOnline: boolean;
 }
 
+export interface UpdateActivityPayload {
+    [key: string]: boolean;
+}
+
 // Typed action creators
 export type LoginAction = Action<LoginPayload>;
 export type ErrorAction = Action<ErrorPayload>;
@@ -165,6 +170,7 @@ export type MatchProfileAction = Action<MatchProfilePayload>;
 export type UpdateProfileFieldAction = Action<UpdateProfileFieldPayload>;
 export type PhotoAction = Action<PhotoPayload>;
 export type InterestAction = Action<InterestPayload>;
+export type UpdateActivityAction = Action<UpdateActivityPayload>;
 export type SettingsTabAction = Action<SettingsTabPayload>;
 export type ProfileSettingsAction = Action<ProfileSettingsPayload>;
 export type FilterSettingsAction = Action<FilterSettingsPayload>;

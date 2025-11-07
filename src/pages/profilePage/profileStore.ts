@@ -3,6 +3,8 @@ import { dispatcher, type Store } from '@/Dispatcher';
 import { profile } from './profile';
 import ProfileApi from '@/apiHandler/profileApi';
 
+const profileApi = new ProfileApi();
+
 interface PhotoCard {
     id: string | number;
     image: string;
@@ -75,7 +77,7 @@ class ProfileStore implements Store {
 
     private async renderProfile(): Promise<void> {
         try {
-            const response = await ProfileApi.getProfile() as any;
+            const response = await profileApi.getProfile() as any;
             
             console.log('Profile API response:', response);
 
@@ -155,7 +157,7 @@ class ProfileStore implements Store {
             
             console.log('Updating profile field:', field, '→', backendField, 'with value:', value);
 
-            await ProfileApi.updateProfileInfo(updateData);
+            await profileApi.updateProfileInfo(updateData);
 
             console.log('Profile field updated successfully');
 
@@ -177,7 +179,7 @@ class ProfileStore implements Store {
 
             console.log('Deleting photo with ID:', photoId);
             
-            const response = await ProfileApi.deletePhoto(photoId);
+            const response = await profileApi.deletePhoto(photoId);
 
             console.log('Delete photo response:', response);
 
@@ -201,7 +203,7 @@ class ProfileStore implements Store {
                 if (files.length === 0) return;
 
                 try {
-                    const response = await ProfileApi.uploadPhoto(files);
+                    const response = await profileApi.uploadPhoto(files);
 
                     console.log('Upload photo response:', response);
 
