@@ -4,7 +4,8 @@ import { dispatcher } from '../../Dispatcher.js';
 import { Actions } from '../../actions.js';
 
 
-const TEMPLATE_PATH = '/src/pages/mainPage/main.hbs'; 
+const TEMPLATE_PATH = '/src/pages/mainPage/main.hbs';
+const EMPTY_STATE_TEMPLATE_PATH = '/src/components/EmptyState/emptyState.hbs'; 
 
 const fetchTemplate = async (path) => {
     try {
@@ -83,6 +84,34 @@ export class MainPage {
 
         if (this.cardsData.length > 0) {
             this.displayFirstCard();
+        } else {
+            this.displayEmptyState();
+        }
+    }
+
+    async displayEmptyState() {
+        const pageContainer = document.querySelector('.cards-container');
+        if (!pageContainer) return;
+
+        const emptyStateTemplateString = await fetchTemplate(EMPTY_STATE_TEMPLATE_PATH);
+        const emptyStateTemplate = Handlebars.compile(emptyStateTemplateString);
+
+        const emptyStateHtml = emptyStateTemplate({
+            icon: '❤️',
+            title: 'Анкеты закончились',
+            message: 'Вы посмотрели все доступные анкеты. Попробуйте изменить фильтры в настройках.',
+            buttonText: 'Перейти в настройки',
+            buttonId: 'goToSettings'
+        });
+
+        pageContainer.innerHTML = emptyStateHtml;
+
+        const settingsButton = document.getElementById('goToSettings');
+        if (settingsButton) {
+            settingsButton.addEventListener('click', () => {
+                window.history.pushState({ route: 'settings' }, null, '/settings');
+                window.dispatchEvent(new PopStateEvent('popstate'));
+            });
         }
     }
 
@@ -111,11 +140,7 @@ export class MainPage {
             this.initCardActions();
             this.currentCardIndex++;
         } else {
-            const cardHtml = await Card.render({
-                images: [{ imageUrl: './src/assets/image.png' }],
-                noActions: 'True'
-            });
-            pageContainer.insertAdjacentHTML('beforeend', cardHtml);
+            this.displayEmptyState();
         }
     }
 

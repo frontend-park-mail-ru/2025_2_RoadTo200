@@ -171,9 +171,8 @@ export class Router {
         const actionPayload = {};
 
         if (normalizedPath === '/') {
-            // Редирект с главной на /cards
-            this.navigateTo('/cards');
-            return;
+            renderActionType = Actions.RENDER_HOME;
+            actionPayload.route = 'main';
         }
         
         if (normalizedPath === '/cards') {

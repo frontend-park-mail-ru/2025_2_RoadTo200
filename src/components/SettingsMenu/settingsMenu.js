@@ -11,6 +11,11 @@ const MENU_ITEMS_DATA = [
         icon: './src/assets/settings__profile.svg'
     },
     { 
+        name: 'Фильтры', 
+        tab: 'filters',
+        icon: './src/assets/settings__security.svg'
+    },
+    { 
         name: 'Безопасность', 
         tab: 'security',
         icon: './src/assets/settings__security.svg'

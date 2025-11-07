@@ -42,6 +42,8 @@ class MatchesStore {
             
             const response = await MatchesApi.getAllMatches();
             
+            console.log('Matches API Response:', response);
+            
             // Бекенд возвращает { matches: [...], total, limit, offset }
             const matchesArray = response.matches || [];
             
@@ -54,20 +56,37 @@ class MatchesStore {
                 const matchedAt = match.matched_at ? new Date(match.matched_at) : new Date();
                 const expiresAt = new Date(matchedAt.getTime() + 24 * 60 * 60 * 1000);
                 
+                // Берем первое фото из массива images, если есть
+                let photo = '/src/assets/image.png';
+                if (user.images && user.images.length > 0) {
+                    photo = user.images[0];
+                } else if (user.photo_url) {
+                    photo = user.photo_url;
+                }
+                
                 return {
                     id: user.id || match.id,
                     name: user.name || 'Unknown',
                     age: user.birth_date ? this.calculateAge(user.birth_date) : null,
-                    photo: user.photo_url || '/src/assets/image.png',
+                    image: photo,  // MatchCard ожидает 'image', а не 'photo'
                     matchId: match.id,
                     matchedAt: matchedAt.toISOString(),
                     expiresAt: expiresAt.toISOString(),
                     isNew: this.isMatchNew(matchedAt),
-                    isActive: match.is_active !== false
+                    isActive: match.is_active !== false,
+                    // Сохраняем полные данные пользователя для страницы профиля
+                    userData: {
+                        ...user,
+                        images: user.images || [],
+                        bio: user.bio || user.description || ''
+                    }
                 };
             });
 
             this.updateDerivedFields();
+            
+            console.log('Processed matches:', this.matches);
+            
             matches.setMatches(this.matches);
 
             

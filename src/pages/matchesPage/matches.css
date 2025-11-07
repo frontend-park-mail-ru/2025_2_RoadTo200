@@ -11,6 +11,13 @@
     justify-items: center;
 }
 
+.matches-page__empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 160px);
+}
+
 .matches-page__no-matches {
     text-align: center;
     padding: 60px 20px;

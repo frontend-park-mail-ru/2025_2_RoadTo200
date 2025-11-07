@@ -1,5 +1,6 @@
 import './src/pages/loginPage/loginStore.js';
 import './src/pages/mainPage/mainStore.js';
+import './src/pages/homePage/homeStore.js';
 import './src/pages/registerPage/registerStore.js';
 import './src/pages/matchesPage/matchesStore.js';
 import './src/pages/matchProfilePage/matchProfileStore.js';
@@ -12,6 +13,7 @@ import './src/components/MatchCard/matchCardStore.js';
 import './src/components/ProfileMenu/profileMenuStore.js';
 
 import { Route, Router} from "./router.js";
+import { home } from "./src/pages/homePage/home.js";
 import { main } from "./src/pages/mainPage/main.js";
 import { login } from "./src/pages/loginPage/login.js";
 import { register } from "./src/pages/registerPage/register.js";
@@ -31,7 +33,7 @@ const notFoundComponent = {
 
 
 const routes = [
-    new Route('/', main, true),
+    new Route('/', home, true),
     new Route('/cards', main, true),
     new Route('/login', login, false),
     new Route('/register', register, false),

@@ -45,6 +45,9 @@ export class SettingsPage {
             case 'profile':
                 contentContainer.appendChild(this.createProfileTab(profileData));
                 break;
+            case 'filters':
+                contentContainer.appendChild(this.createFiltersTab(profileData));
+                break;
             case 'security':
                 contentContainer.appendChild(this.createSecurityTab());
                 break;
@@ -84,6 +87,49 @@ export class SettingsPage {
         return section;
     }
 
+    createFiltersTab(profileData) {
+        const preferences = profileData.preferences || {};
+        const section = document.createElement('div');
+        section.className = 'settings-section';
+        section.innerHTML = `
+            <h1 class="settings-section-title">Фильтры поиска</h1>
+            
+            <div class="form-group">
+                <label class="form-label">Показывать мне:</label>
+                <select class="form-input" id="showGender">
+                    <option value="male" ${preferences.show_gender === 'male' ? 'selected' : ''}>Мужчин</option>
+                    <option value="female" ${preferences.show_gender === 'female' ? 'selected' : ''}>Женщин</option>
+                    <option value="both" ${preferences.show_gender === 'both' || !preferences.show_gender ? 'selected' : ''}>Всех</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Возраст от:</label>
+                <input type="number" class="form-input" id="ageMin" value="${preferences.age_min || 18}" min="18" max="100" />
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Возраст до:</label>
+                <input type="number" class="form-input" id="ageMax" value="${preferences.age_max || 50}" min="18" max="100" />
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Максимальное расстояние (км):</label>
+                <input type="number" class="form-input" id="maxDistance" value="${preferences.max_distance || 100}" min="1" max="10000" />
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">
+                    <input type="checkbox" id="globalSearch" ${preferences.global_search ? 'checked' : ''} />
+                    Глобальный поиск (игнорировать расстояние)
+                </label>
+            </div>
+
+            <button class="btn-primary" id="updateFiltersBtn">Сохранить фильтры</button>
+        `;
+        return section;
+    }
+
     static createFormGroupHTML(label, type, id, value, errorId, placeholder = '') {
         const placeholderAttr = placeholder ? `placeholder="${placeholder}"` : '';
         return `
@@ -109,6 +155,23 @@ export class SettingsPage {
                             name: this.parent.querySelector('#settingsName')?.value.trim(),
                             birthdate: this.parent.querySelector('#settingsBirthdate')?.value.trim(),
                             email: this.parent.querySelector('#settingsEmail')?.value.trim(),
+                        },
+                    });
+                });
+            }
+        } else if (currentTab === 'filters') {
+            const updateFiltersBtn = this.parent.querySelector('#updateFiltersBtn');
+            if (updateFiltersBtn) {
+                updateFiltersBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    dispatcher.process({
+                        type: Actions.UPDATE_FILTER_SETTINGS,
+                        payload: {
+                            show_gender: this.parent.querySelector('#showGender')?.value,
+                            age_min: parseInt(this.parent.querySelector('#ageMin')?.value, 10),
+                            age_max: parseInt(this.parent.querySelector('#ageMax')?.value, 10),
+                            max_distance: parseInt(this.parent.querySelector('#maxDistance')?.value, 10),
+                            global_search: this.parent.querySelector('#globalSearch')?.checked,
                         },
                     });
                 });

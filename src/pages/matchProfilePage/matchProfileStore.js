@@ -1,12 +1,14 @@
 import { Actions } from "../../actions.js";
 import { dispatcher } from "../../Dispatcher.js";
 import { matchProfile } from "./matchProfile.js";
-import MatchesApi from "../../apiHandler/matchesApi.js";
 
 class MatchProfileStore {
     matchData = {};
 
     currentMatchId = null;
+    
+    // Кэш данных матчей для быстрого доступа
+    matchesCache = new Map();
 
     constructor() {
         dispatcher.register(this);
@@ -18,16 +20,21 @@ class MatchProfileStore {
                 await this.renderMatchProfile(action.payload);
                 break;
             case Actions.MATCH_CARD_CLICK:
-                await MatchProfileStore.handleMatchCardClick(action.payload);
+                await this.handleMatchCardClick(action.payload);
                 break;
             default:
                 break;
         }
     }
 
-    static async handleMatchCardClick(payload) {
-        const { matchId } = payload;
+    async handleMatchCardClick(payload) {
+        const { matchId, userData } = payload;
         if (!matchId) return;
+        
+        // Сохраняем данные в кэш
+        if (userData) {
+            this.matchesCache.set(matchId, userData);
+        }
         
         // Navigate to match profile page
         window.history.pushState(null, null, `/matches/${matchId}`);
@@ -49,34 +56,59 @@ class MatchProfileStore {
                 matchProfile.parent = contentContainer;
             }
 
-            // Fetch match data from API
-            const response = await MatchesApi.getMatch(matchId);
-
-            if (response && response.id) {
+            // Пытаемся получить данные из кэша
+            let userData = this.matchesCache.get(matchId);
+            
+            if (!userData) {
+                console.warn('Match data not found in cache for:', matchId);
+                // Показываем заглушку или редиректим назад
                 this.matchData = {
-                    id: response.id,
-                    name: response.name || "",
-                    age: response.age || "",
-                    description: response.description || "Информация отсутствует",
-                    musician: response.musician || "Не указано",
-                    quote: response.quote || "Не указано",
-                    interests: response.interests || [],
-                    photoCards: MatchProfileStore.transformPhotosToCards(response.photos || [])
+                    id: matchId,
+                    name: "Пользователь",
+                    age: "",
+                    description: "Информация недоступна",
+                    musician: "",
+                    quote: "",
+                    interests: [],
+                    photoCards: []
                 };
-
-                await matchProfile.render(this.matchData);
+            } else {
+                // Преобразуем данные пользователя в формат профиля
+                this.matchData = {
+                    id: userData.id,
+                    name: userData.name || "",
+                    age: userData.birth_date ? this.calculateAge(userData.birth_date) : "",
+                    description: userData.bio || userData.description || "Информация отсутствует",
+                    musician: userData.musician || "",
+                    quote: userData.quote || "",
+                    interests: userData.interests || [],
+                    photoCards: this.transformImagesToCards(userData.images || [])
+                };
             }
+
+            await matchProfile.render(this.matchData);
         } catch (error) {
             console.error('Error loading match profile:', error);
         }
     }
+    
+    calculateAge(birthDate) {
+        const birth = new Date(birthDate);
+        const today = new Date();
+        let age = today.getFullYear() - birth.getFullYear();
+        const monthDiff = today.getMonth() - birth.getMonth();
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+            age--;
+        }
+        return age;
+    }
 
-    static transformPhotosToCards(photos) {
-        const photoCards = photos.map(photo => ({
-            id: photo.id,
-            image: photo.imageUrl || photo.image,
+    transformImagesToCards(images) {
+        const photoCards = images.map((imageUrl, index) => ({
+            id: `photo-${index}`,
+            image: imageUrl,
             isUserPhoto: true,
-            isPrimary: photo.isPrimary || false
+            isPrimary: index === 0
         }));
 
         // Fill up to 4 cards
@@ -93,3 +125,4 @@ class MatchProfileStore {
 }
 
 export default new MatchProfileStore();
+

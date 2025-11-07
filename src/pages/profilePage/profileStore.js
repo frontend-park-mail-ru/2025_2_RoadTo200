@@ -24,6 +24,12 @@ class ProfileStore {
             case Actions.ADD_PHOTO:
                 await this.addPhoto();
                 break;
+            case Actions.ADD_INTEREST:
+                await this.addInterest(action.payload);
+                break;
+            case Actions.DELETE_INTEREST:
+                await this.deleteInterest(action.payload);
+                break;
             default:
                 break;
         }
@@ -186,7 +192,7 @@ class ProfileStore {
                     }
 
                     // Можно показать errorMessage пользователю через UI
-                    alert(errorMessage);
+                    console.error(errorMessage);
                 }
             };
 
@@ -194,6 +200,59 @@ class ProfileStore {
         } catch (error) {
             console.error('Error in addPhoto:', error);
         }
+    }
+
+    async addInterest(payload) {
+        try {
+            const { name } = payload;
+            
+            if (!name || name.trim() === '') {
+                return;
+            }
+
+            // Пока бекенд не поддерживает интересы, сохраняем локально
+            const newInterest = {
+                id: Date.now(),
+                name: name.trim()
+            };
+            
+            this.profileData.interests = this.profileData.interests || [];
+            this.profileData.interests.push(newInterest);
+            
+            // Перерендерим профиль
+            await this.rerenderProfile();
+            
+            console.log('Interest added:', newInterest);
+        } catch (error) {
+            console.error('Error adding interest:', error);
+        }
+    }
+
+    async deleteInterest(payload) {
+        try {
+            const { id } = payload;
+            
+            if (!this.profileData.interests) {
+                return;
+            }
+            
+            // Удаляем интерес из локального состояния
+            this.profileData.interests = this.profileData.interests.filter(
+                interest => interest.id !== id
+            );
+            
+            // Перерендерим профиль
+            await this.rerenderProfile();
+            
+            console.log('Interest deleted:', id);
+        } catch (error) {
+            console.error('Error deleting interest:', error);
+        }
+    }
+
+    async rerenderProfile() {
+        // Просто перерендерим без запроса к API
+        await profile.render(this.profileData);
     }
 }
 
