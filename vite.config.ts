@@ -3,7 +3,7 @@ import { resolve } from 'path';
 import { copyFileSync, existsSync, mkdirSync } from 'fs';
 import { fileURLToPath } from 'url';
 
-const __dirname = fileURLToPath(new URL('.', import.meta.url));
+const dirname = fileURLToPath(new URL('.', import.meta.url));
 
 export default defineConfig({
     root: './',
@@ -24,22 +24,22 @@ export default defineConfig({
         outDir: 'dist',
         rollupOptions: {
             input: {
-                main: resolve(__dirname, 'index.html'),
+                main: resolve(dirname, 'index.html'),
             },
         },
     },
     resolve: {
         alias: {
-            '@': resolve(__dirname, './src'),
+            '@': resolve(dirname, './src'),
         },
     },
     plugins: [
         {
             name: 'copy-service-worker',
             closeBundle() {
-                const swSource = resolve(__dirname, 'service-worker.js');
-                const swDest = resolve(__dirname, 'dist', 'service-worker.js');
-                const distDir = resolve(__dirname, 'dist');
+                const swSource = resolve(dirname, 'service-worker.js');
+                const swDest = resolve(dirname, 'dist', 'service-worker.js');
+                const distDir = resolve(dirname, 'dist');
                 
                 if (!existsSync(distDir)) {
                     mkdirSync(distDir, { recursive: true });
