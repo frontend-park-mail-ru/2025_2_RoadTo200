@@ -20,6 +20,18 @@ export async function handleFetch(baseURL, endpoint, options = {}) {
         const response = await fetch(url, fetchOptions);
     
         if (!response.ok) {
+            // Проверка на offline режим (503 от Service Worker)
+            if (response.status === 503) {
+                const data = await response.json();
+                if (data.error === 'Offline') {
+                    const error = new Error(data.message || 'Данные недоступны в offline режиме');
+                    error.status = 503;
+                    error.isOffline = true;
+                    error.cachedData = data;
+                    throw error;
+                }
+            }
+            
             let errorDetails = null;
             try {
                 errorDetails = await response.json();
@@ -45,7 +57,11 @@ export async function handleFetch(baseURL, endpoint, options = {}) {
     
         return response.json();
     } catch (error) {
-        if (error.name === 'TypeError') {
+        if (error.name === 'TypeError' && !navigator.onLine) {
+            error.message = 'Нет подключения к интернету';
+            error.isNetworkError = true;
+            error.isOffline = true;
+        } else if (error.name === 'TypeError') {
             error.message = 'Ошибка соединения с сервером';
             error.isNetworkError = true;
         }

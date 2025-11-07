@@ -1,6 +1,7 @@
 import { header } from './src/components/Header/header.js';
 import { menu } from './src/components/Menu/menu.js';
 import { profileMenu } from './src/components/ProfileMenu/profileMenu.js';
+import { offlineBanner } from './src/components/OfflineBanner/offlineBanner.js';
 
 import { dispatcher } from './src/Dispatcher.js';
 import { Actions } from './src/actions.js';
@@ -12,6 +13,7 @@ import './src/pages/mainPage/mainStore.js';
 import './src/components/Header/headerStore.js';
 import './src/components/AuthBackground/authBackgroundStore.js';
 import './src/components/SettingsMenu/settingsMenuStore.js';
+import './src/components/OfflineBanner/offlineBannerStore.js';
 
 /**
  * клссс Router для инициализации навигации и глобальных компонентов
@@ -30,11 +32,13 @@ export class Router {
         header.parent = containers.header;
         menu.parent = containers.menu;
         profileMenu.parent = containers.profileMenu;
+        offlineBanner.parent = containers.offlineBanner;
         
         // Рендерим глобальные компоненты
         Promise.resolve().then(() => {
             dispatcher.process({ type: Actions.RENDER_HEADER });
             dispatcher.process({ type: Actions.RENDER_PROFILE_MENU });
+            dispatcher.process({ type: Actions.RENDER_OFFLINE_BANNER });
         });
     }
 }

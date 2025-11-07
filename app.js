@@ -11,6 +11,7 @@ import './src/components/Menu/menuStore.js';
 import './src/components/AuthBackground/authBackgroundStore.js';
 import './src/components/MatchCard/matchCardStore.js';
 import './src/components/ProfileMenu/profileMenuStore.js';
+import './src/components/OfflineBanner/offlineBannerStore.js';
 import navigationStore, { Route } from './src/navigation/navigationStore.js';
 
 import { Router } from "./router.js";
@@ -46,5 +47,32 @@ const routes = [
 
 // Инициализируем роутер с navigationStore
 const router = new Router(routes, navigationStore);
+
+// Регистрация Service Worker
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', async () => {
+        try {
+            const registration = await navigator.serviceWorker.register('/service-worker.js', {
+                scope: '/'
+            });
+            console.log('Service Worker registered successfully:', registration.scope);
+            
+            // Проверка обновлений Service Worker
+            registration.addEventListener('updatefound', () => {
+                const newWorker = registration.installing;
+                console.log('New Service Worker found');
+                
+                newWorker.addEventListener('statechange', () => {
+                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                        console.log('New Service Worker available');
+                        // Можно показать уведомление пользователю об обновлении
+                    }
+                });
+            });
+        } catch (error) {
+            console.error('Service Worker registration failed:', error);
+        }
+    });
+}
 
 export default router;

@@ -19,10 +19,7 @@ export class Route {
     }
 }
 
-/**
- * Store для управления навигацией и роутингом.
- * Следует архитектуре Flux - обрабатывает actions и управляет состоянием навигации.
- */
+
 class NavigationStore {
     routes = [];
 
@@ -65,6 +62,7 @@ class NavigationStore {
     setupRootContainers(rootElement) {
         // eslint-disable-next-line no-param-reassign
         rootElement.innerHTML = `
+            <div id="offline-banner-container"></div>
             <div class="page-layout"> 
                 <div id="menu-container-internal"></div>
                 <div class="main-column">
@@ -75,6 +73,7 @@ class NavigationStore {
             <div id="profile-menu-container"></div>
         `;
 
+        this.offlineBannerContainer = rootElement.querySelector('#offline-banner-container');
         this.headerContainer = rootElement.querySelector('#header-container-internal');
         this.menuContainer = rootElement.querySelector('#menu-container-internal');
         this.contentContainer = rootElement.querySelector('#content-container');
@@ -116,9 +115,7 @@ class NavigationStore {
         });
     }
 
-    /**
-     * Обработчик actions согласно Flux архитектуре.
-     */
+
     async handleAction(action) {
         switch (action.type) {
             case Actions.NAVIGATE_TO:
@@ -304,7 +301,8 @@ class NavigationStore {
             header: this.headerContainer,
             menu: this.menuContainer,
             content: this.contentContainer,
-            profileMenu: this.profileMenuContainer
+            profileMenu: this.profileMenuContainer,
+            offlineBanner: this.offlineBannerContainer
         };
     }
 }
