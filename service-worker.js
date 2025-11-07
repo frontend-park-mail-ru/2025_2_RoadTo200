@@ -1,13 +1,17 @@
-const CACHE_NAME = 'terabithia-v2';
-const API_CACHE_NAME = 'terabithia-api-v2';
-const IMAGE_CACHE_NAME = 'terabithia-images-v2';
+const CACHE_VERSION = '5';
+const CACHE_NAME = `terabithia-v${CACHE_VERSION}`;
+const API_CACHE_NAME = `terabithia-api-v${CACHE_VERSION}`;
+const IMAGE_CACHE_NAME = `terabithia-images-v${CACHE_VERSION}`;
+
+// Определяем режим разработки
+const isDevelopment = self.location.hostname === 'localhost' || self.location.hostname === '127.0.0.1';
 
 // Статические ресурсы для кеширования при установке
 const STATIC_ASSETS = [
     '/',
     '/index.html',
-    '/app.js',
-    '/router.js',
+    '/app.ts',
+    '/router.ts',
     '/index.scss',
     '/forms.scss',
     
@@ -56,6 +60,14 @@ const IMAGE_PATTERNS = [
 self.addEventListener('install', (event) => {
     console.log('[SW] Installing Service Worker...');
     
+    // В dev режиме не кэшируем при установке, чтобы всегда получать свежие файлы
+    if (isDevelopment) {
+        console.log('[SW] Development mode - skipping initial cache');
+        event.waitUntil(self.skipWaiting());
+        return;
+    }
+    
+    // В prod кэшируем статические ресурсы при установке
     event.waitUntil(
         caches.open(CACHE_NAME)
             .then((cache) => {
@@ -107,24 +119,33 @@ function isNavigationRequest(request) {
     return request.mode === 'navigate';
 }
 
-// Стратегия Cache First для статических ресурсов
-async function cacheFirst(request, cacheName = CACHE_NAME) {
+// Стратегия Stale While Revalidate для статических ресурсов (в dev режиме)
+async function staleWhileRevalidate(request, cacheName = CACHE_NAME) {
     const cachedResponse = await caches.match(request);
-    if (cachedResponse) {
-        return cachedResponse;
-    }
     
-    try {
-        const networkResponse = await fetch(request);
-        if (networkResponse && networkResponse.status === 200) {
+    const fetchPromise = fetch(request).then(async (networkResponse) => {
+        // Клонируем ПЕРЕД любым использованием
+        if (networkResponse && networkResponse.status === 200 && request.method === 'GET') {
+            const responseToCache = networkResponse.clone();
             const cache = await caches.open(cacheName);
-            cache.put(request, networkResponse.clone());
+            cache.put(request, responseToCache);
         }
         return networkResponse;
-    } catch (error) {
+    }).catch((error) => {
         console.error('[SW] Fetch failed:', error);
+        if (cachedResponse) {
+            return cachedResponse;
+        }
         throw error;
+    });
+    
+    // В dev режиме всегда ждем сеть
+    if (isDevelopment) {
+        return fetchPromise;
     }
+    
+    // В prod возвращаем кэш сразу, обновляем в фоне
+    return cachedResponse || fetchPromise;
 }
 
 // Стратегия Network First для API запросов (профиль, матчи)
@@ -132,9 +153,11 @@ async function networkFirst(request, cacheName = API_CACHE_NAME) {
     try {
         const networkResponse = await fetch(request);
         
-        if (networkResponse && networkResponse.status === 200) {
+        // Кэшируем только GET запросы с успешным ответом, клонируем ПЕРЕД использованием
+        if (networkResponse && networkResponse.status === 200 && request.method === 'GET') {
+            const responseToCache = networkResponse.clone();
             const cache = await caches.open(cacheName);
-            cache.put(request, networkResponse.clone());
+            cache.put(request, responseToCache);
         }
         
         return networkResponse;
@@ -188,17 +211,18 @@ async function cacheFirstImages(request) {
     try {
         const networkResponse = await fetch(request);
         if (networkResponse && networkResponse.status === 200) {
+            const responseToCache = networkResponse.clone();
             const cache = await caches.open(IMAGE_CACHE_NAME);
-            cache.put(request, networkResponse.clone());
+            cache.put(request, responseToCache);
         }
         return networkResponse;
     } catch (error) {
         console.error('[SW] Image fetch failed:', error);
         
         // Возвращаем placeholder для изображений
-        const cachedResponse = await caches.match(request);
-        if (cachedResponse) {
-            return cachedResponse;
+        const cached = await caches.match(request);
+        if (cached) {
+            return cached;
         }
         
         // Можно вернуть placeholder изображение
@@ -224,10 +248,16 @@ self.addEventListener('fetch', (event) => {
         return;
     }
     
+    // НЕ кэшируем POST, PUT, DELETE запросы - пропускаем их напрямую
+    if (request.method !== 'GET') {
+        event.respondWith(fetch(request));
+        return;
+    }
+    
     // Обработка навигационных запросов
     if (isNavigationRequest(request)) {
         event.respondWith(
-            cacheFirst(request)
+            staleWhileRevalidate(request)
                 .catch(() => caches.match('/index.html'))
         );
         return;
@@ -245,8 +275,8 @@ self.addEventListener('fetch', (event) => {
         return;
     }
     
-    // Все остальные запросы - Cache First
-    event.respondWith(cacheFirst(request));
+    // Все остальные запросы - Stale While Revalidate в dev, Cache First в prod
+    event.respondWith(staleWhileRevalidate(request));
 });
 
 // Обработка сообщений от клиента
