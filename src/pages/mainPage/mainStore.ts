@@ -49,15 +49,25 @@ class MainStore implements Store {
 
             console.log('API Response:', response);
             
-            // API возвращает users, а не cards
             const cards = response.users || response.cards || [];
             
             console.log('Cards to transform:', cards.length);
+
+            const mockPhotoUrl = '/src/assets/image.png'; 
             
             const transformedCards: TransformedCard[] = cards.map((card: any) => {
-                // Получаем фото из photos или images
-                const photoUrls = card.photos || card.images || [];
-                console.log('Card photos/images:', card.name, photoUrls);
+                let photoUrls = card.photos || card.images || [];
+                
+                if (!Array.isArray(photoUrls)) {
+                    photoUrls = []; 
+                }
+
+                if (photoUrls.length === 0) {
+                    photoUrls.push(mockPhotoUrl);
+                    console.log('Card photos/images: NO PHOTOS - ADDING MOCK', card.name);
+                } else {
+                    console.log('Card photos/images:', card.name, photoUrls);
+                }
                 
                 return {
                     id: card.id?.toString() || String(Math.random()),
@@ -68,10 +78,12 @@ class MainStore implements Store {
                     photosCount: photoUrls.length
                 };
             });
+
             
-            console.log('Transformed cards:', transformedCards);
             
             this.cards = transformedCards;
+
+
             main.setCards(transformedCards);
             
         } catch (error) {
