@@ -92,13 +92,8 @@ export class Menu implements PageComponent {
 
                     const itemData = MENU_ITEMS_DATA.find(item => item.route === clickedRoute);
 
-                    if (itemData && itemData.actionType) {
+                    if (itemData) {
                         const path = itemData.route === 'main' ? '/' : `/${itemData.route}`;
-
-                        dispatcher.process({ 
-                            type: Actions.RENDER_MENU,
-                            payload: { route: clickedRoute } 
-                        });
 
                         dispatcher.process({ 
                             type: Actions.NAVIGATE_TO,
