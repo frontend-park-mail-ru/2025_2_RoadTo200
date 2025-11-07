@@ -2,6 +2,7 @@ import { Actions } from '../../actions.js';
 import { dispatcher } from '../../Dispatcher.js';
 import { settings } from './settings.js';
 import ProfileApi from '../../apiHandler/profileApi.js';
+import router from '../../../app.js';
 
 class SettingsStore {
     currentTab = 'profile';
@@ -173,8 +174,7 @@ class SettingsStore {
         try {
             await ProfileApi.deleteAccount();
             
-            window.history.pushState(null, null, '/login');
-            window.dispatchEvent(new PopStateEvent('popstate'));
+            router.navigateTo('/login');
         } catch (error) {
             console.error('Ошибка при удалении аккаунта:', error);
             settings.showErrors({ generalError: 'Ошибка при удалении аккаунта' });

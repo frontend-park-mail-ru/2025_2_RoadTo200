@@ -1,6 +1,7 @@
 import { Actions } from "../../actions.js";
 import { dispatcher } from "../../Dispatcher.js";
 import { matchProfile } from "./matchProfile.js";
+import router from "../../../app.js";
 
 class MatchProfileStore {
     matchData = {};
@@ -31,14 +32,13 @@ class MatchProfileStore {
         const { matchId, userData } = payload;
         if (!matchId) return;
         
-        // Сохраняем данные в кэш перед навигацией
+        // Сохраняем данные в кэш
         if (userData) {
             this.matchesCache.set(matchId, userData);
         }
         
-        // Navigate to match profile page
-        window.history.pushState(null, null, `/matches/${matchId}`);
-        window.dispatchEvent(new PopStateEvent('popstate'));
+        // Используем роутер для навигации
+        router.navigateTo(`/matches/${matchId}`);
     }
 
     async renderMatchProfile(payload) {

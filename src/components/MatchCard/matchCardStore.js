@@ -1,5 +1,6 @@
 import { Actions } from "../../actions.js";
 import { dispatcher } from "../../Dispatcher.js";
+import router from "../../../app.js";
 
 class MatchCardStore {
     selectedMatchId = null;
@@ -33,9 +34,7 @@ class MatchCardStore {
 
         this.selectedMatchId = matchId;
 
-        const path = `/matches/${matchId}`;
-        window.history.pushState({ route: "matches", matchId }, "", path);
-        window.dispatchEvent(new PopStateEvent("popstate"));
+        router.navigateTo(`/matches/${matchId}`);
     }
 
     //функция заглушка для обработки рендера профиля мэтча

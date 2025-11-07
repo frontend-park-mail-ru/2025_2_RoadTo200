@@ -1,4 +1,5 @@
 import Handlebars from 'handlebars';
+import router from '../../../app.js';
 
 class Home {
     parent;
@@ -61,8 +62,7 @@ class Home {
                 localStorage.setItem('selectedActivities', JSON.stringify(this.selectedActivities));
                 
                 // Переходим на страницу с карточками
-                window.history.pushState(null, null, '/cards');
-                window.dispatchEvent(new PopStateEvent('popstate'));
+                router.navigateTo('/cards');
             });
         }
     }

@@ -1,6 +1,7 @@
 import { Actions } from "../../actions.js";
 import { dispatcher } from "../../Dispatcher.js";
 import { login } from "./login.js"
+import router from "../../../app.js";
 
 import AuthApi from "../../apiHandler/authApi.js"
 
@@ -30,8 +31,7 @@ class LoginStore {
         try {
             const data = await AuthApi.login(email, password);
             
-            window.history.pushState(null, null, '/');
-            window.dispatchEvent(new PopStateEvent('popstate'));
+            router.navigateTo('/');
         } catch (error) {
             console.error('Login error:', error);
             

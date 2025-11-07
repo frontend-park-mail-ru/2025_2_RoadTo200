@@ -2,6 +2,7 @@ import Card from '../../components/Card/card.js';
 
 import { dispatcher } from '../../Dispatcher.js';
 import { Actions } from '../../actions.js';
+import router from '../../../app.js';
 
 
 const TEMPLATE_PATH = '/src/pages/mainPage/main.hbs';
@@ -109,8 +110,7 @@ export class MainPage {
         const settingsButton = document.getElementById('goToSettings');
         if (settingsButton) {
             settingsButton.addEventListener('click', () => {
-                window.history.pushState({ route: 'settings' }, null, '/settings');
-                window.dispatchEvent(new PopStateEvent('popstate'));
+                router.navigateTo('/settings');
             });
         }
     }

@@ -1,5 +1,6 @@
 import { Actions } from '../../actions.js';
 import { dispatcher } from '../../Dispatcher.js';
+import router from '../../../app.js';
 
 import SmallHeart from '../SmallHeart/smallHeart.js';
 
@@ -81,8 +82,7 @@ export class Menu{
                             payload: { route: clickedRoute } 
                         });
 
-                        window.history.pushState({ route: clickedRoute }, null, path);
-                        window.dispatchEvent(new PopStateEvent('popstate'));
+                        router.navigateTo(path);
                     }
                 }
             });

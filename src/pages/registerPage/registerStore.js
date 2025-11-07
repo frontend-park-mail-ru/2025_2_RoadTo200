@@ -1,6 +1,7 @@
 import { Actions } from "../../actions.js";
 import { dispatcher } from "../../Dispatcher.js";
 import { register } from "./register.js"
+import router from "../../../app.js";
 
 import AuthApi from "../../apiHandler/authApi.js" 
 
@@ -28,8 +29,7 @@ class RegisterStore {
         try {
             await AuthApi.register(email, password, passwordConfirm); 
             
-            window.history.pushState(null, null, '/');
-            window.dispatchEvent(new PopStateEvent('popstate'));
+            router.navigateTo('/');
         } catch (error) {
             console.error('Registration error:', error);
             

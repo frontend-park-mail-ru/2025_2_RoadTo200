@@ -115,6 +115,9 @@ export class Router {
     }
 
     navigateTo(url) {
+        if (window.location.pathname + window.location.search === url) {
+            return;
+        }
         window.history.pushState(null, null, url);
         this.loadRoute();
     }
