@@ -4,7 +4,7 @@ import { dispatcher } from '../../Dispatcher';
 const TEMPLATE_PATH = '/src/components/Header/header.hbs';
 
 interface HeaderData {
-    user: { email?: string } | null;
+    user: { name?: string; email?: string } | null;
     isAuthenticated: boolean;
 }
 
@@ -48,12 +48,7 @@ export class Header {
         const templateString = await fetchTemplate(TEMPLATE_PATH);
         const template = Handlebars.compile(templateString);
         
-        let userName = '';
-        if (isAuthenticated && user?.email) {
-            userName = user.email;
-        } else if (isAuthenticated) {
-            userName = 'Пользователь';
-        }
+        const userName = user?.name || user?.email?.split('@')[0] || 'Пользователь';
         
         const renderedHtml = template({ isAuthenticated, userName });
         
