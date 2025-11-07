@@ -56,13 +56,18 @@ const router = new Router(routes, navigationStore);
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', async () => {
         try {
+            // Сначала удаляем все старые service workers
+            const registrations = await navigator.serviceWorker.getRegistrations();
+            for (const registration of registrations) {
+                await registration.unregister();
+                console.log('Old Service Worker unregistered');
+            }
+            
+            // Регистрируем новый Service Worker
             const registration = await navigator.serviceWorker.register('/service-worker.js', {
                 scope: '/'
             });
             console.log('Service Worker registered successfully:', registration.scope);
-            
-            // Проверяем обновления при каждой загрузке страницы
-            registration.update();
             
             // Проверка обновлений Service Worker
             registration.addEventListener('updatefound', () => {
@@ -72,22 +77,11 @@ if ('serviceWorker' in navigator) {
                 if (newWorker) {
                     newWorker.addEventListener('statechange', () => {
                         if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                            console.log('New Service Worker available - reloading page');
-                            // Автоматически активируем новый Service Worker и перезагружаем страницу
+                            console.log('New Service Worker available');
+                            // Автоматически активируем новый service worker
                             newWorker.postMessage({ type: 'SKIP_WAITING' });
-                            window.location.reload();
                         }
                     });
-                }
-            });
-            
-            // Обработка обновления Service Worker
-            let refreshing = false;
-            navigator.serviceWorker.addEventListener('controllerchange', () => {
-                if (!refreshing) {
-                    refreshing = true;
-                    console.log('Service Worker updated - reloading');
-                    window.location.reload();
                 }
             });
         } catch (error) {

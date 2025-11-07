@@ -1,4 +1,4 @@
-const CACHE_VERSION = '5';
+const CACHE_VERSION = '6';
 const CACHE_NAME = `terabithia-v${CACHE_VERSION}`;
 const API_CACHE_NAME = `terabithia-api-v${CACHE_VERSION}`;
 const IMAGE_CACHE_NAME = `terabithia-images-v${CACHE_VERSION}`;
@@ -6,12 +6,10 @@ const IMAGE_CACHE_NAME = `terabithia-images-v${CACHE_VERSION}`;
 // Определяем режим разработки
 const isDevelopment = self.location.hostname === 'localhost' || self.location.hostname === '127.0.0.1';
 
-// Статические ресурсы для кеширования при установке
-const STATIC_ASSETS = [
+// В dev режиме НЕ кэшируем статические ресурсы вообще
+const STATIC_ASSETS = isDevelopment ? [] : [
     '/',
     '/index.html',
-    '/app.ts',
-    '/router.ts',
     '/index.scss',
     '/forms.scss',
     
