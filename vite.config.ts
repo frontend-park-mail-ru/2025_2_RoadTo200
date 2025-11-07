@@ -9,6 +9,7 @@ export default defineConfig({
     root: './',
     publicDir: 'src/assets',
     server: {
+        host: '0.0.0.0', 
         port: 8001,
         open: true,
         proxy: {
@@ -16,7 +17,6 @@ export default defineConfig({
                 target: 'http://localhost:8080',
                 changeOrigin: true,
                 secure: false,
-                // НЕ переписываем путь - оставляем /api
             },
         },
     },
