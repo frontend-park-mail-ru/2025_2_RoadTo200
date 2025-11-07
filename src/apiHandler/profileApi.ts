@@ -10,6 +10,16 @@ export interface Profile {
     birthDate: string;
     gender: string;
     bio?: string;
+    workout?: boolean;
+    fun?: boolean;
+    party?: boolean;
+    chill?: boolean;
+    love?: boolean;
+    relax?: boolean;
+    yoga?: boolean;
+    friendship?: boolean;
+    culture?: boolean;
+    cinema?: boolean;
     photos: string[];
     interests?: string[];
     location?: {
@@ -34,6 +44,16 @@ export interface UpdateProfileData {
     birthDate?: string;
     gender?: string;
     interests?: string[];
+    workout?: boolean;
+    fun?: boolean;
+    party?: boolean;
+    chill?: boolean;
+    love?: boolean;
+    relax?: boolean;
+    yoga?: boolean;
+    friendship?: boolean;
+    culture?: boolean;
+    cinema?: boolean;
 }
 
 export interface ApiResponse {
@@ -85,6 +105,21 @@ class ProfileApi {
         }
         
         return await response.json() as ApiResponse;
+    }
+
+    async updateActivities(activities: {
+        workout?: boolean;
+        fun?: boolean;
+        party?: boolean;
+        chill?: boolean;
+        love?: boolean;
+        relax?: boolean;
+        yoga?: boolean;
+        friendship?: boolean;
+        culture?: boolean;
+        cinema?: boolean;
+    }): Promise<ApiResponse> {
+        return this.updateProfileInfo(activities);
     }
 
     async uploadPhoto(photos: File | File[]): Promise<UploadPhotoResponse> {
@@ -201,4 +236,4 @@ class ProfileApi {
     }
 }
 
-export default new ProfileApi(API_URL);
+export default ProfileApi;
