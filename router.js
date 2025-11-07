@@ -14,8 +14,6 @@ import './src/components/AuthBackground/authBackgroundStore.js';
 import './src/components/SettingsMenu/settingsMenuStore.js';
 
 /**
- * Легкий роутер для инициализации навигации.
- * Вся логика роутинга теперь в NavigationStore согласно Flux архитектуре.
  */
 export class Router {
     constructor(routes, navigationStore) {
