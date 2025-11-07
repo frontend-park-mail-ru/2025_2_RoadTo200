@@ -79,6 +79,15 @@
     font-weight: 500;
     color: #4b4b4b;
     margin-bottom: 8px;
+
+    &[for="globalSearch"] {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        margin-bottom: 0;
+        font-weight: 400;
+    }
 }
 
 .input-wrapper {
@@ -98,6 +107,9 @@
     transition: border-color 0.3s, box-shadow 0.3s, background-color 0.3s;
     outline: none;
     box-sizing: border-box;
+
+    appearance: none;
+    
 
     &:focus {
         border-color: var(--color-primary-light);
@@ -158,4 +170,23 @@
     height: 1px;
     background: #e5e7eb;
     margin: 48px 0;
+}
+
+.checkbox-group {
+    margin-bottom: 24px;
+    
+    .form-label {
+        display: flex;
+        gap: 12px;
+        cursor: pointer;
+        margin-bottom: 0;
+        font-weight: 400;
+        align-items: center;
+        font-size: 16px;
+        color: #4b4b4b;
+        
+        &:hover {
+            color: #1a1a1a;
+        }
+    }
 }

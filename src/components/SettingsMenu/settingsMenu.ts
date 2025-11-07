@@ -24,7 +24,7 @@ const MENU_ITEMS_DATA: MenuItem[] = [
     { 
         name: 'Фильтры', 
         tab: 'filters',
-        icon: './src/assets/settings__security.svg'
+        icon: './src/assets/settings__filter.svg'
     },
     { 
         name: 'Безопасность', 

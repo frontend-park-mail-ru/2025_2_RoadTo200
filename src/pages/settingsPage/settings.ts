@@ -133,11 +133,13 @@ export class SettingsPage {
                 <input type="number" class="form-input" id="maxDistance" value="${preferences.max_distance || 100}" min="1" max="10000" />
             </div>
 
+            <div class="checkbox-group">
             <div class="form-group">
                 <label class="form-label">
                     <input type="checkbox" id="globalSearch" ${preferences.global_search ? 'checked' : ''} />
                     Глобальный поиск (игнорировать расстояние)
                 </label>
+            </div>
             </div>
 
             <button class="btn-primary" id="updateFiltersBtn">Сохранить фильтры</button>
