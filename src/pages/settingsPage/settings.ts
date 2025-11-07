@@ -164,6 +164,34 @@ export class SettingsPage {
         if (!this.parent) return;
 
         if (currentTab === 'profile') {
+            // Добавляем автоформатирование даты рождения
+            const birthdateInput = this.parent.querySelector('#settingsBirthdate') as HTMLInputElement | null;
+            if (birthdateInput) {
+                birthdateInput.addEventListener('input', (e) => {
+                    const input = e.target as HTMLInputElement;
+                    let value = input.value.replace(/\D/g, ''); // Оставляем только цифры
+                    
+                    // Ограничиваем до 8 цифр
+                    if (value.length > 8) {
+                        value = value.slice(0, 8);
+                    }
+                    
+                    // Форматируем с точками
+                    let formatted = '';
+                    if (value.length > 0) {
+                        formatted = value.slice(0, 2);
+                    }
+                    if (value.length >= 3) {
+                        formatted += '.' + value.slice(2, 4);
+                    }
+                    if (value.length >= 5) {
+                        formatted += '.' + value.slice(4, 8);
+                    }
+                    
+                    input.value = formatted;
+                });
+            }
+
             const updateBtn = this.parent.querySelector('#updateProfileBtn');
             if (updateBtn) {
                 updateBtn.addEventListener('click', (e) => {

@@ -22,17 +22,6 @@ class MenuStore implements Store {
                 }
                 await this.renderMenu();
                 break;
-            case Actions.RENDER_MAIN:
-            case Actions.RENDER_CARDS:
-            case Actions.RENDER_MATCHES:
-            case Actions.RENDER_CHATS:
-            case Actions.RENDER_MYCARD:
-            case Actions.RENDER_MATCH_PROFILE:
-                if (action.payload && (action.payload as { route?: string }).route) {
-                    this.currentRoute = (action.payload as { route: string }).route;
-                    await this.renderMenu();
-                }
-                break;
 
             default:
                 break;

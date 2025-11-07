@@ -56,7 +56,6 @@ export class MatchesPage {
 
         this.parent.innerHTML = renderedHtml;
         this.addEventListeners();
-        await dispatcher.process({ type: Actions.RENDER_MENU, payload: { route: 'matches' } });
     }
 
     private addEventListeners(): void {

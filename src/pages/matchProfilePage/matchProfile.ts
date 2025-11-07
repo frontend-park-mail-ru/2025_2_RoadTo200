@@ -1,6 +1,4 @@
 import Handlebars from 'handlebars';
-import { dispatcher } from '@/Dispatcher';
-import { Actions } from '@/actions';
 
 const TEMPLATE_PATH = '/src/pages/matchProfilePage/matchProfile.hbs';
 
@@ -42,8 +40,6 @@ export class MatchProfilePage {
 
     private addEventListeners(): void {
         if (!this.parent) return;
-
-        dispatcher.process({ type: Actions.RENDER_MENU, payload: { route: 'matches' } });
 
         const chatButton = this.parent.querySelector('.match-details__chat-button');
         if (chatButton) {

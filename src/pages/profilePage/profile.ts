@@ -39,8 +39,6 @@ export class ProfilePage {
     private addEventListeners(): void {
         if (!this.parent) return;
 
-        dispatcher.process({ type: Actions.RENDER_MENU, payload: { route: 'me' } });
-
         this.parent.querySelectorAll('.details__icon-edit').forEach(icon => {
             icon.addEventListener('click', (e) => {
                 const target = (e.currentTarget as HTMLElement).dataset.target;

@@ -4,7 +4,7 @@ const API_CACHE_NAME = `terabithia-api-v${CACHE_VERSION}`;
 const IMAGE_CACHE_NAME = `terabithia-images-v${CACHE_VERSION}`;
 
 // Определяем режим разработки
-const isDevelopment = self.location.hostname === 'localhost' || self.location.hostname === '127.0.0.1';
+const isDevelopment = self.location.hostname === 'localhost' || self.location.hostname === '127.0.0.1' || self.location.hostname === '217.16.17.116:8001';
 
 // В dev режиме НЕ кэшируем статические ресурсы вообще
 const STATIC_ASSETS = isDevelopment ? [] : [

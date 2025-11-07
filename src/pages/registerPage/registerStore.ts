@@ -33,12 +33,25 @@ class RegisterStore implements Store {
                 type: Actions.NAVIGATE_TO,
                 payload: { path: '/' }
             });
-        } catch (error) {
+        } catch (error: any) {
             console.error('Register error:', error);
+            
+            let errorMessage = 'Ошибка регистрации';
+            if (error.message) {
+                if (error.message.includes('already exists') || error.message.includes('уже существует')) {
+                    errorMessage = 'Пользователь с таким email уже существует';
+                } else if (error.message.includes('invalid email')) {
+                    errorMessage = 'Некорректный email';
+                } else if (error.message.includes('password')) {
+                    errorMessage = 'Проблема с паролем';
+                } else {
+                    errorMessage = error.message;
+                }
+            }
             
             await dispatcher.process({
                 type: Actions.REGISTER_ERROR,
-                payload: 'Ошибка регистрации',
+                payload: errorMessage,
             });
         }
     }
