@@ -51,24 +51,30 @@ class MatchesStore {
             this.matches = matchesArray.map(item => {
                 const match = item.match || {};
                 const user = item.user || {};
+                const photos = item.photos || []; // Теперь photos приходит отдельным массивом, как в profile
                 
                 // Используем matched_at для расчета времени истечения (24 часа)
                 const matchedAt = match.matched_at ? new Date(match.matched_at) : new Date();
                 const expiresAt = new Date(matchedAt.getTime() + 24 * 60 * 60 * 1000);
                 
-                // Берем первое фото из массива images, если есть
-                let photo = '/src/assets/image.png';
-                if (user.images && user.images.length > 0) {
-                    photo = user.images[0];
-                } else if (user.photo_url) {
-                    photo = user.photo_url;
+                // Собираем массив URL фото для userData (только одобренные)
+                const imagesArray = photos
+                    .filter(p => p.is_approved)
+                    .map(p => p.photo_url);
+                
+                // Берем первое ОДОБРЕННОЕ фото для карточки
+                let photoUrl = '/src/assets/image.png';
+                if (imagesArray.length > 0) {
+                    photoUrl = imagesArray[0];
                 }
+                
+                console.log(`Match ${user.name}: photos count=${photos.length}, approved=${imagesArray.length}, first photo=${photoUrl}`);
                 
                 return {
                     id: user.id || match.id,
                     name: user.name || 'Unknown',
                     age: user.birth_date ? this.calculateAge(user.birth_date) : null,
-                    image: photo,  // MatchCard ожидает 'image', а не 'photo'
+                    image: photoUrl,  // MatchCard ожидает 'image'
                     matchId: match.id,
                     matchedAt: matchedAt.toISOString(),
                     expiresAt: expiresAt.toISOString(),
@@ -77,7 +83,7 @@ class MatchesStore {
                     // Сохраняем полные данные пользователя для страницы профиля
                     userData: {
                         ...user,
-                        images: user.images || [],
+                        images: imagesArray,
                         bio: user.bio || user.description || ''
                     }
                 };

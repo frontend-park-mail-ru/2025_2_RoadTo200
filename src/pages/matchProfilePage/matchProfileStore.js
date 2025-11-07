@@ -7,7 +7,7 @@ class MatchProfileStore {
 
     currentMatchId = null;
     
-    // Кэш данных матчей для быстрого доступа
+    // Кэш данных мэтчей для быстрого доступа
     matchesCache = new Map();
 
     constructor() {
@@ -31,7 +31,7 @@ class MatchProfileStore {
         const { matchId, userData } = payload;
         if (!matchId) return;
         
-        // Сохраняем данные в кэш
+        // Сохраняем данные в кэш перед навигацией
         if (userData) {
             this.matchesCache.set(matchId, userData);
         }
@@ -56,35 +56,26 @@ class MatchProfileStore {
                 matchProfile.parent = contentContainer;
             }
 
-            // Пытаемся получить данные из кэша
-            let userData = this.matchesCache.get(matchId);
+            // Получаем данные из кэша
+            const userData = this.matchesCache.get(matchId);
             
             if (!userData) {
-                console.warn('Match data not found in cache for:', matchId);
-                // Показываем заглушку или редиректим назад
-                this.matchData = {
-                    id: matchId,
-                    name: "Пользователь",
-                    age: "",
-                    description: "Информация недоступна",
-                    musician: "",
-                    quote: "",
-                    interests: [],
-                    photoCards: []
-                };
-            } else {
-                // Преобразуем данные пользователя в формат профиля
-                this.matchData = {
-                    id: userData.id,
-                    name: userData.name || "",
-                    age: userData.birth_date ? this.calculateAge(userData.birth_date) : "",
-                    description: userData.bio || userData.description || "Информация отсутствует",
-                    musician: userData.musician || "",
-                    quote: userData.quote || "",
-                    interests: userData.interests || [],
-                    photoCards: this.transformImagesToCards(userData.images || [])
-                };
+                console.error('No user data found in cache for matchId:', matchId);
+                // Можно показать ошибку или редирект на /matches
+                return;
             }
+
+            // Преобразуем данные в нужный формат
+            this.matchData = {
+                id: userData.id,
+                name: userData.name || "",
+                age: this.calculateAge(userData.birth_date),
+                description: userData.bio || "Информация отсутствует",
+                musician: "Не указано", // TODO: добавить в профиль если нужно
+                quote: "Не указано", // TODO: добавить в профиль если нужно
+                interests: [], // TODO: добавить интересы если нужно
+                photoCards: this.transformImagesToCards(userData.images || [])
+            };
 
             await matchProfile.render(this.matchData);
         } catch (error) {
@@ -93,6 +84,7 @@ class MatchProfileStore {
     }
     
     calculateAge(birthDate) {
+        if (!birthDate) return null;
         const birth = new Date(birthDate);
         const today = new Date();
         let age = today.getFullYear() - birth.getFullYear();
@@ -125,4 +117,3 @@ class MatchProfileStore {
 }
 
 export default new MatchProfileStore();
-
