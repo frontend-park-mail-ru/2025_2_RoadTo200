@@ -1,3 +1,4 @@
+// Поп-ап оверлей
 .settings-page {
     display: flex;
     justify-content: center;
@@ -5,31 +6,12 @@
     height: 100%;
     background: rgba(0, 0, 0, 0.5);
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    inset: 0;
     z-index: 1000;
     padding: 20px;
-
-    .error-message {
-        background-color: transparent;
-        color: #ff4b72;
-        padding: 0;
-        text-align: left;
-        margin: 4px 0 0 0;
-        font-weight: 400;
-        font-size: 0.875rem;
-        font-family: 'Inter', system-ui, -apple-system, sans-serif;
-        min-height: 1.25rem;
-        display: block;
-    }
-
-    .input-wrapper {
-        margin-bottom: 0;
-    }
 }
 
+// Контейнер поп-апа
 .settings-popup {
     display: flex;
     background: #fff;
@@ -42,6 +24,7 @@
     position: relative;
 }
 
+// Кнопка закрытия
 .settings-close {
     position: absolute;
     top: 20px;
@@ -57,7 +40,6 @@
     justify-content: center;
     border-radius: 50%;
     transition: background 0.2s;
-    padding: 0;
 
     &:hover {
         background: rgba(0, 0, 0, 0.05);
@@ -70,6 +52,7 @@
     }
 }
 
+// Сайдбар настроек (переиспользует стили sidebar)
 .settings-menu-container {
     width: 280px;
     border-right: 1px solid #e5e7eb;
@@ -79,22 +62,13 @@
 .settings-sidebar {
     width: 100%;
     height: 100%;
-    padding: 0;
-    box-sizing: border-box;
     background: #fff;
     border-radius: var(--border-radius-large) 0 0 var(--border-radius-large);
     display: flex;
     flex-direction: column;
 
-    .sidebar__header {
-        display: flex;
-        align-items: center;
-        padding: 32px;
-        gap: 20px;
-    }
-
     .settings-title {
-        color: #ff477e;
+        color: var(--color-primary-dark);
         font-size: 32px;
         font-weight: 700;
         letter-spacing: -1px;
@@ -102,61 +76,23 @@
     }
 
     .sidebar__list {
-        list-style: none;
-        padding: 0 24px;
-        margin: 0;
         flex: 1;
     }
 
-    .sidebar__item {
-        margin-bottom: 16px;
-        border-radius: 22px;
-        transition: background 0.18s;
-
-        &-disabled:hover {
-            background: #f6f6f6;
-        }
-
-        &-active {
-            background: #ffe6ee;
-        }
-    }
-
-    .sidebar__link {
+    .sidebar__logout-btn {
         display: flex;
         align-items: center;
         text-decoration: none;
         padding: 14px 22px;
-        color: #ff477e;
+        margin: 0 24px 24px 24px;
+        color: var(--color-primary-dark);
         font-size: 19px;
         font-weight: 600;
         gap: 16px;
-        transition: color 0.15s;
-    }
-
-    .sidebar__icon {
-        width: 28px;
-        height: 28px;
-        opacity: 0.8;
-
-        &-active {
-            opacity: 1;
-        }
-    }
-
-    .btn-logout {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 14px 22px;
-        margin: 0 24px 24px 24px;
-        font-size: 19px;
-        font-weight: 600;
-        color: #ff477e;
-        cursor: pointer;
-        border: none;
         background: transparent;
+        border: none;
         border-radius: 22px;
+        cursor: pointer;
         transition: background 0.18s;
 
         &:hover {
@@ -170,20 +106,18 @@
     }
 }
 
+// Контент настроек
 .settings-content {
     flex: 1;
     padding: 40px 50px;
     overflow-y: auto;
-    max-width: 620px;
 }
 
 .settings-section {
-    max-width: 600px;
-
     &-title {
         font-size: 32px;
         font-weight: 700;
-        color: #ff477e;
+        color: var(--color-primary-dark);
         margin: 0 0 32px 0;
     }
 
@@ -195,34 +129,12 @@
     }
 }
 
-.form-group {
-    margin-bottom: 20px;
-    position: relative;
-}
-
-.form-label {
-    display: block;
-    font-size: 15px;
-    font-weight: 500;
-    color: #4b4b4b;
-    margin-bottom: 8px;
-
-    &[for="globalSearch"] {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        cursor: pointer;
-        margin-bottom: 0;
-        font-weight: 400;
-    }
-}
-
-.input-wrapper {
-    position: relative;
-    margin-bottom: 0;
+// Иконка редактирования
+.input-with-icon {
     display: flex;
     align-items: center;
     gap: 12px;
+    position: relative;
 }
 
 .edit-icon {
@@ -238,108 +150,37 @@
     }
 }
 
-.form-input {
-    width: 100%;
-    padding: 1rem 1.25rem;
-    font-size: 1rem;
-    line-height: 1.5;
+// Метка для настроек
+.settings-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
     color: var(--color-text-dark);
-    background-color: #f3f4f6;
-    border: 2px solid #e5e7eb;
+    margin-bottom: 8px;
+}
+
+// Уникальная кнопка удаления
+.btn-danger {
+    width: auto;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #ff4b72;
+    cursor: pointer;
+    border: 1px solid #ff4b72;
+    background: transparent;
     border-radius: var(--border-radius-large);
-    transition: border-color 0.3s, box-shadow 0.3s, background-color 0.3s;
-    outline: none;
-    box-sizing: border-box;
-    appearance: none;
+    margin-top: 24px;
+    transition: background 0.2s;
 
-    &:focus {
-        border-color: var(--color-primary-light);
-        background-color: #ffffff;
-    }
-
-    &.error-input {
-        border-color: #ff4b72;
-    }
-
-    &:disabled {
-        cursor: not-allowed;
-        opacity: 0.7;
+    &:hover {
+        background: #fff5f7;
     }
 }
 
-.btn {
-    &-primary {
-        width: 100%;
-        padding: 1rem 1.5rem;
-        font-size: 1.125rem;
-        font-weight: 600;
-        line-height: 1.5;
-        color: var(--color-text-light);
-        cursor: pointer;
-        border: none;
-        outline: none;
-        margin-top: 12px;
-        transition: all 0.3s ease;
-        background: linear-gradient(to right, var(--color-primary-dark) 0%, var(--color-primary-light) 100%);
-        border-radius: var(--border-radius-large);
-        box-shadow: 0 8px 15px rgba(253, 41, 123, 0.4);
-
-        &:hover {
-            box-shadow: 0 15px 20px rgba(253, 41, 123, 0.6);
-            transform: translateY(-2px);
-        }
-
-        &:active {
-            transform: translateY(0);
-        }
-    }
-
-    &-danger {
-        width: auto;
-        padding: 10px 20px;
-        font-size: 14px;
-        font-weight: 500;
-        line-height: 1.5;
-        color: #ff4b72;
-        cursor: pointer;
-        border: 1px solid #ff4b72;
-        outline: none;
-        transition: all 0.3s ease;
-        background: transparent;
-        border-radius: var(--border-radius-large);
-        margin-top: 24px;
-
-        &:hover {
-            background: #fff5f7;
-        }
-
-        &:active {
-            background: #ffe8ec;
-        }
-    }
-}
-
+// Разделитель
 .divider {
     height: 1px;
     background: #e5e7eb;
     margin: 48px 0;
-}
-
-.checkbox-group {
-    margin-bottom: 24px;
-    
-    .form-label {
-        display: flex;
-        gap: 12px;
-        cursor: pointer;
-        margin-bottom: 0;
-        font-weight: 400;
-        align-items: center;
-        font-size: 16px;
-        color: #4b4b4b;
-        
-        &:hover {
-            color: #1a1a1a;
-        }
-    }
 }
