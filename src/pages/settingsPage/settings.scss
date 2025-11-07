@@ -1,7 +1,16 @@
 .settings-page {
     display: flex;
+    justify-content: center;
+    align-items: center;
     height: 100%;
-    background: #fff;
+    background: rgba(0, 0, 0, 0.5);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1000;
+    padding: 20px;
 
     .error-message {
         background-color: transparent;
@@ -21,6 +30,46 @@
     }
 }
 
+.settings-popup {
+    display: flex;
+    background: #fff;
+    border-radius: var(--border-radius-large);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    max-width: 900px;
+    width: 100%;
+    max-height: 90vh;
+    overflow: hidden;
+    position: relative;
+}
+
+.settings-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 32px;
+    height: 32px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background 0.2s;
+    padding: 0;
+
+    &:hover {
+        background: rgba(0, 0, 0, 0.05);
+    }
+
+    svg {
+        width: 20px;
+        height: 20px;
+        stroke: #6b7280;
+    }
+}
+
 .settings-menu-container {
     width: 280px;
     border-right: 1px solid #e5e7eb;
@@ -30,25 +79,102 @@
 .settings-sidebar {
     width: 100%;
     height: 100%;
-    padding: 32px 0 0 0;
+    padding: 0;
     box-sizing: border-box;
     background: #fff;
+    border-radius: var(--border-radius-large) 0 0 var(--border-radius-large);
+    display: flex;
+    flex-direction: column;
+
+    .sidebar__header {
+        display: flex;
+        align-items: center;
+        padding: 32px;
+        gap: 20px;
+    }
 
     .settings-title {
-        color: #1a1a1a;
-        font-size: 28px;
+        color: #ff477e;
+        font-size: 32px;
         font-weight: 700;
-        letter-spacing: -0.5px;
-        padding: 0 32px 32px 32px;
+        letter-spacing: -1px;
         margin: 0;
+    }
+
+    .sidebar__list {
+        list-style: none;
+        padding: 0 24px;
+        margin: 0;
+        flex: 1;
+    }
+
+    .sidebar__item {
+        margin-bottom: 16px;
+        border-radius: 22px;
+        transition: background 0.18s;
+
+        &-disabled:hover {
+            background: #f6f6f6;
+        }
+
+        &-active {
+            background: #ffe6ee;
+        }
+    }
+
+    .sidebar__link {
+        display: flex;
+        align-items: center;
+        text-decoration: none;
+        padding: 14px 22px;
+        color: #ff477e;
+        font-size: 19px;
+        font-weight: 600;
+        gap: 16px;
+        transition: color 0.15s;
+    }
+
+    .sidebar__icon {
+        width: 28px;
+        height: 28px;
+        opacity: 0.8;
+
+        &-active {
+            opacity: 1;
+        }
+    }
+
+    .btn-logout {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 22px;
+        margin: 0 24px 24px 24px;
+        font-size: 19px;
+        font-weight: 600;
+        color: #ff477e;
+        cursor: pointer;
+        border: none;
+        background: transparent;
+        border-radius: 22px;
+        transition: background 0.18s;
+
+        &:hover {
+            background: #f6f6f6;
+        }
+
+        .sidebar__icon {
+            width: 28px;
+            height: 28px;
+        }
     }
 }
 
 .settings-content {
     flex: 1;
-    padding: 60px 80px;
+    padding: 40px 50px;
     overflow-y: auto;
-    max-width: 800px;
+    max-width: 620px;
 }
 
 .settings-section {
@@ -57,7 +183,7 @@
     &-title {
         font-size: 32px;
         font-weight: 700;
-        color: #1a1a1a;
+        color: #ff477e;
         margin: 0 0 32px 0;
     }
 
@@ -70,7 +196,8 @@
 }
 
 .form-group {
-    margin-bottom: 24px;
+    margin-bottom: 20px;
+    position: relative;
 }
 
 .form-label {
@@ -93,6 +220,22 @@
 .input-wrapper {
     position: relative;
     margin-bottom: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.edit-icon {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    flex-shrink: 0;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+
+    &:hover {
+        opacity: 1;
+    }
 }
 
 .form-input {
@@ -107,9 +250,7 @@
     transition: border-color 0.3s, box-shadow 0.3s, background-color 0.3s;
     outline: none;
     box-sizing: border-box;
-
     appearance: none;
-    
 
     &:focus {
         border-color: var(--color-primary-light);
@@ -118,6 +259,11 @@
 
     &.error-input {
         border-color: #ff4b72;
+    }
+
+    &:disabled {
+        cursor: not-allowed;
+        opacity: 0.7;
     }
 }
 
@@ -132,7 +278,7 @@
         cursor: pointer;
         border: none;
         outline: none;
-        margin-top: 0.5rem;
+        margin-top: 12px;
         transition: all 0.3s ease;
         background: linear-gradient(to right, var(--color-primary-dark) 0%, var(--color-primary-light) 100%);
         border-radius: var(--border-radius-large);
@@ -142,26 +288,33 @@
             box-shadow: 0 15px 20px rgba(253, 41, 123, 0.6);
             transform: translateY(-2px);
         }
+
+        &:active {
+            transform: translateY(0);
+        }
     }
 
     &-danger {
-        width: 100%;
-        padding: 1rem 1.5rem;
-        font-size: 1.125rem;
-        font-weight: 600;
+        width: auto;
+        padding: 10px 20px;
+        font-size: 14px;
+        font-weight: 500;
         line-height: 1.5;
-        color: var(--color-text-light);
+        color: #ff4b72;
         cursor: pointer;
-        border: none;
+        border: 1px solid #ff4b72;
         outline: none;
         transition: all 0.3s ease;
-        background: linear-gradient(to right, #ff4b72 0%, #ff1744 100%);
+        background: transparent;
         border-radius: var(--border-radius-large);
-        box-shadow: 0 8px 15px rgba(255, 75, 114, 0.4);
+        margin-top: 24px;
 
         &:hover {
-            box-shadow: 0 15px 20px rgba(255, 75, 114, 0.6);
-            transform: translateY(-2px);
+            background: #fff5f7;
+        }
+
+        &:active {
+            background: #ffe8ec;
         }
     }
 }

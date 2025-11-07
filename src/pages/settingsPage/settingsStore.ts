@@ -122,6 +122,21 @@ class SettingsStore implements Store {
             return;
         }
 
+        // Проверка на 18 лет
+        const [day, month, year] = birthdate.split('.').map(Number);
+        const birthDate = new Date(year, month - 1, day);
+        const today = new Date();
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+        }
+
+        if (age < 18) {
+            settings.showErrors({ birthdateError: 'вы должны быть старше 18' });
+            return;
+        }
+
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
             settings.showErrors({ emailError: 'Некорректный email' });
             return;

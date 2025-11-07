@@ -49,6 +49,17 @@
         &-active {
             background: #ffe6ee;
         }
+
+        // Временное решение: блокируем кнопку чатов
+        &[data-route="chats"] {
+            cursor: not-allowed;
+            opacity: 0.5;
+            pointer-events: none;
+
+            .sidebar__link {
+                cursor: not-allowed;
+            }
+        }
     }
 
     &__link {

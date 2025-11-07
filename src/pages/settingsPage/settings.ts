@@ -46,6 +46,31 @@ export class SettingsPage {
             type: Actions.RENDER_SETTINGS_MENU,
             payload: { tab: currentTab }
         });
+
+        // Добавляем обработчик для кнопки закрытия
+        const closeBtn = this.parent.querySelector('#settingsClose');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                dispatcher.process({
+                    type: Actions.NAVIGATE_TO,
+                    payload: { path: '/' }
+                });
+            });
+        }
+
+        // Добавляем обработчик закрытия по клику на фон
+        const settingsPage = this.parent.querySelector('.settings-page');
+        if (settingsPage) {
+            settingsPage.addEventListener('click', (e: Event) => {
+                if (e.target === settingsPage) {
+                    // Закрываем настройки - переходим на главную
+                    dispatcher.process({
+                        type: Actions.NAVIGATE_TO,
+                        payload: { path: '/' }
+                    });
+                }
+            });
+        }
     }
 
     renderContent(currentTab: string, profileData: ProfileData = {}): void {
@@ -92,11 +117,17 @@ export class SettingsPage {
         section.className = 'settings-section';
         section.innerHTML = `
             <h1 class="settings-section-title">Безопасность</h1>
+            
+            <h2 class="settings-section-subsection-title">Смена пароля</h2>
             ${SettingsPage.createFormGroupHTML('Введите старый пароль:', 'password', 'oldPassword', '', 'oldPasswordError')}
             ${SettingsPage.createFormGroupHTML('Введите новый пароль:', 'password', 'newPassword', '', 'newPasswordError')}
             ${SettingsPage.createFormGroupHTML('Введите новый пароль повторно:', 'password', 'confirmPassword', '', 'confirmPasswordError')}
             <button class="btn-primary" id="changePasswordBtn">Сменить пароль</button>
+            
             <div class="divider"></div>
+            
+            <h2 class="settings-section-subsection-title">Удаление аккаунта</h2>
+            <p style="color: #666; font-size: 14px; margin-bottom: 16px;">Это действие необратимо. Все ваши данные будут удалены.</p>
             <button class="btn-danger" id="deleteAccountBtn">Удалить аккаунт</button>
         `;
         return section;
@@ -153,7 +184,8 @@ export class SettingsPage {
             <div class="form-group">
                 <label class="form-label">${label}</label>
                 <div class="input-wrapper">
-                    <input type="${type}" class="form-input" id="${id}" value="${value || ''}" ${placeholderAttr}/>
+                    <input type="${type}" class="form-input" id="${id}" value="${value || ''}" ${placeholderAttr} disabled/>
+                    <img src="/src/assets/edit.svg" alt="Редактировать" class="edit-icon" data-input-id="${id}"/>
                 </div>
                 <p class="error-message" id="${errorId}"></p>
             </div>
@@ -162,6 +194,21 @@ export class SettingsPage {
 
     private attachEventListeners(currentTab: string): void {
         if (!this.parent) return;
+
+        // Добавляем обработчики для карандашиков
+        const editIcons = this.parent.querySelectorAll('.edit-icon');
+        editIcons.forEach(icon => {
+            icon.addEventListener('click', () => {
+                const inputId = icon.getAttribute('data-input-id');
+                if (inputId) {
+                    const input = this.parent?.querySelector(`#${inputId}`) as HTMLInputElement | null;
+                    if (input) {
+                        input.disabled = false;
+                        input.focus();
+                    }
+                }
+            });
+        });
 
         if (currentTab === 'profile') {
             // Добавляем автоформатирование даты рождения

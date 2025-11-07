@@ -73,23 +73,43 @@ export class SettingsMenu {
     private initEventListeners(): void {
         if (!this.parent) return;
         
-        const sidebar = this.parent.querySelector('.sidebar');
-        if (!sidebar) return;
+        const sidebar = this.parent.querySelector('.settings-sidebar');
+        if (!sidebar) {
+            console.error('Settings sidebar not found in parent');
+            return;
+        }
 
-        sidebar.addEventListener('click', (event: Event) => {
-            const target = event.target as HTMLElement;
-            const menuItem = target.closest('.sidebar__item') as HTMLElement;
-            if (menuItem) {
+        // Обработчик для пунктов меню
+        const menuItems = sidebar.querySelectorAll('.sidebar__item');
+        menuItems.forEach(menuItem => {
+            menuItem.addEventListener('click', (event: Event) => {
                 event.preventDefault();
                 
-                const clickedTab = menuItem.dataset.tab;
+                const clickedTab = (menuItem as HTMLElement).dataset.tab;
+                console.log('Settings menu item clicked, tab:', clickedTab);
 
-                dispatcher.process({ 
-                    type: Actions.SWITCH_SETTINGS_TAB,
-                    payload: { tab: clickedTab } 
-                });
-            }
+                if (clickedTab) {
+                    dispatcher.process({ 
+                        type: Actions.SWITCH_SETTINGS_TAB,
+                        payload: { tab: clickedTab } 
+                    });
+                }
+            });
         });
+
+        // Обработчик для кнопки выхода
+        const logoutBtn = sidebar.querySelector('#logoutBtn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', async (event: Event) => {
+                event.preventDefault();
+                console.log('Logout button clicked');
+                
+                // Вызываем logout
+                await dispatcher.process({
+                    type: Actions.REQUEST_LOGOUT
+                });
+            });
+        }
     }
 }
 
