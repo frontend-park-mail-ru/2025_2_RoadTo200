@@ -2,6 +2,7 @@ import { dispatcher } from '../Dispatcher';
 import { Actions, Action, NavigateAction, LoadRouteAction } from '../actions';
 import { AuthUtils } from '../utils/auth';
 import type { Store } from '../Dispatcher';
+import matchesStore from '../pages/matchesPage/matchesStore';
 
 export interface PageComponent {
     parent: HTMLElement | null;
@@ -174,6 +175,12 @@ class NavigationStore implements Store {
         if (this.currentPath === currentPath) {
             return;
         }
+
+        // Очищаем interval timer страницы matches при уходе с неё
+        if (this.currentPath && this.currentPath.startsWith('/matches') && !currentPath.startsWith('/matches')) {
+            matchesStore.cleanup();
+        }
+
         this.currentPath = currentPath;
 
         // Обработка динамических маршрутов (например /matches/:id)

@@ -33,11 +33,11 @@ class MatchesStore implements Store {
     async handleAction(action: Action): Promise<void> {
         switch (action.type) {
             case Actions.RENDER_MATCHES:
+                console.log('[MatchesStore] RENDER_MATCHES called, stack trace:');
+                console.trace();
                 await this.renderMatches();
                 break;
 
-            case Actions.RENDER_MATCH_PROFILE:
-                break;
 
             default:
                 break;
@@ -128,6 +128,13 @@ class MatchesStore implements Store {
         const now = new Date();
         const hoursSinceMatch = (now.getTime() - matchedAt.getTime()) / (1000 * 60 * 60);
         return hoursSinceMatch < 1;
+    }
+
+    cleanup(): void {
+        if (this.timerId) {
+            clearInterval(this.timerId);
+            this.timerId = null;
+        }
     }
 
     private updateDerivedFields(): void {
