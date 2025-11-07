@@ -20,15 +20,12 @@ class ProfileMenuStore implements Store {
     }
 
     async handleAction(action: Action): Promise<void> {
-        console.log('ProfileMenuStore received action:', action.type);
-        
         switch (action.type) {
             case Actions.RENDER_PROFILE_MENU:
                 await this.renderProfileMenu();
                 break;
 
             case Actions.TOGGLE_PROFILE_MENU:
-                console.log('Toggle profile menu with payload:', action.payload);
                 await this.toggleMenu((action.payload as { isVisible?: boolean } | undefined)?.isVisible);
                 break;
 
@@ -65,8 +62,6 @@ class ProfileMenuStore implements Store {
     private async toggleMenu(visible?: boolean): Promise<void> {
         const shouldBeVisible = visible !== undefined ? visible : !this.isVisible;
         
-        console.log('toggleMenu called, shouldBeVisible:', shouldBeVisible, 'current isVisible:', this.isVisible);
-        
         if (shouldBeVisible && !this.user) {
             try {
                 const response = await AuthApi.checkAuth();
@@ -78,7 +73,6 @@ class ProfileMenuStore implements Store {
         }
         
         this.isVisible = shouldBeVisible;
-        console.log('Calling profileMenuComponent.toggle with:', this.isVisible);
         this.profileMenuComponent.toggle(this.isVisible);
     }
 }

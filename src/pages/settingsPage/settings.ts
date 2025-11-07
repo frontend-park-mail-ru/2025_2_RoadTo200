@@ -46,6 +46,31 @@ export class SettingsPage {
             type: Actions.RENDER_SETTINGS_MENU,
             payload: { tab: currentTab }
         });
+
+        // Добавляем обработчик для кнопки закрытия
+        const closeBtn = this.parent.querySelector('#settingsClose');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                dispatcher.process({
+                    type: Actions.NAVIGATE_TO,
+                    payload: { path: '/' }
+                });
+            });
+        }
+
+        // Добавляем обработчик закрытия по клику на фон
+        const settingsPage = this.parent.querySelector('.settings-page');
+        if (settingsPage) {
+            settingsPage.addEventListener('click', (e: Event) => {
+                if (e.target === settingsPage) {
+                    // Закрываем настройки - переходим на главную
+                    dispatcher.process({
+                        type: Actions.NAVIGATE_TO,
+                        payload: { path: '/' }
+                    });
+                }
+            });
+        }
     }
 
     renderContent(currentTab: string, profileData: ProfileData = {}): void {
@@ -82,7 +107,7 @@ export class SettingsPage {
             ${SettingsPage.createFormGroupHTML('Имя:', 'text', 'settingsName', profileData.name, 'settingsNameError')}
             ${SettingsPage.createFormGroupHTML('Дата рождения:', 'text', 'settingsBirthdate', profileData.birthdate, 'birthdateError', 'ДД.ММ.ГГГГ')}
             ${SettingsPage.createFormGroupHTML('Email:', 'email', 'settingsEmail', profileData.email, 'emailError')}
-            <button class="btn-primary" id="updateProfileBtn">Обновить настройки</button>
+            <button class="form__btn-primary" id="updateProfileBtn">Обновить настройки</button>
         `;
         return section;
     }
@@ -92,11 +117,17 @@ export class SettingsPage {
         section.className = 'settings-section';
         section.innerHTML = `
             <h1 class="settings-section-title">Безопасность</h1>
+            
+            <h2 class="settings-section-subsection-title">Смена пароля</h2>
             ${SettingsPage.createFormGroupHTML('Введите старый пароль:', 'password', 'oldPassword', '', 'oldPasswordError')}
             ${SettingsPage.createFormGroupHTML('Введите новый пароль:', 'password', 'newPassword', '', 'newPasswordError')}
             ${SettingsPage.createFormGroupHTML('Введите новый пароль повторно:', 'password', 'confirmPassword', '', 'confirmPasswordError')}
-            <button class="btn-primary" id="changePasswordBtn">Сменить пароль</button>
+            <button class="form__btn-primary" id="changePasswordBtn">Сменить пароль</button>
+            
             <div class="divider"></div>
+            
+            <h2 class="settings-section-subsection-title">Удаление аккаунта</h2>
+            <p style="color: #666; font-size: 14px; margin-bottom: 16px;">Это действие необратимо. Все ваши данные будут удалены.</p>
             <button class="btn-danger" id="deleteAccountBtn">Удалить аккаунт</button>
         `;
         return section;
@@ -109,40 +140,38 @@ export class SettingsPage {
         section.innerHTML = `
             <h1 class="settings-section-title">Фильтры поиска</h1>
             
-            <div class="form-group">
-                <label class="form-label">Показывать мне:</label>
-                <select class="form-input" id="showGender">
-                    <option value="male" ${preferences.show_gender === 'male' ? 'selected' : ''}>Мужчин</option>
-                    <option value="female" ${preferences.show_gender === 'female' ? 'selected' : ''}>Женщин</option>
+                        <div class="form__input-wrapper">
+                <label class="settings-label">Показывать мне:</label>
+                <select class="form__input" id="showGender">
+                    <option value="male" ${preferences.show_gender === 'male' ? 'selected' : ''}>Парней</option>
+                    <option value="female" ${preferences.show_gender === 'female' ? 'selected' : ''}>Девушек</option>
                     <option value="both" ${preferences.show_gender === 'both' || !preferences.show_gender ? 'selected' : ''}>Всех</option>
                 </select>
             </div>
 
-            <div class="form-group">
-                <label class="form-label">Возраст от:</label>
-                <input type="number" class="form-input" id="ageMin" value="${preferences.age_min || 18}" min="18" max="100" />
+            <div class="form__input-wrapper">
+                <label class="settings-label">Возраст от:</label>
+                <input type="number" class="form__input" id="ageMin" value="${preferences.age_min || 18}" min="18" max="100" />
             </div>
 
-            <div class="form-group">
-                <label class="form-label">Возраст до:</label>
-                <input type="number" class="form-input" id="ageMax" value="${preferences.age_max || 50}" min="18" max="100" />
+            <div class="form__input-wrapper">
+                <label class="settings-label">Возраст до:</label>
+                <input type="number" class="form__input" id="ageMax" value="${preferences.age_max || 50}" min="18" max="100" />
             </div>
 
-            <div class="form-group">
-                <label class="form-label">Максимальное расстояние (км):</label>
-                <input type="number" class="form-input" id="maxDistance" value="${preferences.max_distance || 100}" min="1" max="10000" />
+            <div class="form__input-wrapper">
+                <label class="settings-label">Максимальное расстояние (км):</label>
+                <input type="number" class="form__input" id="maxDistance" value="${preferences.max_distance || 100}" min="1" max="10000" />
             </div>
 
-            <div class="checkbox-group">
-            <div class="form-group">
-                <label class="form-label">
+            <div class="form__input-wrapper">
+                <label class="settings-label">
                     <input type="checkbox" id="globalSearch" ${preferences.global_search ? 'checked' : ''} />
                     Глобальный поиск (игнорировать расстояние)
                 </label>
             </div>
-            </div>
 
-            <button class="btn-primary" id="updateFiltersBtn">Сохранить фильтры</button>
+            <button class="form__btn-primary" id="updateFiltersBtn">Сохранить фильтры</button>
         `;
         return section;
     }
@@ -150,18 +179,34 @@ export class SettingsPage {
     private static createFormGroupHTML(label: string, type: string, id: string, value: string | undefined, errorId: string, placeholder: string = ''): string {
         const placeholderAttr = placeholder ? `placeholder="${placeholder}"` : '';
         return `
-            <div class="form-group">
-                <label class="form-label">${label}</label>
-                <div class="input-wrapper">
-                    <input type="${type}" class="form-input" id="${id}" value="${value || ''}" ${placeholderAttr}/>
+            <div class="form__input-wrapper">
+                <label class="settings-label">${label}</label>
+                <div class="input-with-icon">
+                    <input type="${type}" class="form__input" id="${id}" value="${value || ''}" ${placeholderAttr} disabled/>
+                    <img src="/src/assets/edit.svg" alt="Редактировать" class="edit-icon" data-input-id="${id}"/>
                 </div>
-                <p class="error-message" id="${errorId}"></p>
+                <p class="form__error-message" id="${errorId}"></p>
             </div>
         `;
     }
 
     private attachEventListeners(currentTab: string): void {
         if (!this.parent) return;
+
+        // Добавляем обработчики для карандашиков
+        const editIcons = this.parent.querySelectorAll('.edit-icon');
+        editIcons.forEach(icon => {
+            icon.addEventListener('click', () => {
+                const inputId = icon.getAttribute('data-input-id');
+                if (inputId) {
+                    const input = this.parent?.querySelector(`#${inputId}`) as HTMLInputElement | null;
+                    if (input) {
+                        input.disabled = false;
+                        input.focus();
+                    }
+                }
+            });
+        });
 
         if (currentTab === 'profile') {
             // Добавляем автоформатирование даты рождения
@@ -282,7 +327,7 @@ export class SettingsPage {
         this.parent.querySelectorAll('.error-message').forEach((el) => {
             el.textContent = '';
         });
-        this.parent.querySelectorAll('.form-input').forEach((input) => {
+        this.parent.querySelectorAll('.form__input').forEach((input) => {
             input.classList.remove('error-input');
         });
     }
