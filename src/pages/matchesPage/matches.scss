@@ -1,0 +1,23 @@
+.matches-page {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+
+    &__grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(203px, 1fr));
+        gap: 20px;
+        justify-items: center;
+    }
+    
+    &__no-matches {
+        text-align: center;
+        padding: 60px 20px;
+        color: #999;
+        font-size: 18px;
+    }
+
+    &__p {
+        margin: 0;
+    }
+}

@@ -1,0 +1,50 @@
+.header {
+    height: 80px;
+
+    &__content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 32px;
+        height: 100%;
+    }
+
+    &__welcome-text {
+        background: linear-gradient(90deg, #ff4b72 0%, #ff99a8 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        font-weight: 700;
+        font-size: 18px;
+        font-family: "Inter", system-ui, -apple-system, sans-serif;
+        cursor: pointer;
+        transition: opacity 0.2s ease;
+        opacity: 0.7;
+    }
+
+    &__right {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    &__logout-btn {
+        background: linear-gradient(90deg, #ff4b72 0%, #ff99a8 100%);
+        color: white;
+        border: none;
+        border-radius: 25px;
+        padding: 10px 24px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(255, 75, 114, 0.3);
+        font-weight: 700;
+        font-size: 16px;
+        font-family: "Inter", system-ui, -apple-system, sans-serif;
+
+        &:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 75, 114, 0.4);
+        }
+    }
+}
