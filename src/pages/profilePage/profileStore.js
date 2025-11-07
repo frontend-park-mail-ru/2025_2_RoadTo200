@@ -58,6 +58,7 @@ class ProfileStore {
                 profile.render(this.profileData);
             }
         } catch (error) {
+            
         }
     }
 

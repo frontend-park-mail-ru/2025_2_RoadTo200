@@ -18,6 +18,8 @@ class RegisterStore {
             case Actions.REQUEST_REGISTER:
                 await this.processRegister(action.payload);
                 break;
+            default:
+                break;
         }
     }
 

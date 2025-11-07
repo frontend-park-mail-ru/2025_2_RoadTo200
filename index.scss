@@ -5,10 +5,8 @@
 }
 
 body {
-    
     font-family: 'Inter', sans-serif;
     align-items: center;
-
     min-height: 100vh;
     margin: 0;
 }
@@ -21,7 +19,7 @@ body {
     --border-radius-large: 30px;
 }
 
-.container{
+.container {
   display: flex;
   justify-content: center;
   justify-items: center;
@@ -32,19 +30,18 @@ body {
   display: flex;
   height: 100vh;
   background-color: #ffffff;
-}
 
-#menu-container-internal {
+  #menu-container-internal {
     width: 280px; 
-    
     padding: 20px 0;
     border-right: 1px solid #eee;
-}
+  }
 
-.main-column {
-  width: 100%;
-  display: flex;
-  flex-direction: column; 
-  position: relative;
-  z-index: 1;
+  .main-column {
+    width: 100%;
+    display: flex;
+    flex-direction: column; 
+    position: relative;
+    z-index: 1;
+  }
 }
