@@ -47,12 +47,8 @@ class MainStore implements Store {
         try {
             const response = await CardApi.getAllCards() as any;
 
-            console.log('API Response:', response);
-            
             const cards = response.users || response.cards || [];
             
-            console.log('Cards to transform:', cards.length);
-
             const mockPhotoUrl = '/src/assets/image.png'; 
             
             const transformedCards: TransformedCard[] = cards.map((card: any) => {
@@ -64,9 +60,6 @@ class MainStore implements Store {
 
                 if (photoUrls.length === 0) {
                     photoUrls.push(mockPhotoUrl);
-                    console.log('Card photos/images: NO PHOTOS - ADDING MOCK', card.name);
-                } else {
-                    console.log('Card photos/images:', card.name, photoUrls);
                 }
                 
                 return {
