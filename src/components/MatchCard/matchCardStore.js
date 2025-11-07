@@ -1,6 +1,5 @@
 import { Actions } from "../../actions.js";
 import { dispatcher } from "../../Dispatcher.js";
-import router from "../../../app.js";
 
 class MatchCardStore {
     selectedMatchId = null;
@@ -18,7 +17,6 @@ class MatchCardStore {
                 this.selectedMatchId = null;
                 break;
             case Actions.RENDER_MATCH_PROFILE:
-                this.onMatchProfileRender(action.payload);
                 break;
             default:
                 break;
@@ -34,18 +32,13 @@ class MatchCardStore {
 
         this.selectedMatchId = matchId;
 
-        router.navigateTo(`/matches/${matchId}`);
+        dispatcher.process({
+            type: Actions.NAVIGATE_TO,
+            payload: { path: `/matches/${matchId}` }
+        });
     }
 
-    //функция заглушка для обработки рендера профиля мэтча
-    onMatchProfileRender(payload = {}) {
-        const { matchId } = payload;
-
-        
-        if (matchId) {
-            this.selectedMatchId = matchId;
-        }
-    }
+    
 }
 
 export default new MatchCardStore();

@@ -2,7 +2,6 @@ import Card from '../../components/Card/card.js';
 
 import { dispatcher } from '../../Dispatcher.js';
 import { Actions } from '../../actions.js';
-import router from '../../../app.js';
 
 
 const TEMPLATE_PATH = '/src/pages/mainPage/main.hbs';
@@ -110,7 +109,10 @@ export class MainPage {
         const settingsButton = document.getElementById('goToSettings');
         if (settingsButton) {
             settingsButton.addEventListener('click', () => {
-                router.navigateTo('/settings');
+                dispatcher.process({
+                    type: Actions.NAVIGATE_TO,
+                    payload: { path: '/settings' }
+                });
             });
         }
     }

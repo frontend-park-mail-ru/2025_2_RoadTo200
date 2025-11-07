@@ -1,6 +1,5 @@
 import { dispatcher } from '../../Dispatcher.js';
 import { Actions } from '../../actions.js';
-import router from '../../../app.js';
 
 import { header } from './header.js'; 
 
@@ -72,12 +71,18 @@ class HeaderStore{
                 payload: { user: this.user }
             });
             
-            router.navigateTo('/login');
+            dispatcher.process({
+                type: Actions.NAVIGATE_TO,
+                payload: { path: '/login' }
+            });
             
         } catch (error) {
             console.error("Logout error:", error);
             // Всё равно редиректим на /login даже если logout запрос упал
-            router.navigateTo('/login');
+            dispatcher.process({
+                type: Actions.NAVIGATE_TO,
+                payload: { path: '/login' }
+            });
         }
     }
 

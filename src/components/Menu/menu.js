@@ -1,6 +1,5 @@
 import { Actions } from '../../actions.js';
 import { dispatcher } from '../../Dispatcher.js';
-import router from '../../../app.js';
 
 import SmallHeart from '../SmallHeart/smallHeart.js';
 
@@ -82,7 +81,10 @@ export class Menu{
                             payload: { route: clickedRoute } 
                         });
 
-                        router.navigateTo(path);
+                        dispatcher.process({
+                            type: Actions.NAVIGATE_TO,
+                            payload: { path }
+                        });
                     }
                 }
             });

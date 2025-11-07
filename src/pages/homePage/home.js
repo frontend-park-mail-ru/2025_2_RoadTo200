@@ -1,5 +1,6 @@
 import Handlebars from 'handlebars';
-import router from '../../../app.js';
+import { dispatcher } from '../../Dispatcher.js';
+import { Actions } from '../../actions.js';
 
 class Home {
     parent;
@@ -62,7 +63,10 @@ class Home {
                 localStorage.setItem('selectedActivities', JSON.stringify(this.selectedActivities));
                 
                 // Переходим на страницу с карточками
-                router.navigateTo('/cards');
+                dispatcher.process({
+                    type: Actions.NAVIGATE_TO,
+                    payload: { path: '/cards' }
+                });
             });
         }
     }

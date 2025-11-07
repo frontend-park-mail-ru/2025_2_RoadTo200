@@ -1,7 +1,6 @@
 import { Actions } from "../../actions.js";
 import { dispatcher } from "../../Dispatcher.js";
 import { register } from "./register.js"
-import router from "../../../app.js";
 
 import AuthApi from "../../apiHandler/authApi.js" 
 
@@ -29,7 +28,10 @@ class RegisterStore {
         try {
             await AuthApi.register(email, password, passwordConfirm); 
             
-            router.navigateTo('/');
+            dispatcher.process({
+                type: Actions.NAVIGATE_TO,
+                payload: { path: '/' }
+            });
         } catch (error) {
             console.error('Registration error:', error);
             

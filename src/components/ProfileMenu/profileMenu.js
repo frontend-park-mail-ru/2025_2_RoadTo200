@@ -1,6 +1,5 @@
 import { Actions } from '../../actions.js';
 import { dispatcher } from '../../Dispatcher.js';
-import router from '../../../app.js';
 
 /* global Handlebars */
 
@@ -93,7 +92,10 @@ export class ProfileMenu {
                         });
 
                         const path = route === 'me' ? '/me' : `/${route}`;
-                        router.navigateTo(path);
+                        dispatcher.process({
+                            type: Actions.NAVIGATE_TO,
+                            payload: { path }
+                        });
                     }
                 });
             });

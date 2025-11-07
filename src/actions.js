@@ -27,6 +27,10 @@ export const Actions = {
 
     // menu
     RENDER_MENU: "RENDER_MENU",
+    
+    // navigation
+    NAVIGATE_TO: "NAVIGATE_TO",
+    LOAD_ROUTE: "LOAD_ROUTE",
 
     // cards
     RENDER_CARDS: "RENDER_CARDS",

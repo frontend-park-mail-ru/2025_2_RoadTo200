@@ -11,8 +11,9 @@ import './src/components/Menu/menuStore.js';
 import './src/components/AuthBackground/authBackgroundStore.js';
 import './src/components/MatchCard/matchCardStore.js';
 import './src/components/ProfileMenu/profileMenuStore.js';
+import navigationStore, { Route } from './src/navigation/navigationStore.js';
 
-import { Route, Router} from "./router.js";
+import { Router } from "./router.js";
 import { home } from "./src/pages/homePage/home.js";
 import { main } from "./src/pages/mainPage/main.js";
 import { login } from "./src/pages/loginPage/login.js";
@@ -43,6 +44,7 @@ const routes = [
     new Route('/settings', settings, true)
 ];
 
-const router = new Router(routes);
+// Инициализируем роутер с navigationStore
+const router = new Router(routes, navigationStore);
 
 export default router;

@@ -1,7 +1,6 @@
 import { Actions } from "../../actions.js";
 import { dispatcher } from "../../Dispatcher.js";
 import { matchProfile } from "./matchProfile.js";
-import router from "../../../app.js";
 
 class MatchProfileStore {
     matchData = {};
@@ -37,8 +36,11 @@ class MatchProfileStore {
             this.matchesCache.set(matchId, userData);
         }
         
-        // Используем роутер для навигации
-        router.navigateTo(`/matches/${matchId}`);
+        // Используем dispatcher для навигации
+        dispatcher.process({
+            type: Actions.NAVIGATE_TO,
+            payload: { path: `/matches/${matchId}` }
+        });
     }
 
     async renderMatchProfile(payload) {

@@ -1,7 +1,6 @@
 import { Actions } from "../../actions.js";
 import { dispatcher } from "../../Dispatcher.js";
 import { login } from "./login.js"
-import router from "../../../app.js";
 
 import AuthApi from "../../apiHandler/authApi.js"
 
@@ -31,7 +30,10 @@ class LoginStore {
         try {
             const data = await AuthApi.login(email, password);
             
-            router.navigateTo('/');
+            dispatcher.process({
+                type: Actions.NAVIGATE_TO,
+                payload: { path: '/' }
+            });
         } catch (error) {
             console.error('Login error:', error);
             
