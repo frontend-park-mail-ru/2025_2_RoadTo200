@@ -14,6 +14,7 @@ import './src/components/AuthBackground/authBackgroundStore.js';
 import './src/components/SettingsMenu/settingsMenuStore.js';
 
 /**
+ * клссс Router для инициализации навигации и глобальных компонентов
  */
 export class Router {
     constructor(routes, navigationStore) {
