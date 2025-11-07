@@ -1,14 +1,28 @@
-import { Actions } from '../../actions.js';
-import { dispatcher } from '../../Dispatcher.js';
-
-import SmallHeart from '../SmallHeart/smallHeart.js';
-
-/* global Handlebars */
+import { Actions } from '../../actions';
+import { dispatcher } from '../../Dispatcher';
+import SmallHeart from '../SmallHeart/smallHeart';
+import type { PageComponent } from '../../navigation/navigationStore';
 
 const TEMPLATE_PATH = '/src/components/Menu/menu.hbs';
 const SVG_PATH_BASE = '/src/assets/menu/';
 
-const MENU_ITEMS_DATA = [
+interface MenuItem {
+    name: string;
+    icon: string;
+    route: string;
+    actionType: string;
+}
+
+interface MenuItemWithPath extends MenuItem {
+    isActive: boolean;
+    path: string;
+}
+
+interface MenuData {
+    currentRoute?: string;
+}
+
+const MENU_ITEMS_DATA: MenuItem[] = [
     { name: 'Главная', icon: 'home.svg', route: 'main', actionType: Actions.RENDER_MAIN },
     { name: 'Анкеты', icon: 'explore.svg', route: 'cards', actionType: Actions.RENDER_CARDS },
     { name: 'Мэтчи', icon: 'matches.svg', route: 'matches', actionType: Actions.RENDER_MATCHES },
@@ -16,7 +30,7 @@ const MENU_ITEMS_DATA = [
     { name: 'Моя Анкета', icon: 'myCard.svg', route: 'me', actionType: Actions.RENDER_MYCARD },
 ];
 
-const fetchTemplate = async (path) => {
+const fetchTemplate = async (path: string): Promise<string> => {
     try {
         const response = await fetch(path);
         if (!response.ok) {
@@ -25,21 +39,23 @@ const fetchTemplate = async (path) => {
         return await response.text();
     } catch (error) {
         console.error('Ошибка загрузки шаблона меню:', error);
-        return '<div></div>'; // Return empty div instead of empty string
+        return '<div></div>';
     }
 };
 
-export class Menu{
-    parent;
+export class Menu implements PageComponent {
+    parent: HTMLElement | null;
 
-    constructor(parent) {
+    constructor(parent: HTMLElement | null) {
         this.parent = parent;
     }
 
-    async render(menuData = {}){
+    async render(menuData: MenuData = {}): Promise<void> {
+        if (!this.parent) return;
+
         const { currentRoute = 'main' } = menuData;
 
-        const menuItems = MENU_ITEMS_DATA.map(item => {
+        const menuItems: MenuItemWithPath[] = MENU_ITEMS_DATA.map(item => {
             const path = item.route === 'main' ? '/' : `/${item.route}`;
             return {
                 ...item,
@@ -59,18 +75,21 @@ export class Menu{
         this.initEventListeners();
     }
 
-    initEventListeners() {
+    private initEventListeners(): void {
         if (typeof window !== 'undefined') {
             if (!this.parent) return;
             const sidebar = this.parent.querySelector('.sidebar');
-            if (!sidebar) return; // template may be empty or not contain .sidebar
+            if (!sidebar) return;
 
             sidebar.addEventListener('click', (event) => {
-                const menuItem = event.target.closest('.sidebar__item');
+                const target = event.target as HTMLElement;
+                const menuItem = target.closest('.sidebar__item') as HTMLElement | null;
                 if (menuItem) {
                     event.preventDefault(); 
                     
                     const clickedRoute = menuItem.dataset.route;
+                    if (!clickedRoute) return;
+
                     const itemData = MENU_ITEMS_DATA.find(item => item.route === clickedRoute);
 
                     if (itemData && itemData.actionType) {
@@ -81,9 +100,9 @@ export class Menu{
                             payload: { route: clickedRoute } 
                         });
 
-                        dispatcher.process({
+                        dispatcher.process({ 
                             type: Actions.NAVIGATE_TO,
-                            payload: { path }
+                            payload: { path } 
                         });
                     }
                 }

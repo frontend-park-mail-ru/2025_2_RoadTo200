@@ -1,34 +1,49 @@
-import { Actions } from '../../actions.js';
-import { dispatcher } from '../../Dispatcher.js';
-import { settings } from './settings.js';
-import ProfileApi from '../../apiHandler/profileApi.js';
+import { Actions, type Action } from '@/actions';
+import { dispatcher, type Store } from '@/Dispatcher';
+import { settings } from './settings';
+import ProfileApi from '@/apiHandler/profileApi';
 
-class SettingsStore {
-    currentTab = 'profile';
+interface ProfileData {
+    name: string;
+    birthdate: string;
+    email: string;
+}
 
-    profileData = {};
+class SettingsStore implements Store {
+    currentTab: string = 'profile';
+    profileData: ProfileData = {
+        name: '',
+        birthdate: '',
+        email: ''
+    };
 
     constructor() {
         dispatcher.register(this);
     }
 
-    async handleAction(action) {
+    async handleAction(action: Action): Promise<void> {
         switch (action.type) {
             case Actions.RENDER_SETTINGS:
-                await this.renderSettings(action.payload);
+                await this.renderSettings(action.payload as { tab?: string } | undefined);
                 break;
 
             case Actions.SWITCH_SETTINGS_TAB:
-                this.currentTab = action.payload?.tab || 'profile';
-                this.updateView();
+                if (action.payload) {
+                    this.currentTab = (action.payload as { tab?: string }).tab || 'profile';
+                    this.updateView();
+                }
                 break;
 
             case Actions.UPDATE_PROFILE_SETTINGS:
-                await this.updateProfileSettings(action.payload);
+                if (action.payload) {
+                    await this.updateProfileSettings(action.payload as { name: string; birthdate: string; email: string });
+                }
                 break;
 
             case Actions.CHANGE_PASSWORD:
-                await this.changePassword(action.payload);
+                if (action.payload) {
+                    await this.changePassword(action.payload as { oldPassword: string; newPassword: string; confirmPassword: string });
+                }
                 break;
 
             case Actions.DELETE_ACCOUNT:
@@ -40,7 +55,7 @@ class SettingsStore {
         }
     }
 
-    async renderSettings(payload) {
+    private async renderSettings(payload: { tab?: string } | undefined): Promise<void> {
         const container = document.getElementById('content-container');
         if (!container) {
             return;
@@ -49,7 +64,7 @@ class SettingsStore {
         settings.parent = container;
 
         try {
-            const response = await ProfileApi.getProfile();
+            const response = await ProfileApi.getProfile() as any;
             console.log('Settings: Profile response:', response);
             
             const user = response.user || {};
@@ -63,7 +78,6 @@ class SettingsStore {
             this.profileData = { name: '', birthdate: '', email: '' };
         }
 
-        
         if (payload && payload.tab) {
             this.currentTab = payload.tab;
         }
@@ -71,7 +85,7 @@ class SettingsStore {
         await settings.render(this.profileData, this.currentTab);
     }
     
-    formatDate(dateString) {
+    private formatDate(dateString: string): string {
         const date = new Date(dateString);
         const day = String(date.getDate()).padStart(2, '0');
         const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -79,13 +93,13 @@ class SettingsStore {
         return `${day}.${month}.${year}`;
     }
 
-    updateView() {
+    private updateView(): void {
         settings.clearErrors();
         settings.renderContent(this.currentTab, this.profileData);
     }
 
-    async updateProfileSettings({ name, birthdate, email }) {
-        const errors = {};
+    private async updateProfileSettings({ name, birthdate, email }: { name: string; birthdate: string; email: string }): Promise<void> {
+        const errors: Record<string, string> = {};
         settings.clearErrors();
 
         if (!name) {
@@ -114,7 +128,7 @@ class SettingsStore {
         }
 
         try {
-            await ProfileApi.updateProfileInfo({ name, email });
+            await ProfileApi.updateProfileInfo({ name });
             console.log('Profile settings updated successfully');
             
             this.profileData = { name, birthdate, email };
@@ -125,8 +139,8 @@ class SettingsStore {
         }
     }
 
-    async changePassword({ oldPassword, newPassword, confirmPassword }) {
-        const errors = {};
+    private async changePassword({ oldPassword, newPassword, confirmPassword }: { oldPassword: string; newPassword: string; confirmPassword: string }): Promise<void> {
+        const errors: Record<string, string> = {};
         settings.clearErrors();
 
         if (!oldPassword) {
@@ -169,11 +183,11 @@ class SettingsStore {
         }
     }
 
-    async deleteAccount() {
+    private async deleteAccount(): Promise<void> {
         try {
             await ProfileApi.deleteAccount();
             
-            dispatcher.process({
+            await dispatcher.process({
                 type: Actions.NAVIGATE_TO,
                 payload: { path: '/login' }
             });

@@ -1,44 +1,35 @@
-import { dispatcher } from '../../Dispatcher.js';
-import { Actions } from '../../actions.js';
+import { dispatcher } from '../../Dispatcher';
+import { Actions, Action } from '../../actions';
+import { menu } from './menu';
+import type { Store } from '../../Dispatcher';
 
-import { menu } from './menu.js'; 
-
-class MenuStore{
-    currentRoute; 
-    
-    menuComponent; 
+class MenuStore implements Store {
+    private currentRoute = 'main';
+    private menuComponent = menu;
 
     constructor() {
-
-        this.currentRoute = 'main';
-        
         dispatcher.register(this);
-
-        this.menuComponent = menu;
-        
     }
 
-    async handleAction(action) {
+    async handleAction(action: Action): Promise<void> {
         switch (action.type) {
             case Actions.RENDER_MENU:
-
-                
-                if (action.payload && action.payload.route) {
-                    this.currentRoute = action.payload.route;
+                if (action.payload && (action.payload as { route?: string }).route) {
+                    this.currentRoute = (action.payload as { route: string }).route;
                 } else if (typeof window !== 'undefined') {
                     const path = window.location.pathname || '/';
                     this.currentRoute = path === '/' ? 'main' : path.replace(/^\//, '').split('/')[0];
                 }
                 await this.renderMenu();
                 break;
-            case Actions.RENDER_MAIN: //?? 
+            case Actions.RENDER_MAIN:
             case Actions.RENDER_CARDS:
             case Actions.RENDER_MATCHES:
             case Actions.RENDER_CHATS:
             case Actions.RENDER_MYCARD:
             case Actions.RENDER_MATCH_PROFILE:
-                if (action.payload && action.payload.route) {
-                    this.currentRoute = action.payload.route;
+                if (action.payload && (action.payload as { route?: string }).route) {
+                    this.currentRoute = (action.payload as { route: string }).route;
                     await this.renderMenu();
                 }
                 break;
@@ -48,14 +39,12 @@ class MenuStore{
         }
     }
 
-    async renderMenu() {
-
+    private async renderMenu(): Promise<void> {
         const menuData = {
             currentRoute: this.currentRoute
         };
         
         await this.menuComponent.render(menuData);
-       
     }
 }
 

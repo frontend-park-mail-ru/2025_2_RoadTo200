@@ -1,35 +1,39 @@
-import { dispatcher } from '../../Dispatcher.js';
-import { Actions } from '../../actions.js';
-import { profileMenu } from './profileMenu.js';
-import AuthApi from '../../apiHandler/authApi.js';
+import { dispatcher } from '../../Dispatcher';
+import { Actions, Action } from '../../actions';
+import { profileMenu } from './profileMenu';
+import AuthApi from '../../apiHandler/authApi';
+import type { Store } from '../../Dispatcher';
 
-class ProfileMenuStore {
-    user;
+interface User {
+    name?: string;
+    email?: string;
+    [key: string]: unknown;
+}
 
-    isVisible;
-
-    profileMenuComponent;
+class ProfileMenuStore implements Store {
+    private user: User | null = null;
+    private isVisible = false;
+    private profileMenuComponent = profileMenu;
 
     constructor() {
-        this.user = null;
-        this.isVisible = false;
-        
         dispatcher.register(this);
-        this.profileMenuComponent = profileMenu;
     }
 
-    async handleAction(action) {
+    async handleAction(action: Action): Promise<void> {
+        console.log('ProfileMenuStore received action:', action.type);
+        
         switch (action.type) {
             case Actions.RENDER_PROFILE_MENU:
                 await this.renderProfileMenu();
                 break;
 
             case Actions.TOGGLE_PROFILE_MENU:
-                await this.toggleMenu(action.payload?.isVisible);
+                console.log('Toggle profile menu with payload:', action.payload);
+                await this.toggleMenu((action.payload as { isVisible?: boolean } | undefined)?.isVisible);
                 break;
 
             case Actions.AUTH_STATE_UPDATED:
-                this.user = action.payload?.user || null;
+                this.user = (action.payload as { user?: User | null } | undefined)?.user || null;
                 if (this.isVisible) {
                     await this.renderProfileMenu();
                 }
@@ -40,11 +44,11 @@ class ProfileMenuStore {
         }
     }
 
-    async renderProfileMenu() {
+    private async renderProfileMenu(): Promise<void> {
         if (!this.user) {
             try {
                 const response = await AuthApi.checkAuth();
-                this.user = response.user || null;
+                this.user = response.user as User | null || null;
             } catch (error) {
                 this.user = null;
             }
@@ -58,13 +62,15 @@ class ProfileMenuStore {
         await this.profileMenuComponent.render(menuData);
     }
 
-    async toggleMenu(visible) {
+    private async toggleMenu(visible?: boolean): Promise<void> {
         const shouldBeVisible = visible !== undefined ? visible : !this.isVisible;
+        
+        console.log('toggleMenu called, shouldBeVisible:', shouldBeVisible, 'current isVisible:', this.isVisible);
         
         if (shouldBeVisible && !this.user) {
             try {
                 const response = await AuthApi.checkAuth();
-                this.user = response.user || null;
+                this.user = response.user as User | null || null;
             } catch (error) {
                 this.user = null;
             }
@@ -72,6 +78,7 @@ class ProfileMenuStore {
         }
         
         this.isVisible = shouldBeVisible;
+        console.log('Calling profileMenuComponent.toggle with:', this.isVisible);
         this.profileMenuComponent.toggle(this.isVisible);
     }
 }

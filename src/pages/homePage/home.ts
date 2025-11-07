@@ -1,20 +1,27 @@
 import Handlebars from 'handlebars';
-import { dispatcher } from '../../Dispatcher.js';
-import { Actions } from '../../actions.js';
+import { dispatcher } from '@/Dispatcher';
+import { Actions } from '@/actions';
 
-class Home {
-    parent;
-    selectedActivities = [];
+interface Activity {
+    id: string;
+    name: string;
+    icon: string;
+}
 
-    async getTemplate() {
-        return await fetch('./src/pages/homePage/home.hbs').then(res => res.text());
+export class Home {
+    parent: HTMLElement | null = null;
+    selectedActivities: string[] = [];
+
+    async getTemplate(): Promise<string> {
+        const response = await fetch('./src/pages/homePage/home.hbs');
+        return response.text();
     }
 
-    async render() {
+    async render(): Promise<void> {
         const templateString = await this.getTemplate();
         const template = Handlebars.compile(templateString);
         
-        const activities = [
+        const activities: Activity[] = [
             { id: 'workout', name: 'Тренировка', icon: './src/assets/ActivityCircleSVG/fluent_run-20-regular.svg' },
             { id: 'fun', name: 'Повеселиться', icon: './src/assets/ActivityCircleSVG/smile.svg' },
             { id: 'party', name: 'Вечеринка', icon: './src/assets/ActivityCircleSVG/hugeicons_party.svg' },
@@ -33,16 +40,17 @@ class Home {
             this.parent.innerHTML = html;
             this.attachEventListeners();
         }
-        
-        return html;
     }
 
-    attachEventListeners() {
+    private attachEventListeners(): void {
+        if (!this.parent) return;
+
         const activityItems = this.parent.querySelectorAll('.home-page__activity-item');
         
         activityItems.forEach(item => {
             item.addEventListener('click', () => {
-                const activityId = item.dataset.activityId;
+                const activityId = (item as HTMLElement).dataset.activityId;
+                if (!activityId) return;
                 
                 if (item.classList.contains('home-page__activity-item--selected')) {
                     item.classList.remove('home-page__activity-item--selected');
@@ -54,7 +62,7 @@ class Home {
             });
         });
         
-        const submitButton = this.parent.querySelector('#submit-activities');
+        const submitButton = this.parent.querySelector('#submit-activities') as HTMLButtonElement | null;
         if (submitButton) {
             submitButton.addEventListener('click', () => {
                 console.log('Selected activities:', this.selectedActivities);

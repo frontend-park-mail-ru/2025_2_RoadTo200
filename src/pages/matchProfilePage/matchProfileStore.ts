@@ -1,49 +1,66 @@
-import { Actions } from "../../actions.js";
-import { dispatcher } from "../../Dispatcher.js";
-import { matchProfile } from "./matchProfile.js";
+import { Actions, type Action } from '@/actions';
+import { dispatcher, type Store } from '@/Dispatcher';
+import { matchProfile } from './matchProfile';
 
-class MatchProfileStore {
-    matchData = {};
+interface PhotoCard {
+    id: string;
+    image: string;
+    isUserPhoto: boolean;
+    isPrimary?: boolean;
+}
 
-    currentMatchId = null;
-    
-    // Кэш данных мэтчей для быстрого доступа
-    matchesCache = new Map();
+interface MatchProfileData {
+    id: string;
+    name: string;
+    age: number | null;
+    description: string;
+    musician: string;
+    quote: string;
+    interests: any[];
+    photoCards: PhotoCard[];
+}
+
+class MatchProfileStore implements Store {
+    matchData: MatchProfileData | null = null;
+    currentMatchId: string | null = null;
+    matchesCache: Map<string, any> = new Map();
 
     constructor() {
         dispatcher.register(this);
     }
 
-    async handleAction(action) {
+    async handleAction(action: Action): Promise<void> {
         switch (action.type) {
             case Actions.RENDER_MATCH_PROFILE:
-                await this.renderMatchProfile(action.payload);
+                if (action.payload) {
+                    await this.renderMatchProfile(action.payload as { matchId: string });
+                }
                 break;
             case Actions.MATCH_CARD_CLICK:
-                await this.handleMatchCardClick(action.payload);
+                if (action.payload) {
+                    await this.handleMatchCardClick(action.payload as { matchId: string; userData: any });
+                }
                 break;
             default:
                 break;
         }
     }
 
-    async handleMatchCardClick(payload) {
+    private async handleMatchCardClick(payload: { matchId: string; userData: any }): Promise<void> {
         const { matchId, userData } = payload;
         if (!matchId) return;
         
-        // Сохраняем данные в кэш
         if (userData) {
             this.matchesCache.set(matchId, userData);
         }
         
-        // Используем dispatcher для навигации
-        dispatcher.process({
+        await dispatcher.process({
             type: Actions.NAVIGATE_TO,
             payload: { path: `/matches/${matchId}` }
         });
     }
 
-    async renderMatchProfile(payload) {
+    private async renderMatchProfile(payload: { matchId: string }): Promise<void> {
         try {
             const { matchId } = payload;
             if (!matchId) {
@@ -58,24 +75,21 @@ class MatchProfileStore {
                 matchProfile.parent = contentContainer;
             }
 
-            // Получаем данные из кэша
             const userData = this.matchesCache.get(matchId);
             
             if (!userData) {
                 console.error('No user data found in cache for matchId:', matchId);
-                // Можно показать ошибку или редирект на /matches
                 return;
             }
 
-            // Преобразуем данные в нужный формат
             this.matchData = {
                 id: userData.id,
                 name: userData.name || "",
                 age: this.calculateAge(userData.birth_date),
                 description: userData.bio || "Информация отсутствует",
-                musician: "Не указано", // TODO: добавить в профиль если нужно
-                quote: "Не указано", // TODO: добавить в профиль если нужно
-                interests: [], // TODO: добавить интересы если нужно
+                musician: "Не указано",
+                quote: "Не указано",
+                interests: [],
                 photoCards: this.transformImagesToCards(userData.images || [])
             };
 
@@ -85,7 +99,7 @@ class MatchProfileStore {
         }
     }
     
-    calculateAge(birthDate) {
+    private calculateAge(birthDate: string | undefined): number | null {
         if (!birthDate) return null;
         const birth = new Date(birthDate);
         const today = new Date();
@@ -97,15 +111,14 @@ class MatchProfileStore {
         return age;
     }
 
-    transformImagesToCards(images) {
-        const photoCards = images.map((imageUrl, index) => ({
+    private transformImagesToCards(images: string[]): PhotoCard[] {
+        const photoCards: PhotoCard[] = images.map((imageUrl, index) => ({
             id: `photo-${index}`,
             image: imageUrl,
             isUserPhoto: true,
             isPrimary: index === 0
         }));
 
-        // Fill up to 4 cards
         while (photoCards.length < 4) {
             photoCards.push({
                 id: `placeholder-${photoCards.length}`,

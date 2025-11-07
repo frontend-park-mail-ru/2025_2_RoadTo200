@@ -18,7 +18,6 @@ const STATIC_ASSETS = isDevelopment ? [] : [
     '/src/components/Menu/menu.scss',
     '/src/components/ProfileMenu/profileMenu.scss',
     '/src/components/SmallHeart/smallHeart.scss',
-    '/src/components/BigHeart/bigHeart.scss',
     '/src/components/Card/card.scss',
     '/src/components/MatchCard/matchCard.scss',
     '/src/components/CircleActivity/circleActivity.scss',

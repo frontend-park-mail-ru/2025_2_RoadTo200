@@ -1,18 +1,36 @@
-import { Actions } from '../../actions.js';
-import { dispatcher } from '../../Dispatcher.js';
-
-/* global Handlebars */
+import { Actions } from '../../actions';
+import { dispatcher } from '../../Dispatcher';
+import type { PageComponent } from '../../navigation/navigationStore';
 
 const TEMPLATE_PATH = '/src/components/ProfileMenu/profileMenu.hbs';
 const SVG_PATH_BASE = '/src/assets/menu/';
 
-const MENU_ITEMS_DATA = [
+interface ProfileMenuItem {
+    name: string;
+    icon: string;
+    route: string | null;
+    action: string | null;
+    isLogout: boolean;
+}
+
+interface User {
+    name?: string;
+    email?: string;
+    [key: string]: unknown;
+}
+
+interface ProfileMenuData {
+    user?: User | null;
+    isVisible?: boolean;
+}
+
+const MENU_ITEMS_DATA: ProfileMenuItem[] = [
     { name: 'Моя Анкета', icon: 'profileMenu__profile.svg', route: 'me', action: null, isLogout: false },
     { name: 'Настройки', icon: 'settings.svg', route: 'settings', action: null, isLogout: false },
     { name: 'Выйти', icon: 'exit.svg', route: null, action: 'logout', isLogout: true },
 ];
 
-const fetchTemplate = async (path) => {
+const fetchTemplate = async (path: string): Promise<string> => {
     try {
         const response = await fetch(path);
         if (!response.ok) {
@@ -25,17 +43,17 @@ const fetchTemplate = async (path) => {
     }
 };
 
-export class ProfileMenu {
-    parent;
+export class ProfileMenu implements PageComponent {
+    parent: HTMLElement | null;
+    private isVisible = false;
 
-    isVisible;
-
-    constructor(parent) {
+    constructor(parent: HTMLElement | null) {
         this.parent = parent;
-        this.isVisible = false;
     }
 
-    async render(menuData = {}) {
+    async render(menuData: ProfileMenuData = {}): Promise<void> {
+        if (!this.parent) return;
+
         const { user, isVisible = false } = menuData;
 
         const userName = user?.name || user?.email?.split('@')[0] || 'Пользователь';
@@ -57,8 +75,8 @@ export class ProfileMenu {
         this.initEventListeners();
     }
 
-    initEventListeners() {
-        if (typeof window !== 'undefined') {
+    private initEventListeners(): void {
+        if (typeof window !== 'undefined' && this.parent) {
             const overlay = this.parent.querySelector('#profileMenuOverlay');
             if (!overlay) return;
 
@@ -76,7 +94,9 @@ export class ProfileMenu {
                 item.addEventListener('click', (event) => {
                     event.preventDefault();
                     
-                    const { route, action } = item.dataset;
+                    const element = item as HTMLElement;
+                    const route = element.dataset.route;
+                    const action = element.dataset.action;
 
                     if (action === 'logout') {
                         dispatcher.process({ type: Actions.REQUEST_LOGOUT });
@@ -102,16 +122,29 @@ export class ProfileMenu {
         }
     }
 
-    toggle(visible) {
-        const overlay = this.parent.querySelector('#profileMenuOverlay');
+    toggle(visible: boolean): void {
+        console.log('ProfileMenu.toggle called with:', visible);
+        
+        if (!this.parent) {
+            console.warn('ProfileMenu parent is null');
+            return;
+        }
+
+        const overlay = this.parent.querySelector('#profileMenuOverlay') as HTMLElement | null;
+        console.log('Found overlay:', !!overlay);
+        
         if (overlay) {
             if (visible) {
                 overlay.classList.remove('hidden');
+                overlay.classList.add('profile-menu-overlay--active');
             } else {
                 overlay.classList.add('hidden');
+                overlay.classList.remove('profile-menu-overlay--active');
             }
-            this.isVisible = visible;
+            console.log('Overlay classes:', overlay.className);
         }
+
+        this.isVisible = visible;
     }
 }
 

@@ -1,13 +1,15 @@
-/* global Handlebars */
+import type { PageComponent } from '../../navigation/navigationStore';
 
 const TEMPLATE_PATH = '/src/components/OfflineBanner/offlineBanner.hbs';
 
+interface BannerData {
+    isOnline?: boolean;
+}
+
 /**
- * Загрузка шаблона.
- * @param {string} path Путь до шаблона.
- * @returns {Promise<string>} Шаблон в виде строки.
+ * Загрузка шаблона
  */
-const fetchTemplate = async (path) => {
+const fetchTemplate = async (path: string): Promise<string> => {
     try {
         const response = await fetch(path);
         if (!response.ok) {
@@ -21,20 +23,21 @@ const fetchTemplate = async (path) => {
 };
 
 /**
- * Объект offline баннера.
+ * Компонент offline баннера
  */
-export class OfflineBanner {
-    parent;
+export class OfflineBanner implements PageComponent {
+    parent: HTMLElement | null;
 
-    constructor(parent) {
+    constructor(parent: HTMLElement | null) {
         this.parent = parent;
     }
 
     /**
-     * Отрисовывает компонент offline баннера.
-     * @returns {Promise<void>}
+     * Отрисовывает компонент offline баннера
      */
-    async render(bannerData = {}) {
+    async render(bannerData: BannerData = {}): Promise<void> {
+        if (!this.parent) return;
+
         const { isOnline } = bannerData;
         
         const templateString = await fetchTemplate(TEMPLATE_PATH);
@@ -46,9 +49,11 @@ export class OfflineBanner {
     }
 
     /**
-     * Показывает баннер (убирает класс hidden).
+     * Показывает баннер (убирает класс hidden)
      */
-    show() {
+    show(): void {
+        if (!this.parent) return;
+
         const banner = this.parent.querySelector('.offline-banner');
         if (banner) {
             banner.classList.remove('offline-banner--hidden');
@@ -56,9 +61,11 @@ export class OfflineBanner {
     }
 
     /**
-     * Скрывает баннер (добавляет класс hidden).
+     * Скрывает баннер (добавляет класс hidden)
      */
-    hide() {
+    hide(): void {
+        if (!this.parent) return;
+
         const banner = this.parent.querySelector('.offline-banner');
         if (banner) {
             banner.classList.add('offline-banner--hidden');

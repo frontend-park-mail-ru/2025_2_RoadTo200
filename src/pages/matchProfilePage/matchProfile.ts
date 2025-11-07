@@ -1,25 +1,34 @@
-import { dispatcher } from '../../Dispatcher.js';
-import { Actions } from '../../actions.js';
-
-/* global Handlebars */
+import Handlebars from 'handlebars';
+import { dispatcher } from '@/Dispatcher';
+import { Actions } from '@/actions';
 
 const TEMPLATE_PATH = '/src/pages/matchProfilePage/matchProfile.hbs';
 
-const fetchTemplate = async (path) => {
+interface MatchProfileData {
+    id: string;
+    name: string;
+    age: number | null;
+    description: string;
+    musician: string;
+    quote: string;
+    interests: any[];
+    photoCards: any[];
+}
+
+const fetchTemplate = async (path: string): Promise<string> => {
     const response = await fetch(path);
     if (!response.ok) throw new Error('Ошибка: не удалось загрузить шаблон');
-    const text = await response.text();
-    return text;
+    return await response.text();
 };
 
 export class MatchProfilePage {
-    parent = null;
+    parent: HTMLElement | null = null;
 
-    constructor(parent) {
+    constructor(parent: HTMLElement | null) {
         this.parent = parent;
     }
 
-    async render(data) {
+    async render(data: MatchProfileData): Promise<void> {
         if (!this.parent) {
             console.warn('MatchProfilePage: parent not assigned');
             return;
@@ -31,14 +40,15 @@ export class MatchProfilePage {
         this.addEventListeners(); 
     }
 
-    addEventListeners() {
+    private addEventListeners(): void {
+        if (!this.parent) return;
+
         dispatcher.process({ type: Actions.RENDER_MENU, payload: { route: 'matches' } });
 
-        const chatButton = this.parent.querySelector('.chat-button');
+        const chatButton = this.parent.querySelector('.match-details__chat-button');
         if (chatButton) {
             chatButton.addEventListener('click', (e) => {
                 e.preventDefault();
-                // TODO: Implement chat navigation
                 console.log('Navigate to chat');
             });
         }

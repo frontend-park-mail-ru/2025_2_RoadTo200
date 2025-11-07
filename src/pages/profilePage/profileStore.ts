@@ -1,54 +1,91 @@
-import { Actions } from "../../actions.js";
-import { dispatcher } from "../../Dispatcher.js";
-import { profile } from "./profile.js";
-import ProfileApi from "../../apiHandler/profileApi.js";
+import { Actions, type Action } from '@/actions';
+import { dispatcher, type Store } from '@/Dispatcher';
+import { profile } from './profile';
+import ProfileApi from '@/apiHandler/profileApi';
 
-class ProfileStore {
-    profileData = {};
+interface PhotoCard {
+    id: string | number;
+    image: string;
+    isUserPhoto: boolean;
+    isPrimary?: boolean;
+}
+
+interface Interest {
+    id: number;
+    name: string;
+}
+
+interface ProfileData {
+    description: string;
+    musician: string;
+    quote: string;
+    name: string;
+    age: string | number;
+    interests: Interest[];
+    photoCards: PhotoCard[];
+}
+
+class ProfileStore implements Store {
+    profileData: ProfileData = {
+        description: '',
+        musician: '',
+        quote: '',
+        name: '',
+        age: '',
+        interests: [],
+        photoCards: []
+    };
 
     constructor() {
         dispatcher.register(this);
     }
 
-    async handleAction(action) {
+    async handleAction(action: Action): Promise<void> {
         switch (action.type) {
             case Actions.RENDER_MYCARD:
                 await this.renderProfile();
                 break;
             case Actions.UPDATE_PROFILE_FIELD:
-                await this.updateProfileField(action.payload);
+                if (action.payload) {
+                    await this.updateProfileField(action.payload as { field: string; value: string });
+                }
                 break;
             case Actions.DELETE_PHOTO:
-                await this.deletePhoto(action.payload);
+                if (action.payload) {
+                    await this.deletePhoto(action.payload as { photoId: string });
+                }
                 break;
             case Actions.ADD_PHOTO:
                 await this.addPhoto();
                 break;
             case Actions.ADD_INTEREST:
-                await this.addInterest(action.payload);
+                if (action.payload) {
+                    await this.addInterest(action.payload as { name: string });
+                }
                 break;
             case Actions.DELETE_INTEREST:
-                await this.deleteInterest(action.payload);
+                if (action.payload) {
+                    await this.deleteInterest(action.payload as { id: number });
+                }
                 break;
             default:
                 break;
         }
     }
 
-    async renderProfile() {
+    private async renderProfile(): Promise<void> {
         try {
-            const response = await ProfileApi.getProfile();
+            const response = await ProfileApi.getProfile() as any;
             
             console.log('Profile API response:', response);
 
-            // Бекенд возвращает { user: {...}, preferences: {...}, photos: [...] }
             const user = response.user || {};
             const photos = response.photos || [];
 
             this.profileData = {
                 description: user.bio || "",
-                musician: "", // Нет в API
-                quote: "", // Нет в API
+                musician: "",
+                quote: "",
                 name: user.name || "",
                 age: user.birth_date ? this.calculateAge(user.birth_date) : "",
                 interests: [
@@ -64,13 +101,13 @@ class ProfileStore {
                 profile.parent = contentContainer;
             }
 
-            profile.render(this.profileData);
+            await profile.render(this.profileData);
         } catch (error) {
             console.error('Error loading profile:', error);
         }
     }
     
-    calculateAge(birthDate) {
+    private calculateAge(birthDate: string): number {
         const birth = new Date(birthDate);
         const today = new Date();
         let age = today.getFullYear() - birth.getFullYear();
@@ -81,10 +118,10 @@ class ProfileStore {
         return age;
     }
 
-    transformPhotosToCards(photos) {
-        const photoCards = photos.map(photo => ({
+    private transformPhotosToCards(photos: any[]): PhotoCard[] {
+        const photoCards: PhotoCard[] = photos.map(photo => ({
             id: photo.id,
-            image: photo.photo_url, // Бекенд возвращает photo_url, а не imageUrl
+            image: photo.photo_url,
             isUserPhoto: true,
             isPrimary: photo.is_primary || photo.display_order === 0 || false
         }));
@@ -100,18 +137,17 @@ class ProfileStore {
         return photoCards;
     }
 
-    async updateProfileField(payload) {
+    private async updateProfileField(payload: { field: string; value: string }): Promise<void> {
         try {
             const { field, value } = payload;
 
             if (!field || value === undefined) return;
 
-            // Маппинг полей фронтенда в поля бекенда
-            const fieldMapping = {
+            const fieldMapping: Record<string, string> = {
                 'description': 'bio',
                 'name': 'name',
-                'musician': 'bio', // Временно сохраняем в bio
-                'quote': 'bio'     // Временно сохраняем в bio
+                'musician': 'bio',
+                'quote': 'bio'
             };
 
             const backendField = fieldMapping[field] || field;
@@ -123,17 +159,15 @@ class ProfileStore {
 
             console.log('Profile field updated successfully');
 
-            // После успешного обновления перезагружаем профиль
             await this.renderProfile();
             
         } catch (error) {
             console.error('Error updating profile:', error);
-            // Показываем пользователю понятное сообщение
             console.error('Не удалось сохранить изменения');
         }
     }
 
-    async deletePhoto(payload) {
+    private async deletePhoto(payload: { photoId: string }): Promise<void> {
         try {
             const { photoId } = payload;
             if (!photoId || photoId === 'placeholder') {
@@ -147,8 +181,6 @@ class ProfileStore {
 
             console.log('Delete photo response:', response);
 
-            // Бекенд возвращает только { message: "..." }
-            // Нужно перезапросить профиль для получения актуального списка фото
             await this.renderProfile();
             
         } catch (error) {
@@ -156,7 +188,7 @@ class ProfileStore {
         }
     }
 
-    async addPhoto() {
+    private async addPhoto(): Promise<void> {
         try {
             const fileInput = document.createElement('input');
             fileInput.type = 'file';
@@ -164,7 +196,8 @@ class ProfileStore {
             fileInput.multiple = true;
 
             fileInput.onchange = async (e) => {
-                const files = Array.from(e.target.files);
+                const target = e.target as HTMLInputElement;
+                const files = Array.from(target.files || []);
                 if (files.length === 0) return;
 
                 try {
@@ -172,11 +205,9 @@ class ProfileStore {
 
                     console.log('Upload photo response:', response);
 
-                    // Бекенд возвращает { photos: [...] } - только загруженные фото
-                    // Нужно перезапросить профиль для получения всех фото
                     await this.renderProfile();
                     
-                } catch (error) {
+                } catch (error: any) {
                     console.error('Error uploading photo:', error);
                     let errorMessage = 'Ошибка при загрузке фотографий';
 
@@ -188,10 +219,8 @@ class ProfileStore {
                         } else if (error.message.includes('Необходима авторизация')) {
                             errorMessage = 'Сессия истекла. Пожалуйста, войдите снова';
                         }
-                        // Не показываем сырую ошибку с бекенда пользователю
                     }
 
-                    // Можно показать errorMessage пользователю через UI
                     console.error(errorMessage);
                 }
             };
@@ -202,7 +231,7 @@ class ProfileStore {
         }
     }
 
-    async addInterest(payload) {
+    private async addInterest(payload: { name: string }): Promise<void> {
         try {
             const { name } = payload;
             
@@ -210,8 +239,7 @@ class ProfileStore {
                 return;
             }
 
-            // Пока бекенд не поддерживает интересы, сохраняем локально
-            const newInterest = {
+            const newInterest: Interest = {
                 id: Date.now(),
                 name: name.trim()
             };
@@ -219,7 +247,6 @@ class ProfileStore {
             this.profileData.interests = this.profileData.interests || [];
             this.profileData.interests.push(newInterest);
             
-            // Перерендерим профиль
             await this.rerenderProfile();
             
             console.log('Interest added:', newInterest);
@@ -228,7 +255,7 @@ class ProfileStore {
         }
     }
 
-    async deleteInterest(payload) {
+    private async deleteInterest(payload: { id: number }): Promise<void> {
         try {
             const { id } = payload;
             
@@ -236,12 +263,10 @@ class ProfileStore {
                 return;
             }
             
-            // Удаляем интерес из локального состояния
             this.profileData.interests = this.profileData.interests.filter(
                 interest => interest.id !== id
             );
             
-            // Перерендерим профиль
             await this.rerenderProfile();
             
             console.log('Interest deleted:', id);
@@ -250,8 +275,7 @@ class ProfileStore {
         }
     }
 
-    async rerenderProfile() {
-        // Просто перерендерим без запроса к API
+    private async rerenderProfile(): Promise<void> {
         await profile.render(this.profileData);
     }
 }

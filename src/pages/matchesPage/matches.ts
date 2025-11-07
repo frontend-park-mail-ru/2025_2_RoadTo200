@@ -1,25 +1,40 @@
-import { dispatcher } from '../../Dispatcher.js';
-import { Actions } from '../../actions.js';
-import MatchCard from '../../components/MatchCard/matchCard.js';
+import Handlebars from 'handlebars';
+import { dispatcher } from '@/Dispatcher';
+import { Actions } from '@/actions';
+import MatchCard from '@/components/MatchCard/matchCard';
 
 const TEMPLATE_PATH = '/src/pages/matchesPage/matches.hbs';
 
-const fetchTemplate = async (path) => {
+interface MatchData {
+    matchId: string;
+    id: string;
+    name: string;
+    age: number | null;
+    image: string;
+    matchedAt: string;
+    expiresAt: string;
+    isNew: boolean;
+    isActive: boolean;
+    timer?: string;
+    isExpired?: boolean;
+    userData?: any;
+}
+
+const fetchTemplate = async (path: string): Promise<string> => {
     const response = await fetch(path);
     if (!response.ok) throw new Error('Ошибка: не удалось загрузить шаблон');
     return await response.text();
 };
 
 export class MatchesPage {
-    parent = null;
+    parent: HTMLElement | null = null;
+    matchesData: MatchData[] = [];
 
-    matchesData = [];
-
-    constructor(parent) {
+    constructor(parent: HTMLElement | null) {
         this.parent = parent;
     }
 
-    async render() {
+    async render(): Promise<void> {
         if (!this.parent) {
             console.warn('MatchesPage: parent not assigned');
             return;
@@ -32,7 +47,6 @@ export class MatchesPage {
             this.matchesData.map(match => MatchCard.render(match))
         );
 
-        // Объединяем массив HTML-строк в одну строку
         const matchesHtmlString = matchCardsHtml.join('');
 
         const renderedHtml = pageTemplate({
@@ -42,18 +56,19 @@ export class MatchesPage {
 
         this.parent.innerHTML = renderedHtml;
         this.addEventListeners();
-        dispatcher.process({ type: Actions.RENDER_MENU, payload: { route: 'matches' } });
+        await dispatcher.process({ type: Actions.RENDER_MENU, payload: { route: 'matches' } });
     }
 
-    addEventListeners() {
+    private addEventListeners(): void {
+        if (!this.parent) return;
+
         const matchCards = this.parent.querySelectorAll('.match-card');
         matchCards.forEach(card => {
             card.addEventListener('click', (e) => {
                 e.preventDefault();
-                const matchId = card.dataset.matchId;
+                const matchId = (card as HTMLElement).dataset.matchId;
                 if (!matchId) return;
                 
-                // Находим полные данные матча из matchesData
                 const matchData = this.matchesData.find(m => m.matchId === matchId || m.id === matchId);
                 
                 dispatcher.process({
@@ -63,13 +78,12 @@ export class MatchesPage {
                         userData: matchData ? matchData.userData : null
                     }
                 });
-
             });
         });
     }
 
-    async setMatches(matchesArr) {
-        this.matchesData = Array.isArray(matchesArr) ? matchesArr : Object.values(matchesArr || []);
+    async setMatches(matchesArr: MatchData[] | Record<string, MatchData>): Promise<void> {
+        this.matchesData = Array.isArray(matchesArr) ? matchesArr : Object.values(matchesArr || {});
         await this.render();
     }
 }

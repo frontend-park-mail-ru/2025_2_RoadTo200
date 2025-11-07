@@ -1,39 +1,54 @@
-import { dispatcher } from '../../Dispatcher.js';
-import { Actions } from '../../actions.js';
+import Handlebars from 'handlebars';
+import { dispatcher } from '@/Dispatcher';
+import { Actions } from '@/actions';
 
 const TEMPLATE_PATH = '/src/pages/settingsPage/settings.hbs';
 
-const fetchTemplate = async (path) => {
+interface ProfileData {
+    name?: string;
+    birthdate?: string;
+    email?: string;
+    preferences?: {
+        show_gender?: string;
+        age_min?: number;
+        age_max?: number;
+        max_distance?: number;
+        global_search?: boolean;
+    };
+}
+
+const fetchTemplate = async (path: string): Promise<string> => {
     const response = await fetch(path);
     if (!response.ok) throw new Error('Ошибка: не удалось загрузить шаблон настроек');
     return response.text();
 };
 
 export class SettingsPage {
-    constructor(parent) {
+    parent: HTMLElement | null;
+
+    constructor(parent: HTMLElement | null) {
         this.parent = parent;
     }
 
-    async render(profileData = {}, currentTab = 'profile') {
+    async render(profileData: ProfileData = {}, currentTab: string = 'profile'): Promise<void> {
         if (!this.parent) {
             console.warn('SettingsPage: parent not assigned');
             return;
         }
 
         const templateString = await fetchTemplate(TEMPLATE_PATH);
-        // eslint-disable-next-line no-undef
         const pageTemplate = Handlebars.compile(templateString);
         this.parent.innerHTML = pageTemplate({});
 
         this.renderContent(currentTab, profileData);
 
-        dispatcher.process({
+        await dispatcher.process({
             type: Actions.RENDER_SETTINGS_MENU,
             payload: { tab: currentTab }
         });
     }
 
-    renderContent(currentTab, profileData = {}) {
+    renderContent(currentTab: string, profileData: ProfileData = {}): void {
         const contentContainer = this.parent?.querySelector('#settingsContent');
         if (!contentContainer) {
             return;
@@ -59,7 +74,7 @@ export class SettingsPage {
         this.attachEventListeners(currentTab);
     }
 
-    createProfileTab(profileData) {
+    private createProfileTab(profileData: ProfileData): HTMLDivElement {
         const section = document.createElement('div');
         section.className = 'settings-section';
         section.innerHTML = `
@@ -72,7 +87,7 @@ export class SettingsPage {
         return section;
     }
 
-    createSecurityTab() {
+    private createSecurityTab(): HTMLDivElement {
         const section = document.createElement('div');
         section.className = 'settings-section';
         section.innerHTML = `
@@ -87,7 +102,7 @@ export class SettingsPage {
         return section;
     }
 
-    createFiltersTab(profileData) {
+    private createFiltersTab(profileData: ProfileData): HTMLDivElement {
         const preferences = profileData.preferences || {};
         const section = document.createElement('div');
         section.className = 'settings-section';
@@ -130,7 +145,7 @@ export class SettingsPage {
         return section;
     }
 
-    static createFormGroupHTML(label, type, id, value, errorId, placeholder = '') {
+    private static createFormGroupHTML(label: string, type: string, id: string, value: string | undefined, errorId: string, placeholder: string = ''): string {
         const placeholderAttr = placeholder ? `placeholder="${placeholder}"` : '';
         return `
             <div class="form-group">
@@ -143,18 +158,24 @@ export class SettingsPage {
         `;
     }
 
-    attachEventListeners(currentTab) {
+    private attachEventListeners(currentTab: string): void {
+        if (!this.parent) return;
+
         if (currentTab === 'profile') {
             const updateBtn = this.parent.querySelector('#updateProfileBtn');
             if (updateBtn) {
                 updateBtn.addEventListener('click', (e) => {
                     e.preventDefault();
+                    const nameInput = this.parent?.querySelector('#settingsName') as HTMLInputElement | null;
+                    const birthdateInput = this.parent?.querySelector('#settingsBirthdate') as HTMLInputElement | null;
+                    const emailInput = this.parent?.querySelector('#settingsEmail') as HTMLInputElement | null;
+                    
                     dispatcher.process({
                         type: Actions.UPDATE_PROFILE_SETTINGS,
                         payload: {
-                            name: this.parent.querySelector('#settingsName')?.value.trim(),
-                            birthdate: this.parent.querySelector('#settingsBirthdate')?.value.trim(),
-                            email: this.parent.querySelector('#settingsEmail')?.value.trim(),
+                            name: nameInput?.value.trim(),
+                            birthdate: birthdateInput?.value.trim(),
+                            email: emailInput?.value.trim(),
                         },
                     });
                 });
@@ -164,14 +185,20 @@ export class SettingsPage {
             if (updateFiltersBtn) {
                 updateFiltersBtn.addEventListener('click', (e) => {
                     e.preventDefault();
+                    const showGenderInput = this.parent?.querySelector('#showGender') as HTMLSelectElement | null;
+                    const ageMinInput = this.parent?.querySelector('#ageMin') as HTMLInputElement | null;
+                    const ageMaxInput = this.parent?.querySelector('#ageMax') as HTMLInputElement | null;
+                    const maxDistanceInput = this.parent?.querySelector('#maxDistance') as HTMLInputElement | null;
+                    const globalSearchInput = this.parent?.querySelector('#globalSearch') as HTMLInputElement | null;
+                    
                     dispatcher.process({
                         type: Actions.UPDATE_FILTER_SETTINGS,
                         payload: {
-                            show_gender: this.parent.querySelector('#showGender')?.value,
-                            age_min: parseInt(this.parent.querySelector('#ageMin')?.value, 10),
-                            age_max: parseInt(this.parent.querySelector('#ageMax')?.value, 10),
-                            max_distance: parseInt(this.parent.querySelector('#maxDistance')?.value, 10),
-                            global_search: this.parent.querySelector('#globalSearch')?.checked,
+                            show_gender: showGenderInput?.value,
+                            age_min: ageMinInput ? parseInt(ageMinInput.value, 10) : undefined,
+                            age_max: ageMaxInput ? parseInt(ageMaxInput.value, 10) : undefined,
+                            max_distance: maxDistanceInput ? parseInt(maxDistanceInput.value, 10) : undefined,
+                            global_search: globalSearchInput?.checked,
                         },
                     });
                 });
@@ -181,12 +208,16 @@ export class SettingsPage {
             if (changePasswordBtn) {
                 changePasswordBtn.addEventListener('click', (e) => {
                     e.preventDefault();
+                    const oldPasswordInput = this.parent?.querySelector('#oldPassword') as HTMLInputElement | null;
+                    const newPasswordInput = this.parent?.querySelector('#newPassword') as HTMLInputElement | null;
+                    const confirmPasswordInput = this.parent?.querySelector('#confirmPassword') as HTMLInputElement | null;
+                    
                     dispatcher.process({
                         type: Actions.CHANGE_PASSWORD,
                         payload: {
-                            oldPassword: this.parent.querySelector('#oldPassword')?.value,
-                            newPassword: this.parent.querySelector('#newPassword')?.value,
-                            confirmPassword: this.parent.querySelector('#confirmPassword')?.value,
+                            oldPassword: oldPasswordInput?.value,
+                            newPassword: newPasswordInput?.value,
+                            confirmPassword: confirmPasswordInput?.value,
                         },
                     });
                 });
@@ -196,7 +227,6 @@ export class SettingsPage {
             if (deleteAccountBtn) {
                 deleteAccountBtn.addEventListener('click', (e) => {
                     e.preventDefault();
-                    // eslint-disable-next-line no-alert
                     if (confirm('Удалить аккаунт? Это действие необратимо.')) {
                         dispatcher.process({ type: Actions.DELETE_ACCOUNT });
                     }
@@ -205,18 +235,21 @@ export class SettingsPage {
         }
     }
 
-    showErrors(errors) {
+    showErrors(errors: Record<string, string>): void {
+        if (!this.parent) return;
+
         Object.entries(errors).forEach(([key, message]) => {
-            const errorElement = this.parent.querySelector(`#${key}`);
+            const errorElement = this.parent?.querySelector(`#${key}`);
             if (errorElement) errorElement.textContent = message;
-            const inputElement = this.parent.querySelector(`#${key.replace('Error', '')}`);
+            const inputElement = this.parent?.querySelector(`#${key.replace('Error', '')}`) as HTMLElement | null;
             if (inputElement) inputElement.classList.add('error-input');
         });
     }
 
-    clearErrors() {
+    clearErrors(): void {
+        if (!this.parent) return;
+
         this.parent.querySelectorAll('.error-message').forEach((el) => {
-            // eslint-disable-next-line no-param-reassign
             el.textContent = '';
         });
         this.parent.querySelectorAll('.form-input').forEach((input) => {
@@ -226,4 +259,3 @@ export class SettingsPage {
 }
 
 export const settings = new SettingsPage(null);
-

@@ -106,17 +106,14 @@ class HeaderStore implements Store {
             }
         }
 
-        if (!this.isHeaderRendered) {
-            const headerData = {
-                user: this.user,
-                isAuthenticated: this.isAuthenticated
-            };
-            
-            await this.headerComponent.render(headerData);
-            this.isHeaderRendered = true;
-        } else {
-            this.headerComponent.updateAuthState(this.isAuthenticated);
-        }
+        const headerData = {
+            user: this.user,
+            isAuthenticated: this.isAuthenticated
+        };
+        
+        // Всегда рендерим header заново, чтобы обработчики событий были актуальными
+        await this.headerComponent.render(headerData);
+        this.isHeaderRendered = true;
     }
 }
 

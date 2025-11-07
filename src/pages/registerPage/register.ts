@@ -1,101 +1,62 @@
-import { dispatcher } from '../../Dispatcher.js';
-import { Actions } from '../../actions.js';
+import Handlebars from 'handlebars';
+import { dispatcher } from '@/Dispatcher';
+import { Actions, type Action } from '@/actions';
 
-const TEMPLATE_PATH = '/src/pages/registerPage/register.hbs';
+const TEMPLATE_PATH = './src/pages/registerPage/register.hbs';
 
-/**
- * Валидация email согласно RFC 5322 с поддержкой SMTPUTF8 (unicode/emoji)
- */
-const validateEmail = (email) => {
-    const emailRegex = /^[\p{L}\p{N}.!#$%&'*+/=?^_`{|}~-]+@[\p{L}\p{N}](?:[\p{L}\p{N}-]{0,61}[\p{L}\p{N}])?(?:\.[\p{L}\p{N}](?:[\p{L}\p{N}-]{0,61}[\p{L}\p{N}])?)*$/u;
-    
-    if (!emailRegex.test(email)) {
-        return false;
-    }
-    
-    const atIndex = email.indexOf('@');
-    if (atIndex === -1) return false;
-    
-    const localPart = email.substring(0, atIndex);
-    const domain = email.substring(atIndex + 1);
-    
-    if (localPart.length > 64) {
-        return false;
-    }
-    
-    if (domain && domain.includes('_')) {
-        return false;
-    }
-    
-    return true;
-};
+function validateEmail(email: string): boolean {
+    const emailRegex = /^[a-zA-Z0-9._%+\-\u0080-\uFFFF]+@[a-zA-Z0-9.\-\u0080-\uFFFF]+\.[a-zA-Z\u0080-\uFFFF]{2,}$/;
+    return emailRegex.test(email);
+}
 
-const showError = (message) => {
-    const errorDiv = document.querySelector('.form__error-message');
-    if (errorDiv) {
-        errorDiv.textContent = message;
-        errorDiv.style.display = 'block';
+function showError(message: string): void {
+    const errorElement = document.getElementById('registerError');
+    if (errorElement) {
+        errorElement.textContent = message;
+        errorElement.style.display = 'block';
     }
-};
+}
 
-const clearError = () => {
-    const errorDiv = document.querySelector('.form__error-message');
-    if (errorDiv) {
-        errorDiv.textContent = '';
-        errorDiv.style.display = 'none';
+function clearError(): void {
+    const errorElement = document.getElementById('registerError');
+    if (errorElement) {
+        errorElement.textContent = '';
+        errorElement.style.display = 'none';
     }
-    
-    document.querySelectorAll('.form__input').forEach(input => {
+
+    const allInputs = document.querySelectorAll('.form__error-input');
+    allInputs.forEach((input) => {
         input.classList.remove('form__error-input');
     });
-};
+}
 
-const fetchTemplate = async (path) => {
-    try {
-        const response = await fetch(path);
-
-        if (!response.ok) {
-            throw new Error('Ошибка: Не удалось загрузить шаблон');
-        }
-
-        const templateContent = await response.text();
-        
-        return templateContent;
-
-    } catch (error) {
-        return '<h1>Ошибка: Не удалось загрузить шаблон</h1>'; 
+async function fetchTemplate(path: string): Promise<string> {
+    const response = await fetch(path);
+    if (!response.ok) {
+        throw new Error(`Failed to fetch template: ${response.statusText}`);
     }
-};
+    return response.text();
+}
 
 export class RegisterPage {
-    parent;
+    private parent: HTMLElement;
 
-    constructor(parent) {
+    constructor(parent: HTMLElement) {
         this.parent = parent;
-        
-        // Регистрируем RegisterPage в Dispatcher для получения ошибок
         dispatcher.register(this);
     }
 
-    async handleAction(action) {
-        switch (action.type) {
-            case Actions.REGISTER_ERROR:
-                this.showError(action.payload.message);
-                break;
-            default:
-                break;
+    async handleAction(action: Action): Promise<void> {
+        if (action.type === Actions.REGISTER_ERROR) {
+            if (typeof action.payload === 'string') {
+                showError(action.payload);
+            } else {
+                showError('Ошибка регистрации');
+            }
         }
     }
 
-    showError(message) {
-        const errorDiv = document.querySelector('.form__error-message');
-        if (errorDiv) {
-            errorDiv.textContent = message;
-            errorDiv.style.display = 'block';
-        }
-    }
-
-    async render() {
+    async render(): Promise<void> {
         this.parent.innerHTML = '';
 
         const pageTemplateString = await fetchTemplate(TEMPLATE_PATH);
@@ -119,14 +80,18 @@ export class RegisterPage {
         });
     }
 
-    initPasswordToggles() {
+    private initPasswordToggles(): void {
         const toggleButtons = document.querySelectorAll('.form__password-toggle');
         
         toggleButtons.forEach(button => {
             button.addEventListener('click', () => {
                 const wrapper = button.closest('.form__password-wrapper');
+                if (!wrapper) return;
+                
                 const input = wrapper.querySelector('input');
-                const icon = button.querySelector('.eye-icon');
+                const icon = button.querySelector('.eye-icon') as HTMLImageElement | null;
+                
+                if (!input || !icon) return;
                 
                 if (input.type === 'password') {
                     input.type = 'text';
@@ -141,14 +106,20 @@ export class RegisterPage {
         });
     }
 
-    handleRegister = async (event) => {
+    private handleRegister = async (event: Event): Promise<void> => {
         event.preventDefault();
         
         clearError();
         
-        const emailInput = document.getElementById('email');
-        const passwordInput = document.getElementById('password');
-        const passwordConfirmInput = document.getElementById('passwordConfirm');
+        const emailInput = document.getElementById('email') as HTMLInputElement | null;
+        const passwordInput = document.getElementById('password') as HTMLInputElement | null;
+        const passwordConfirmInput = document.getElementById('passwordConfirm') as HTMLInputElement | null;
+        
+        if (!emailInput || !passwordInput || !passwordConfirmInput) {
+            showError('Форма не найдена');
+            return;
+        }
+        
         const email = emailInput.value.trim();
         const password = passwordInput.value;
         const passwordConfirm = passwordConfirmInput.value;
@@ -189,18 +160,18 @@ export class RegisterPage {
         // Проверка совпадения паролей
         if (password !== passwordConfirm) {
             passwordInput.classList.add('form__error-input');
-            passwordConfirmInput.classList.add('error-input');
+            passwordConfirmInput.classList.add('form__error-input');
             showError('Пароли не совпадают');
             return;
         }
         
-        dispatcher.process({
+        await dispatcher.process({
             type: Actions.REQUEST_REGISTER,
             payload: { email, password, passwordConfirm }
         });
     };
 
-    initFormActions() {
+    private initFormActions(): void {
         const form = document.getElementById('registerForm');
         
         if (form) {
@@ -211,4 +182,7 @@ export class RegisterPage {
 }
 
 const rootElement = document.getElementById('root');
+if (!rootElement) {
+    throw new Error('Root element not found');
+}
 export const register = new RegisterPage(rootElement);

@@ -96,9 +96,7 @@ export interface ErrorPayload {
 export interface RegisterPayload {
     email: string;
     password: string;
-    name: string;
-    birthDate: string;
-    gender: string;
+    passwordConfirm: string;
 }
 
 export interface NavigatePayload {

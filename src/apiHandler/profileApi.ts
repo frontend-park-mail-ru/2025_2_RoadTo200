@@ -89,14 +89,13 @@ class ProfileApi {
 
     async uploadPhoto(photos: File | File[]): Promise<UploadPhotoResponse> {
         const formData = new FormData();
-        formData.append('action', 'uploadPhotos');
         
         const photoArray = Array.isArray(photos) ? photos : [photos];
         photoArray.forEach((photo) => {
             formData.append('photos', photo);
         });
         
-        const response = await fetch(`${this.baseURL}/changeProfile`, {
+        const response = await fetch(`${this.baseURL}/uploadPhotos`, {
             method: 'POST',
             credentials: 'include',
             body: formData
@@ -107,14 +106,14 @@ class ProfileApi {
             try {
                 const error = await response.json();
                 errorMessage = error.error || errorMessage;
-            } catch (e) {
+            } catch {
                 const text = await response.text();
                 errorMessage = text || errorMessage;
             }
             throw new Error(errorMessage);
         }
         
-        return await response.json() as UploadPhotoResponse;
+        return response.json() as Promise<UploadPhotoResponse>;
     }
 
     async deletePhoto(photoId: string | number): Promise<ApiResponse> {
@@ -126,7 +125,7 @@ class ProfileApi {
             credentials: 'include',
             body: JSON.stringify({
                 action: 'deletePhoto',
-                photoId: photoId
+                photo_id: photoId
             })
         });
         
@@ -135,7 +134,7 @@ class ProfileApi {
             throw new Error(error.error || `HTTP ${response.status}`);
         }
         
-        return await response.json() as ApiResponse;
+        return response.json() as Promise<ApiResponse>;
     }
 
     async setPrimaryPhoto(photoId: string | number): Promise<ApiResponse> {
@@ -147,7 +146,7 @@ class ProfileApi {
             credentials: 'include',
             body: JSON.stringify({
                 action: 'setPrimaryPhoto',
-                photoId: photoId
+                photo_id: photoId
             })
         });
         
@@ -156,7 +155,7 @@ class ProfileApi {
             throw new Error(error.error || `HTTP ${response.status}`);
         }
         
-        return await response.json() as ApiResponse;
+        return response.json() as Promise<ApiResponse>;
     }
 
     async changePassword(oldPassword: string, newPassword: string): Promise<ApiResponse> {
@@ -178,7 +177,7 @@ class ProfileApi {
             throw new Error(error.error || `HTTP ${response.status}`);
         }
         
-        return await response.json() as ApiResponse;
+        return response.json() as Promise<ApiResponse>;
     }
 
     async deleteAccount(): Promise<ApiResponse> {
@@ -198,7 +197,7 @@ class ProfileApi {
             throw new Error(error.error || `HTTP ${response.status}`);
         }
         
-        return await response.json() as ApiResponse;
+        return response.json() as Promise<ApiResponse>;
     }
 }
 

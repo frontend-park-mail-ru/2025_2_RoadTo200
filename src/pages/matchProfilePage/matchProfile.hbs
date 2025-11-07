@@ -1,50 +1,50 @@
 <div class="match-profile-page">
-    <div class="match-profile-content">
-        <div class="photo-grid">
+    <div class="match-profile-page__content">
+        <div class="match-photo-grid">
             {{#each photoCards}}
-            <div class="photo-card" data-photo-id="{{this.id}}">
+            <div class="match-photo-grid__card" data-photo-id="{{this.id}}">
                 {{#if this.isUserPhoto}}
-                <div class="photo-card-image" style="background-image: url('{{this.image}}');"></div>
+                <div class="match-photo-grid__image" style="background-image: url('{{this.image}}');"></div>
                 {{else}}
-                <div class="empty-photo-placeholder"></div>
+                <div class="match-photo-grid__placeholder"></div>
                 {{/if}}
             </div>
             {{/each}}
         </div>
 
-        <div class="match-profile-details">
+        <div class="match-details">
     
-            <h3 class="section-title">О себе</h3>
-            <div id="description" class="content-wrapper">
-                <p class="section-text">{{description}}</p>
+            <h3 class="match-details__section-title">О себе</h3>
+            <div class="match-details__editable-content">
+                <p class="match-details__section-text match-details__section-text-current">{{description}}</p>
             </div>
             
-            <h3 class="section-title">Увлечения</h3>
-            <div id="interests-list" class="interests-tags">
+            <h3 class="match-details__section-title">Увлечения</h3>
+            <div class="match-details__tags">
                 {{#each interests}}
-                    <span class="interest-tag" data-interest-id="{{this.id}}">
+                    <span class="match-details__tag" data-interest-id="{{this.id}}">
                         {{this.name}}
                     </span>
                 {{/each}}
             </div>
 
-            <h3 class="section-title">Активности</h3>
-            <div class="icon-section">
-                <div class="icon-circle"></div>
-                <div class="icon-circle"></div>
+            <h3 class="match-details__section-title">Активности</h3>
+            <div class="match-details__icons">
+                <div class="match-details__icon-circle"></div>
+                <div class="match-details__icon-circle"></div>
             </div>
 
-            <h3 class="section-title">Любимый исполнитель</h3>
-            <div id="musician" class="content-wrapper">
-                <p class="section-text">{{musician}}</p>
+            <h3 class="match-details__section-title">Любимый исполнитель</h3>
+            <div class="match-details__editable-content">
+                <p class="match-details__section-text match-details__section-text-current">{{musician}}</p>
             </div>
 
-            <h3 class="section-title">Любимая цитата</h3>
-            <div id="quote" class="content-wrapper">
-                <p class="section-text">{{quote}}</p>
+            <h3 class="match-details__section-title">Любимая цитата</h3>
+            <div class="match-details__editable-content">
+                <p class="match-details__section-text match-details__section-text-current">{{quote}}</p>
             </div>
 
-            <button class="chat-button">Перейти в чат</button>
+            <button class="match-details__chat-button">Перейти в чат</button>
         </div>
     </div>
 </div>

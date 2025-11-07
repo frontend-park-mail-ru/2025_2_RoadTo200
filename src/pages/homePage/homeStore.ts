@@ -1,15 +1,15 @@
-import { Actions } from "../../actions.js";
-import { dispatcher } from "../../Dispatcher.js";
-import { home } from "./home.js";
+import { Actions, type Action } from '@/actions';
+import { dispatcher, type Store } from '@/Dispatcher';
+import { home } from './home';
 
-class HomeStore {
-    selectedActivities = [];
+class HomeStore implements Store {
+    selectedActivities: string[] = [];
 
     constructor() {
         dispatcher.register(this);
     }
 
-    async handleAction(action) {
+    async handleAction(action: Action): Promise<void> {
         switch (action.type) {
             case Actions.RENDER_HOME:
                 await home.render();
@@ -19,11 +19,11 @@ class HomeStore {
         }
     }
 
-    setSelectedActivities(activities) {
+    setSelectedActivities(activities: string[]): void {
         this.selectedActivities = activities;
     }
 
-    getSelectedActivities() {
+    getSelectedActivities(): string[] {
         return this.selectedActivities;
     }
 }

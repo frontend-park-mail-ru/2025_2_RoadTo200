@@ -1,13 +1,19 @@
-import { Actions } from "../../actions.js";
-import { dispatcher } from "../../Dispatcher.js";
-import { authBackground } from "./authBackground.js";
+import { Actions } from '../../actions';
+import { dispatcher } from '../../Dispatcher';
+import type { Store } from '../../Dispatcher';
+import { authBackground } from './authBackground';
 
-class AuthBackgroundStore {
+interface Action {
+    type: string;
+    payload?: any;
+}
+
+class AuthBackgroundStore implements Store {
     constructor() {
         dispatcher.register(this);
     }
 
-    async handleAction(action) {
+    async handleAction(action: Action): Promise<void> {
         switch (action.type) {
             case Actions.RENDER_AUTH_BACKGROUND:
                 await this.showBackground();
@@ -19,10 +25,9 @@ class AuthBackgroundStore {
         }
     }
 
-    async showBackground() {
+    async showBackground(): Promise<void> {
         const root = document.getElementById('root');
-        let bgElement = document.querySelector('.auth-background');
-        
+        let bgElement = document.querySelector('.auth-background') as HTMLElement;
         
         if (!bgElement) {
             bgElement = document.createElement('div');
@@ -32,8 +37,9 @@ class AuthBackgroundStore {
                     Сайт для поиска друзей и партнеров
                 </div>
             `;
-            document.body.insertBefore(bgElement, root);
-            
+            if (root) {
+                document.body.insertBefore(bgElement, root);
+            }
             
             authBackground.setContainer(bgElement);
             authBackground.render();
@@ -43,8 +49,8 @@ class AuthBackgroundStore {
         }
     }
 
-    hideBackground() {
-        const bgElement = document.querySelector('.auth-background');
+    hideBackground(): void {
+        const bgElement = document.querySelector('.auth-background') as HTMLElement;
         if (bgElement) {
             bgElement.style.display = 'none';
         }

@@ -1,10 +1,21 @@
-import { Actions } from '../../actions.js';
-import { dispatcher } from '../../Dispatcher.js';
-
+/* global Handlebars */
+import { Actions } from '../../actions';
+import { dispatcher } from '../../Dispatcher';
 
 const TEMPLATE_PATH = '/src/components/SettingsMenu/settingsMenu.hbs';
 
-const MENU_ITEMS_DATA = [
+interface MenuItem {
+    name: string;
+    tab: string;
+    icon: string;
+    isActive?: boolean;
+}
+
+interface MenuData {
+    currentTab?: string;
+}
+
+const MENU_ITEMS_DATA: MenuItem[] = [
     { 
         name: 'Профиль', 
         tab: 'profile',
@@ -22,13 +33,13 @@ const MENU_ITEMS_DATA = [
     }
 ];
 
-const fetchTemplate = async (path) => {
+const fetchTemplate = async (path: string): Promise<string> => {
     try {
         const response = await fetch(path);
         if (!response.ok) {
             throw new Error('Ошибка: Не удалось загрузить шаблон меню настроек');
         }
-        return await response.text();
+        return response.text();
     } catch (error) {
         console.error('Ошибка загрузки шаблона меню настроек:', error);
         return '';
@@ -36,13 +47,13 @@ const fetchTemplate = async (path) => {
 };
 
 export class SettingsMenu {
-    parent;
+    public parent: HTMLElement;
 
-    constructor(parent) {
+    constructor(parent: HTMLElement) {
         this.parent = parent;
     }
 
-    async render(menuData = {}) {
+    async render(menuData: MenuData = {}): Promise<void> {
         const { currentTab = 'profile' } = menuData;
 
         const menuItems = MENU_ITEMS_DATA.map(item => ({
@@ -51,7 +62,6 @@ export class SettingsMenu {
         }));
 
         const templateString = await fetchTemplate(TEMPLATE_PATH);
-        // eslint-disable-next-line no-undef
         const template = Handlebars.compile(templateString);
 
         const renderedHtml = template({ menuItems });
@@ -60,14 +70,15 @@ export class SettingsMenu {
         this.initEventListeners();
     }
 
-    initEventListeners() {
+    private initEventListeners(): void {
         if (!this.parent) return;
         
         const sidebar = this.parent.querySelector('.sidebar');
         if (!sidebar) return;
 
-        sidebar.addEventListener('click', (event) => {
-            const menuItem = event.target.closest('.sidebar__item');
+        sidebar.addEventListener('click', (event: Event) => {
+            const target = event.target as HTMLElement;
+            const menuItem = target.closest('.sidebar__item') as HTMLElement;
             if (menuItem) {
                 event.preventDefault();
                 

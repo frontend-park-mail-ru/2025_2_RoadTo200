@@ -1,12 +1,25 @@
+interface CircleActivityOptions {
+    svgPath?: string;
+    size?: number;
+    opacity?: number;
+    className?: string;
+}
+
 export class CircleActivity {
+    private svgPath: string;
+    private size: number;
+    private opacity: number;
+    private className: string;
+    private element: HTMLElement | null;
+
     /**
-     * @param {Object} options - Настройки кружка
-     * @param {string} options.svgPath - Путь к SVG файлу
-     * @param {number} options.size - Размер кружка (по умолчанию 124)
-     * @param {number} options.opacity - Прозрачность (по умолчанию 0.5)
-     * @param {string} options.className - Дополнительный CSS класс
+     * @param options - Настройки кружка
+     * @param options.svgPath - Путь к SVG файлу
+     * @param options.size - Размер кружка (по умолчанию 124)
+     * @param options.opacity - Прозрачность (по умолчанию 0.5)
+     * @param options.className - Дополнительный CSS класс
      */
-    constructor(options = {}) {
+    constructor(options: CircleActivityOptions = {}) {
         this.svgPath = options.svgPath || '';
         this.size = options.size || 124;
         this.opacity = options.opacity || 0.5;
@@ -18,14 +31,14 @@ export class CircleActivity {
      * Создаёт и возвращает DOM элемент кружка
      * @returns {HTMLElement}
      */
-    render() {
+    render(): HTMLElement {
         const circle = document.createElement('div');
         circle.className = `circle-activity ${this.className}`.trim();
         
         // Применяем базовые стили
         circle.style.width = `${this.size}px`;
         circle.style.height = `${this.size}px`;
-        circle.style.opacity = this.opacity;
+        circle.style.opacity = String(this.opacity);
         
         if (this.svgPath) {
             // Создаём img элемент для SVG
@@ -42,12 +55,12 @@ export class CircleActivity {
 
     /**
      * Обновляет SVG иконку
-     * @param {string} newSvgPath - Новый путь к SVG
+     * @param newSvgPath - Новый путь к SVG
      */
-    updateSvg(newSvgPath) {
+    updateSvg(newSvgPath: string): void {
         this.svgPath = newSvgPath;
         if (this.element) {
-            const img = this.element.querySelector('.circle-activity-icon');
+            const img = this.element.querySelector('.circle-activity-icon') as HTMLImageElement;
             if (img) {
                 img.src = newSvgPath;
             }
@@ -56,10 +69,10 @@ export class CircleActivity {
 
     /**
      * Устанавливает позицию кружка
-     * @param {number} x - Позиция по X
-     * @param {number} y - Позиция по Y
+     * @param x - Позиция по X
+     * @param y - Позиция по Y
      */
-    setPosition(x, y) {
+    setPosition(x: number, y: number): void {
         if (this.element) {
             this.element.style.left = `${x}px`;
             this.element.style.top = `${y}px`;
@@ -69,7 +82,7 @@ export class CircleActivity {
     /**
      * Удаляет кружок из DOM
      */
-    destroy() {
+    destroy(): void {
         if (this.element && this.element.parentNode) {
             this.element.parentNode.removeChild(this.element);
         }
@@ -80,7 +93,7 @@ export class CircleActivity {
      * Получает DOM элемент кружка
      * @returns {HTMLElement|null}
      */
-    getElement() {
+    getElement(): HTMLElement | null {
         return this.element;
     }
 }
@@ -89,7 +102,7 @@ export class CircleActivity {
  * Утилита для получения списка всех доступных SVG иконок
  * @returns {Array<string>} Массив путей к SVG файлам
  */
-export function getAvailableSvgIcons() {
+export function getAvailableSvgIcons(): string[] {
     const basePath = './src/assets/ActivityCircleSVG/';
     return [
         `${basePath}bi_arrow-through-heart.svg`,
@@ -107,10 +120,10 @@ export function getAvailableSvgIcons() {
 
 /**
  * Утилита для создания кружка с случайной иконкой
- * @param {Object} options - Опции (size, opacity, className)
+ * @param options - Опции (size, opacity, className)
  * @returns {CircleActivity}
  */
-export function createRandomCircle(options = {}) {
+export function createRandomCircle(options: CircleActivityOptions = {}): CircleActivity {
     const icons = getAvailableSvgIcons();
     const randomIcon = icons[Math.floor(Math.random() * icons.length)];
     return new CircleActivity({

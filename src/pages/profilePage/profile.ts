@@ -1,22 +1,33 @@
-import { dispatcher } from '../../Dispatcher.js';
-import { Actions } from '../../actions.js';
+import Handlebars from 'handlebars';
+import { dispatcher } from '@/Dispatcher';
+import { Actions } from '@/actions';
 
 const TEMPLATE_PATH = '/src/pages/profilePage/profile.hbs';
 
-const fetchTemplate = async (path) => {
+interface ProfileData {
+    description: string;
+    musician: string;
+    quote: string;
+    name: string;
+    age: string | number;
+    interests: Array<{ id: number; name: string }>;
+    photoCards: any[];
+}
+
+const fetchTemplate = async (path: string): Promise<string> => {
     const response = await fetch(path);
     if (!response.ok) throw new Error('Ошибка: не удалось загрузить шаблон');
     return await response.text();
 };
 
 export class ProfilePage {
-    parent = null;
+    parent: HTMLElement | null = null;
 
-    constructor(parent) {
+    constructor(parent: HTMLElement | null) {
         this.parent = parent;
     }
 
-    async render(data) {
+    async render(data: ProfileData): Promise<void> {
         if (!this.parent) return console.warn('ProfilePage: parent not assigned');
 
         const templateString = await fetchTemplate(TEMPLATE_PATH);
@@ -25,14 +36,17 @@ export class ProfilePage {
         this.addEventListeners(); 
     }
 
-    addEventListeners() {
+    private addEventListeners(): void {
+        if (!this.parent) return;
+
         dispatcher.process({ type: Actions.RENDER_MENU, payload: { route: 'me' } });
 
         this.parent.querySelectorAll('.details__icon-edit').forEach(icon => {
             icon.addEventListener('click', (e) => {
-                const { target: fieldName, type: fieldType } = e.currentTarget.dataset;
-                if (e.currentTarget.classList.contains('editing') || !fieldName) return;
-                this.enableEditing(fieldName, fieldType, e.currentTarget);
+                const target = (e.currentTarget as HTMLElement).dataset.target;
+                const type = (e.currentTarget as HTMLElement).dataset.type;
+                if ((e.currentTarget as HTMLElement).classList.contains('editing') || !target) return;
+                this.enableEditing(target, type || 'single-line', e.currentTarget as HTMLElement);
             });
         });
 
@@ -47,12 +61,12 @@ export class ProfilePage {
         this.parent.querySelectorAll('.photo-grid__delete-btn').forEach(button => {
             button.addEventListener('click', (e) => {
                 e.preventDefault();
-                const photoCard = e.currentTarget.closest('.photo-grid__card');
+                const photoCard = (e.currentTarget as HTMLElement).closest('.photo-grid__card') as HTMLElement | null;
                 const photoId = photoCard?.dataset.photoId;
                 if (photoId && photoId !== 'placeholder') {
                     dispatcher.process({
                         type: Actions.DELETE_PHOTO,
-                        payload: { photoId } // Передаем как строку (UUID), не parseInt!
+                        payload: { photoId }
                     });
                 }
             });
@@ -63,14 +77,14 @@ export class ProfilePage {
             addTagButton.addEventListener('click', (e) => {
                 e.preventDefault();
                 if (addTagButton.classList.contains('editing')) return;
-                this.enableInterestAdding(addTagButton);
+                this.enableInterestAdding(addTagButton as HTMLElement);
             });
         }
 
         this.parent.querySelectorAll('.details__delete-layer').forEach(layer => {
             layer.addEventListener('click', (e) => {
                 e.stopPropagation();
-                const tag = e.currentTarget.closest('.details__tag');
+                const tag = (e.currentTarget as HTMLElement).closest('.details__tag') as HTMLElement | null;
                 const interestId = tag?.dataset.interestId;
                 if (interestId) {
                     console.log(interestId);
@@ -83,7 +97,9 @@ export class ProfilePage {
         });
     }
 
-    enableEditing(fieldName, fieldType, iconElement) {
+    private enableEditing(fieldName: string, fieldType: string, iconElement: HTMLElement): void {
+        if (!this.parent) return;
+
         const wrapper = this.parent.querySelector(`#${fieldName}`);
         if (!wrapper) return;
 
@@ -91,15 +107,15 @@ export class ProfilePage {
         if (!currentTextElement) return;
 
         const isBlockQuote = currentTextElement.tagName === 'BLOCKQUOTE';
-        let currentValue = currentTextElement.textContent.trim();
+        let currentValue = currentTextElement.textContent?.trim() || '';
         if (isBlockQuote) currentValue = currentValue.replace(/^"|"$/g, '');
 
         const isParagraph = fieldType === 'paragraph';
-        const inputElement = document.createElement(isParagraph ? 'textarea' : 'input');
+        const inputElement = document.createElement(isParagraph ? 'textarea' : 'input') as HTMLInputElement | HTMLTextAreaElement;
         inputElement.className = `details__edit-input details__edit-${isParagraph ? 'textarea' : 'single-line'}`;
         inputElement.value = currentValue;
 
-        currentTextElement.style.display = 'none';
+        (currentTextElement as HTMLElement).style.display = 'none';
         wrapper.appendChild(inputElement);
         inputElement.focus();
 
@@ -110,16 +126,16 @@ export class ProfilePage {
             inputElement.removeEventListener('blur', saveEdit);
             inputElement.removeEventListener('keypress', saveEdit);
             if (!inputElement.isConnected) return;
-            currentTextElement.style.display = 'block';
+            (currentTextElement as HTMLElement).style.display = 'block';
             inputElement.remove();
             iconElement.dataset.type = fieldType;
             iconElement.classList.remove('editing');
         };
 
-        const saveEdit = (e) => {
+        const saveEdit = (e: Event) => {
             if (!inputElement.isConnected) return;
 
-            const isSaveEvent = e.type === 'blur' || (e.type === 'keypress' && e.key === 'Enter' && fieldType === 'single-line');
+            const isSaveEvent = e.type === 'blur' || (e.type === 'keypress' && (e as KeyboardEvent).key === 'Enter' && fieldType === 'single-line');
             if (!isSaveEvent) return;
             if (e.type === 'keypress') e.preventDefault();
 
@@ -141,7 +157,9 @@ export class ProfilePage {
         inputElement.addEventListener('keypress', saveEdit);
     }
 
-    enableInterestAdding(addTagButton) {
+    private enableInterestAdding(addTagButton: HTMLElement): void {
+        if (!this.parent) return;
+
         const wrapper = this.parent.querySelector('#interests-list');
         if (!wrapper) return;
 
@@ -151,18 +169,20 @@ export class ProfilePage {
         inputElement.placeholder = 'Введите увлечение';
         inputElement.className = 'details__tag details__new-interest-input';
 
-        addTagButton.parentNode.insertBefore(inputElement, addTagButton);
+        if (addTagButton.parentNode) {
+            addTagButton.parentNode.insertBefore(inputElement, addTagButton);
+        }
         addTagButton.style.display = 'none';
         addTagButton.classList.add('editing');
         inputElement.focus();
 
-        const finishAdding = (e) => {
+        const finishAdding = (e: Event) => {
             inputElement.removeEventListener('blur', finishAdding);
             inputElement.removeEventListener('keydown', finishAdding);
             if (!inputElement.isConnected) return;
 
             const newInterest = inputElement.value.trim();
-            const shouldSave = (e.type === 'blur' || e.key === 'Enter') && newInterest !== '';
+            const shouldSave = (e.type === 'blur' || (e as KeyboardEvent).key === 'Enter') && newInterest !== '';
 
             if (shouldSave) {
                 dispatcher.process({

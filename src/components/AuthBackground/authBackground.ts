@@ -1,7 +1,13 @@
-import { CircleActivity, getAvailableSvgIcons } from '../CircleActivity/circleActivity.js';
+import { CircleActivity, getAvailableSvgIcons } from '../CircleActivity/circleActivity';
 
 export class AuthBackground {
-    constructor(container = null) {
+    private container: HTMLElement | null;
+    private animationId: number | null;
+    private circles: CircleActivity[];
+    private textElements: HTMLElement[];
+    private svgIcons: string[];
+
+    constructor(container: HTMLElement | null = null) {
         this.container = container;
         this.animationId = null;
         this.circles = [];
@@ -9,27 +15,32 @@ export class AuthBackground {
         this.svgIcons = getAvailableSvgIcons();
     }
 
-    setContainer(container) {
+    setContainer(container: HTMLElement): void {
         if (!container) {
             throw new Error('AuthBackground requires a container element');
         }
         this.container = container;
     }
 
-    render() {
+    render(): void {
         // Если уже отрисован, ничего не делаем
         if (this.circles.length > 0) {
             return;
         }
 
-        const tablet = this.container.querySelector('.auth-background__circle-activity-tablet');
+        if (!this.container) {
+            console.error('AuthBackground: container is not set');
+            return;
+        }
+
+        const tablet = this.container.querySelector('.auth-background__circle-activity-tablet') as HTMLElement;
         if (!tablet) {
             console.error('AuthBackground: .auth-background__circle-activity-tablet not found in container!');
             return;
         }
 
         // Получаем текст из содержимого div
-        const textContent = tablet.textContent.trim();
+        const textContent = tablet.textContent?.trim() || '';
         tablet.textContent = ''; 
 
         const rows = 12;
@@ -37,8 +48,6 @@ export class AuthBackground {
         const circleSpacing = 184;
         const verticalSpacing = 232;
         const circleSize = 140;
-        const circleSpeed = 2;
-        const textSpeed = 1;
 
         let iconIndex = 0;
 
@@ -68,7 +77,14 @@ export class AuthBackground {
         this.startAnimation(textContent, circleSpacing);
     }
 
-    createTextRow(container, rowIndex, textContent, verticalSpacing, circleSpacing, cols) {
+    private createTextRow(
+        container: HTMLElement,
+        rowIndex: number,
+        textContent: string,
+        verticalSpacing: number,
+        circleSpacing: number,
+        cols: number
+    ): void {
         const textY = rowIndex * verticalSpacing + verticalSpacing / 2 + 50;
         const textRowNumber = Math.floor(rowIndex / 2);
         const isOddTextRow = textRowNumber % 2 === 1;
@@ -94,7 +110,9 @@ export class AuthBackground {
         }
     }
 
-    startAnimation(textContent, circleSpacing) {
+    private startAnimation(textContent: string, circleSpacing: number): void {
+        if (!this.container) return;
+
         const tablet = this.container.querySelector('.auth-background__circle-activity-tablet');
         if (!tablet) return;
 
@@ -108,7 +126,7 @@ export class AuthBackground {
         const textWidth = textContent.length * 23;
         const textResetPoint = textWidth + 60;
 
-        const animate = () => {
+        const animate = (): void => {
             circlePosition += circleSpeed;
             if (circlePosition >= circleResetPoint) {
                 circlePosition -= circleResetPoint;
@@ -127,8 +145,7 @@ export class AuthBackground {
             });
 
             this.textElements.forEach((textEl) => {
-                const element = textEl;
-                element.style.transform = `translate3d(${textPosition - 2500}px, -500px, 0)`;
+                textEl.style.transform = `translate3d(${textPosition - 2500}px, -500px, 0)`;
             });
             
             this.animationId = requestAnimationFrame(animate);
@@ -137,7 +154,7 @@ export class AuthBackground {
         animate();
     }
 
-    destroy() {
+    destroy(): void {
         if (this.animationId) {
             cancelAnimationFrame(this.animationId);
             this.animationId = null;
@@ -153,10 +170,13 @@ export class AuthBackground {
         });
         this.textElements = [];
 
-        const tablet = this.container.querySelector('.auth-background__circle-activity-tablet');
-        if (tablet) {
-            tablet.innerHTML = '';
+        if (this.container) {
+            const tablet = this.container.querySelector('.auth-background__circle-activity-tablet');
+            if (tablet) {
+                tablet.innerHTML = '';
+            }
         }
     }
 }
+
 export const authBackground = new AuthBackground();

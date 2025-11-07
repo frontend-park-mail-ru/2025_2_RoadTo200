@@ -17,6 +17,7 @@ import './src/components/Header/headerStore';
 import './src/components/AuthBackground/authBackgroundStore';
 import './src/components/SettingsMenu/settingsMenuStore';
 import './src/components/OfflineBanner/offlineBannerStore';
+import './src/components/ProfileMenu/profileMenuStore';
 
 /**
  * Класс Router для инициализации навигации и глобальных компонентов

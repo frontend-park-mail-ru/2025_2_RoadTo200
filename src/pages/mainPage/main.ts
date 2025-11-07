@@ -1,13 +1,21 @@
-import Card from '../../components/Card/card.js';
-
-import { dispatcher } from '../../Dispatcher.js';
-import { Actions } from '../../actions.js';
-
+import Handlebars from 'handlebars';
+import Card from '@/components/Card/card';
+import { dispatcher } from '@/Dispatcher';
+import { Actions } from '@/actions';
 
 const TEMPLATE_PATH = '/src/pages/mainPage/main.hbs';
 const EMPTY_STATE_TEMPLATE_PATH = '/src/components/EmptyState/emptyState.hbs'; 
 
-const fetchTemplate = async (path) => {
+interface CardData {
+    id: string;
+    name: string;
+    age: number;
+    description?: string;
+    images?: Array<{ imageUrl: string }>;
+    photosCount?: number;
+}
+
+const fetchTemplate = async (path: string): Promise<string> => {
     try {
         const response = await fetch(path);
 
@@ -24,8 +32,7 @@ const fetchTemplate = async (path) => {
     }
 };
 
-
-const animateCardOut = (cardElement, direction) => {
+const animateCardOut = (cardElement: HTMLElement, direction: string): void => {
     cardElement.classList.add(`swipe-out-${direction}`); 
 
     cardElement.addEventListener('animationend', () => {
@@ -34,28 +41,20 @@ const animateCardOut = (cardElement, direction) => {
     }, { once: true }); 
 };
 
-/**
- * Объект главной страницы (ленты карточек).
- * @property {function(): Promise<Object>} getData
- * @property {function(): Promise<void>} renderNextCard
- * @property {function(): void} initCardActions
- * @property {function(): Promise<string>} render
- */
 export class MainPage {
-    parent;
+    parent: HTMLElement;
+    currentCardIndex: number;
+    cardsData: CardData[];
+    swipeThreshold: number;
 
-    currentCardIndex;
-
-    cardsData;
-
-    constructor(parent) {
+    constructor(parent: HTMLElement) {
         this.parent = parent;
         this.currentCardIndex = 0;
         this.cardsData = [];
         this.swipeThreshold = 100;
     }
 
-    async render() {
+    async render(): Promise<void> {
         this.parent.innerHTML = '';
 
         const pageTemplateString = await fetchTemplate(TEMPLATE_PATH);
@@ -68,20 +67,23 @@ export class MainPage {
         newDiv.innerHTML = renderedHtml;
         this.parent.appendChild(newDiv);
 
-        document.addEventListener('click', (event) => {
-            if (event.target.classList.contains('card__image')) {
-                Card.handleImageNavigation(event);
+        document.addEventListener('click', (event: Event) => {
+            const target = event.target as HTMLElement;
+            if (target.classList.contains('card__image')) {
+                Card.handleImageNavigation(event as MouseEvent);
             }
         });
 
-        dispatcher.process({ type: Actions.GET_CARDS });
+        await dispatcher.process({ type: Actions.GET_CARDS });
     }
 
-    setCards(cards) {
-        console.log(cards)
-        this.cardsData = Object.values(cards);
+    setCards(cards: CardData[]): void {
+        console.log('setCards called with:', cards);
+        // Если cards уже массив, используем его напрямую
+        this.cardsData = Array.isArray(cards) ? cards : Object.values(cards);
         this.currentCardIndex = 0;
 
+        console.log('Cards data length:', this.cardsData.length);
         if (this.cardsData.length > 0) {
             this.displayFirstCard();
         } else {
@@ -89,7 +91,7 @@ export class MainPage {
         }
     }
 
-    async displayEmptyState() {
+    async displayEmptyState(): Promise<void> {
         const pageContainer = document.querySelector('.cards-container');
         if (!pageContainer) return;
 
@@ -117,7 +119,7 @@ export class MainPage {
         }
     }
 
-    async displayFirstCard() {
+    async displayFirstCard(): Promise<void> {
         const pageContainer = document.querySelector('.cards-container');
 
         if (!pageContainer) return;
@@ -130,7 +132,7 @@ export class MainPage {
         this.currentCardIndex++;
     }
 
-    renderNextCard = async () => {
+    renderNextCard = async (): Promise<void> => {
         const pageContainer = document.querySelector('.cards-container');
 
         if (!pageContainer) return;
@@ -142,34 +144,33 @@ export class MainPage {
             this.initCardActions();
             this.currentCardIndex++;
         } else {
-            this.displayEmptyState();
+            await this.displayEmptyState();
         }
     }
 
-    initSwipe(cardElement, cardId) {
-        let startX, startY, endX, endY;
+    private initSwipe(cardElement: HTMLElement, cardId: string): void {
+        let startX: number, startY: number, endX: number, endY: number;
         let isDragging = false;
 
-        const startSwipe = (e) => {
+        const startSwipe = (e: MouseEvent | TouchEvent) => {
             isDragging = true;
             
-            const pageX = e.type.includes('touch') ? e.touches[0].pageX : e.pageX;
-            const pageY = e.type.includes('touch') ? e.touches[0].pageY : e.pageY;
+            const pageX = e.type.includes('touch') ? (e as TouchEvent).touches[0].pageX : (e as MouseEvent).pageX;
+            const pageY = e.type.includes('touch') ? (e as TouchEvent).touches[0].pageY : (e as MouseEvent).pageY;
             
             startX = pageX;
             startY = pageY;
             endX = pageX;
             endY = pageY;
 
-            
             e.preventDefault();
         };
 
-        const moveSwipe = (e) => {
+        const moveSwipe = (e: MouseEvent | TouchEvent) => {
             if (!isDragging) return;
 
-            const pageX = e.type.includes('touch') ? e.touches[0].pageX : e.pageX;
-            const pageY = e.type.includes('touch') ? e.touches[0].pageY : e.pageY;
+            const pageX = e.type.includes('touch') ? (e as TouchEvent).touches[0].pageX : (e as MouseEvent).pageX;
+            const pageY = e.type.includes('touch') ? (e as TouchEvent).touches[0].pageY : (e as MouseEvent).pageY;
 
             endX = pageX;
             endY = pageY;
@@ -178,7 +179,6 @@ export class MainPage {
             const deltaY = endY - startY;
 
             cardElement.style.transform = `translate(${deltaX - 200}px, ${deltaY}px) rotate(${deltaX * 0.1}deg)`;
-            
         };
 
         const stopSwipe = () => {
@@ -192,7 +192,6 @@ export class MainPage {
             let actionType = '';
 
             if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > this.swipeThreshold) {
-      
                 if (deltaX > 0) {
                     direction = 'right';
                     actionType = 'like';
@@ -217,23 +216,23 @@ export class MainPage {
             }
         };
 
-        cardElement.addEventListener('mousedown', startSwipe);
-        cardElement.addEventListener('mousemove', moveSwipe);
+        cardElement.addEventListener('mousedown', startSwipe as EventListener);
+        cardElement.addEventListener('mousemove', moveSwipe as EventListener);
         cardElement.addEventListener('mouseup', stopSwipe);
-
     }
 
-    initCardActions() {
+    private initCardActions(): void {
         const pageContainer = document.querySelector('.cards-container');
-        const currentCardElement = pageContainer?.querySelector('.card:last-child');
+        const currentCardElement = pageContainer?.querySelector('.card:last-child') as HTMLElement | null;
 
         if (currentCardElement) {
             const cardId = currentCardElement.getAttribute('data-id');
+            if (!cardId) return;
 
             this.initSwipe(currentCardElement, cardId);
 
-            const handleAction = async (event) => {
-                const button = event.currentTarget;
+            const handleAction = async (event: Event) => {
+                const button = event.currentTarget as HTMLElement;
                 let direction = '';
                 let actionType = '';
 
@@ -250,7 +249,7 @@ export class MainPage {
                     return;
                 }
 
-                dispatcher.process({ 
+                await dispatcher.process({ 
                     type: Actions.SEND_CARD_ACTION, 
                     payload: { cardId, actionType } 
                 });
@@ -260,12 +259,15 @@ export class MainPage {
 
             const actionButtons = currentCardElement.querySelectorAll('button');
             actionButtons.forEach(button => {
-                button.removeEventListener('click', handleAction);
-                button.addEventListener('click', handleAction);
+                button.removeEventListener('click', handleAction as EventListener);
+                button.addEventListener('click', handleAction as EventListener);
             });
         }
     }
 }
 
 const rootElement = document.getElementById('root');
+if (!rootElement) {
+    throw new Error('Root element not found');
+}
 export const main = new MainPage(rootElement);

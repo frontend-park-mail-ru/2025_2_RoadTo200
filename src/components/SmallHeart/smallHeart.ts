@@ -7,13 +7,13 @@ const TEMPLATE_PATH = '/src/components/SmallHeart/smallHeart.hbs';
  * @param {string} path путь до шаблона
  * @returns {Promise<string>} шаблон в виде строки
  */
-const fetchTemplate = async (path) => {
+const fetchTemplate = async (path: string): Promise<string> => {
     try {
         const response = await fetch(path);
         if (!response.ok) {
             throw new Error('Ошибка: Не удалось загрузить шаблон маленького сердца');
         }
-        return await response.text();
+        return response.text();
     } catch (error) {
         console.error('Ошибка загрузки шаблона маленького сердца:', error);
         return '<div class="heart-small"></div>';
@@ -29,7 +29,7 @@ const SmallHeart = {
      * Отрисовывает компонент.
      * @returns {Promise<string>} HTML код компонента.
      */
-    render: async () => {
+    render: async (): Promise<string> => {
         const templateString = await fetchTemplate(TEMPLATE_PATH);
         const template = Handlebars.compile(templateString);
         return template({});

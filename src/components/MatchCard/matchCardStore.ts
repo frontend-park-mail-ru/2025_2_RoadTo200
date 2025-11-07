@@ -1,14 +1,25 @@
-import { Actions } from "../../actions.js";
-import { dispatcher } from "../../Dispatcher.js";
+import { Actions } from '../../actions';
+import { dispatcher } from '../../Dispatcher';
+import type { Store } from '../../Dispatcher';
 
-class MatchCardStore {
-    selectedMatchId = null;
+interface MatchCardClickPayload {
+    matchId: string;
+    isExpired?: boolean;
+}
+
+interface Action {
+    type: string;
+    payload?: any;
+}
+
+class MatchCardStore implements Store {
+    selectedMatchId: string | null = null;
 
     constructor() {
         dispatcher.register(this);
     }
 
-    handleAction(action) {
+    handleAction(action: Action): void | Promise<void> {
         switch (action.type) {
             case Actions.MATCH_CARD_CLICK:
                 this.onMatchCardClick(action.payload);
@@ -23,7 +34,7 @@ class MatchCardStore {
         }
     }
 
-    onMatchCardClick(payload = {}) {
+    onMatchCardClick(payload: MatchCardClickPayload = {} as MatchCardClickPayload): void {
         const { matchId, isExpired } = payload;
 
         if (!matchId || isExpired) {
@@ -37,8 +48,6 @@ class MatchCardStore {
             payload: { path: `/matches/${matchId}` }
         });
     }
-
-    
 }
 
 export default new MatchCardStore();
