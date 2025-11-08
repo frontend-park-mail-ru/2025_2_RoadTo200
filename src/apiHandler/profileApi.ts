@@ -42,6 +42,7 @@ export interface UpdateProfileData {
     name?: string;
     bio?: string;
     birthDate?: string;
+    birth_date?: string; // snake_case для бэкенда
     gender?: string;
     interests?: string[];
     workout?: boolean;
