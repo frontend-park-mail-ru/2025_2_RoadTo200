@@ -2,6 +2,7 @@ import { Actions, type Action } from '@/actions';
 import { dispatcher, type Store } from '@/Dispatcher';
 import { main } from './main';
 import CardApi, { type CardsResponse, type Card as ApiCard, type CardAction } from '@/apiHandler/cardApi';
+import { ProfileSetupPopup } from '@/components/ProfileSetupPopup/profileSetupPopup';
 
 interface TransformedCard {
     id: string;
@@ -39,6 +40,8 @@ class MainStore implements Store {
             case Actions.RENDER_MAIN:
             case Actions.RENDER_CARDS:
                 await main.render();
+                // Проверяем заполненность профиля после рендера
+                await this.checkProfileCompleteness();
                 break;
 
             case Actions.GET_CARDS:
@@ -54,6 +57,28 @@ class MainStore implements Store {
 
             default:
                 break;
+        }
+    }
+
+    private async checkProfileCompleteness(): Promise<void> {
+        try {
+            console.log('Checking profile completeness...');
+            const isComplete = await ProfileSetupPopup.isProfileComplete();
+            console.log('Profile is complete:', isComplete);
+            
+            if (!isComplete) {
+                // Показываем попап для заполнения профиля
+                console.log('Showing profile setup popup...');
+                dispatcher.process({ type: Actions.SHOW_PROFILE_SETUP_POPUP });
+            } else {
+                // Профиль заполнен, загружаем карточки
+                console.log('Profile is complete, loading cards...');
+                await this.getCards();
+            }
+        } catch (error) {
+            console.error('Error checking profile completeness:', error);
+            // В случае ошибки пытаемся загрузить карточки
+            await this.getCards();
         }
     }
 

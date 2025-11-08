@@ -1,21 +1,27 @@
 .main-page-layout {
     display: flex;
     gap: 40px;
-    max-width: 1200px;
-    margin: 40px auto;
+    max-width: 1400px;
+    width: 100%;
+    margin: 0 auto;
     padding: 20px;
+    min-height: calc(100vh - 80px); // Вычитаем высоту header
+    box-sizing: border-box;
 }
 
 .cards-container {
     position: relative;
-    height: 550px; 
-    width: 350px;
+    height: 600px; 
+    width: 380px;
     flex-shrink: 0;
 }
 
 .card-info-panel {
     flex: 1;
-    min-width: 0;
+    min-width: 300px;
+    max-width: 600px;
+    overflow-y: auto;
+    padding-right: 20px;
 }
 
 .details {

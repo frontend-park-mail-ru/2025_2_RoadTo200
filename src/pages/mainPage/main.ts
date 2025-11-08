@@ -71,17 +71,22 @@ export class MainPage {
     }
 
     async render(): Promise<void> {
+        console.log('MainPage render called, parent:', this.parent);
         this.parent.innerHTML = '';
 
         const pageTemplateString = await fetchTemplate(TEMPLATE_PATH);
         const pageTemplate = Handlebars.compile(pageTemplateString);
 
         const renderedHtml = pageTemplate({ cardsHtml: '' });
+        console.log('Rendered HTML:', renderedHtml.substring(0, 200));
 
         const newDiv = document.createElement('div');
         newDiv.id = 'mainDiv';
         newDiv.innerHTML = renderedHtml;
         this.parent.appendChild(newDiv);
+        
+        console.log('Main page DOM inserted');
+        console.log('cards-container exists:', !!document.querySelector('.cards-container'));
 
         document.addEventListener('click', (event: Event) => {
             const target = event.target as HTMLElement;
@@ -90,7 +95,8 @@ export class MainPage {
             }
         });
 
-        await dispatcher.process({ type: Actions.GET_CARDS });
+        // Удалено: await dispatcher.process({ type: Actions.GET_CARDS });
+        // Карточки будут загружены после проверки профиля в mainStore
     }
 
     setCards(cards: CardData[]): void {
@@ -137,13 +143,22 @@ export class MainPage {
 
     async displayFirstCard(): Promise<void> {
         const pageContainer = document.querySelector('.cards-container');
+        console.log('displayFirstCard called, pageContainer:', pageContainer);
 
-        if (!pageContainer) return;
+        if (!pageContainer) {
+            console.error('pageContainer not found!');
+            return;
+        }
 
         const firstCardData = this.cardsData[this.currentCardIndex];
+        console.log('firstCardData:', firstCardData);
+        
         const cardHtml = await Card.render(firstCardData);
+        console.log('cardHtml length:', cardHtml.length);
         
         pageContainer.insertAdjacentHTML('beforeend', cardHtml);
+        console.log('Card inserted into DOM');
+        
         this.initCardActions();
         
         // Обновляем информационную панель справа
