@@ -1,6 +1,9 @@
 import Handlebars from 'handlebars';
 import ProfileApi, { type Profile } from '@/apiHandler/profileApi';
 import './profileSetupPopup.scss';
+import { Actions } from '../../actions';
+import { dispatcher } from '../../Dispatcher';
+
 
 const TEMPLATE_PATH = '/src/components/ProfileSetupPopup/profileSetupPopup.hbs';
 
@@ -49,7 +52,7 @@ export class ProfileSetupPopup {
             console.log('Profile data:', profile);
             
             // Проверяем обязательные поля (убрали проверку даты рождения)
-            const hasName = !!(profile.name && profile.name.trim() !== '');
+            const hasName = !!(profile.name && profile.name.trim() !== 'NAAAAAAne');
             const hasGender = !!(profile.gender && profile.gender !== '');
             
             // Дата рождения больше не обязательна для проверки
@@ -77,6 +80,7 @@ export class ProfileSetupPopup {
     private async getCurrentProfileData(): Promise<ProfileSetupData> {
         try {
             const response = await ProfileApi.getProfile();
+
             
             // Проверяем разные форматы ответа от API
             let profile: Profile;
@@ -175,93 +179,117 @@ export class ProfileSetupPopup {
     /**
      * Обрабатывает отправку формы
      */
-    private async handleSubmit(event: Event): Promise<void> {
-        event.preventDefault();
+    /**
+ * Обрабатывает отправку формы
+ */
+private async handleSubmit(event: Event): Promise<void> {
+    event.preventDefault();
+    
+    this.clearError();
+    
+    const form = event.target as HTMLFormElement;
+    const formData = new FormData(form);
+    
+    const name = formData.get('name') as string;
+    const birthDate = formData.get('birthDate') as string;
+    const gender = formData.get('gender') as string;
+    const bio = formData.get('bio') as string;
+    
+    // Валидация обязательных полей
+    if (!name || name.trim() === '') {
+        this.showError('Пожалуйста, введите ваше имя');
+        return;
+    }
+    
+    if (!gender) {
+        this.showError('Пожалуйста, выберите пол');
+        return;
+    }
+    
+    // Проверка возраста только если дата заполнена
+    if (birthDate) {
+        const birthDateObj = new Date(birthDate);
+        const today = new Date();
+        const age = today.getFullYear() - birthDateObj.getFullYear();
+        const monthDiff = today.getMonth() - birthDateObj.getMonth();
+        const dayDiff = today.getDate() - birthDateObj.getDate();
         
-        this.clearError();
+        const actualAge = monthDiff < 0 || (monthDiff === 0 && dayDiff < 0) ? age - 1 : age;
         
-        const form = event.target as HTMLFormElement;
-        const formData = new FormData(form);
-        
-        const name = formData.get('name') as string;
-        const birthDate = formData.get('birthDate') as string;
-        const gender = formData.get('gender') as string;
-        const bio = formData.get('bio') as string;
-        
-        // Валидация обязательных полей
-        if (!name || name.trim() === '') {
-            this.showError('Пожалуйста, введите ваше имя');
+        if (actualAge < 18) {
+            this.showError('Вам должно быть не менее 18 лет');
             return;
         }
         
-        if (!gender) {
-            this.showError('Пожалуйста, выберите пол');
+        if (actualAge > 100) {
+            this.showError('Пожалуйста, проверьте дату рождения');
             return;
-        }
-        
-        // Проверка возраста только если дата заполнена
-        if (birthDate) {
-            const birthDateObj = new Date(birthDate);
-            const today = new Date();
-            const age = today.getFullYear() - birthDateObj.getFullYear();
-            const monthDiff = today.getMonth() - birthDateObj.getMonth();
-            const dayDiff = today.getDate() - birthDateObj.getDate();
-            
-            const actualAge = monthDiff < 0 || (monthDiff === 0 && dayDiff < 0) ? age - 1 : age;
-            
-            if (actualAge < 18) {
-                this.showError('Вам должно быть не менее 18 лет');
-                return;
-            }
-            
-            if (actualAge > 100) {
-                this.showError('Пожалуйста, проверьте дату рождения');
-                return;
-            }
-        }
-        
-        // Отключаем кнопку на время отправки
-        const submitButton = form.querySelector('button[type="submit"]') as HTMLButtonElement;
-        if (submitButton) {
-            submitButton.disabled = true;
-            submitButton.textContent = 'Сохранение...';
-        }
-        
-        try {
-            // Формируем данные для отправки
-            const updateData: any = {
-                name: name.trim(),
-                gender,
-                bio: bio ? bio.trim() : undefined
-            };
-            
-            // Добавляем дату рождения только если она заполнена
-            if (birthDate) {
-                updateData.birthDate = birthDate;
-            }
-            
-            // Отправляем данные на сервер
-            await ProfileApi.updateProfileInfo(updateData);
-            
-            // Закрываем попап
-            this.hide();
-            
-            // Вызываем callback если есть
-            if (this.onCompleteCallback) {
-                this.onCompleteCallback();
-            }
-            
-        } catch (error) {
-            console.error('Error updating profile:', error);
-            this.showError(error instanceof Error ? error.message : 'Не удалось сохранить данные. Попробуйте снова.');
-            
-            // Включаем кнопку обратно
-            if (submitButton) {
-                submitButton.disabled = false;
-                submitButton.textContent = 'Сохранить и продолжить';
-            }
         }
     }
+    
+    // Отключаем кнопку на время отправки
+    const submitButton = form.querySelector('button[type="submit"]') as HTMLButtonElement;
+    if (submitButton) {
+        submitButton.disabled = true;
+        submitButton.textContent = 'Сохранение...';
+    }
+    
+    try {
+        // Формируем данные для отправки
+        const updateData: any = {
+            name: name.trim(),
+            gender,
+            bio: bio ? bio.trim() : undefined
+        };
+        
+        // Добавляем дату рождения только если она заполнена
+        if (birthDate) {
+            updateData.birthDate = birthDate;
+        }
+        
+        // Отправляем данные на сервер
+        await ProfileApi.updateProfileInfo(updateData);
+
+        // Получаем обновленные данные профиля для AUTH_STATE_UPDATED
+        const updatedProfileResponse = await ProfileApi.getProfile();
+        let updatedUser: User | null = null;
+        
+        if (updatedProfileResponse && updatedProfileResponse.profile) {
+            updatedUser = updatedProfileResponse.profile as User;
+        } else if (updatedProfileResponse && (updatedProfileResponse as any).user) {
+            updatedUser = (updatedProfileResponse as any).user as User;
+        } else if (updatedProfileResponse && (updatedProfileResponse as any).name !== undefined) {
+            updatedUser = updatedProfileResponse as any as User;
+        }
+        
+        // Обновляем состояние аутентификации
+        dispatcher.process({ 
+            type: Actions.AUTH_STATE_UPDATED, 
+            payload: { user: updatedUser } 
+        });
+        
+        // Pre-render header
+        dispatcher.process({ type: Actions.RENDER_HEADER });
+        
+        // Закрываем попап
+        this.hide();
+        
+        // Вызываем callback если есть
+        if (this.onCompleteCallback) {
+            this.onCompleteCallback();
+        }
+        
+    } catch (error) {
+        console.error('Error updating profile:', error);
+        this.showError(error instanceof Error ? error.message : 'Не удалось сохранить данные. Попробуйте снова.');
+        
+        // Включаем кнопку обратно
+        if (submitButton) {
+            submitButton.disabled = false;
+            submitButton.textContent = 'Сохранить и продолжить';
+        }
+    }
+}
 
     /**
      * Показывает ошибку

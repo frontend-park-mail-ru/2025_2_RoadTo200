@@ -40,7 +40,6 @@ class MainStore implements Store {
             case Actions.RENDER_MAIN:
             case Actions.RENDER_CARDS:
                 await main.render();
-                // Проверяем заполненность профиля после рендера
                 await this.checkProfileCompleteness();
                 break;
 

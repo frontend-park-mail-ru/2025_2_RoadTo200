@@ -65,16 +65,13 @@ class MatchesStore implements Store {
                 const matchedAt = match.matched_at ? new Date(match.matched_at) : new Date();
                 const expiresAt = new Date(matchedAt.getTime() + 24 * 60 * 60 * 1000);
                 
-                const imagesArray = photos
-                    .filter((p: any) => p.is_approved)
-                    .map((p: any) => p.photo_url);
+                const imagesArray = photos;
                 
                 let photoUrl = '/src/assets/image.png';
                 if (imagesArray.length > 0) {
                     photoUrl = imagesArray[0];
                 }
                 
-                console.log(`Match ${user.name}: photos count=${photos.length}, approved=${imagesArray.length}, first photo=${photoUrl}`);
                 
                 return {
                     id: user.id || match.id,
