@@ -2,8 +2,7 @@ import { Actions, type Action } from '@/actions';
 import { dispatcher, type Store } from '@/Dispatcher';
 import { profile } from './profile';
 import ProfileApi from '@/apiHandler/profileApi';
-
-const profileApi = new ProfileApi();
+import { getActivitiesFromData } from '@/utils/activityIcons';
 
 interface PhotoCard {
     id: string | number;
@@ -25,6 +24,7 @@ interface ProfileData {
     age: string | number;
     interests: Interest[];
     photoCards: PhotoCard[];
+    activities: Array<{ name: string; icon: string }>;
 }
 
 class ProfileStore implements Store {
@@ -35,7 +35,8 @@ class ProfileStore implements Store {
         name: '',
         age: '',
         interests: [],
-        photoCards: []
+        photoCards: [],
+        activities: []
     };
 
     constructor() {
@@ -77,12 +78,15 @@ class ProfileStore implements Store {
 
     private async renderProfile(): Promise<void> {
         try {
-            const response = await profileApi.getProfile() as any;
+            const response = await ProfileApi.getProfile() as any;
             
             console.log('Profile API response:', response);
 
             const user = response.user || {};
             const photos = response.photos || [];
+
+            // Получаем активности из данных пользователя
+            const activities = getActivitiesFromData(user);
 
             this.profileData = {
                 description: user.bio || "",
@@ -95,7 +99,8 @@ class ProfileStore implements Store {
                     { id: 2, name: "Кино" },
                     { id: 3, name: "Живопись" },
                 ],
-                photoCards: this.transformPhotosToCards(photos)
+                photoCards: this.transformPhotosToCards(photos),
+                activities: activities
             };
 
             const contentContainer = document.getElementById('content-container');
@@ -157,7 +162,7 @@ class ProfileStore implements Store {
             
             console.log('Updating profile field:', field, '→', backendField, 'with value:', value);
 
-            await profileApi.updateProfileInfo(updateData);
+            await ProfileApi.updateProfileInfo(updateData);
 
             console.log('Profile field updated successfully');
 
@@ -179,7 +184,7 @@ class ProfileStore implements Store {
 
             console.log('Deleting photo with ID:', photoId);
             
-            const response = await profileApi.deletePhoto(photoId);
+            const response = await ProfileApi.deletePhoto(photoId);
 
             console.log('Delete photo response:', response);
 
@@ -203,7 +208,7 @@ class ProfileStore implements Store {
                 if (files.length === 0) return;
 
                 try {
-                    const response = await profileApi.uploadPhoto(files);
+                    const response = await ProfileApi.uploadPhoto(files);
 
                     console.log('Upload photo response:', response);
 

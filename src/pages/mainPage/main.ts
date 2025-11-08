@@ -2,9 +2,11 @@ import Handlebars from 'handlebars';
 import Card from '@/components/Card/card';
 import { dispatcher } from '@/Dispatcher';
 import { Actions } from '@/actions';
+import { getActivitiesFromData } from '@/utils/activityIcons';
 
 const TEMPLATE_PATH = '/src/pages/mainPage/main.hbs';
-const EMPTY_STATE_TEMPLATE_PATH = '/src/components/EmptyState/emptyState.hbs'; 
+const EMPTY_STATE_TEMPLATE_PATH = '/src/components/EmptyState/emptyState.hbs';
+const CARD_INFO_TEMPLATE_PATH = '/src/components/CardInfo/cardInfo.hbs'; 
 
 interface CardData {
     id: string;
@@ -13,6 +15,20 @@ interface CardData {
     description?: string;
     images?: Array<{ imageUrl: string }>;
     photosCount?: number;
+    bio?: string;
+    interests?: Array<{ id: number; name: string }>;
+    musician?: string;
+    quote?: string;
+    workout?: boolean;
+    fun?: boolean;
+    party?: boolean;
+    chill?: boolean;
+    love?: boolean;
+    relax?: boolean;
+    yoga?: boolean;
+    friendship?: boolean;
+    culture?: boolean;
+    cinema?: boolean;
 }
 
 const fetchTemplate = async (path: string): Promise<string> => {
@@ -129,6 +145,10 @@ export class MainPage {
         
         pageContainer.insertAdjacentHTML('beforeend', cardHtml);
         this.initCardActions();
+        
+        // Обновляем информационную панель справа
+        await this.updateCardInfo(firstCardData);
+        
         this.currentCardIndex++;
     }
 
@@ -142,9 +162,36 @@ export class MainPage {
             const cardHtml = await Card.render(nextCardData);
             pageContainer.insertAdjacentHTML('beforeend', cardHtml);
             this.initCardActions();
+            
+            // Обновляем информационную панель справа
+            await this.updateCardInfo(nextCardData);
+            
             this.currentCardIndex++;
         } else {
             await this.displayEmptyState();
+        }
+    }
+
+    private async updateCardInfo(cardData: CardData): Promise<void> {
+        const infoPanelContainer = document.getElementById('cardInfoPanel');
+        if (!infoPanelContainer) return;
+
+        try {
+            const templateString = await fetchTemplate(CARD_INFO_TEMPLATE_PATH);
+            const template = Handlebars.compile(templateString);
+            
+            // Преобразуем данные с активностями
+            const activities = getActivitiesFromData(cardData);
+            const dataWithActivities = {
+                ...cardData,
+                activities
+            };
+            
+            console.log('CardInfo data:', dataWithActivities);
+            
+            infoPanelContainer.innerHTML = template(dataWithActivities);
+        } catch (error) {
+            console.error('Error updating card info:', error);
         }
     }
 

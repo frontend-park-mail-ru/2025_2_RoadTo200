@@ -1,5 +1,7 @@
 /* global Handlebars */
 
+import { getActivitiesFromData } from '@/utils/activityIcons';
+
 const CARD_TEMPLATE_PATH = '/src/components/Card/card.hbs';
 
 export interface CardImage {
@@ -8,6 +10,20 @@ export interface CardImage {
 
 export interface CardData {
     images?: CardImage[];
+    bio?: string;
+    interests?: Array<{ id: number; name: string }>;
+    musician?: string;
+    quote?: string;
+    workout?: boolean;
+    fun?: boolean;
+    party?: boolean;
+    chill?: boolean;
+    love?: boolean;
+    relax?: boolean;
+    yoga?: boolean;
+    friendship?: boolean;
+    culture?: boolean;
+    cinema?: boolean;
     [key: string]: any;
 }
 
@@ -80,10 +96,17 @@ const Card = {
             return '<div>Ошибка: Не удалось загрузить хенделбарс</div>';
         }
 
+        console.log('Card.render - cardData:', cardData);
+        const activities = getActivitiesFromData(cardData);
+        console.log('Card.render - activities:', activities);
+
         const templateData = {
             ...cardData,
             imagesJson: JSON.stringify((cardData.images || []).map(img => img.imageUrl)),
+            activities: activities.length > 0 ? activities : null
         };
+
+        console.log('Card.render - templateData:', templateData);
 
         const templateString = await fetchCardTemplate();
         const template = Handlebars.compile(templateString);

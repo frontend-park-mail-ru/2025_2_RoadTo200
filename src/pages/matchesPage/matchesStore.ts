@@ -89,7 +89,18 @@ class MatchesStore implements Store {
                     userData: {
                         ...user,
                         images: imagesArray,
-                        bio: user.bio || user.description || ''
+                        bio: user.bio || user.description || '',
+                        // Явно передаем активности
+                        workout: user.workout,
+                        fun: user.fun,
+                        party: user.party,
+                        chill: user.chill,
+                        love: user.love,
+                        relax: user.relax,
+                        yoga: user.yoga,
+                        friendship: user.friendship,
+                        culture: user.culture,
+                        cinema: user.cinema
                     }
                 };
             });

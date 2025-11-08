@@ -41,8 +41,11 @@
 
             <h3 class="details__section-title">Активности</h3>
             <div class="details__icons">
-                <div class="details__icon-circle"></div>
-                <div class="details__icon-circle"></div>
+                {{#each activities}}
+                <div class="details__icon-circle">
+                    <img src="{{this.icon}}" alt="{{this.name}}" class="details__activity-icon" title="{{this.name}}">
+                </div>
+                {{/each}}
             </div>
 
             <h3 class="details__section-title">

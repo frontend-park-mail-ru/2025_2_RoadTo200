@@ -10,7 +10,19 @@ export interface Card {
     bio?: string;
     photos: string[];
     interests?: string[];
+    musician?: string;
+    quote?: string;
     distance?: number;
+    workout?: boolean;
+    fun?: boolean;
+    party?: boolean;
+    chill?: boolean;
+    love?: boolean;
+    relax?: boolean;
+    yoga?: boolean;
+    friendship?: boolean;
+    culture?: boolean;
+    cinema?: boolean;
 }
 
 export interface CardsResponse {
