@@ -12,6 +12,7 @@ import './src/components/AuthBackground/authBackgroundStore';
 import './src/components/MatchCard/matchCardStore';
 import './src/components/ProfileMenu/profileMenuStore';
 import './src/components/OfflineBanner/offlineBannerStore';
+import './src/components/ProfileSetupPopup/profileSetupPopupStore';
 import navigationStore, { Route } from './src/navigation/navigationStore';
 
 import { Router } from "./router";

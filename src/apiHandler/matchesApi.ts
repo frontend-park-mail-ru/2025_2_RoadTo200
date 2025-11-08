@@ -12,6 +12,16 @@ export interface Match {
     photos: string[];
     interests?: string[];
     matchedAt?: string;
+    workout?: boolean;
+    fun?: boolean;
+    party?: boolean;
+    chill?: boolean;
+    love?: boolean;
+    relax?: boolean;
+    yoga?: boolean;
+    friendship?: boolean;
+    culture?: boolean;
+    cinema?: boolean;
 }
 
 export interface MatchesResponse {

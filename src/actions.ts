@@ -74,6 +74,10 @@ export const Actions = {
     // offline banner
     RENDER_OFFLINE_BANNER: "RENDER_OFFLINE_BANNER",
     CONNECTIVITY_CHANGED: "CONNECTIVITY_CHANGED",
+    
+    // profile setup popup
+    SHOW_PROFILE_SETUP_POPUP: "SHOW_PROFILE_SETUP_POPUP",
+    HIDE_PROFILE_SETUP_POPUP: "HIDE_PROFILE_SETUP_POPUP",
 } as const;
 
 export type ActionType = typeof Actions[keyof typeof Actions];

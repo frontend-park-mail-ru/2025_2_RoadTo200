@@ -1,6 +1,7 @@
 import { Actions, type Action } from '@/actions';
 import { dispatcher, type Store } from '@/Dispatcher';
 import { matchProfile } from './matchProfile';
+import { getActivitiesFromData } from '@/utils/activityIcons';
 
 interface PhotoCard {
     id: string;
@@ -18,6 +19,7 @@ interface MatchProfileData {
     quote: string;
     interests: any[];
     photoCards: PhotoCard[];
+    activities: Array<{ name: string; icon: string }>;
 }
 
 class MatchProfileStore implements Store {
@@ -82,6 +84,9 @@ class MatchProfileStore implements Store {
                 return;
             }
 
+            // Получаем активности из данных пользователя
+            const activities = getActivitiesFromData(userData);
+
             this.matchData = {
                 id: userData.id,
                 name: userData.name || "",
@@ -90,7 +95,8 @@ class MatchProfileStore implements Store {
                 musician: "Не указано",
                 quote: "Не указано",
                 interests: [],
-                photoCards: this.transformImagesToCards(userData.images || [])
+                photoCards: this.transformImagesToCards(userData.images || []),
+                activities: activities
             };
 
             await matchProfile.render(this.matchData);

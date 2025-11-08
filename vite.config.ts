@@ -14,8 +14,8 @@ export default defineConfig({
         open: true,
         proxy: {
             '/api': {
-                // // локальный сервер или на тачке
-                // target: 'http://127.0.0.1:8080',
+                // локальный сервер или на тачке
+                //target: 'http://127.0.0.1:8080',
                 target: 'http://217.16.17.116:8080',
                 changeOrigin: true,
                 secure: false,

@@ -2,9 +2,11 @@ import Handlebars from 'handlebars';
 import Card from '@/components/Card/card';
 import { dispatcher } from '@/Dispatcher';
 import { Actions } from '@/actions';
+import { getActivitiesFromData } from '@/utils/activityIcons';
 
 const TEMPLATE_PATH = '/src/pages/mainPage/main.hbs';
-const EMPTY_STATE_TEMPLATE_PATH = '/src/components/EmptyState/emptyState.hbs'; 
+const EMPTY_STATE_TEMPLATE_PATH = '/src/components/EmptyState/emptyState.hbs';
+const CARD_INFO_TEMPLATE_PATH = '/src/components/CardInfo/cardInfo.hbs'; 
 
 interface CardData {
     id: string;
@@ -13,6 +15,20 @@ interface CardData {
     description?: string;
     images?: Array<{ imageUrl: string }>;
     photosCount?: number;
+    bio?: string;
+    interests?: Array<{ id: number; name: string }>;
+    musician?: string;
+    quote?: string;
+    workout?: boolean;
+    fun?: boolean;
+    party?: boolean;
+    chill?: boolean;
+    love?: boolean;
+    relax?: boolean;
+    yoga?: boolean;
+    friendship?: boolean;
+    culture?: boolean;
+    cinema?: boolean;
 }
 
 const fetchTemplate = async (path: string): Promise<string> => {
@@ -55,17 +71,22 @@ export class MainPage {
     }
 
     async render(): Promise<void> {
+        console.log('MainPage render called, parent:', this.parent);
         this.parent.innerHTML = '';
 
         const pageTemplateString = await fetchTemplate(TEMPLATE_PATH);
         const pageTemplate = Handlebars.compile(pageTemplateString);
 
         const renderedHtml = pageTemplate({ cardsHtml: '' });
+        console.log('Rendered HTML:', renderedHtml.substring(0, 200));
 
         const newDiv = document.createElement('div');
         newDiv.id = 'mainDiv';
         newDiv.innerHTML = renderedHtml;
         this.parent.appendChild(newDiv);
+        
+        console.log('Main page DOM inserted');
+        console.log('cards-container exists:', !!document.querySelector('.cards-container'));
 
         document.addEventListener('click', (event: Event) => {
             const target = event.target as HTMLElement;
@@ -74,7 +95,8 @@ export class MainPage {
             }
         });
 
-        await dispatcher.process({ type: Actions.GET_CARDS });
+        // Удалено: await dispatcher.process({ type: Actions.GET_CARDS });
+        // Карточки будут загружены после проверки профиля в mainStore
     }
 
     setCards(cards: CardData[]): void {
@@ -121,14 +143,27 @@ export class MainPage {
 
     async displayFirstCard(): Promise<void> {
         const pageContainer = document.querySelector('.cards-container');
+        console.log('displayFirstCard called, pageContainer:', pageContainer);
 
-        if (!pageContainer) return;
+        if (!pageContainer) {
+            console.error('pageContainer not found!');
+            return;
+        }
 
         const firstCardData = this.cardsData[this.currentCardIndex];
+        console.log('firstCardData:', firstCardData);
+        
         const cardHtml = await Card.render(firstCardData);
+        console.log('cardHtml length:', cardHtml.length);
         
         pageContainer.insertAdjacentHTML('beforeend', cardHtml);
+        console.log('Card inserted into DOM');
+        
         this.initCardActions();
+        
+        // Обновляем информационную панель справа
+        await this.updateCardInfo(firstCardData);
+        
         this.currentCardIndex++;
     }
 
@@ -142,9 +177,36 @@ export class MainPage {
             const cardHtml = await Card.render(nextCardData);
             pageContainer.insertAdjacentHTML('beforeend', cardHtml);
             this.initCardActions();
+            
+            // Обновляем информационную панель справа
+            await this.updateCardInfo(nextCardData);
+            
             this.currentCardIndex++;
         } else {
             await this.displayEmptyState();
+        }
+    }
+
+    private async updateCardInfo(cardData: CardData): Promise<void> {
+        const infoPanelContainer = document.getElementById('cardInfoPanel');
+        if (!infoPanelContainer) return;
+
+        try {
+            const templateString = await fetchTemplate(CARD_INFO_TEMPLATE_PATH);
+            const template = Handlebars.compile(templateString);
+            
+            // Преобразуем данные с активностями
+            const activities = getActivitiesFromData(cardData);
+            const dataWithActivities = {
+                ...cardData,
+                activities
+            };
+            
+            console.log('CardInfo data:', dataWithActivities);
+            
+            infoPanelContainer.innerHTML = template(dataWithActivities);
+        } catch (error) {
+            console.error('Error updating card info:', error);
         }
     }
 

@@ -236,4 +236,4 @@ class ProfileApi {
     }
 }
 
-export default ProfileApi;
+export default new ProfileApi();

@@ -105,6 +105,12 @@
         background: linear-gradient(135deg, var(--color-primary-light) 0%, var(--color-primary-dark) 100%);
     }
 
+    &__activity-icon {
+        width: 36px;
+        height: 36px;
+        filter: brightness(0) invert(1);
+    }
+
     &__chat-button {
         margin-top: 30px;
         padding: 12px 28px;

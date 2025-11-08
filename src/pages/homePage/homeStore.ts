@@ -5,11 +5,9 @@ import ProfileApi from '@/apiHandler/profileApi';
 
 class HomeStore implements Store {
     selectedActivities: string[] = [];
-    private profileApi: ProfileApi;
 
     constructor() {
         dispatcher.register(this);
-        this.profileApi = new ProfileApi();
     }
 
     async handleAction(action: Action): Promise<void> {
@@ -30,8 +28,8 @@ class HomeStore implements Store {
 
     private async loadUserActivities(): Promise<void> {
         try {
-            const response = await this.profileApi.getProfile();
-            const profile = response.user;
+            const response = await ProfileApi.getProfile();
+            const profile = response.profile;
             
             // Собираем активные активности
             const activeActivities: string[] = [];
@@ -54,7 +52,7 @@ class HomeStore implements Store {
 
     private async updateActivity(activityData: Record<string, boolean>): Promise<void> {
         try {
-            await this.profileApi.updateActivities(activityData);
+            await ProfileApi.updateActivities(activityData);
             console.log('Activity updated:', activityData);
         } catch (error) {
             console.error('Failed to update activity:', error);

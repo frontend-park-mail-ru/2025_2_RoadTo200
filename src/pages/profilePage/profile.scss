@@ -205,12 +205,19 @@
         align-items: center;
         justify-content: center;
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        background: linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary-light) 100%);
 
         &-plus {
             background-color: #ffffff;
             border: 1px solid var(--color-primary-dark);
             box-shadow: none;
         }
+    }
+
+    &__activity-icon {
+        width: 36px;
+        height: 36px;
+        filter: brightness(0) invert(1);
     }
 
     &__icon-plus {

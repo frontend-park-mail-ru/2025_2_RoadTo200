@@ -30,8 +30,11 @@
 
             <h3 class="match-details__section-title">Активности</h3>
             <div class="match-details__icons">
-                <div class="match-details__icon-circle"></div>
-                <div class="match-details__icon-circle"></div>
+                {{#each activities}}
+                <div class="match-details__icon-circle">
+                    <img src="{{this.icon}}" alt="{{this.name}}" class="match-details__activity-icon" title="{{this.name}}">
+                </div>
+                {{/each}}
             </div>
 
             <h3 class="match-details__section-title">Любимый исполнитель</h3>
