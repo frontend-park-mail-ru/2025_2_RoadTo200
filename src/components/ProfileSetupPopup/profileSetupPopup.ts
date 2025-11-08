@@ -56,7 +56,7 @@ export class ProfileSetupPopup {
             const hasGender = !!(profile.gender && profile.gender !== '');
             
             // Дата рождения больше не обязательна для проверки
-            const birthDate = (profile as any).birth_date || profile.birthDate;
+            // const birthDate = (profile as any).birth_date || profile.birthDate;
             
             const isComplete = hasName && hasGender;
             
@@ -92,11 +92,25 @@ export class ProfileSetupPopup {
             }
             
             // Обрабатываем snake_case поля от API
-            const birthDate = (profile as any).birth_date || profile.birthDate || '';
+            let birthDate = (profile as any).birth_date || profile.birthDate || '';
+            
+            // Конвертируем дату из ISO формата в YYYY-MM-DD для input type="date"
+            if (birthDate && birthDate !== '0001-01-01T00:00:00Z') {
+                // Извлекаем компоненты даты из ISO строки
+                const isoMatch = birthDate.match(/^(\d{4})-(\d{2})-(\d{2})/);
+                if (isoMatch) {
+                    const [, year, month, day] = isoMatch;
+                    birthDate = `${year}-${month}-${day}`;
+                } else {
+                    birthDate = '';
+                }
+            } else {
+                birthDate = '';
+            }
             
             return {
                 name: profile.name || '',
-                birthDate: birthDate === '0001-01-01T00:00:00Z' ? '' : birthDate,
+                birthDate: birthDate,
                 gender: profile.gender || '',
                 bio: profile.bio || ''
             };
@@ -119,7 +133,7 @@ export class ProfileSetupPopup {
         const templateString = await fetchTemplate(TEMPLATE_PATH);
         
         // Регистрируем helper для сравнения в Handlebars
-        Handlebars.registerHelper('eq', function(a, b) {
+        Handlebars.registerHelper('eq', function(a: any, b: any) {
             return a === b;
         });
         
@@ -237,8 +251,11 @@ private async handleSubmit(event: Event): Promise<void> {
         };
         
         // Добавляем дату рождения только если она заполнена
+        // Конвертируем в ISO формат с учетом UTC (полдень по UTC, чтобы избежать проблем с часовыми поясами)
         if (birthDate) {
-            updateData.birthDate = birthDate;
+            const [year, month, day] = birthDate.split('-');
+            const birthDateISO = new Date(Date.UTC(parseInt(year), parseInt(month) - 1, parseInt(day), 12, 0, 0)).toISOString();
+            updateData.birth_date = birthDateISO;
         }
         
         // Отправляем данные на сервер
@@ -246,14 +263,14 @@ private async handleSubmit(event: Event): Promise<void> {
 
         // Получаем обновленные данные профиля для AUTH_STATE_UPDATED
         const updatedProfileResponse = await ProfileApi.getProfile();
-        let updatedUser: User | null = null;
+        let updatedUser: any = null;
         
         if (updatedProfileResponse && updatedProfileResponse.profile) {
-            updatedUser = updatedProfileResponse.profile as User;
+            updatedUser = updatedProfileResponse.profile;
         } else if (updatedProfileResponse && (updatedProfileResponse as any).user) {
-            updatedUser = (updatedProfileResponse as any).user as User;
+            updatedUser = (updatedProfileResponse as any).user;
         } else if (updatedProfileResponse && (updatedProfileResponse as any).name !== undefined) {
-            updatedUser = updatedProfileResponse as any as User;
+            updatedUser = updatedProfileResponse as any;
         }
         
         // Обновляем состояние аутентификации

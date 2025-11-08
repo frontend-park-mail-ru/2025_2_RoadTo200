@@ -86,10 +86,24 @@ class SettingsStore implements Store {
     }
     
     private formatDate(dateString: string): string {
+        if (!dateString || dateString === '0001-01-01T00:00:00Z') {
+            return '';
+        }
+        
+        // Парсим ISO дату и создаем объект Date в UTC
         const date = new Date(dateString);
-        const day = String(date.getDate()).padStart(2, '0');
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const year = date.getFullYear();
+        
+        // Извлекаем компоненты даты напрямую из ISO строки, чтобы избежать проблем с часовыми поясами
+        const isoMatch = dateString.match(/^(\d{4})-(\d{2})-(\d{2})/);
+        if (isoMatch) {
+            const [, year, month, day] = isoMatch;
+            return `${day}.${month}.${year}`;
+        }
+        
+        // Fallback на обычный парсинг (может не работать корректно для всех случаев)
+        const day = String(date.getUTCDate()).padStart(2, '0');
+        const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+        const year = date.getUTCFullYear();
         return `${day}.${month}.${year}`;
     }
 
@@ -143,7 +157,8 @@ class SettingsStore implements Store {
         }
 
         // Конвертируем дату из DD.MM.YYYY в ISO формат для бэкенда
-        const birthDateISO = new Date(year, month - 1, day).toISOString();
+        // Используем полдень по UTC, чтобы избежать проблем с часовыми поясами
+        const birthDateISO = new Date(Date.UTC(year, month - 1, day, 12, 0, 0)).toISOString();
 
         try {
             await ProfileApi.updateProfileInfo({ 
