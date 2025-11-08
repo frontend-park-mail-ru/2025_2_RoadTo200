@@ -11,6 +11,7 @@
 
 .photo-grid {
     display: grid;
+   
     grid-template-columns: repeat(2, 1fr);
     gap: 15px;
 
@@ -56,6 +57,7 @@
         height: 100%;
         display: flex;
         align-items: center;
+        cursor: pointer;
         justify-content: center;
         background: linear-gradient(135deg, #ffb3c1 0%, #ff7f90 100%);
     }

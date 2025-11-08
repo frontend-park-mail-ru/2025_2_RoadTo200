@@ -1,73 +1,20 @@
-<div class="card-profile-page">
-  <div class="card-profile-page__content">
-    
-    <div class="card card-photo-grid__card" data-id="{{id}}">
-      <div class="card__wrapper">
-        <img class="card-photo-grid__image" src="{{photos.0}}" alt="{{name}}">
-        <div class="card__info">
-          <h2 class="card__name">
-            {{name}}, {{age}}
-          </h2>
-        </div>
-      </div>
-      <div class="card__actions card__actions-overlay">
-        <button class="card__button card__button-like">&#9829;</button>
-        <button class="card__button card__button-superLike ">&#9733;</button>
-        <button class="card__button card__button-dislike">&#10006;</button>
-      </div>
-    </div>
-    
-    <div class="card-details">
-        
-        <h3 class="card-details__section-title">О себе</h3>
-        <div class="card-details__editable-content">
-            <p class="card-details__section-text card-details__section-text-current">
-                {{#if bio}}{{bio}}{{else}}It uses a template and an input object to generate HTML or other text formats. Handlebars templates look like regular text with embedded Handlebars expressions.{{/if}}
-            </p>
-        </div>
-        
-        <h3 class="card-details__section-title">Увлечения</h3>
-        <div class="card-details__tags">
-            {{#each interests}}
-                <span class="card-details__tag">
-                    {{this}}
-                </span>
-            {{/each}}
-            {{#unless interests}}
-                <span class="card-details__tag">Рыбалка</span>
-                <span class="card-details__tag">Кино</span>
-                <span class="card-details__tag">Живопись</span>
-                <span class="card-details__tag">Бежать марафон</span>
-                <span class="card-details__tag">Кулинария</span>
-                <span class="card-details__tag">Онлайн игры</span>
-            {{/unless}}
-        </div>
-
-        <h3 class="card-details__section-title">Активности</h3>
-        <div class="card-details__icons">
-            <div class="card-details__icon-circle">
-              &#127800;
-            </div>
-            <div class="card-details__icon-circle">
-              &#128094;
-            </div>
-        </div>
-
-        <h3 class="card-details__section-title">Любимый исполнитель</h3>
-        <div class="card-details__editable-content">
-            <p class="card-details__section-text card-details__section-text-current">
-                {{#if musician}}{{musician}}{{else}}Cacan{{/if}}
-            </p>
-        </div>
-
-        <h3 class="card-details__section-title">Любимая цитата</h3>
-        <div class="card-details__editable-content">
-            <p class="card-details__section-text card-details__section-text-current">
-                {{#if quote}}"{{quote}}"{{else}}"It uses a template and an input object to generate HTML or other text"{/if}}
-            </p>
-        </div>
-
-        <button class="card-details__chat-button">Перейти в чат</button>
+<div class="card" id="cards" data-id="{{id}}" data-images-json='{{{imagesJson}}}'>
+  <div class="card__wrapper">
+    <img class="card__image" src="{{images.0.imageUrl}}" alt="{{name}}" data-index="0">
+    <div class="card__info">
+      <h2 class="card__name">{{name}}, {{age}}</h2>
+      <p class="card__description">{{description}}</p>
     </div>
   </div>
+  {{#if noActions}}
+  <div class="card__actions">
+    <button class="card__button card__button-reload" onClick="window.location.reload();">&#8634;</button>
+  </div>
+  {{else}}
+  <div class="card__actions">
+    <button class="card__button card__button-dislike">&#10006;</button>
+    <button class="card__button card__button-superLike ">&#9733;</button>
+    <button class="card__button card__button-like">&#9829;</button>
+  </div>
+  {{/if}}
 </div>
