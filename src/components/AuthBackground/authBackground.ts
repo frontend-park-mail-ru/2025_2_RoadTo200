@@ -29,13 +29,13 @@ export class AuthBackground {
         }
 
         if (!this.container) {
-            console.error('AuthBackground: container is not set');
+            // console.error('AuthBackground: container is not set');
             return;
         }
 
         const tablet = this.container.querySelector('.auth-background__circle-activity-tablet') as HTMLElement;
         if (!tablet) {
-            console.error('AuthBackground: .auth-background__circle-activity-tablet not found in container!');
+            // console.error('AuthBackground: .auth-background__circle-activity-tablet not found in container!');
             return;
         }
 

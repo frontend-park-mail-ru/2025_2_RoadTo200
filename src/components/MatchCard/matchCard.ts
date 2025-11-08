@@ -20,7 +20,7 @@ const fetchTemplate = async (path: string): Promise<string> => {
         }
         return response.text();
     } catch (error) {
-        console.error('Error loading match card template:', error);
+        // console.error('Error loading match card template:', error);
         return '<div class="match-card-error">Error loading card</div>';
     }
 };

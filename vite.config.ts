@@ -49,7 +49,7 @@ export default defineConfig({
                 
                 if (existsSync(swSource)) {
                     copyFileSync(swSource, swDest);
-                    console.log('Service Worker copied to dist folder');
+                    // console.log('Service Worker copied to dist folder');
                 }
             }
         }

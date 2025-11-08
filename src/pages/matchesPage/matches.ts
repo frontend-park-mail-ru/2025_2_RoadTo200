@@ -36,7 +36,7 @@ export class MatchesPage {
 
     async render(): Promise<void> {
         if (!this.parent) {
-            console.warn('MatchesPage: parent not assigned');
+            // console.warn('MatchesPage: parent not assigned');
             return;
         }
 

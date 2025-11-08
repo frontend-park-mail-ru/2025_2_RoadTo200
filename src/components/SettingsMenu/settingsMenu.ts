@@ -41,7 +41,7 @@ const fetchTemplate = async (path: string): Promise<string> => {
         }
         return response.text();
     } catch (error) {
-        console.error('Ошибка загрузки шаблона меню настроек:', error);
+        // console.error('Ошибка загрузки шаблона меню настроек:', error);
         return '';
     }
 };
@@ -75,7 +75,7 @@ export class SettingsMenu {
         
         const sidebar = this.parent.querySelector('.settings-sidebar');
         if (!sidebar) {
-            console.error('Settings sidebar not found in parent');
+            // console.error('Settings sidebar not found in parent');
             return;
         }
 
@@ -86,7 +86,7 @@ export class SettingsMenu {
                 event.preventDefault();
                 
                 const clickedTab = (menuItem as HTMLElement).dataset.tab;
-                console.log('Settings menu item clicked, tab:', clickedTab);
+                // console.log('Settings menu item clicked, tab:', clickedTab);
 
                 if (clickedTab) {
                     dispatcher.process({ 
@@ -102,7 +102,7 @@ export class SettingsMenu {
         if (logoutBtn) {
             logoutBtn.addEventListener('click', async (event: Event) => {
                 event.preventDefault();
-                console.log('Logout button clicked');
+                // console.log('Logout button clicked');
                 
                 // Вызываем logout
                 await dispatcher.process({

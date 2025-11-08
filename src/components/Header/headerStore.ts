@@ -71,7 +71,7 @@ class HeaderStore implements Store {
             });
             
         } catch (error) {
-            console.error("Logout error:", error);
+            // console.error("Logout error:", error);
             dispatcher.process({
                 type: Actions.NAVIGATE_TO,
                 payload: { path: '/login' }
@@ -86,7 +86,7 @@ class HeaderStore implements Store {
             await this.renderHeader();
 
         } catch (error) {
-            console.error("Error updating user state:", error);
+            // console.error("Error updating user state:", error);
         }
     }
 

@@ -38,7 +38,7 @@ const fetchTemplate = async (path: string): Promise<string> => {
         }
         return await response.text();
     } catch (error) {
-        console.error('Ошибка загрузки шаблона меню профиля:', error);
+        // console.error('Ошибка загрузки шаблона меню профиля:', error);
         return '';
     }
 };
@@ -123,15 +123,15 @@ export class ProfileMenu implements PageComponent {
     }
 
     toggle(visible: boolean): void {
-        console.log('ProfileMenu.toggle called with:', visible);
+        // console.log('ProfileMenu.toggle called with:', visible);
         
         if (!this.parent) {
-            console.warn('ProfileMenu parent is null');
+            // console.warn('ProfileMenu parent is null');
             return;
         }
 
         const overlay = this.parent.querySelector('#profileMenuOverlay') as HTMLElement | null;
-        console.log('Found overlay:', !!overlay);
+        // console.log('Found overlay:', !!overlay);
         
         if (overlay) {
             if (visible) {
@@ -141,7 +141,7 @@ export class ProfileMenu implements PageComponent {
                 overlay.classList.add('hidden');
                 overlay.classList.remove('profile-menu-overlay--active');
             }
-            console.log('Overlay classes:', overlay.className);
+            // console.log('Overlay classes:', overlay.className);
         }
 
         this.isVisible = visible;

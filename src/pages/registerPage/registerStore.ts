@@ -34,7 +34,7 @@ class RegisterStore implements Store {
                 payload: { path: '/' }
             });
         } catch (error: any) {
-            console.error('Register error:', error);
+            // console.error('Register error:', error);
             
             let errorMessage = 'Ошибка регистрации';
             if (error.message) {

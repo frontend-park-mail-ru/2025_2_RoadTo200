@@ -66,7 +66,7 @@ class MatchProfileStore implements Store {
         try {
             const { matchId } = payload;
             if (!matchId) {
-                console.error('No matchId provided');
+                // console.error('No matchId provided');
                 return;
             }
 
@@ -80,7 +80,7 @@ class MatchProfileStore implements Store {
             const userData = this.matchesCache.get(matchId);
             
             if (!userData) {
-                console.error('No user data found in cache for matchId:', matchId);
+                // console.error('No user data found in cache for matchId:', matchId);
                 return;
             }
 
@@ -101,7 +101,7 @@ class MatchProfileStore implements Store {
 
             await matchProfile.render(this.matchData);
         } catch (error) {
-            console.error('Error loading match profile:', error);
+            // console.error('Error loading match profile:', error);
         }
     }
     

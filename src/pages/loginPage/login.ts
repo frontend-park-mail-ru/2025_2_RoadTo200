@@ -84,7 +84,7 @@ export class LoginPage implements PageComponent, Store {
     async handleAction(action: import('../../actions').Action): Promise<void> {
         switch (action.type) {
             case Actions.LOGIN_ERROR:
-                console.log('LOGIN_ERROR received:', action.payload);
+                // console.log('LOGIN_ERROR received:', action.payload);
                 this.showError((action as ErrorAction).payload!.message);
                 break;
             default:
@@ -93,7 +93,7 @@ export class LoginPage implements PageComponent, Store {
     }
 
     showError(message: string): void {
-        console.log('showError called with:', message);
+        // console.log('showError called with:', message);
         
         // Try multiple selectors to find the error div
         let errorDiv = document.querySelector('.form__error-message') as HTMLElement | null;
@@ -106,16 +106,16 @@ export class LoginPage implements PageComponent, Store {
             errorDiv = document.querySelector('#loginForm .form__error-message') as HTMLElement | null;
         }
         
-        console.log('errorDiv found:', errorDiv);
-        console.log('errorDiv exists:', !!errorDiv);
+        // console.log('errorDiv found:', errorDiv);
+        // console.log('errorDiv exists:', !!errorDiv);
         
         if (errorDiv) {
             errorDiv.textContent = message;
             errorDiv.style.display = 'block';
-            console.log('Error displayed successfully');
+            // console.log('Error displayed successfully');
         } else {
-            console.error('Could not find .error-message element in DOM');
-            console.log('Current DOM:', document.body.innerHTML);
+            // console.error('Could not find .error-message element in DOM');
+            // console.log('Current DOM:', document.body.innerHTML);
         }
     }
 

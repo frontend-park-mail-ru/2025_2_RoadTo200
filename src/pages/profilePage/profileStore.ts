@@ -80,7 +80,7 @@ class ProfileStore implements Store {
         try {
             const response = await ProfileApi.getProfile() as any;
             
-            console.log('Profile API response:', response);
+            // console.log('Profile API response:', response);
 
             const user = response.user || {};
             const photos = response.photos || [];
@@ -110,7 +110,7 @@ class ProfileStore implements Store {
 
             await profile.render(this.profileData);
         } catch (error) {
-            console.error('Error loading profile:', error);
+            // console.error('Error loading profile:', error);
         }
     }
     
@@ -160,17 +160,17 @@ class ProfileStore implements Store {
             const backendField = fieldMapping[field] || field;
             const updateData = { [backendField]: value };
             
-            console.log('Updating profile field:', field, '→', backendField, 'with value:', value);
+            // console.log('Updating profile field:', field, '→', backendField, 'with value:', value);
 
             await ProfileApi.updateProfileInfo(updateData);
 
-            console.log('Profile field updated successfully');
+            // console.log('Profile field updated successfully');
 
             await this.renderProfile();
             
         } catch (error) {
-            console.error('Error updating profile:', error);
-            console.error('Не удалось сохранить изменения');
+            // console.error('Error updating profile:', error);
+            // console.error('Не удалось сохранить изменения');
         }
     }
 
@@ -178,20 +178,20 @@ class ProfileStore implements Store {
         try {
             const { photoId } = payload;
             if (!photoId || photoId === 'placeholder') {
-                console.warn('Invalid photoId:', photoId);
+                // console.warn('Invalid photoId:', photoId);
                 return;
             }
 
-            console.log('Deleting photo with ID:', photoId);
+            // console.log('Deleting photo with ID:', photoId);
             
             const response = await ProfileApi.deletePhoto(photoId);
 
-            console.log('Delete photo response:', response);
+            // console.log('Delete photo response:', response);
 
             await this.renderProfile();
             
         } catch (error) {
-            console.error('Error deleting photo:', error);
+            // console.error('Error deleting photo:', error);
         }
     }
 
@@ -210,12 +210,12 @@ class ProfileStore implements Store {
                 try {
                     const response = await ProfileApi.uploadPhoto(files);
 
-                    console.log('Upload photo response:', response);
+                    // console.log('Upload photo response:', response);
 
                     await this.renderProfile();
                     
                 } catch (error: any) {
-                    console.error('Error uploading photo:', error);
+                    // console.error('Error uploading photo:', error);
                     let errorMessage = 'Ошибка при загрузке фотографий';
 
                     if (error.message) {
@@ -228,13 +228,13 @@ class ProfileStore implements Store {
                         }
                     }
 
-                    console.error(errorMessage);
+                    // console.error(errorMessage);
                 }
             };
 
             fileInput.click();
         } catch (error) {
-            console.error('Error in addPhoto:', error);
+            // console.error('Error in addPhoto:', error);
         }
     }
 
@@ -256,9 +256,9 @@ class ProfileStore implements Store {
             
             await this.rerenderProfile();
             
-            console.log('Interest added:', newInterest);
+            // console.log('Interest added:', newInterest);
         } catch (error) {
-            console.error('Error adding interest:', error);
+            // console.error('Error adding interest:', error);
         }
     }
 
@@ -276,9 +276,9 @@ class ProfileStore implements Store {
             
             await this.rerenderProfile();
             
-            console.log('Interest deleted:', id);
+            // console.log('Interest deleted:', id);
         } catch (error) {
-            console.error('Error deleting interest:', error);
+            // console.error('Error deleting interest:', error);
         }
     }
 

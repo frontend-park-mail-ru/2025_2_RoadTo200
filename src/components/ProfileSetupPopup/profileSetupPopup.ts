@@ -32,7 +32,7 @@ export class ProfileSetupPopup {
     static async isProfileComplete(): Promise<boolean> {
         try {
             const response = await ProfileApi.getProfile();
-            console.log('API response in isProfileComplete:', response);
+            // console.log('API response in isProfileComplete:', response);
             
             // Проверяем разные форматы ответа от API
             let profile: Profile;
@@ -45,11 +45,11 @@ export class ProfileSetupPopup {
                 // API возвращает профиль напрямую
                 profile = response as any as Profile;
             } else {
-                console.warn('Profile data is missing or has unexpected format', response);
+                // console.warn('Profile data is missing or has unexpected format', response);
                 return false;
             }
             
-            console.log('Profile data:', profile);
+            // console.log('Profile data:', profile);
             
             // Проверяем обязательные поля (убрали проверку даты рождения)
             const hasName = !!(profile.name && profile.name.trim() !== 'NAAAAAAne');
@@ -60,16 +60,10 @@ export class ProfileSetupPopup {
             
             const isComplete = hasName && hasGender;
             
-            console.log('Profile completeness check:', {
-                hasName,
-                hasGender,
-                birthDate,
-                isComplete
-            });
             
             return isComplete;
         } catch (error) {
-            console.error('Error checking profile completeness:', error);
+            // console.error('Error checking profile completeness:', error);
             return false;
         }
     }
@@ -93,7 +87,7 @@ export class ProfileSetupPopup {
                 // API возвращает профиль напрямую
                 profile = response as any as Profile;
             } else {
-                console.warn('Profile data is missing in getCurrentProfileData');
+                // console.warn('Profile data is missing in getCurrentProfileData');
                 return {};
             }
             
@@ -107,7 +101,7 @@ export class ProfileSetupPopup {
                 bio: profile.bio || ''
             };
         } catch (error) {
-            console.error('Error fetching profile data:', error);
+            // console.error('Error fetching profile data:', error);
             return {};
         }
     }
@@ -280,7 +274,7 @@ private async handleSubmit(event: Event): Promise<void> {
         }
         
     } catch (error) {
-        console.error('Error updating profile:', error);
+        // console.error('Error updating profile:', error);
         this.showError(error instanceof Error ? error.message : 'Не удалось сохранить данные. Попробуйте снова.');
         
         // Включаем кнопку обратно

@@ -21,7 +21,7 @@ const fetchTemplate = async (path: string): Promise<string> => {
         }
         return await response.text();
     } catch (error) {
-        console.error("Ошибка загрузки header:", error);
+        // console.error("Ошибка загрузки header:", error);
         return '<div></div>';
     }
 };
@@ -87,7 +87,7 @@ export class Header {
      */
     updateAuthState(isAuthenticated: boolean): void {
         if (this.parent) {
-            console.log('Header auth state updated:', isAuthenticated);
+            // console.log('Header auth state updated:', isAuthenticated);
         }
     }
 }

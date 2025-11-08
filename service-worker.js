@@ -55,11 +55,11 @@ const IMAGE_PATTERNS = [
 
 // Установка Service Worker
 self.addEventListener('install', (event) => {
-    console.log('[SW] Installing Service Worker...');
+    // console.log('[SW] Installing Service Worker...');
     
     // В dev режиме не кэшируем при установке, чтобы всегда получать свежие файлы
     if (isDevelopment) {
-        console.log('[SW] Development mode - skipping initial cache');
+        // console.log('[SW] Development mode - skipping initial cache');
         event.waitUntil(self.skipWaiting());
         return;
     }
@@ -68,11 +68,11 @@ self.addEventListener('install', (event) => {
     event.waitUntil(
         caches.open(CACHE_NAME)
             .then((cache) => {
-                console.log('[SW] Caching static assets');
+                // console.log('[SW] Caching static assets');
                 return cache.addAll(STATIC_ASSETS.map(url => {
                     return new Request(url, { credentials: 'same-origin' });
                 })).catch((error) => {
-                    console.error('[SW] Failed to cache some assets:', error);
+                    // console.error('[SW] Failed to cache some assets:', error);
                 });
             })
             .then(() => self.skipWaiting())
@@ -81,7 +81,7 @@ self.addEventListener('install', (event) => {
 
 // Активация Service Worker
 self.addEventListener('activate', (event) => {
-    console.log('[SW] Activating Service Worker...');
+    // console.log('[SW] Activating Service Worker...');
     
     event.waitUntil(
         caches.keys().then((cacheNames) => {
@@ -93,7 +93,7 @@ self.addEventListener('activate', (event) => {
                                name !== IMAGE_CACHE_NAME;
                     })
                     .map((name) => {
-                        console.log('[SW] Deleting old cache:', name);
+                        // console.log('[SW] Deleting old cache:', name);
                         return caches.delete(name);
                     })
             );
@@ -129,7 +129,7 @@ async function staleWhileRevalidate(request, cacheName = CACHE_NAME) {
         }
         return networkResponse;
     }).catch((error) => {
-        console.error('[SW] Fetch failed:', error);
+        // console.error('[SW] Fetch failed:', error);
         if (cachedResponse) {
             return cachedResponse;
         }
@@ -159,7 +159,7 @@ async function networkFirst(request, cacheName = API_CACHE_NAME) {
         
         return networkResponse;
     } catch (error) {
-        console.log('[SW] Network failed, trying cache:', request.url);
+        // console.log('[SW] Network failed, trying cache:', request.url);
         const cachedResponse = await caches.match(request);
         
         if (cachedResponse) {
@@ -214,7 +214,7 @@ async function cacheFirstImages(request) {
         }
         return networkResponse;
     } catch (error) {
-        console.error('[SW] Image fetch failed:', error);
+        // console.error('[SW] Image fetch failed:', error);
         
         // Возвращаем placeholder для изображений
         const cached = await caches.match(request);
@@ -314,4 +314,4 @@ self.addEventListener('message', (event) => {
     }
 });
 
-console.log('[SW] Service Worker loaded');
+// console.log('[SW] Service Worker loaded');

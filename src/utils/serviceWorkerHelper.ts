@@ -23,7 +23,7 @@ class ServiceWorkerHelper {
      */
     async clearCache(): Promise<boolean> {
         if (!this.isSupported() || !navigator.serviceWorker.controller) {
-            console.warn('Service Worker not available');
+            // console.warn('Service Worker not available');
             return false;
         }
 
@@ -84,12 +84,12 @@ class ServiceWorkerHelper {
      */
     addConnectivityListeners(onOnline?: () => void, onOffline?: () => void): void {
         window.addEventListener('online', () => {
-            console.log('App is online');
+            // console.log('App is online');
             if (onOnline) onOnline();
         });
 
         window.addEventListener('offline', () => {
-            console.log('App is offline');
+            // console.log('App is offline');
             if (onOffline) onOffline();
         });
     }
@@ -99,15 +99,15 @@ class ServiceWorkerHelper {
      */
     async updateServiceWorker(): Promise<void> {
         if (!this.registration) {
-            console.warn('No registration available');
+            // console.warn('No registration available');
             return;
         }
 
         try {
             await this.registration.update();
-            console.log('Service Worker update check completed');
+            // console.log('Service Worker update check completed');
         } catch (error) {
-            console.error('Service Worker update failed:', error);
+            // console.error('Service Worker update failed:', error);
         }
     }
 

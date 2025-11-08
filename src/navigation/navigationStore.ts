@@ -119,7 +119,7 @@ class NavigationStore implements Store {
                         payload: { path: url.pathname + url.search }
                     });
                 } catch (error) {
-                    console.error('Invalid URL:', error);
+                    // console.error('Invalid URL:', error);
                     dispatcher.process({
                         type: Actions.NAVIGATE_TO,
                         payload: { path: '/' }
@@ -148,7 +148,7 @@ class NavigationStore implements Store {
     private async navigateTo(action: NavigateAction): Promise<void> {
         const { path } = action.payload!;
         if (!path) {
-            console.error('NavigationStore: path is required');
+            // console.error('NavigationStore: path is required');
             return;
         }
 
@@ -270,7 +270,7 @@ class NavigationStore implements Store {
                     await route.component.controller();
                 }
             } catch (error) {
-                console.error('Error rendering component:', error);
+                // console.error('Error rendering component:', error);
             }
         }
     }

@@ -17,7 +17,7 @@ const fetchTemplate = async (path: string): Promise<string> => {
         }
         return await response.text();
     } catch (error) {
-        console.error("Ошибка загрузки offline banner:", error);
+        // console.error("Ошибка загрузки offline banner:", error);
         return '<div></div>';
     }
 };

@@ -88,7 +88,7 @@ export class Home {
         const submitButton = this.parent.querySelector('#submit-activities') as HTMLButtonElement | null;
         if (submitButton) {
             submitButton.addEventListener('click', () => {
-                console.log('Selected activities:', this.selectedActivities);
+                // console.log('Selected activities:', this.selectedActivities);
                 localStorage.setItem('selectedActivities', JSON.stringify(this.selectedActivities));
                 dispatcher.process({
                     type: Actions.NAVIGATE_TO,

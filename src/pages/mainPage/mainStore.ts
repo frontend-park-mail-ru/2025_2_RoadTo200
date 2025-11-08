@@ -61,21 +61,21 @@ class MainStore implements Store {
 
     private async checkProfileCompleteness(): Promise<void> {
         try {
-            console.log('Checking profile completeness...');
+            // console.log('Checking profile completeness...');
             const isComplete = await ProfileSetupPopup.isProfileComplete();
-            console.log('Profile is complete:', isComplete);
+            // console.log('Profile is complete:', isComplete);
             
             if (!isComplete) {
                 // Показываем попап для заполнения профиля
-                console.log('Showing profile setup popup...');
+                // console.log('Showing profile setup popup...');
                 dispatcher.process({ type: Actions.SHOW_PROFILE_SETUP_POPUP });
             } else {
                 // Профиль заполнен, загружаем карточки
-                console.log('Profile is complete, loading cards...');
+                // console.log('Profile is complete, loading cards...');
                 await this.getCards();
             }
         } catch (error) {
-            console.error('Error checking profile completeness:', error);
+            // console.error('Error checking profile completeness:', error);
             // В случае ошибки пытаемся загрузить карточки
             await this.getCards();
         }
@@ -87,8 +87,8 @@ class MainStore implements Store {
 
             const cards = response.users || response.cards || [];
             
-            console.log('Raw cards from backend:', cards);
-            console.log('First card detail:', cards[0]);
+            // console.log('Raw cards from backend:', cards);
+            // console.log('First card detail:', cards[0]);
             
             const mockPhotoUrl = '/src/assets/image.png'; 
             
@@ -141,12 +141,12 @@ class MainStore implements Store {
             
             this.cards = transformedCards;
 
-            console.log('Transformed cards:', transformedCards);
+            // console.log('Transformed cards:', transformedCards);
 
             main.setCards(transformedCards);
             
         } catch (error) {
-            console.error('Error getting cards:', error);
+            // console.error('Error getting cards:', error);
             this.cards = [];
             main.setCards([]);
         }
@@ -158,7 +158,7 @@ class MainStore implements Store {
             const mappedAction: CardAction = actionType === 'super_like' ? 'superlike' : actionType as CardAction;
             await CardApi.postCardInteraction(cardId, mappedAction);
         } catch (error) {
-            console.error('Error sending card action:', error);
+            // console.error('Error sending card action:', error);
         }
     }
 }

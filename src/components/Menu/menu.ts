@@ -38,7 +38,7 @@ const fetchTemplate = async (path: string): Promise<string> => {
         }
         return await response.text();
     } catch (error) {
-        console.error('Ошибка загрузки шаблона меню:', error);
+        // console.error('Ошибка загрузки шаблона меню:', error);
         return '<div></div>';
     }
 };

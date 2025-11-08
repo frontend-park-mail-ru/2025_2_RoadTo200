@@ -33,8 +33,8 @@ class MatchesStore implements Store {
     async handleAction(action: Action): Promise<void> {
         switch (action.type) {
             case Actions.RENDER_MATCHES:
-                console.log('[MatchesStore] RENDER_MATCHES called, stack trace:');
-                console.trace();
+                // console.log('[MatchesStore] RENDER_MATCHES called, stack trace:');
+                // console.trace();
                 await this.renderMatches();
                 break;
 
@@ -53,7 +53,7 @@ class MatchesStore implements Store {
 
             const response = await MatchesApi.getAllMatches() as any;
             
-            console.log('Matches API Response:', response);
+            // console.log('Matches API Response:', response);
             
             const matchesArray = response.matches || [];
             
@@ -104,7 +104,7 @@ class MatchesStore implements Store {
 
             this.updateDerivedFields();
             
-            console.log('Processed matches:', this.matches);
+            // console.log('Processed matches:', this.matches);
             
             await matches.setMatches(this.matches);
 
@@ -116,7 +116,7 @@ class MatchesStore implements Store {
             }
 
         } catch (error) {
-            console.error('Error loading matches:', error);
+            // console.error('Error loading matches:', error);
             await matches.setMatches([]);
         }
     }

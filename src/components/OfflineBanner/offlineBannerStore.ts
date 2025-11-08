@@ -32,13 +32,13 @@ class OfflineBannerStore implements Store {
 
     private initConnectivityListeners(): void {
         window.addEventListener('online', () => {
-            console.log('Connection restored');
+            // console.log('Connection restored');
             this.isOnline = true;
             this.bannerComponent.hide();
         });
 
         window.addEventListener('offline', () => {
-            console.log('Connection lost');
+            // console.log('Connection lost');
             this.isOnline = false;
             this.bannerComponent.show();
         });

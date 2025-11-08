@@ -65,7 +65,7 @@ class SettingsStore implements Store {
 
         try {
             const response = await ProfileApi.getProfile() as any;
-            console.log('Settings: Profile response:', response);
+            // console.log('Settings: Profile response:', response);
             
             const user = response.user || {};
             this.profileData = {
@@ -74,7 +74,7 @@ class SettingsStore implements Store {
                 email: user.email || '',
             };
         } catch (error) {
-            console.error('Error loading profile for settings:', error);
+            // console.error('Error loading profile for settings:', error);
             this.profileData = { name: '', birthdate: '', email: '' };
         }
 
@@ -144,12 +144,12 @@ class SettingsStore implements Store {
 
         try {
             await ProfileApi.updateProfileInfo({ name });
-            console.log('Profile settings updated successfully');
+            // console.log('Profile settings updated successfully');
             
             this.profileData = { name, birthdate, email };
             this.updateView();
         } catch (err) {
-            console.error('Error updating profile settings:', err);
+            // console.error('Error updating profile settings:', err);
             settings.showErrors({ emailError: 'Ошибка при обновлении профиля' });
         }
     }
@@ -190,10 +190,10 @@ class SettingsStore implements Store {
 
         try {
             await ProfileApi.changePassword(oldPassword, newPassword);
-            console.log('Password changed successfully');
+            // console.log('Password changed successfully');
             this.updateView();
         } catch (error) {
-            console.error('Error changing password:', error);
+            // console.error('Error changing password:', error);
             settings.showErrors({ oldPasswordError: 'Неверный старый пароль' });
         }
     }
@@ -207,7 +207,7 @@ class SettingsStore implements Store {
                 payload: { path: '/login' }
             });
         } catch (error) {
-            console.error('Ошибка при удалении аккаунта:', error);
+            // console.error('Ошибка при удалении аккаунта:', error);
             settings.showErrors({ generalError: 'Ошибка при удалении аккаунта' });
         }
     }

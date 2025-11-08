@@ -28,7 +28,7 @@ export class MatchProfilePage {
 
     async render(data: MatchProfileData): Promise<void> {
         if (!this.parent) {
-            console.warn('MatchProfilePage: parent not assigned');
+            // console.warn('MatchProfilePage: parent not assigned');
             return;
         }
 
@@ -45,7 +45,7 @@ export class MatchProfilePage {
         if (chatButton) {
             chatButton.addEventListener('click', (e) => {
                 e.preventDefault();
-                console.log('Navigate to chat');
+                // console.log('Navigate to chat');
             });
         }
     }

@@ -15,7 +15,7 @@ const fetchTemplate = async (path: string): Promise<string> => {
         }
         return response.text();
     } catch (error) {
-        console.error('Ошибка загрузки шаблона маленького сердца:', error);
+        // console.error('Ошибка загрузки шаблона маленького сердца:', error);
         return '<div class="heart-small"></div>';
     }
 };

@@ -9,7 +9,7 @@ class Dispatcher {
 
     register(store: Store): void {
         this.subscribers.push(store);
-        console.log(this.subscribers);
+        // console.log(this.subscribers);
     }
 
     process(action: Action): void {

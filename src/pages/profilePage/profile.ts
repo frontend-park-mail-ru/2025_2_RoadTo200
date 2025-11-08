@@ -28,7 +28,7 @@ export class ProfilePage {
     }
 
     async render(data: ProfileData): Promise<void> {
-        if (!this.parent) return console.warn('ProfilePage: parent not assigned');
+        if (!this.parent) return // console.warn('ProfilePage: parent not assigned');
 
         const templateString = await fetchTemplate(TEMPLATE_PATH);
         const pageTemplate = Handlebars.compile(templateString);
@@ -85,7 +85,7 @@ export class ProfilePage {
                 const tag = (e.currentTarget as HTMLElement).closest('.details__tag') as HTMLElement | null;
                 const interestId = tag?.dataset.interestId;
                 if (interestId) {
-                    console.log(interestId);
+                    // console.log(interestId);
                     dispatcher.process({
                         type: Actions.DELETE_INTEREST,
                         payload: { id: parseInt(interestId) }

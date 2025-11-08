@@ -7,7 +7,7 @@ import AuthApi from "../../apiHandler/authApi";
 
 class LoginStore implements Store {
     constructor() {
-        console.log("created");
+        // console.log("created");
         dispatcher.register(this);
     }
 
@@ -34,7 +34,7 @@ class LoginStore implements Store {
                 payload: { path: '/' }
             });
         } catch (error) {
-            console.error('Login error:', error);
+            // console.error('Login error:', error);
             
             // Показываем пользователю дружелюбное сообщение, а не raw ошибку с бекенда
             dispatcher.process({

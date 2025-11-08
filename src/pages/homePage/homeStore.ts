@@ -29,21 +29,21 @@ class HomeStore implements Store {
 
     private async checkProfileCompleteness(): Promise<void> {
         try {
-            console.log('HomeStore: Checking profile completeness...');
+            // console.log('HomeStore: Checking profile completeness...');
             const isComplete = await ProfileSetupPopup.isProfileComplete();
-            console.log('HomeStore: Profile is complete:', isComplete);
+            // console.log('HomeStore: Profile is complete:', isComplete);
             
             if (!isComplete) {
                 // Показываем попап для заполнения профиля
-                console.log('HomeStore: Showing profile setup popup...');
+                // console.log('HomeStore: Showing profile setup popup...');
                 dispatcher.process({ type: Actions.SHOW_PROFILE_SETUP_POPUP });
             } else {
                 // Профиль заполнен, загружаем активности пользователя
-                console.log('HomeStore: Profile is complete, loading user activities...');
+                // console.log('HomeStore: Profile is complete, loading user activities...');
                 await this.loadUserActivities();
             }
         } catch (error) {
-            console.error('HomeStore: Error checking profile completeness:', error);
+            // console.error('HomeStore: Error checking profile completeness:', error);
             // В случае ошибки пытаемся загрузить активности
             await this.loadUserActivities();
         }
@@ -67,21 +67,21 @@ class HomeStore implements Store {
             // Устанавливаем активные активности в Home компонент
             home.setActiveActivities(activeActivities);
             
-            console.log('HomeStore: Loaded user activities:', activeActivities);
+            // console.log('HomeStore: Loaded user activities:', activeActivities);
         } catch (error) {
-            console.error('HomeStore: Failed to load user activities:', error);
+            // console.error('HomeStore: Failed to load user activities:', error);
         }
     }
 
     private async updateActivity(activityData: Record<string, boolean>): Promise<void> {
         try {
             await ProfileApi.updateActivities(activityData);
-            console.log('HomeStore: Activity updated:', activityData);
+            // console.log('HomeStore: Activity updated:', activityData);
             
             // После обновления активности, перезагружаем данные пользователя
             await this.loadUserActivities();
         } catch (error) {
-            console.error('HomeStore: Failed to update activity:', error);
+            // console.error('HomeStore: Failed to update activity:', error);
             // Можно добавить обработку ошибки через dispatcher
             // dispatcher.process({ type: Actions.SHOW_ERROR, payload: { message: 'Не удалось обновить активность' } });
         }

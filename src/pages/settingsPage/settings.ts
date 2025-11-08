@@ -32,7 +32,7 @@ export class SettingsPage {
 
     async render(profileData: ProfileData = {}, currentTab: string = 'profile'): Promise<void> {
         if (!this.parent) {
-            console.warn('SettingsPage: parent not assigned');
+            // console.warn('SettingsPage: parent not assigned');
             return;
         }
 
@@ -92,7 +92,7 @@ export class SettingsPage {
                 contentContainer.appendChild(this.createSecurityTab());
                 break;
             default:
-                console.warn('Unknown settings tab:', currentTab);
+                // console.warn('Unknown settings tab:', currentTab);
                 break;
         }
 

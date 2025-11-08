@@ -35,7 +35,7 @@ export interface CardData {
 const fetchCardTemplate = async (): Promise<string> => {
     const response = await fetch(CARD_TEMPLATE_PATH);
     if (!response.ok) {
-        console.error('Ошибка: Не удалось загрузить шаблон');
+        // console.error('Ошибка: Не удалось загрузить шаблон');
     }
     return response.text();
 };
@@ -92,13 +92,13 @@ const Card = {
      */
     render: async (cardData: CardData): Promise<string> => {
         if (typeof Handlebars === 'undefined') {
-            console.error('Handlebars is not loaded');
+            // console.error('Handlebars is not loaded');
             return '<div>Ошибка: Не удалось загрузить хенделбарс</div>';
         }
 
-        console.log('Card.render - cardData:', cardData);
+        // console.log('Card.render - cardData:', cardData);
         const activities = getActivitiesFromData(cardData);
-        console.log('Card.render - activities:', activities);
+        // console.log('Card.render - activities:', activities);
 
         const templateData = {
             ...cardData,
@@ -106,7 +106,7 @@ const Card = {
             activities: activities.length > 0 ? activities : null
         };
 
-        console.log('Card.render - templateData:', templateData);
+        // console.log('Card.render - templateData:', templateData);
 
         const templateString = await fetchCardTemplate();
         const template = Handlebars.compile(templateString);
@@ -119,7 +119,7 @@ const Card = {
      * @param {HTMLElement} cardElement
      */
     init: (cardElement: HTMLElement): void => {
-        console.log('Initializing card:', cardElement);
+        // console.log('Initializing card:', cardElement);
         cardElement.addEventListener('click', Card.handleImageNavigation);
     }
 };

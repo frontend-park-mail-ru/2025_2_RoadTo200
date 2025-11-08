@@ -13,7 +13,7 @@ export const AuthUtils = {
             const response = await AuthApi.checkAuth();
             return response.authenticated || false;
         } catch (error) {
-            console.error('Ошибка проверки аутентификации:', error);
+            // console.error('Ошибка проверки аутентификации:', error);
             return false;
         }
     },
@@ -25,7 +25,7 @@ export const AuthUtils = {
         try {
             await AuthApi.logout();
         } catch (error) {
-            console.error('Ошибка при выходе:', error);
+            // console.error('Ошибка при выходе:', error);
         }
     }
 };
