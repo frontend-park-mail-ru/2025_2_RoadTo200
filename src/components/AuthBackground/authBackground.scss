@@ -13,6 +13,11 @@
         transform: rotate(-30deg); 
     }
 
+    &__background-variant {
+        opacity: 0.3;
+        position: absolute;
+        background: radial-gradient(circle, #F8829B 20%, #FFE0E8 100%);
+    }
     &__background-text {
         position: absolute;
         white-space: nowrap;

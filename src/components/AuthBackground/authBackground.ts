@@ -111,48 +111,59 @@ export class AuthBackground {
     }
 
     private startAnimation(textContent: string, circleSpacing: number): void {
-        if (!this.container) return;
+    if (!this.container) return;
 
-        const tablet = this.container.querySelector('.auth-background__circle-activity-tablet');
-        if (!tablet) return;
+    const tablet = this.container.querySelector('.auth-background__circle-activity-tablet');
+    if (!tablet) return;
 
-        const circleSpeed = 2;
-        const textSpeed = 1;
-        
-        let circlePosition = 0;
-        let textPosition = 0;
-        
-        const circleResetPoint = circleSpacing * 10;
-        const textWidth = textContent.length * 23;
-        const textResetPoint = textWidth + 60;
+    
+    const circleSpeed = 60; 
+    const textSpeed = 30; 
+    
+    let circlePosition = 0;
+    let textPosition = 0;
 
-        const animate = (): void => {
-            circlePosition += circleSpeed;
-            if (circlePosition >= circleResetPoint) {
-                circlePosition -= circleResetPoint;
+    const circleResetPoint = circleSpacing * 10;
+    const textWidth = textContent.length * 23;
+    const textResetPoint = textWidth + 60;
+
+    let lastTime = performance.now();
+
+    const animate = (now: number): void => {
+        const deltaTime = (now - lastTime) / 1000; // секунды между кадрами
+        lastTime = now;
+
+        // движение с учётом прошедшего времени
+        circlePosition += circleSpeed * deltaTime;
+        if (circlePosition >= circleResetPoint) {
+            circlePosition -= circleResetPoint;
+        }
+
+        textPosition += textSpeed * deltaTime;
+        if (textPosition >= textResetPoint) {
+            textPosition -= textResetPoint;
+        }
+
+        this.circles.forEach((circle) => {
+            const element = circle.getElement();
+            if (element) {
+                element.style.transform = `translate3d(${circlePosition - 2500}px, -500px, 0)`;
             }
+        });
 
-            textPosition += textSpeed;
-            if (textPosition >= textResetPoint) {
-                textPosition -= textResetPoint;
-            }
+        this.textElements.forEach((textEl) => {
+            textEl.style.transform = `translate3d(${textPosition - 2500}px, -500px, 0)`;
+        });
 
-            this.circles.forEach((circle) => {
-                const element = circle.getElement();
-                if (element) {
-                    element.style.transform = `translate3d(${circlePosition - 2500}px,-500px, 0)`;
-                }
-            });
+        this.animationId = requestAnimationFrame(animate);
+    };
 
-            this.textElements.forEach((textEl) => {
-                textEl.style.transform = `translate3d(${textPosition - 2500}px, -500px, 0)`;
-            });
-            
-            this.animationId = requestAnimationFrame(animate);
-        };
+    this.animationId = requestAnimationFrame((t) => {
+        lastTime = t;
+        animate(t);
+    });
+}
 
-        animate();
-    }
 
     destroy(): void {
         if (this.animationId) {
