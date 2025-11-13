@@ -1,24 +1,24 @@
 /// <reference lib="webworker" />
 
-const sw = self;
+const sw = self as unknown as ServiceWorkerGlobalScope;
 
-
-const VERSION = '14';
+const VERSION = '18';
 const CACHE_STATIC = `terabithia-static-v${VERSION}`;
 const CACHE_API = `terabithia-api-v${VERSION}`;
 const CACHE_IMAGES = `terabithia-images-v${VERSION}`;
 
 /**
- * Определяем dev-режим по хосту
+ * Определяем dev-режим
  * В dev-режиме отключаем агрессивное кэширование, чтобы не мешать HMR
+ * ВАЖНО: в режиме preview (production build на localhost) IS_DEV должен быть false!
+ * Используем наличие service-worker.ts vs service-worker.js как индикатор
  */
-const IS_DEV =
-    sw.location.hostname === 'localhost' ||
-    sw.location.hostname === '127.0.0.1';
+const IS_DEV = sw.location.pathname.includes('service-worker.ts');
 
 // Паттерны для определения типа запроса
 const PATTERNS = {
-    api: [/\/api\/profile/, /\/api\/matches/, /\/api\/feed/],
+    // Все API запросы - НЕ кэшируем в localhost (там работает proxy)
+    api: [/\/api\//],
     images: [
         /\.(jpg|jpeg|png|gif|svg|webp|ico)$/i,
         /\/uploads\//,
@@ -199,8 +199,13 @@ sw.addEventListener('fetch', (event: FetchEvent) => {
 
     const url = request.url;
 
-    // API-запросы: Network First (приоритет свежим данным)
+    // API-запросы: в localhost НЕ перехватываем (нужен proxy Vite)
+    // В production используем Network First
     if (matchesPattern(url, PATTERNS.api)) {
+        if (sw.location.hostname === 'localhost' || sw.location.hostname === '127.0.0.1') {
+            // В localhost пропускаем запрос напрямую (через Vite proxy)
+            return;
+        }
         event.respondWith(networkFirst(request, CACHE_API));
         return;
     }

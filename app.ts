@@ -51,11 +51,9 @@ const routes: Route[] = [
 ];
 
 // Инициализируем роутер с navigationStore
+// Router автоматически загружает текущий маршрут через LOAD_ROUTE
 const router = new Router(routes, navigationStore);
 
-// ВРЕМЕННО ОТКЛЮЧЕНО для отладки проблем со стилями и картинками
-// Service Worker в preview (localhost) работает некорректно
-/*
 // Регистрация Service Worker
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', async () => {
@@ -103,6 +101,5 @@ if ('serviceWorker' in navigator) {
         }
     });
 }
-*/
 
 export default router;
