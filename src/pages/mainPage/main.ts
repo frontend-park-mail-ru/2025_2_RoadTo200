@@ -241,6 +241,10 @@ export class MainPage {
             const deltaY = endY - startY;
 
             cardElement.style.transform = `translate(${deltaX - 200}px, ${deltaY}px) rotate(${deltaX * 0.1}deg)`;
+
+            if (Math.abs(deltaX) > 200 || Math.abs(deltaY) > 200) {
+                stopSwipe();
+            }
         };
 
         const stopSwipe = () => {
@@ -274,13 +278,18 @@ export class MainPage {
 
                 animateCardOut(cardElement, direction);
             } else {
-                cardElement.style.transform = 'translate(-220px, 0) rotate(0deg)';
+                cardElement.style.transform = 'translate(-200px, 0) rotate(0deg)';
             }
         };
 
         cardElement.addEventListener('mousedown', startSwipe as EventListener);
         cardElement.addEventListener('mousemove', moveSwipe as EventListener);
         cardElement.addEventListener('mouseup', stopSwipe);
+
+        cardElement.addEventListener('touchstart', startSwipe as EventListener);
+        cardElement.addEventListener('touchmove', moveSwipe as EventListener);
+        cardElement.addEventListener('touchend', stopSwipe);
+
     }
 
     private initCardActions(): void {
