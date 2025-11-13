@@ -25,7 +25,6 @@ const fetchTemplate = async (path: string): Promise<string> => {
     }
 };
 
-
 class MatchCardComponent {
     async render(matchData: MatchData = {} as MatchData): Promise<string> {
         const templateString = await fetchTemplate(TEMPLATE_PATH);

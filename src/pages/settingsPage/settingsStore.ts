@@ -14,7 +14,7 @@ class SettingsStore implements Store {
     profileData: ProfileData = {
         name: '',
         birthdate: '',
-        email: ''
+        email: '',
     };
 
     constructor() {
@@ -24,25 +24,40 @@ class SettingsStore implements Store {
     async handleAction(action: Action): Promise<void> {
         switch (action.type) {
             case Actions.RENDER_SETTINGS:
-                await this.renderSettings(action.payload as { tab?: string } | undefined);
+                await this.renderSettings(
+                    action.payload as { tab?: string } | undefined
+                );
                 break;
 
             case Actions.SWITCH_SETTINGS_TAB:
                 if (action.payload) {
-                    this.currentTab = (action.payload as { tab?: string }).tab || 'profile';
+                    this.currentTab =
+                        (action.payload as { tab?: string }).tab || 'profile';
                     this.updateView();
                 }
                 break;
 
             case Actions.UPDATE_PROFILE_SETTINGS:
                 if (action.payload) {
-                    await this.updateProfileSettings(action.payload as { name: string; birthdate: string; email: string });
+                    await this.updateProfileSettings(
+                        action.payload as {
+                            name: string;
+                            birthdate: string;
+                            email: string;
+                        }
+                    );
                 }
                 break;
 
             case Actions.CHANGE_PASSWORD:
                 if (action.payload) {
-                    await this.changePassword(action.payload as { oldPassword: string; newPassword: string; confirmPassword: string });
+                    await this.changePassword(
+                        action.payload as {
+                            oldPassword: string;
+                            newPassword: string;
+                            confirmPassword: string;
+                        }
+                    );
                 }
                 break;
 
@@ -55,7 +70,9 @@ class SettingsStore implements Store {
         }
     }
 
-    private async renderSettings(payload: { tab?: string } | undefined): Promise<void> {
+    private async renderSettings(
+        payload: { tab?: string } | undefined
+    ): Promise<void> {
         const container = document.getElementById('content-container');
         if (!container) {
             return;
@@ -64,13 +81,15 @@ class SettingsStore implements Store {
         settings.parent = container;
 
         try {
-            const response = await ProfileApi.getProfile() as any;
+            const response = (await ProfileApi.getProfile()) as any;
             console.log('Settings: Profile response:', response);
-            
+
             const user = response.user || {};
             this.profileData = {
                 name: user.name || '',
-                birthdate: user.birth_date ? this.formatDate(user.birth_date) : '',
+                birthdate: user.birth_date
+                    ? this.formatDate(user.birth_date)
+                    : '',
                 email: user.email || '',
             };
         } catch (error) {
@@ -84,22 +103,22 @@ class SettingsStore implements Store {
 
         await settings.render(this.profileData, this.currentTab);
     }
-    
+
     private formatDate(dateString: string): string {
         if (!dateString || dateString === '0001-01-01T00:00:00Z') {
             return '';
         }
-        
+
         // Парсим ISO дату и создаем объект Date в UTC
         const date = new Date(dateString);
-        
+
         // Извлекаем компоненты даты напрямую из ISO строки, чтобы избежать проблем с часовыми поясами
         const isoMatch = dateString.match(/^(\d{4})-(\d{2})-(\d{2})/);
         if (isoMatch) {
             const [, year, month, day] = isoMatch;
             return `${day}.${month}.${year}`;
         }
-        
+
         // Fallback на обычный парсинг (может не работать корректно для всех случаев)
         const day = String(date.getUTCDate()).padStart(2, '0');
         const month = String(date.getUTCMonth() + 1).padStart(2, '0');
@@ -112,7 +131,15 @@ class SettingsStore implements Store {
         settings.renderContent(this.currentTab, this.profileData);
     }
 
-    private async updateProfileSettings({ name, birthdate, email }: { name: string; birthdate: string; email: string }): Promise<void> {
+    private async updateProfileSettings({
+        name,
+        birthdate,
+        email,
+    }: {
+        name: string;
+        birthdate: string;
+        email: string;
+    }): Promise<void> {
         const errors: Record<string, string> = {};
         settings.clearErrors();
 
@@ -132,7 +159,9 @@ class SettingsStore implements Store {
         }
 
         if (!/^\d{2}\.\d{2}\.\d{4}$/.test(birthdate)) {
-            settings.showErrors({ birthdateError: 'Введите корректную дату рождения' });
+            settings.showErrors({
+                birthdateError: 'Введите корректную дату рождения',
+            });
             return;
         }
 
@@ -142,7 +171,10 @@ class SettingsStore implements Store {
         const today = new Date();
         let age = today.getFullYear() - birthDate.getFullYear();
         const monthDiff = today.getMonth() - birthDate.getMonth();
-        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+        if (
+            monthDiff < 0 ||
+            (monthDiff === 0 && today.getDate() < birthDate.getDate())
+        ) {
             age--;
         }
 
@@ -158,24 +190,36 @@ class SettingsStore implements Store {
 
         // Конвертируем дату из DD.MM.YYYY в ISO формат для бэкенда
         // Используем полдень по UTC, чтобы избежать проблем с часовыми поясами
-        const birthDateISO = new Date(Date.UTC(year, month - 1, day, 12, 0, 0)).toISOString();
+        const birthDateISO = new Date(
+            Date.UTC(year, month - 1, day, 12, 0, 0)
+        ).toISOString();
 
         try {
-            await ProfileApi.updateProfileInfo({ 
+            await ProfileApi.updateProfileInfo({
                 name,
-                birth_date: birthDateISO
+                birth_date: birthDateISO,
             });
             console.log('Profile settings updated successfully');
-            
+
             this.profileData = { name, birthdate, email };
             this.updateView();
         } catch (err) {
             console.error('Error updating profile settings:', err);
-            settings.showErrors({ emailError: 'Ошибка при обновлении профиля' });
+            settings.showErrors({
+                emailError: 'Ошибка при обновлении профиля',
+            });
         }
     }
 
-    private async changePassword({ oldPassword, newPassword, confirmPassword }: { oldPassword: string; newPassword: string; confirmPassword: string }): Promise<void> {
+    private async changePassword({
+        oldPassword,
+        newPassword,
+        confirmPassword,
+    }: {
+        oldPassword: string;
+        newPassword: string;
+        confirmPassword: string;
+    }): Promise<void> {
         const errors: Record<string, string> = {};
         settings.clearErrors();
 
@@ -195,17 +239,23 @@ class SettingsStore implements Store {
         }
 
         if (newPassword !== confirmPassword) {
-            settings.showErrors({ confirmPasswordError: 'Пароли не совпадают' });
+            settings.showErrors({
+                confirmPasswordError: 'Пароли не совпадают',
+            });
             return;
         }
 
         if (newPassword === oldPassword) {
-            settings.showErrors({ newPasswordError: 'Новый пароль должен отличаться от старого' });
+            settings.showErrors({
+                newPasswordError: 'Новый пароль должен отличаться от старого',
+            });
             return;
         }
 
         if (newPassword.length < 6) {
-            settings.showErrors({ newPasswordError: 'Пароль должен содержать минимум 6 символов' });
+            settings.showErrors({
+                newPasswordError: 'Пароль должен содержать минимум 6 символов',
+            });
             return;
         }
 
@@ -222,14 +272,16 @@ class SettingsStore implements Store {
     private async deleteAccount(): Promise<void> {
         try {
             await ProfileApi.deleteAccount();
-            
+
             await dispatcher.process({
                 type: Actions.NAVIGATE_TO,
-                payload: { path: '/login' }
+                payload: { path: '/login' },
             });
         } catch (error) {
             console.error('Ошибка при удалении аккаунта:', error);
-            settings.showErrors({ generalError: 'Ошибка при удалении аккаунта' });
+            settings.showErrors({
+                generalError: 'Ошибка при удалении аккаунта',
+            });
         }
     }
 }

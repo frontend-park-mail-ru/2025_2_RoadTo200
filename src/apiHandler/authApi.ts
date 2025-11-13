@@ -41,7 +41,11 @@ class AuthApi {
      * @param passwordConfirm Подтверждение пароля
      * @returns Promise с ответом сервера
      */
-    async register(email: string, password: string, passwordConfirm: string): Promise<AuthResponse> {
+    async register(
+        email: string,
+        password: string,
+        passwordConfirm: string
+    ): Promise<AuthResponse> {
         const options = {
             method: 'POST',
             body: JSON.stringify({ email, password, passwordConfirm }),
@@ -68,7 +72,9 @@ class AuthApi {
      * @returns Promise с статусом аутентификации
      */
     async checkAuth(): Promise<CheckAuthResponse> {
-        return handleFetch<CheckAuthResponse>(this.baseURL, '/session', { method: 'GET' });
+        return handleFetch<CheckAuthResponse>(this.baseURL, '/session', {
+            method: 'GET',
+        });
     }
 
     /**
@@ -76,7 +82,9 @@ class AuthApi {
      * @returns Promise с ответом сервера
      */
     async logout(): Promise<AuthResponse> {
-        return handleFetch<AuthResponse>(this.baseURL, '/logout', { method: 'POST' });
+        return handleFetch<AuthResponse>(this.baseURL, '/logout', {
+            method: 'POST',
+        });
     }
 }
 

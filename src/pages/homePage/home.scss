@@ -10,7 +10,7 @@
 .home-page__title {
     font-size: 32px;
     font-weight: 600;
-    color: #FF3B84;
+    color: #ff3b84;
     margin-bottom: 50px;
     text-align: center;
 }
@@ -63,7 +63,7 @@
 }
 
 .home-page__submit-button {
-    background: linear-gradient(135deg, #FF3B84 0%, #FF6B9D 100%);
+    background: linear-gradient(135deg, #ff3b84 0%, #ff6b9d 100%);
     color: white;
     border: none;
     border-radius: 30px;
@@ -71,7 +71,9 @@
     font-size: 18px;
     font-weight: 600;
     cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
     box-shadow: 0 4px 15px rgba(255, 59, 132, 0.3);
 }
 

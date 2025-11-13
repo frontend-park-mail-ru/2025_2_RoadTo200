@@ -9,7 +9,7 @@ class SettingsMenuStore implements Store {
 
     constructor() {
         this.currentTab = 'profile';
-        
+
         dispatcher.register(this);
         this.settingsMenuComponent = settingsMenu;
     }
@@ -40,12 +40,14 @@ class SettingsMenuStore implements Store {
     }
 
     private async renderSettingsMenu(): Promise<void> {
-        const menuContainer = document.querySelector('#settingsMenuContainer') as HTMLElement;
+        const menuContainer = document.querySelector(
+            '#settingsMenuContainer'
+        ) as HTMLElement;
         if (menuContainer) {
             this.settingsMenuComponent.parent = menuContainer;
-            
+
             const menuData = {
-                currentTab: this.currentTab
+                currentTab: this.currentTab,
             };
 
             await this.settingsMenuComponent.render(menuData);

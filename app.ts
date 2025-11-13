@@ -15,14 +15,14 @@ import './src/components/OfflineBanner/offlineBannerStore';
 import './src/components/ProfileSetupPopup/profileSetupPopupStore';
 import navigationStore, { Route } from './src/navigation/navigationStore';
 
-import { Router } from "./router";
-import { home } from "./src/pages/homePage/home";
-import { main } from "./src/pages/mainPage/main";
-import { login } from "./src/pages/loginPage/login";
-import { register } from "./src/pages/registerPage/register";
-import { matches } from "./src/pages/matchesPage/matches";
-import { profile } from "./src/pages/profilePage/profile";
-import { settings } from "./src/pages/settingsPage/settings";
+import { Router } from './router';
+import { home } from './src/pages/homePage/home';
+import { main } from './src/pages/mainPage/main';
+import { login } from './src/pages/loginPage/login';
+import { register } from './src/pages/registerPage/register';
+import { matches } from './src/pages/matchesPage/matches';
+import { profile } from './src/pages/profilePage/profile';
+import { settings } from './src/pages/settingsPage/settings';
 import type { PageComponent } from './src/navigation/navigationStore';
 
 const notFoundComponent: PageComponent = {
@@ -36,7 +36,7 @@ const notFoundComponent: PageComponent = {
                 </div>
             `;
         }
-    }
+    },
 };
 
 const routes: Route[] = [
@@ -47,48 +47,62 @@ const routes: Route[] = [
     new Route('/matches', matches, true),
     new Route('/me', profile, true),
     new Route('/settings', settings, true),
-    new Route('*', notFoundComponent, false)
+    new Route('*', notFoundComponent, false),
 ];
 
 // Инициализируем роутер с navigationStore
 const router = new Router(routes, navigationStore);
 
+// ВРЕМЕННО ОТКЛЮЧЕНО для отладки проблем со стилями и картинками
+// Service Worker в preview (localhost) работает некорректно
+/*
 // Регистрация Service Worker
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', async () => {
         try {
-            // Сначала удаляем все старые service workers
-            const registrations = await navigator.serviceWorker.getRegistrations();
-            for (const registration of registrations) {
-                await registration.unregister();
-                // console.log('Old Service Worker unregistered');
-            }
-            
-            // Регистрируем новый Service Worker
-            const registration = await navigator.serviceWorker.register('/service-worker.js', {
-                scope: '/'
-            });
-            // console.log('Service Worker registered successfully:', registration.scope);
-            
-            // Проверка обновлений Service Worker
+            const swPath =
+                import.meta.env.MODE === 'production'
+                    ? '/service-worker.js'
+                    : '/service-worker.ts';
+
+            const registration = await navigator.serviceWorker.register(
+                swPath,
+                { scope: '/' }
+            );
+
+            console.log(
+                'Service Worker registered:',
+                registration.scope
+            );
+
+            // Обработка обновлений Service Worker
             registration.addEventListener('updatefound', () => {
                 const newWorker = registration.installing;
-                // console.log('New Service Worker found');
-                
-                if (newWorker) {
-                    newWorker.addEventListener('statechange', () => {
-                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                            // console.log('New Service Worker available');
-                            // Автоматически активируем новый service worker
-                            newWorker.postMessage({ type: 'SKIP_WAITING' });
-                        }
-                    });
-                }
+                if (!newWorker) return;
+
+                console.log('New Service Worker found, installing...');
+
+                newWorker.addEventListener('statechange', () => {
+                    if (
+                        newWorker.state === 'installed' &&
+                        navigator.serviceWorker.controller
+                    ) {
+                        console.log('New Service Worker available');
+                        newWorker.postMessage({ type: 'SKIP_WAITING' });
+                    }
+                });
+            });
+
+            
+            navigator.serviceWorker.addEventListener('controllerchange', () => {
+                console.log('Service Worker updated, reloading page...');
+                window.location.reload();
             });
         } catch (error) {
-            // console.error('Service Worker registration failed:', error);
+            console.error('Service Worker registration failed:', error);
         }
     });
 }
+*/
 
 export default router;

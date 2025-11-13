@@ -26,11 +26,16 @@ class ProfileMenuStore implements Store {
                 break;
 
             case Actions.TOGGLE_PROFILE_MENU:
-                await this.toggleMenu((action.payload as { isVisible?: boolean } | undefined)?.isVisible);
+                await this.toggleMenu(
+                    (action.payload as { isVisible?: boolean } | undefined)
+                        ?.isVisible
+                );
                 break;
 
             case Actions.AUTH_STATE_UPDATED:
-                this.user = (action.payload as { user?: User | null } | undefined)?.user || null;
+                this.user =
+                    (action.payload as { user?: User | null } | undefined)
+                        ?.user || null;
                 if (this.isVisible) {
                     await this.renderProfileMenu();
                 }
@@ -45,7 +50,7 @@ class ProfileMenuStore implements Store {
         if (!this.user) {
             try {
                 const response = await AuthApi.checkAuth();
-                this.user = response.user as User | null || null;
+                this.user = (response.user as User | null) || null;
             } catch (error) {
                 this.user = null;
             }
@@ -53,25 +58,26 @@ class ProfileMenuStore implements Store {
 
         const menuData = {
             user: this.user,
-            isVisible: this.isVisible
+            isVisible: this.isVisible,
         };
 
         await this.profileMenuComponent.render(menuData);
     }
 
     private async toggleMenu(visible?: boolean): Promise<void> {
-        const shouldBeVisible = visible !== undefined ? visible : !this.isVisible;
-        
+        const shouldBeVisible =
+            visible !== undefined ? visible : !this.isVisible;
+
         if (shouldBeVisible && !this.user) {
             try {
                 const response = await AuthApi.checkAuth();
-                this.user = response.user as User | null || null;
+                this.user = (response.user as User | null) || null;
             } catch (error) {
                 this.user = null;
             }
             await this.renderProfileMenu();
         }
-        
+
         this.isVisible = shouldBeVisible;
         this.profileMenuComponent.toggle(this.isVisible);
     }

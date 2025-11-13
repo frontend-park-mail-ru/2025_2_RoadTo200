@@ -18,7 +18,7 @@ class AuthBackgroundStore implements Store {
             case Actions.RENDER_AUTH_BACKGROUND:
                 await this.showBackground();
                 break;
-            
+
             case Actions.HIDE_AUTH_BACKGROUND:
                 await this.hideBackground();
                 break;
@@ -27,8 +27,10 @@ class AuthBackgroundStore implements Store {
 
     async showBackground(): Promise<void> {
         const root = document.getElementById('root');
-        let bgElement = document.querySelector('.auth-background') as HTMLElement;
-        
+        let bgElement = document.querySelector(
+            '.auth-background'
+        ) as HTMLElement;
+
         if (!bgElement) {
             bgElement = document.createElement('div');
             bgElement.className = 'auth-background';
@@ -40,7 +42,7 @@ class AuthBackgroundStore implements Store {
             if (root) {
                 document.body.insertBefore(bgElement, root);
             }
-            
+
             authBackground.setContainer(bgElement);
             authBackground.render();
         } else {
@@ -50,7 +52,9 @@ class AuthBackgroundStore implements Store {
     }
 
     hideBackground(): void {
-        const bgElement = document.querySelector('.auth-background') as HTMLElement;
+        const bgElement = document.querySelector(
+            '.auth-background'
+        ) as HTMLElement;
         if (bgElement) {
             bgElement.style.display = 'none';
         }

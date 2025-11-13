@@ -74,38 +74,44 @@ class ProfileApi {
     }
 
     async getProfile(): Promise<ProfileResponse> {
-        const response = await fetch(`${this.baseURL}/profile`, { 
+        const response = await fetch(`${this.baseURL}/profile`, {
             method: 'GET',
-            credentials: 'include'
+            credentials: 'include',
         });
-        
+
         if (!response.ok) {
-            const error = await response.json().catch(() => ({ error: 'Unknown error' }));
+            const error = await response
+                .json()
+                .catch(() => ({ error: 'Unknown error' }));
             throw new Error(error.error || `HTTP ${response.status}`);
         }
-        
-        return await response.json() as ProfileResponse;
+
+        return (await response.json()) as ProfileResponse;
     }
 
-    async updateProfileInfo(profileData: UpdateProfileData): Promise<ApiResponse> {
+    async updateProfileInfo(
+        profileData: UpdateProfileData
+    ): Promise<ApiResponse> {
         const response = await fetch(`${this.baseURL}/changeProfile`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
             },
             credentials: 'include',
             body: JSON.stringify({
                 action: 'updateInfo',
-                ...profileData
-            })
+                ...profileData,
+            }),
         });
-        
+
         if (!response.ok) {
-            const error = await response.json().catch(() => ({ error: 'Unknown error' }));
+            const error = await response
+                .json()
+                .catch(() => ({ error: 'Unknown error' }));
             throw new Error(error.error || `HTTP ${response.status}`);
         }
-        
-        return await response.json() as ApiResponse;
+
+        return (await response.json()) as ApiResponse;
     }
 
     async updateActivities(activities: {
@@ -125,18 +131,18 @@ class ProfileApi {
 
     async uploadPhoto(photos: File | File[]): Promise<UploadPhotoResponse> {
         const formData = new FormData();
-        
+
         const photoArray = Array.isArray(photos) ? photos : [photos];
         photoArray.forEach((photo) => {
             formData.append('photos', photo);
         });
-        
+
         const response = await fetch(`${this.baseURL}/uploadPhotos`, {
             method: 'POST',
             credentials: 'include',
-            body: formData
+            body: formData,
         });
-        
+
         if (!response.ok) {
             let errorMessage = `HTTP ${response.status}`;
             try {
@@ -148,7 +154,7 @@ class ProfileApi {
             }
             throw new Error(errorMessage);
         }
-        
+
         return response.json() as Promise<UploadPhotoResponse>;
     }
 
@@ -156,20 +162,22 @@ class ProfileApi {
         const response = await fetch(`${this.baseURL}/changeProfile`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
             },
             credentials: 'include',
             body: JSON.stringify({
                 action: 'deletePhoto',
-                photo_id: photoId
-            })
+                photo_id: photoId,
+            }),
         });
-        
+
         if (!response.ok) {
-            const error = await response.json().catch(() => ({ error: 'Unknown error' }));
+            const error = await response
+                .json()
+                .catch(() => ({ error: 'Unknown error' }));
             throw new Error(error.error || `HTTP ${response.status}`);
         }
-        
+
         return response.json() as Promise<ApiResponse>;
     }
 
@@ -177,42 +185,49 @@ class ProfileApi {
         const response = await fetch(`${this.baseURL}/changeProfile`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
             },
             credentials: 'include',
             body: JSON.stringify({
                 action: 'setPrimaryPhoto',
-                photo_id: photoId
-            })
+                photo_id: photoId,
+            }),
         });
-        
+
         if (!response.ok) {
-            const error = await response.json().catch(() => ({ error: 'Unknown error' }));
+            const error = await response
+                .json()
+                .catch(() => ({ error: 'Unknown error' }));
             throw new Error(error.error || `HTTP ${response.status}`);
         }
-        
+
         return response.json() as Promise<ApiResponse>;
     }
 
-    async changePassword(oldPassword: string, newPassword: string): Promise<ApiResponse> {
+    async changePassword(
+        oldPassword: string,
+        newPassword: string
+    ): Promise<ApiResponse> {
         const response = await fetch(`${this.baseURL}/changeProfile`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
             },
             credentials: 'include',
             body: JSON.stringify({
                 action: 'changePassword',
                 oldPassword,
-                newPassword
-            })
+                newPassword,
+            }),
         });
-        
+
         if (!response.ok) {
-            const error = await response.json().catch(() => ({ error: 'Unknown error' }));
+            const error = await response
+                .json()
+                .catch(() => ({ error: 'Unknown error' }));
             throw new Error(error.error || `HTTP ${response.status}`);
         }
-        
+
         return response.json() as Promise<ApiResponse>;
     }
 
@@ -220,19 +235,21 @@ class ProfileApi {
         const response = await fetch(`${this.baseURL}/changeProfile`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
             },
             credentials: 'include',
             body: JSON.stringify({
-                action: 'deleteAccount'
-            })
+                action: 'deleteAccount',
+            }),
         });
-        
+
         if (!response.ok) {
-            const error = await response.json().catch(() => ({ error: 'Unknown error' }));
+            const error = await response
+                .json()
+                .catch(() => ({ error: 'Unknown error' }));
             throw new Error(error.error || `HTTP ${response.status}`);
         }
-        
+
         return response.json() as Promise<ApiResponse>;
     }
 }

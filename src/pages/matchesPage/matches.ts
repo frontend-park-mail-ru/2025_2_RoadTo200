@@ -44,14 +44,14 @@ export class MatchesPage {
         const pageTemplate = Handlebars.compile(pageTemplateString);
 
         const matchCardsHtml = await Promise.all(
-            this.matchesData.map(match => MatchCard.render(match))
+            this.matchesData.map((match) => MatchCard.render(match))
         );
 
         const matchesHtmlString = matchCardsHtml.join('');
 
         const renderedHtml = pageTemplate({
             matchesHtml: matchesHtmlString,
-            noMatches: this.matchesData.length === 0
+            noMatches: this.matchesData.length === 0,
         });
 
         this.parent.innerHTML = renderedHtml;
@@ -62,27 +62,33 @@ export class MatchesPage {
         if (!this.parent) return;
 
         const matchCards = this.parent.querySelectorAll('.match-card');
-        matchCards.forEach(card => {
+        matchCards.forEach((card) => {
             card.addEventListener('click', (e) => {
                 e.preventDefault();
                 const matchId = (card as HTMLElement).dataset.matchId;
                 if (!matchId) return;
-                
-                const matchData = this.matchesData.find(m => m.matchId === matchId || m.id === matchId);
-                
+
+                const matchData = this.matchesData.find(
+                    (m) => m.matchId === matchId || m.id === matchId
+                );
+
                 dispatcher.process({
                     type: Actions.MATCH_CARD_CLICK,
-                    payload: { 
+                    payload: {
                         matchId,
-                        userData: matchData ? matchData.userData : null
-                    }
+                        userData: matchData ? matchData.userData : null,
+                    },
                 });
             });
         });
     }
 
-    async setMatches(matchesArr: MatchData[] | Record<string, MatchData>): Promise<void> {
-        this.matchesData = Array.isArray(matchesArr) ? matchesArr : Object.values(matchesArr || {});
+    async setMatches(
+        matchesArr: MatchData[] | Record<string, MatchData>
+    ): Promise<void> {
+        this.matchesData = Array.isArray(matchesArr)
+            ? matchesArr
+            : Object.values(matchesArr || {});
         await this.render();
     }
 }

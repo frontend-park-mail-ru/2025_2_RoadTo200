@@ -5,12 +5,12 @@
     z-index: 0;
     overflow: hidden;
     background: linear-gradient(135deg, #fef5f7 0%, #fff9fa 100%);
-    display: block; 
+    display: block;
     &__circle-activity-tablet {
         position: relative;
         width: 100%;
         height: 100%;
-        transform: rotate(-30deg); 
+        transform: rotate(-30deg);
     }
 
     &__background-text {
@@ -18,8 +18,16 @@
         white-space: nowrap;
         font-size: 32px;
         font-weight: 700;
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-        background: linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary-light) 100%);
+        font-family:
+            'Inter',
+            -apple-system,
+            BlinkMacSystemFont,
+            sans-serif;
+        background: linear-gradient(
+            135deg,
+            var(--color-primary-dark) 0%,
+            var(--color-primary-light) 100%
+        );
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;

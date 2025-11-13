@@ -39,7 +39,7 @@
 }
 
 .empty-state__button {
-    background: linear-gradient(135deg, #FF3B84 0%, #FF6B9D 100%);
+    background: linear-gradient(135deg, #ff3b84 0%, #ff6b9d 100%);
     color: white;
     border: none;
     border-radius: 24px;
@@ -47,7 +47,9 @@
     font-size: 16px;
     font-weight: 600;
     cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
     box-shadow: 0 4px 12px rgba(255, 59, 132, 0.3);
 }
 
