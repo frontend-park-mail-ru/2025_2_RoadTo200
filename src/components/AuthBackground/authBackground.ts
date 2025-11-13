@@ -123,7 +123,7 @@ export class AuthBackground {
     }
 
     private startAnimation(textContent: string, circleSpacing: number): void {
-        if (!this.container) return;
+    if (!this.container) return;
 
         const tablet = this.container.querySelector(
             '.auth-background__circle-activity-tablet'
@@ -140,23 +140,40 @@ export class AuthBackground {
         const textWidth = textContent.length * 23;
         const textResetPoint = textWidth + 60;
 
-        const animate = (): void => {
-            circlePosition += circleSpeed;
-            if (circlePosition >= circleResetPoint) {
-                circlePosition -= circleResetPoint;
-            }
+    const circleResetPoint = circleSpacing * 10;
+    const textWidth = textContent.length * 23;
+    const textResetPoint = textWidth + 60;
 
-            textPosition += textSpeed;
-            if (textPosition >= textResetPoint) {
-                textPosition -= textResetPoint;
-            }
+    let lastTime = performance.now();
 
-            this.circles.forEach((circle) => {
-                const element = circle.getElement();
-                if (element) {
-                    element.style.transform = `translate3d(${circlePosition - 2500}px,-500px, 0)`;
-                }
-            });
+    const animate = (now: number): void => {
+        const deltaTime = (now - lastTime) / 1000; // секунды между кадрами
+        lastTime = now;
+
+        // движение с учётом прошедшего времени
+        circlePosition += circleSpeed * deltaTime;
+        if (circlePosition >= circleResetPoint) {
+            circlePosition -= circleResetPoint;
+        }
+
+        textPosition += textSpeed * deltaTime;
+        if (textPosition >= textResetPoint) {
+            textPosition -= textResetPoint;
+        }
+
+        this.circles.forEach((circle) => {
+            const element = circle.getElement();
+            if (element) {
+                element.style.transform = `translate3d(${circlePosition - 2500}px, -500px, 0)`;
+            }
+        });
+
+        this.textElements.forEach((textEl) => {
+            textEl.style.transform = `translate3d(${textPosition - 2500}px, -500px, 0)`;
+        });
+
+        this.animationId = requestAnimationFrame(animate);
+    };
 
             this.textElements.forEach((textEl) => {
                 textEl.style.transform = `translate3d(${textPosition - 2500}px, -500px, 0)`;
@@ -165,8 +182,6 @@ export class AuthBackground {
             this.animationId = requestAnimationFrame(animate);
         };
 
-        animate();
-    }
 
     destroy(): void {
         if (this.animationId) {
