@@ -1,40 +1,45 @@
-<div class="details">
-  {{#if bio}}
-  <h3 class="details__section-title">О себе</h3>
-  <p class="details__section-text">{{bio}}</p>
-  {{/if}}
+<div class='details'>
+    {{#if bio}}
+        <h3 class='details__section-title'>О себе</h3>
+        <p class='details__section-text'>{{bio}}</p>
+    {{/if}}
 
-  {{#if interests}}
-  {{#if interests.length}}
-  <h3 class="details__section-title">Увлечения</h3>
-  <div class="details__tags">
-    {{#each interests}}
-    <span class="details__tag">{{this.name}}</span>
-    {{/each}}
-  </div>
-  {{/if}}
-  {{/if}}
+    {{#if interests}}
+        {{#if interests.length}}
+            <h3 class='details__section-title'>Увлечения</h3>
+            <div class='details__tags'>
+                {{#each interests}}
+                    <span class='details__tag'>{{this.name}}</span>
+                {{/each}}
+            </div>
+        {{/if}}
+    {{/if}}
 
-  {{#if activities}}
-  {{#if activities.length}}
-  <h3 class="details__section-title">Активности</h3>
-  <div class="details__icons">
-    {{#each activities}}
-    <div class="details__icon-circle">
-      <img src="{{this.icon}}" alt="{{this.name}}" class="details__activity-icon" title="{{this.name}}">
-    </div>
-    {{/each}}
-  </div>
-  {{/if}}
-  {{/if}}
+    {{#if activities}}
+        {{#if activities.length}}
+            <h3 class='details__section-title'>Активности</h3>
+            <div class='details__icons'>
+                {{#each activities}}
+                    <div class='details__icon-circle'>
+                        <img
+                            src='{{this.icon}}'
+                            alt='{{this.name}}'
+                            class='details__activity-icon'
+                            title='{{this.name}}'
+                        />
+                    </div>
+                {{/each}}
+            </div>
+        {{/if}}
+    {{/if}}
 
-  {{#if musician}}
-  <h3 class="details__section-title">Любимый исполнитель</h3>
-  <p class="details__section-text">{{musician}}</p>
-  {{/if}}
+    {{#if musician}}
+        <h3 class='details__section-title'>Любимый исполнитель</h3>
+        <p class='details__section-text'>{{musician}}</p>
+    {{/if}}
 
-  {{#if quote}}
-  <h3 class="details__section-title">Любимая цитата</h3>
-  <p class="details__section-text">{{quote}}</p>
-  {{/if}}
+    {{#if quote}}
+        <h3 class='details__section-title'>Любимая цитата</h3>
+        <p class='details__section-text'>{{quote}}</p>
+    {{/if}}
 </div>

@@ -19,7 +19,8 @@ interface ProfileData {
 
 const fetchTemplate = async (path: string): Promise<string> => {
     const response = await fetch(path);
-    if (!response.ok) throw new Error('Ошибка: не удалось загрузить шаблон настроек');
+    if (!response.ok)
+        throw new Error('Ошибка: не удалось загрузить шаблон настроек');
     return response.text();
 };
 
@@ -30,7 +31,10 @@ export class SettingsPage {
         this.parent = parent;
     }
 
-    async render(profileData: ProfileData = {}, currentTab: string = 'profile'): Promise<void> {
+    async render(
+        profileData: ProfileData = {},
+        currentTab: string = 'profile'
+    ): Promise<void> {
         if (!this.parent) {
             // console.warn('SettingsPage: parent not assigned');
             return;
@@ -44,7 +48,7 @@ export class SettingsPage {
 
         await dispatcher.process({
             type: Actions.RENDER_SETTINGS_MENU,
-            payload: { tab: currentTab }
+            payload: { tab: currentTab },
         });
 
         // Добавляем обработчик для кнопки закрытия
@@ -53,7 +57,7 @@ export class SettingsPage {
             closeBtn.addEventListener('click', () => {
                 dispatcher.process({
                     type: Actions.NAVIGATE_TO,
-                    payload: { path: '/' }
+                    payload: { path: '/' },
                 });
             });
         }
@@ -66,7 +70,7 @@ export class SettingsPage {
                     // Закрываем настройки - переходим на главную
                     dispatcher.process({
                         type: Actions.NAVIGATE_TO,
-                        payload: { path: '/' }
+                        payload: { path: '/' },
                     });
                 }
             });
@@ -83,10 +87,14 @@ export class SettingsPage {
 
         switch (currentTab) {
             case 'profile':
-                contentContainer.appendChild(this.createProfileTab(profileData));
+                contentContainer.appendChild(
+                    this.createProfileTab(profileData)
+                );
                 break;
             case 'filters':
-                contentContainer.appendChild(this.createFiltersTab(profileData));
+                contentContainer.appendChild(
+                    this.createFiltersTab(profileData)
+                );
                 break;
             case 'security':
                 contentContainer.appendChild(this.createSecurityTab());
@@ -176,8 +184,17 @@ export class SettingsPage {
         return section;
     }
 
-    private static createFormGroupHTML(label: string, type: string, id: string, value: string | undefined, errorId: string, placeholder: string = ''): string {
-        const placeholderAttr = placeholder ? `placeholder="${placeholder}"` : '';
+    private static createFormGroupHTML(
+        label: string,
+        type: string,
+        id: string,
+        value: string | undefined,
+        errorId: string,
+        placeholder: string = ''
+    ): string {
+        const placeholderAttr = placeholder
+            ? `placeholder="${placeholder}"`
+            : '';
         return `
             <div class="form__input-wrapper">
                 <label class="settings-label">${label}</label>
@@ -195,11 +212,13 @@ export class SettingsPage {
 
         // Добавляем обработчики для карандашиков
         const editIcons = this.parent.querySelectorAll('.edit-icon');
-        editIcons.forEach(icon => {
+        editIcons.forEach((icon) => {
             icon.addEventListener('click', () => {
                 const inputId = icon.getAttribute('data-input-id');
                 if (inputId) {
-                    const input = this.parent?.querySelector(`#${inputId}`) as HTMLInputElement | null;
+                    const input = this.parent?.querySelector(
+                        `#${inputId}`
+                    ) as HTMLInputElement | null;
                     if (input) {
                         input.disabled = false;
                         input.focus();
@@ -210,17 +229,19 @@ export class SettingsPage {
 
         if (currentTab === 'profile') {
             // Добавляем автоформатирование даты рождения
-            const birthdateInput = this.parent.querySelector('#settingsBirthdate') as HTMLInputElement | null;
+            const birthdateInput = this.parent.querySelector(
+                '#settingsBirthdate'
+            ) as HTMLInputElement | null;
             if (birthdateInput) {
                 birthdateInput.addEventListener('input', (e) => {
                     const input = e.target as HTMLInputElement;
                     let value = input.value.replace(/\D/g, ''); // Оставляем только цифры
-                    
+
                     // Ограничиваем до 8 цифр
                     if (value.length > 8) {
                         value = value.slice(0, 8);
                     }
-                    
+
                     // Форматируем с точками
                     let formatted = '';
                     if (value.length > 0) {
@@ -232,7 +253,7 @@ export class SettingsPage {
                     if (value.length >= 5) {
                         formatted += '.' + value.slice(4, 8);
                     }
-                    
+
                     input.value = formatted;
                 });
             }
@@ -241,10 +262,16 @@ export class SettingsPage {
             if (updateBtn) {
                 updateBtn.addEventListener('click', (e) => {
                     e.preventDefault();
-                    const nameInput = this.parent?.querySelector('#settingsName') as HTMLInputElement | null;
-                    const birthdateInput = this.parent?.querySelector('#settingsBirthdate') as HTMLInputElement | null;
-                    const emailInput = this.parent?.querySelector('#settingsEmail') as HTMLInputElement | null;
-                    
+                    const nameInput = this.parent?.querySelector(
+                        '#settingsName'
+                    ) as HTMLInputElement | null;
+                    const birthdateInput = this.parent?.querySelector(
+                        '#settingsBirthdate'
+                    ) as HTMLInputElement | null;
+                    const emailInput = this.parent?.querySelector(
+                        '#settingsEmail'
+                    ) as HTMLInputElement | null;
+
                     dispatcher.process({
                         type: Actions.UPDATE_PROFILE_SETTINGS,
                         payload: {
@@ -256,37 +283,61 @@ export class SettingsPage {
                 });
             }
         } else if (currentTab === 'filters') {
-            const updateFiltersBtn = this.parent.querySelector('#updateFiltersBtn');
+            const updateFiltersBtn =
+                this.parent.querySelector('#updateFiltersBtn');
             if (updateFiltersBtn) {
                 updateFiltersBtn.addEventListener('click', (e) => {
                     e.preventDefault();
-                    const showGenderInput = this.parent?.querySelector('#showGender') as HTMLSelectElement | null;
-                    const ageMinInput = this.parent?.querySelector('#ageMin') as HTMLInputElement | null;
-                    const ageMaxInput = this.parent?.querySelector('#ageMax') as HTMLInputElement | null;
-                    const maxDistanceInput = this.parent?.querySelector('#maxDistance') as HTMLInputElement | null;
-                    const globalSearchInput = this.parent?.querySelector('#globalSearch') as HTMLInputElement | null;
-                    
+                    const showGenderInput = this.parent?.querySelector(
+                        '#showGender'
+                    ) as HTMLSelectElement | null;
+                    const ageMinInput = this.parent?.querySelector(
+                        '#ageMin'
+                    ) as HTMLInputElement | null;
+                    const ageMaxInput = this.parent?.querySelector(
+                        '#ageMax'
+                    ) as HTMLInputElement | null;
+                    const maxDistanceInput = this.parent?.querySelector(
+                        '#maxDistance'
+                    ) as HTMLInputElement | null;
+                    const globalSearchInput = this.parent?.querySelector(
+                        '#globalSearch'
+                    ) as HTMLInputElement | null;
+
                     dispatcher.process({
                         type: Actions.UPDATE_FILTER_SETTINGS,
                         payload: {
                             show_gender: showGenderInput?.value,
-                            age_min: ageMinInput ? parseInt(ageMinInput.value, 10) : undefined,
-                            age_max: ageMaxInput ? parseInt(ageMaxInput.value, 10) : undefined,
-                            max_distance: maxDistanceInput ? parseInt(maxDistanceInput.value, 10) : undefined,
+                            age_min: ageMinInput
+                                ? parseInt(ageMinInput.value, 10)
+                                : undefined,
+                            age_max: ageMaxInput
+                                ? parseInt(ageMaxInput.value, 10)
+                                : undefined,
+                            max_distance: maxDistanceInput
+                                ? parseInt(maxDistanceInput.value, 10)
+                                : undefined,
                             global_search: globalSearchInput?.checked,
                         },
                     });
                 });
             }
         } else if (currentTab === 'security') {
-            const changePasswordBtn = this.parent.querySelector('#changePasswordBtn');
+            const changePasswordBtn =
+                this.parent.querySelector('#changePasswordBtn');
             if (changePasswordBtn) {
                 changePasswordBtn.addEventListener('click', (e) => {
                     e.preventDefault();
-                    const oldPasswordInput = this.parent?.querySelector('#oldPassword') as HTMLInputElement | null;
-                    const newPasswordInput = this.parent?.querySelector('#newPassword') as HTMLInputElement | null;
-                    const confirmPasswordInput = this.parent?.querySelector('#confirmPassword') as HTMLInputElement | null;
-                    
+                    const oldPasswordInput = this.parent?.querySelector(
+                        '#oldPassword'
+                    ) as HTMLInputElement | null;
+                    const newPasswordInput = this.parent?.querySelector(
+                        '#newPassword'
+                    ) as HTMLInputElement | null;
+                    const confirmPasswordInput = this.parent?.querySelector(
+                        '#confirmPassword'
+                    ) as HTMLInputElement | null;
+
                     dispatcher.process({
                         type: Actions.CHANGE_PASSWORD,
                         payload: {
@@ -298,7 +349,8 @@ export class SettingsPage {
                 });
             }
 
-            const deleteAccountBtn = this.parent.querySelector('#deleteAccountBtn');
+            const deleteAccountBtn =
+                this.parent.querySelector('#deleteAccountBtn');
             if (deleteAccountBtn) {
                 deleteAccountBtn.addEventListener('click', (e) => {
                     e.preventDefault();
@@ -316,7 +368,9 @@ export class SettingsPage {
         Object.entries(errors).forEach(([key, message]) => {
             const errorElement = this.parent?.querySelector(`#${key}`);
             if (errorElement) errorElement.textContent = message;
-            const inputElement = this.parent?.querySelector(`#${key.replace('Error', '')}`) as HTMLElement | null;
+            const inputElement = this.parent?.querySelector(
+                `#${key.replace('Error', '')}`
+            ) as HTMLElement | null;
             if (inputElement) inputElement.classList.add('error-input');
         });
     }

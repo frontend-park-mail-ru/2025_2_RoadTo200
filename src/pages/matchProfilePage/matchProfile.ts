@@ -35,13 +35,15 @@ export class MatchProfilePage {
         const templateString = await fetchTemplate(TEMPLATE_PATH);
         const pageTemplate = Handlebars.compile(templateString);
         this.parent.innerHTML = pageTemplate(data);
-        this.addEventListeners(); 
+        this.addEventListeners();
     }
 
     private addEventListeners(): void {
         if (!this.parent) return;
 
-        const chatButton = this.parent.querySelector('.match-details__chat-button');
+        const chatButton = this.parent.querySelector(
+            '.match-details__chat-button'
+        );
         if (chatButton) {
             chatButton.addEventListener('click', (e) => {
                 e.preventDefault();

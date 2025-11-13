@@ -23,25 +23,28 @@ import './src/components/ProfileMenu/profileMenuStore';
  * Класс Router для инициализации навигации и глобальных компонентов
  */
 export class Router {
-    constructor(routes: Route[], navigationStoreInstance: typeof navigationStore) {
+    constructor(
+        routes: Route[],
+        navigationStoreInstance: typeof navigationStore
+    ) {
         const rootElement = document.getElementById('root');
-        
+
         if (!rootElement) {
             throw new Error('Root element not found');
         }
-        
+
         // Инициализируем navigationStore с маршрутами
         navigationStoreInstance.init(routes, rootElement);
-        
+
         // Получаем контейнеры из store
         const containers = navigationStoreInstance.getContainers();
-        
+
         // Устанавливаем parent для глобальных компонентов
         header.parent = containers.header;
         menu.parent = containers.menu;
         profileMenu.parent = containers.profileMenu;
         offlineBanner.parent = containers.offlineBanner;
-        
+
         // Рендерим глобальные компоненты
         Promise.resolve().then(() => {
             dispatcher.process({ type: Actions.RENDER_HEADER });

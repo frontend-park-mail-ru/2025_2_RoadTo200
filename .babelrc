@@ -1,0 +1,25 @@
+{
+    "presets": [
+        [
+            "@babel/preset-env",
+            {
+                "targets": {
+                    "browsers": [
+                        "> 0.5%",            
+                        "last 2 versions",    
+                        "not dead"
+                    ]
+                },
+                "useBuiltIns": "entry",
+                "corejs": 3,
+                "modules": "auto"
+            }
+        ],
+        [
+            "@babel/preset-typescript",
+            {
+                "allExtensions": true
+            }
+        ]
+    ]
+}

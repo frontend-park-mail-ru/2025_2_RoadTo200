@@ -44,7 +44,9 @@ class MatchesApi {
      * @returns Promise со всеми матчами
      */
     async getAllMatches(): Promise<MatchesResponse> {
-        return handleFetch<MatchesResponse>(this.baseURL, '/matches', { method: 'GET' });
+        return handleFetch<MatchesResponse>(this.baseURL, '/matches', {
+            method: 'GET',
+        });
     }
 
     /**
@@ -53,7 +55,9 @@ class MatchesApi {
      * @returns Promise с данными матча
      */
     async getMatch(matchId: string | number): Promise<MatchResponse> {
-        return handleFetch<MatchResponse>(this.baseURL, `/matches/${matchId}`, { method: 'GET' });
+        return handleFetch<MatchResponse>(this.baseURL, `/matches/${matchId}`, {
+            method: 'GET',
+        });
     }
 }
 

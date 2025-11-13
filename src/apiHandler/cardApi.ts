@@ -53,13 +53,15 @@ class CardApi {
     constructor(baseURL = API_URL) {
         this.baseURL = baseURL;
     }
-    
+
     /**
      * GET /cards/ - Получить все карточки
      * @returns Promise с данными всех карточек
      */
     async getAllCards(): Promise<CardsResponse> {
-        return handleFetch<CardsResponse>(this.baseURL, '/feed', { method: 'GET' });
+        return handleFetch<CardsResponse>(this.baseURL, '/feed', {
+            method: 'GET',
+        });
     }
 
     /**
@@ -68,7 +70,9 @@ class CardApi {
      * @returns Promise с данными карточки
      */
     async getCardById(cardId: string | number): Promise<CardResponse> {
-        return handleFetch<CardResponse>(this.baseURL, `/feed/${cardId}`, { method: 'GET' });
+        return handleFetch<CardResponse>(this.baseURL, `/feed/${cardId}`, {
+            method: 'GET',
+        });
     }
 
     /**
@@ -91,8 +95,12 @@ class CardApi {
                 timestamp,
             } as CardInteractionRequest),
         };
-        
-        return handleFetch<CardInteractionResponse>(this.baseURL, '/swipe', options);
+
+        return handleFetch<CardInteractionResponse>(
+            this.baseURL,
+            '/swipe',
+            options
+        );
     }
 }
 

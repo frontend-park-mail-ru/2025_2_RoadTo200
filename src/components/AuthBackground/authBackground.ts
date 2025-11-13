@@ -1,4 +1,7 @@
-import { CircleActivity, getAvailableSvgIcons } from '../CircleActivity/circleActivity';
+import {
+    CircleActivity,
+    getAvailableSvgIcons,
+} from '../CircleActivity/circleActivity';
 
 export class AuthBackground {
     private container: HTMLElement | null;
@@ -33,7 +36,9 @@ export class AuthBackground {
             return;
         }
 
-        const tablet = this.container.querySelector('.auth-background__circle-activity-tablet') as HTMLElement;
+        const tablet = this.container.querySelector(
+            '.auth-background__circle-activity-tablet'
+        ) as HTMLElement;
         if (!tablet) {
             // console.error('AuthBackground: .auth-background__circle-activity-tablet not found in container!');
             return;
@@ -41,7 +46,7 @@ export class AuthBackground {
 
         // Получаем текст из содержимого div
         const textContent = tablet.textContent?.trim() || '';
-        tablet.textContent = ''; 
+        tablet.textContent = '';
 
         const rows = 12;
         const cols = 34;
@@ -59,18 +64,25 @@ export class AuthBackground {
                     opacity: 0.5,
                     className: 'auth-background__background-variant',
                 });
-                
+
                 const element = circle.render();
                 element.style.left = `${col * circleSpacing}px`;
                 element.style.top = `${row * verticalSpacing}px`;
-                
+
                 tablet.appendChild(element);
                 this.circles.push(circle);
                 iconIndex += 1;
             }
-            
+
             if (row % 2 === 1) {
-                this.createTextRow(tablet, row, textContent, verticalSpacing, circleSpacing, cols);
+                this.createTextRow(
+                    tablet,
+                    row,
+                    textContent,
+                    verticalSpacing,
+                    circleSpacing,
+                    cols
+                );
             }
         }
 
@@ -88,23 +100,23 @@ export class AuthBackground {
         const textY = rowIndex * verticalSpacing + verticalSpacing / 2 + 50;
         const textRowNumber = Math.floor(rowIndex / 2);
         const isOddTextRow = textRowNumber % 2 === 1;
-        
+
         const textWidth = textContent.length * 23;
         const textSpacing = textWidth + 60;
         const totalWidth = circleSpacing * cols + 1000;
         const numberOfTexts = Math.ceil(totalWidth / textSpacing) + 3;
-        
+
         for (let i = 0; i < numberOfTexts; i += 1) {
             const textElement = document.createElement('div');
             textElement.className = 'auth-background__background-text';
             textElement.textContent = textContent;
-            
+
             const baseX = i * textSpacing - 200;
             const offset = isOddTextRow ? textSpacing / 2 : 0;
-            
+
             textElement.style.left = `${baseX + offset}px`;
             textElement.style.top = `${textY}px`;
-            
+
             container.appendChild(textElement);
             this.textElements.push(textElement);
         }
@@ -113,15 +125,20 @@ export class AuthBackground {
     private startAnimation(textContent: string, circleSpacing: number): void {
     if (!this.container) return;
 
-    const tablet = this.container.querySelector('.auth-background__circle-activity-tablet');
-    if (!tablet) return;
+        const tablet = this.container.querySelector(
+            '.auth-background__circle-activity-tablet'
+        );
+        if (!tablet) return;
 
-    
-    const circleSpeed = 60; 
-    const textSpeed = 30; 
-    
-    let circlePosition = 0;
-    let textPosition = 0;
+        const circleSpeed = 2;
+        const textSpeed = 1;
+
+        let circlePosition = 0;
+        let textPosition = 0;
+
+        const circleResetPoint = circleSpacing * 10;
+        const textWidth = textContent.length * 23;
+        const textResetPoint = textWidth + 60;
 
     const circleResetPoint = circleSpacing * 10;
     const textWidth = textContent.length * 23;
@@ -158,11 +175,12 @@ export class AuthBackground {
         this.animationId = requestAnimationFrame(animate);
     };
 
-    this.animationId = requestAnimationFrame((t) => {
-        lastTime = t;
-        animate(t);
-    });
-}
+            this.textElements.forEach((textEl) => {
+                textEl.style.transform = `translate3d(${textPosition - 2500}px, -500px, 0)`;
+            });
+
+            this.animationId = requestAnimationFrame(animate);
+        };
 
 
     destroy(): void {
@@ -182,7 +200,9 @@ export class AuthBackground {
         this.textElements = [];
 
         if (this.container) {
-            const tablet = this.container.querySelector('.auth-background__circle-activity-tablet');
+            const tablet = this.container.querySelector(
+                '.auth-background__circle-activity-tablet'
+            );
             if (tablet) {
                 tablet.innerHTML = '';
             }

@@ -40,18 +40,21 @@ export class Header {
      * Отрисовывает компонент хедера
      * @param headerData Данные для рендеринга (пользователь, статус авторизации)
      */
-    async render(headerData: HeaderData = { user: null, isAuthenticated: false }): Promise<void> {
+    async render(
+        headerData: HeaderData = { user: null, isAuthenticated: false }
+    ): Promise<void> {
         if (!this.parent) return;
-        
+
         const { user, isAuthenticated } = headerData;
-        
+
         const templateString = await fetchTemplate(TEMPLATE_PATH);
         const template = Handlebars.compile(templateString);
-        
-        const userName = user?.name || user?.email?.split('@')[0] || 'Пользователь';
-        
+
+        const userName =
+            user?.name || user?.email?.split('@')[0] || 'Пользователь';
+
         const renderedHtml = template({ isAuthenticated, userName });
-        
+
         this.parent.innerHTML = renderedHtml;
         this.initEventListeners();
     }
@@ -62,19 +65,23 @@ export class Header {
     private initEventListeners(): void {
         if (typeof window !== 'undefined' && this.parent) {
             const logoutBtn = this.parent.querySelector('#logoutBtn');
-            
+
             if (logoutBtn) {
-                logoutBtn.addEventListener('click', () => {
-                    dispatcher.process({ type: Actions.REQUEST_LOGOUT });
-                }, { once: true });
+                logoutBtn.addEventListener(
+                    'click',
+                    () => {
+                        dispatcher.process({ type: Actions.REQUEST_LOGOUT });
+                    },
+                    { once: true }
+                );
             }
 
             const userEmailBtn = this.parent.querySelector('#userEmailBtn');
             if (userEmailBtn) {
                 userEmailBtn.addEventListener('click', () => {
-                    dispatcher.process({ 
+                    dispatcher.process({
                         type: Actions.TOGGLE_PROFILE_MENU,
-                        payload: { isVisible: true }
+                        payload: { isVisible: true },
                     });
                 });
             }

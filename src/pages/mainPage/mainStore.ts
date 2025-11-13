@@ -1,7 +1,11 @@
 import { Actions, type Action } from '@/actions';
 import { dispatcher, type Store } from '@/Dispatcher';
 import { main } from './main';
-import CardApi, { type CardsResponse, type Card as ApiCard, type CardAction } from '@/apiHandler/cardApi';
+import CardApi, {
+    type CardsResponse,
+    type Card as ApiCard,
+    type CardAction,
+} from '@/apiHandler/cardApi';
 import { ProfileSetupPopup } from '@/components/ProfileSetupPopup/profileSetupPopup';
 
 interface TransformedCard {
@@ -29,7 +33,7 @@ interface TransformedCard {
 
 class MainStore implements Store {
     cards: TransformedCard[];
- 
+
     constructor() {
         this.cards = [];
         dispatcher.register(this);
@@ -49,7 +53,10 @@ class MainStore implements Store {
 
             case Actions.SEND_CARD_ACTION:
                 if (action.payload) {
-                    const { cardId, actionType } = action.payload as { cardId: string; actionType: string };
+                    const { cardId, actionType } = action.payload as {
+                        cardId: string;
+                        actionType: string;
+                    };
                     await this.sendCardInteraction(cardId, actionType);
                 }
                 break;
@@ -64,7 +71,7 @@ class MainStore implements Store {
             // console.log('Checking profile completeness...');
             const isComplete = await ProfileSetupPopup.isProfileComplete();
             // console.log('Profile is complete:', isComplete);
-            
+
             if (!isComplete) {
                 // Показываем попап для заполнения профиля
                 // console.log('Showing profile setup popup...');
@@ -83,68 +90,76 @@ class MainStore implements Store {
 
     private async getCards(): Promise<void> {
         try {
-            const response = await CardApi.getAllCards() as any;
+            const response = (await CardApi.getAllCards()) as any;
 
             const cards = response.users || response.cards || [];
-            
+
             // console.log('Raw cards from backend:', cards);
             // console.log('First card detail:', cards[0]);
-            
-            const mockPhotoUrl = '/src/assets/image.png'; 
-            
-            const transformedCards: TransformedCard[] = cards.map((card: any) => {
-                let photoUrls = card.photos || card.images || [];
-                
-                if (!Array.isArray(photoUrls)) {
-                    photoUrls = []; 
-                }
 
-                if (photoUrls.length === 0) {
-                    photoUrls.push(mockPhotoUrl);
-                }
+            const mockPhotoUrl = '/src/assets/image.png';
 
-                // Преобразуем interests если они есть
-                let interests: Array<{ id: number; name: string }> | undefined;
-                if (card.interests && Array.isArray(card.interests)) {
-                    interests = card.interests.map((interest: any, index: number) => ({
-                        id: index,
-                        name: typeof interest === 'string' ? interest : interest.name || ''
-                    }));
-                }
-                
-                return {
-                    id: card.id?.toString() || String(Math.random()),
-                    name: card.name || 'Unknown',
-                    age: card.age || 0,
-                    description: card.bio || card.description || '',
-                    bio: card.bio || card.description || '',
-                    images: photoUrls.map((url: string) => ({ imageUrl: url })),
-                    photosCount: photoUrls.length,
-                    interests: interests,
-                    musician: card.musician || '',
-                    quote: card.quote || '',
-                    // Передаем все активности
-                    workout: card.workout,
-                    fun: card.fun,
-                    party: card.party,
-                    chill: card.chill,
-                    love: card.love,
-                    relax: card.relax,
-                    yoga: card.yoga,
-                    friendship: card.friendship,
-                    culture: card.culture,
-                    cinema: card.cinema
-                };
-            });
+            const transformedCards: TransformedCard[] = cards.map(
+                (card: any) => {
+                    let photoUrls = card.photos || card.images || [];
 
-            
-            
+                    if (!Array.isArray(photoUrls)) {
+                        photoUrls = [];
+                    }
+
+                    if (photoUrls.length === 0) {
+                        photoUrls.push(mockPhotoUrl);
+                    }
+
+                    // Преобразуем interests если они есть
+                    let interests:
+                        | Array<{ id: number; name: string }>
+                        | undefined;
+                    if (card.interests && Array.isArray(card.interests)) {
+                        interests = card.interests.map(
+                            (interest: any, index: number) => ({
+                                id: index,
+                                name:
+                                    typeof interest === 'string'
+                                        ? interest
+                                        : interest.name || '',
+                            })
+                        );
+                    }
+
+                    return {
+                        id: card.id?.toString() || String(Math.random()),
+                        name: card.name || 'Unknown',
+                        age: card.age || 0,
+                        description: card.bio || card.description || '',
+                        bio: card.bio || card.description || '',
+                        images: photoUrls.map((url: string) => ({
+                            imageUrl: url,
+                        })),
+                        photosCount: photoUrls.length,
+                        interests: interests,
+                        musician: card.musician || '',
+                        quote: card.quote || '',
+                        // Передаем все активности
+                        workout: card.workout,
+                        fun: card.fun,
+                        party: card.party,
+                        chill: card.chill,
+                        love: card.love,
+                        relax: card.relax,
+                        yoga: card.yoga,
+                        friendship: card.friendship,
+                        culture: card.culture,
+                        cinema: card.cinema,
+                    };
+                }
+            );
+
             this.cards = transformedCards;
 
             // console.log('Transformed cards:', transformedCards);
 
             main.setCards(transformedCards);
-            
         } catch (error) {
             // console.error('Error getting cards:', error);
             this.cards = [];
@@ -152,10 +167,16 @@ class MainStore implements Store {
         }
     }
 
-    private async sendCardInteraction(cardId: string, actionType: string): Promise<void> {
+    private async sendCardInteraction(
+        cardId: string,
+        actionType: string
+    ): Promise<void> {
         try {
             // Map 'super_like' to 'superlike' for the API
-            const mappedAction: CardAction = actionType === 'super_like' ? 'superlike' : actionType as CardAction;
+            const mappedAction: CardAction =
+                actionType === 'super_like'
+                    ? 'superlike'
+                    : (actionType as CardAction);
             await CardApi.postCardInteraction(cardId, mappedAction);
         } catch (error) {
             // console.error('Error sending card action:', error);
@@ -164,4 +185,3 @@ class MainStore implements Store {
 }
 
 export default new MainStore();
-

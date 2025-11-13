@@ -28,17 +28,20 @@ class RegisterStore implements Store {
 
         try {
             await AuthApi.register(email, password, passwordConfirm);
-            
+
             await dispatcher.process({
                 type: Actions.NAVIGATE_TO,
-                payload: { path: '/' }
+                payload: { path: '/' },
             });
         } catch (error: any) {
             // console.error('Register error:', error);
-            
+
             let errorMessage = 'Ошибка регистрации';
             if (error.message) {
-                if (error.message.includes('already exists') || error.message.includes('уже существует')) {
+                if (
+                    error.message.includes('already exists') ||
+                    error.message.includes('уже существует')
+                ) {
                     errorMessage = 'Пользователь с таким email уже существует';
                 } else if (error.message.includes('invalid email')) {
                     errorMessage = 'Некорректный email';
@@ -48,7 +51,7 @@ class RegisterStore implements Store {
                     errorMessage = error.message;
                 }
             }
-            
+
             await dispatcher.process({
                 type: Actions.REGISTER_ERROR,
                 payload: errorMessage,
@@ -58,4 +61,3 @@ class RegisterStore implements Store {
 }
 
 export const registerStore = new RegisterStore();
-

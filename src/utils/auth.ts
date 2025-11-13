@@ -27,5 +27,5 @@ export const AuthUtils = {
         } catch (error) {
             // console.error('Ошибка при выходе:', error);
         }
-    }
+    },
 };

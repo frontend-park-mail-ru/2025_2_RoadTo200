@@ -1,9 +1,9 @@
-import { Actions, Action, LoginAction, ErrorAction } from "../../actions";
-import { dispatcher } from "../../Dispatcher";
-import { login } from "./login";
-import type { Store } from "../../Dispatcher";
+import { Actions, Action, LoginAction, ErrorAction } from '../../actions';
+import { dispatcher } from '../../Dispatcher';
+import { login } from './login';
+import type { Store } from '../../Dispatcher';
 
-import AuthApi from "../../apiHandler/authApi";
+import AuthApi from '../../apiHandler/authApi';
 
 class LoginStore implements Store {
     constructor() {
@@ -16,7 +16,7 @@ class LoginStore implements Store {
             case Actions.RENDER_LOGIN:
                 await login.render();
                 break;
-            
+
             case Actions.REQUEST_LOGIN:
                 await this.processLogin(action as LoginAction);
                 break;
@@ -28,18 +28,18 @@ class LoginStore implements Store {
 
         try {
             await AuthApi.login(email, password);
-            
+
             dispatcher.process({
                 type: Actions.NAVIGATE_TO,
-                payload: { path: '/' }
+                payload: { path: '/' },
             });
         } catch (error) {
             // console.error('Login error:', error);
-            
+
             // Показываем пользователю дружелюбное сообщение, а не raw ошибку с бекенда
             dispatcher.process({
                 type: Actions.LOGIN_ERROR,
-                payload: { message: 'Неверный email или пароль' }
+                payload: { message: 'Неверный email или пароль' },
             } as ErrorAction);
         }
     }

@@ -34,12 +34,12 @@ export class CircleActivity {
     render(): HTMLElement {
         const circle = document.createElement('div');
         circle.className = `circle-activity ${this.className}`.trim();
-        
+
         // Применяем базовые стили
         circle.style.width = `${this.size}px`;
         circle.style.height = `${this.size}px`;
         circle.style.opacity = String(this.opacity);
-        
+
         if (this.svgPath) {
             // Создаём img элемент для SVG
             const img = document.createElement('img');
@@ -48,7 +48,7 @@ export class CircleActivity {
             img.className = 'circle-activity-icon';
             circle.appendChild(img);
         }
-        
+
         this.element = circle;
         return circle;
     }
@@ -60,7 +60,9 @@ export class CircleActivity {
     updateSvg(newSvgPath: string): void {
         this.svgPath = newSvgPath;
         if (this.element) {
-            const img = this.element.querySelector('.circle-activity-icon') as HTMLImageElement;
+            const img = this.element.querySelector(
+                '.circle-activity-icon'
+            ) as HTMLImageElement;
             if (img) {
                 img.src = newSvgPath;
             }
@@ -123,7 +125,9 @@ export function getAvailableSvgIcons(): string[] {
  * @param options - Опции (size, opacity, className)
  * @returns {CircleActivity}
  */
-export function createRandomCircle(options: CircleActivityOptions = {}): CircleActivity {
+export function createRandomCircle(
+    options: CircleActivityOptions = {}
+): CircleActivity {
     const icons = getAvailableSvgIcons();
     const randomIcon = icons[Math.floor(Math.random() * icons.length)];
     return new CircleActivity({

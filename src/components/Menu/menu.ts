@@ -23,11 +23,36 @@ interface MenuData {
 }
 
 const MENU_ITEMS_DATA: MenuItem[] = [
-    { name: 'Главная', icon: 'home.svg', route: 'main', actionType: Actions.RENDER_MAIN },
-    { name: 'Анкеты', icon: 'explore.svg', route: 'cards', actionType: Actions.RENDER_CARDS },
-    { name: 'Мэтчи', icon: 'matches.svg', route: 'matches', actionType: Actions.RENDER_MATCHES },
-    { name: 'Чаты', icon: 'chats.svg', route: 'chats', actionType: Actions.RENDER_CHATS },
-    { name: 'Моя Анкета', icon: 'myCard.svg', route: 'me', actionType: Actions.RENDER_MYCARD },
+    {
+        name: 'Главная',
+        icon: 'home.svg',
+        route: 'main',
+        actionType: Actions.RENDER_MAIN,
+    },
+    {
+        name: 'Анкеты',
+        icon: 'explore.svg',
+        route: 'cards',
+        actionType: Actions.RENDER_CARDS,
+    },
+    {
+        name: 'Мэтчи',
+        icon: 'matches.svg',
+        route: 'matches',
+        actionType: Actions.RENDER_MATCHES,
+    },
+    {
+        name: 'Чаты',
+        icon: 'chats.svg',
+        route: 'chats',
+        actionType: Actions.RENDER_CHATS,
+    },
+    {
+        name: 'Моя Анкета',
+        icon: 'myCard.svg',
+        route: 'me',
+        actionType: Actions.RENDER_MYCARD,
+    },
 ];
 
 const fetchTemplate = async (path: string): Promise<string> => {
@@ -55,12 +80,12 @@ export class Menu implements PageComponent {
 
         const { currentRoute = 'main' } = menuData;
 
-        const menuItems: MenuItemWithPath[] = MENU_ITEMS_DATA.map(item => {
+        const menuItems: MenuItemWithPath[] = MENU_ITEMS_DATA.map((item) => {
             const path = item.route === 'main' ? '/' : `/${item.route}`;
             return {
                 ...item,
                 isActive: item.route === currentRoute,
-                path
+                path,
             };
         });
 
@@ -69,7 +94,11 @@ export class Menu implements PageComponent {
 
         const smallHeartHtml = await SmallHeart.render();
 
-        const renderedHtml = template({ menuItems, smallHeartHtml, SVG_PATH_BASE });
+        const renderedHtml = template({
+            menuItems,
+            smallHeartHtml,
+            SVG_PATH_BASE,
+        });
 
         this.parent.innerHTML = renderedHtml;
         this.initEventListeners();
@@ -83,21 +112,28 @@ export class Menu implements PageComponent {
 
             sidebar.addEventListener('click', (event) => {
                 const target = event.target as HTMLElement;
-                const menuItem = target.closest('.sidebar__item') as HTMLElement | null;
+                const menuItem = target.closest(
+                    '.sidebar__item'
+                ) as HTMLElement | null;
                 if (menuItem) {
-                    event.preventDefault(); 
-                    
+                    event.preventDefault();
+
                     const clickedRoute = menuItem.dataset.route;
                     if (!clickedRoute) return;
 
-                    const itemData = MENU_ITEMS_DATA.find(item => item.route === clickedRoute);
+                    const itemData = MENU_ITEMS_DATA.find(
+                        (item) => item.route === clickedRoute
+                    );
 
                     if (itemData) {
-                        const path = itemData.route === 'main' ? '/' : `/${itemData.route}`;
+                        const path =
+                            itemData.route === 'main'
+                                ? '/'
+                                : `/${itemData.route}`;
 
-                        dispatcher.process({ 
+                        dispatcher.process({
                             type: Actions.NAVIGATE_TO,
-                            payload: { path } 
+                            payload: { path },
                         });
                     }
                 }

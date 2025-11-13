@@ -11,7 +11,7 @@
 
     &__icon {
         color: #ff477e;
-        font-size: 48px;  
+        font-size: 48px;
         margin-right: 14px;
         display: flex;
         align-items: center;
@@ -51,7 +51,7 @@
         }
 
         // Временное решение: блокируем кнопку чатов
-        &[data-route="chats"] {
+        &[data-route='chats'] {
             cursor: not-allowed;
             opacity: 0.5;
             pointer-events: none;

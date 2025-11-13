@@ -22,11 +22,13 @@ class HeaderStore implements Store {
     async handleAction(action: Action): Promise<void> {
         switch (action.type) {
             case Actions.RENDER_HEADER:
-                await this.renderHeader(); 
+                await this.renderHeader();
                 break;
 
             case Actions.AUTH_STATE_UPDATED:
-                await this.updateUserState(action.payload as { user: User | null });
+                await this.updateUserState(
+                    action.payload as { user: User | null }
+                );
                 break;
 
             case Actions.REQUEST_LOGOUT:
@@ -42,10 +44,9 @@ class HeaderStore implements Store {
         try {
             const response = await AuthApi.checkAuth();
             const user = response.user || null;
-            
+
             this.user = user as User | null;
             this.isAuthenticated = !!user;
-
         } catch (error) {
             this.user = null;
             this.isAuthenticated = false;
@@ -54,7 +55,7 @@ class HeaderStore implements Store {
 
     private async processLogout(): Promise<void> {
         try {
-            await AuthApi.logout(); 
+            await AuthApi.logout();
 
             this.user = null;
             this.isAuthenticated = false;
@@ -62,29 +63,29 @@ class HeaderStore implements Store {
 
             dispatcher.process({
                 type: Actions.AUTH_STATE_UPDATED,
-                payload: { user: this.user }
+                payload: { user: this.user },
             });
-            
+
             dispatcher.process({
                 type: Actions.NAVIGATE_TO,
-                payload: { path: '/login' }
+                payload: { path: '/login' },
             });
-            
         } catch (error) {
             // console.error("Logout error:", error);
             dispatcher.process({
                 type: Actions.NAVIGATE_TO,
-                payload: { path: '/login' }
+                payload: { path: '/login' },
             });
         }
     }
 
-    private async updateUserState(payload: { user: User | null }): Promise<void> {
+    private async updateUserState(payload: {
+        user: User | null;
+    }): Promise<void> {
         try {
             this.user = payload.user;
             this.isAuthenticated = !!this.user;
             await this.renderHeader();
-
         } catch (error) {
             // console.error("Error updating user state:", error);
         }
@@ -94,11 +95,11 @@ class HeaderStore implements Store {
         if (!this.headerComponent) {
             return;
         }
-        
+
         if (this.user === null) {
             try {
                 const response = await AuthApi.checkAuth();
-                this.user = response.user as User | null || null;
+                this.user = (response.user as User | null) || null;
                 this.isAuthenticated = !!this.user;
             } catch (error) {
                 this.user = null;
@@ -108,9 +109,9 @@ class HeaderStore implements Store {
 
         const headerData = {
             user: this.user,
-            isAuthenticated: this.isAuthenticated
+            isAuthenticated: this.isAuthenticated,
         };
-        
+
         // Всегда рендерим header заново, чтобы обработчики событий были актуальными
         await this.headerComponent.render(headerData);
         this.isHeaderRendered = true;

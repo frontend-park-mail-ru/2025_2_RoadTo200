@@ -1,0 +1,357 @@
+/// <reference lib="webworker" />
+
+const sw = self as unknown as ServiceWorkerGlobalScope;
+
+const VERSION = '18';
+const CACHE_STATIC = `terabithia-static-v${VERSION}`;
+const CACHE_API = `terabithia-api-v${VERSION}`;
+const CACHE_IMAGES = `terabithia-images-v${VERSION}`;
+
+/**
+ * Определяем dev-режим
+ * В dev-режиме отключаем агрессивное кэширование, чтобы не мешать HMR
+ * ВАЖНО: в режиме preview (production build на localhost) IS_DEV должен быть false!
+ * Используем наличие service-worker.ts vs service-worker.js как индикатор
+ */
+const IS_DEV = sw.location.pathname.includes('service-worker.ts');
+
+// Паттерны для определения типа запроса
+const PATTERNS = {
+    // Все API запросы - НЕ кэшируем в localhost (там работает proxy)
+    api: [/\/api\//],
+    images: [
+        /\.(jpg|jpeg|png|gif|svg|webp|ico)$/i,
+        /\/uploads\//,
+        /\/assets\//,
+    ],
+    // Handlebars шаблоны - должны кэшироваться для offline
+    hbs: [/\.hbs$/],
+    // Игнорируем служебные запросы Vite в dev-режиме
+    // chrome-extension - расширения браузера
+    // @vite, @fs - служебные модули Vite для HMR
+    // ?token= - токены Vite для аутентификации WebSocket HMR
+    ignore: [/chrome-extension/, /@vite/, /@fs/, /\?token=/],
+};
+
+/**
+ * Проверяет, соответствует ли URL одному из паттернов
+ */
+const matchesPattern = (
+    url: string,
+    patterns: RegExp | RegExp[]
+): boolean => {
+    const list = Array.isArray(patterns) ? patterns : [patterns];
+    return list.some((p) => p.test(url));
+};
+
+/**
+ * Проверяет, является ли запрос валидным для обработки SW
+ * Фильтруем служебные запросы, чтобы не ломать dev-сервер Vite
+ */
+const isValidRequest = (request: Request): boolean =>
+    request.url.startsWith('http') &&
+    !matchesPattern(request.url, PATTERNS.ignore);
+
+/**
+ * Стратегия Cache First
+ * Сначала проверяем кэш, если нет - запрос к сети
+ * Идеально для статических ресурсов (изображения, шрифты)
+ */
+const cacheFirst = async (
+    request: Request,
+    cacheName: string
+): Promise<Response> => {
+    const cached = await caches.match(request);
+    if (cached) return cached;
+
+    try {
+        const response = await fetch(request);
+        if (response && response.status === 200) {
+            const cache = await caches.open(cacheName);
+            cache.put(request, response.clone());
+        }
+        return response;
+    } catch {
+        return new Response('Offline', { status: 503 });
+    }
+};
+
+/**
+ * Стратегия Network First
+ * Сначала пытаемся получить свежие данные из сети, если не получается - берём из кэша
+ * Идеально для API-запросов, где важна актуальность
+ */
+const networkFirst = async (
+    request: Request,
+    cacheName: string
+): Promise<Response> => {
+    try {
+        const response = await fetch(request);
+        if (response && response.status === 200 && request.method === 'GET') {
+            const cache = await caches.open(cacheName);
+            cache.put(request, response.clone());
+        }
+        return response;
+    } catch {
+        const cached = await caches.match(request);
+        if (cached) return cached;
+        return new Response('Network error', { status: 503 });
+    }
+};
+
+/**
+ * Стратегия Stale While Revalidate
+ * Отдаём закэшированный ответ сразу, но в фоне обновляем кэш
+ * Идеально для контента, где можно показать старую версию, пока грузится новая
+ * 
+ * В dev-режиме всегда ждём свежие данные, чтобы не кэшировать код при разработке
+ */
+const staleWhileRevalidate = async (
+    request: Request,
+    cacheName: string,
+    event?: FetchEvent
+): Promise<Response> => {
+    const cached = await caches.match(request);
+    const fetchPromise = fetch(request)
+        .then(async (response) => {
+            if (response && response.status === 200) {
+                const cache = await caches.open(cacheName);
+                cache.put(request, response.clone());
+            }
+            return response;
+        })
+        .catch(() => cached || new Response('Offline', { status: 503 }));
+
+    // В dev-режиме всегда ждём актуальные данные
+    if (IS_DEV) return fetchPromise;
+
+    // В продакшене: отдаём кэш сразу, обновляем в фоне
+    if (event) event.waitUntil(fetchPromise);
+    return cached || fetchPromise;
+};
+
+/**
+ * Событие install - устанавливается новый Service Worker
+ * skipWaiting() - немедленно активируем новую версию, не ждём закрытия всех вкладок
+ */
+sw.addEventListener('install', (event: ExtendableEvent) => {
+    sw.skipWaiting();
+
+    // В dev-режиме не кэшируем, чтобы не мешать разработке
+    if (IS_DEV) return;
+
+    // Список критичных ресурсов для precaching
+    // ВАЖНО: В production Vite добавляет хэши к файлам, поэтому
+    // прекэшируем только те ресурсы, которые имеют фиксированные имена
+    const precacheResources = [
+        '/',
+        '/index.html',
+    ];
+
+    event.waitUntil(
+        caches
+            .open(CACHE_STATIC)
+            .then((cache) => cache.addAll(precacheResources))
+            .catch((err) => {
+                console.warn('Precache failed:', err);
+            })
+    );
+});
+
+/**
+ * Событие activate - старый SW заменяется новым
+ * Удаляем устаревшие кэши и берём контроль над всеми страницами
+ */
+sw.addEventListener('activate', (event: ExtendableEvent) => {
+    event.waitUntil(
+        caches
+            .keys()
+            .then((keys) =>
+                Promise.all(
+                    keys
+                        .filter(
+                            (key) =>
+                                key.startsWith('terabithia-') &&
+                                !key.includes(`-v${VERSION}`)
+                        )
+                        .map((key) => caches.delete(key))
+                )
+            )
+            .then(() => sw.clients.claim())
+    );
+});
+
+/**
+ * Событие fetch - перехватываем все сетевые запросы
+ * Применяем разные стратегии кэширования в зависимости от типа запроса
+ */
+sw.addEventListener('fetch', (event: FetchEvent) => {
+    const { request } = event;
+
+    // Игнорируем невалидные запросы (расширения, служебные модули Vite)
+    if (!isValidRequest(request)) return;
+
+    // Только GET-запросы кэшируем
+    if (request.method !== 'GET') {
+        event.respondWith(fetch(request));
+        return;
+    }
+
+    const url = request.url;
+
+    // API-запросы: в localhost НЕ перехватываем (нужен proxy Vite)
+    // В production используем Network First
+    if (matchesPattern(url, PATTERNS.api)) {
+        if (sw.location.hostname === 'localhost' || sw.location.hostname === '127.0.0.1') {
+            // В localhost пропускаем запрос напрямую (через Vite proxy)
+            return;
+        }
+        event.respondWith(networkFirst(request, CACHE_API));
+        return;
+    }
+
+    // Изображения: Cache First (быстрая загрузка из кэша)
+    if (matchesPattern(url, PATTERNS.images)) {
+        event.respondWith(cacheFirst(request, CACHE_IMAGES));
+        return;
+    }
+
+    // Handlebars шаблоны: Stale While Revalidate (нужны для offline)
+    if (matchesPattern(url, PATTERNS.hbs)) {
+        event.respondWith(staleWhileRevalidate(request, CACHE_STATIC, event));
+        return;
+    }
+
+    // Навигация (переход по страницам): Network First с устойчивым fallback
+    if (request.mode === 'navigate') {
+        event.respondWith(
+            (async () => {
+                try {
+                    const networkResponse = await fetch(request);
+                    if (networkResponse && networkResponse.status === 200) {
+                        const cache = await caches.open(CACHE_STATIC);
+                        cache.put(request, networkResponse.clone());
+                    }
+                    return networkResponse;
+                } catch {
+                    // Пытаемся вернуть закэшированный index.html
+                    const cachedIndex = await caches.match('/index.html');
+                    if (cachedIndex) return cachedIndex;
+                    
+                    // Пытаемся найти любую закэшированную версию этого URL
+                    const cached = await caches.match(request);
+                    if (cached) return cached;
+                    
+                    // Если и его нет - возвращаем offline-страницу
+                    return new Response(
+                        `<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Офлайн - Terabithia</title>
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            height: 100vh; 
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+        }
+        .offline-container { max-width: 400px; padding: 2rem; }
+        h1 { font-size: 3rem; margin: 0 0 1rem 0; }
+        p { font-size: 1.2rem; opacity: 0.9; }
+        button {
+            margin-top: 2rem;
+            padding: 0.8rem 2rem;
+            font-size: 1rem;
+            background: white;
+            color: #667eea;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        button:hover { transform: scale(1.05); }
+    </style>
+</head>
+<body>
+    <div class="offline-container">
+        <h1>📡</h1>
+        <h2>Вы офлайн</h2>
+        <p>Проверьте подключение к интернету и попробуйте снова</p>
+        <button onclick="location.reload()">Обновить страницу</button>
+    </div>
+</body>
+</html>`,
+                        { 
+                            status: 503,
+                            headers: { 'Content-Type': 'text/html; charset=utf-8' }
+                        }
+                    );
+                }
+            })()
+        );
+        return;
+    }
+
+    // Остальные запросы (JS, CSS): Stale While Revalidate
+    event.respondWith(staleWhileRevalidate(request, CACHE_STATIC, event));
+});
+
+/**
+ * Интерфейс для сообщений от приложения к SW
+ */
+interface SWMessage {
+    type: 'SKIP_WAITING' | 'CLEAR_CACHE' | 'UPDATE_PROFILE_CACHE' | 'UPDATE_MATCHES_CACHE';
+}
+
+/**
+ * Событие message - обработка сообщений от страницы
+ * Позволяет управлять SW из основного потока
+ */
+sw.addEventListener('message', (event: ExtendableMessageEvent) => {
+    const data = event.data as SWMessage | undefined;
+    if (!data) return;
+
+    const { type } = data;
+
+    switch (type) {
+        case 'SKIP_WAITING':
+            // Принудительная активация нового SW
+            sw.skipWaiting();
+            break;
+
+        case 'CLEAR_CACHE':
+            // Полная очистка всех кэшей
+            event.waitUntil(
+                caches
+                    .keys()
+                    .then((keys) =>
+                        Promise.all(keys.map((k) => caches.delete(k)))
+                    )
+                    .then(() => {
+                        if (event.ports[0]) {
+                            event.ports[0].postMessage({ success: true });
+                        }
+                    })
+            );
+            break;
+
+        case 'UPDATE_PROFILE_CACHE':
+        case 'UPDATE_MATCHES_CACHE':
+            // Инвалидация конкретных API-запросов
+            const cacheKey =
+                type === 'UPDATE_PROFILE_CACHE'
+                    ? '/api/profile/profile'
+                    : '/api/matches';
+            event.waitUntil(
+                caches.open(CACHE_API).then((cache) => cache.delete(cacheKey))
+            );
+            break;
+    }
+});

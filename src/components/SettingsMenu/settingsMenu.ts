@@ -16,28 +16,30 @@ interface MenuData {
 }
 
 const MENU_ITEMS_DATA: MenuItem[] = [
-    { 
-        name: 'Профиль', 
+    {
+        name: 'Профиль',
         tab: 'profile',
-        icon: './src/assets/settings__profile.svg'
+        icon: './src/assets/settings__profile.svg',
     },
-    { 
-        name: 'Фильтры', 
+    {
+        name: 'Фильтры',
         tab: 'filters',
-        icon: './src/assets/settings__filter.svg'
+        icon: './src/assets/settings__filter.svg',
     },
-    { 
-        name: 'Безопасность', 
+    {
+        name: 'Безопасность',
         tab: 'security',
-        icon: './src/assets/settings__security.svg'
-    }
+        icon: './src/assets/settings__security.svg',
+    },
 ];
 
 const fetchTemplate = async (path: string): Promise<string> => {
     try {
         const response = await fetch(path);
         if (!response.ok) {
-            throw new Error('Ошибка: Не удалось загрузить шаблон меню настроек');
+            throw new Error(
+                'Ошибка: Не удалось загрузить шаблон меню настроек'
+            );
         }
         return response.text();
     } catch (error) {
@@ -56,9 +58,9 @@ export class SettingsMenu {
     async render(menuData: MenuData = {}): Promise<void> {
         const { currentTab = 'profile' } = menuData;
 
-        const menuItems = MENU_ITEMS_DATA.map(item => ({
+        const menuItems = MENU_ITEMS_DATA.map((item) => ({
             ...item,
-            isActive: item.tab === currentTab
+            isActive: item.tab === currentTab,
         }));
 
         const templateString = await fetchTemplate(TEMPLATE_PATH);
@@ -72,7 +74,7 @@ export class SettingsMenu {
 
     private initEventListeners(): void {
         if (!this.parent) return;
-        
+
         const sidebar = this.parent.querySelector('.settings-sidebar');
         if (!sidebar) {
             // console.error('Settings sidebar not found in parent');
@@ -81,17 +83,17 @@ export class SettingsMenu {
 
         // Обработчик для пунктов меню
         const menuItems = sidebar.querySelectorAll('.sidebar__item');
-        menuItems.forEach(menuItem => {
+        menuItems.forEach((menuItem) => {
             menuItem.addEventListener('click', (event: Event) => {
                 event.preventDefault();
-                
+
                 const clickedTab = (menuItem as HTMLElement).dataset.tab;
                 // console.log('Settings menu item clicked, tab:', clickedTab);
 
                 if (clickedTab) {
-                    dispatcher.process({ 
+                    dispatcher.process({
                         type: Actions.SWITCH_SETTINGS_TAB,
-                        payload: { tab: clickedTab } 
+                        payload: { tab: clickedTab },
                     });
                 }
             });
@@ -103,10 +105,10 @@ export class SettingsMenu {
             logoutBtn.addEventListener('click', async (event: Event) => {
                 event.preventDefault();
                 // console.log('Logout button clicked');
-                
+
                 // Вызываем logout
                 await dispatcher.process({
-                    type: Actions.REQUEST_LOGOUT
+                    type: Actions.REQUEST_LOGOUT,
                 });
             });
         }

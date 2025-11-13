@@ -34,7 +34,9 @@ class MatchCardStore implements Store {
         }
     }
 
-    onMatchCardClick(payload: MatchCardClickPayload = {} as MatchCardClickPayload): void {
+    onMatchCardClick(
+        payload: MatchCardClickPayload = {} as MatchCardClickPayload
+    ): void {
         const { matchId, isExpired } = payload;
 
         if (!matchId || isExpired) {
@@ -45,7 +47,7 @@ class MatchCardStore implements Store {
 
         dispatcher.process({
             type: Actions.NAVIGATE_TO,
-            payload: { path: `/matches/${matchId}` }
+            payload: { path: `/matches/${matchId}` },
         });
     }
 }
