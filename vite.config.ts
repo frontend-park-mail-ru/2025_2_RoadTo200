@@ -56,7 +56,10 @@ export default defineConfig({
                 const distAssetsDir = resolve(dirname, 'dist/src/assets');
                 
                 if (existsSync(srcAssetsDir)) {
-                    cpSync(srcAssetsDir, distAssetsDir, { recursive: true });
+                    cpSync(srcAssetsDir, distAssetsDir, { 
+                        recursive: true,
+                        filter: (src) => !src.endsWith('.png'), 
+                    });
                     console.log('📦 Copied assets to dist/src/assets/');
                 }
             },
