@@ -56,7 +56,7 @@ export class ProfileMenu implements PageComponent {
 
         const { user, isVisible = false } = menuData;
 
-        const userName = user?.name || user?.email?.split('@')[0] || 'Пользователь';
+        const userName = user?.name && user.name.length > 10  ? `${String(user?.name).slice(0, 10)}...` : `${String(user?.name)}`;
         const userEmail = user?.email || '';
 
         const templateString = await fetchTemplate(TEMPLATE_PATH);

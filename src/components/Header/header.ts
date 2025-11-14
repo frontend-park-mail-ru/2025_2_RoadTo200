@@ -48,7 +48,7 @@ export class Header {
         const templateString = await fetchTemplate(TEMPLATE_PATH);
         const template = Handlebars.compile(templateString);
         
-        const userName = user?.name || user?.email?.split('@')[0] || 'Пользователь';
+        const userName = user?.name && user.name.length > 10  ? `${String(user?.name).slice(0, 10)}...` : `${String(user?.name)}`;
         
         const renderedHtml = template({ isAuthenticated, userName });
         
