@@ -292,7 +292,8 @@ private async handleSubmit(event: Event): Promise<void> {
         
     } catch (error) {
         // console.error('Error updating profile:', error);
-        this.showError(error instanceof Error ? error.message : 'Не удалось сохранить данные. Попробуйте снова.');
+        const translatedError = this.translateError(error);
+        this.showError(translatedError);
         
         // Включаем кнопку обратно
         if (submitButton) {
@@ -303,15 +304,53 @@ private async handleSubmit(event: Event): Promise<void> {
 }
 
     /**
+     * Переводит ошибку от бека на русский язык
+     */
+    private translateError(error: any): string {
+        // Если это объект ошибки с message
+        let errorMessage = '';
+        if (error && typeof error === 'object' && error.message) {
+            errorMessage = error.message;
+        } else if (typeof error === 'string') {
+            errorMessage = error;
+        }
+        
+        // Переводим известные ошибки от бека
+        if (errorMessage.includes('name too long') || errorMessage.includes('max 50 characters')) {
+            return 'Имя слишком длинное, максимум 50 символов';
+        }
+        if (errorMessage.includes('bio too long') || errorMessage.includes('max 500 characters')) {
+            return 'Описание слишком длинное, максимум 500 символов';
+        }
+        if (errorMessage.includes('user_bio_length_check') || errorMessage.includes('SQLSTATE 23514')) {
+            return 'Описание слишком длинное, максимум 500 символов';
+        }
+        if (errorMessage.includes('user_name_length_check')) {
+            return 'Имя слишком длинное, максимум 50 символов';
+        }
+        if (errorMessage.toLowerCase().includes('invalid') && errorMessage.toLowerCase().includes('date')) {
+            return 'Некорректная дата рождения';
+        }
+        
+        // Если ошибка уже на русском, возвращаем как есть
+        if (/[а-яА-Я]/.test(errorMessage)) {
+            return errorMessage;
+        }
+        
+        // Для неизвестных ошибок возвращаем общее сообщение
+        return 'Не удалось сохранить данные. Попробуйте снова.';
+    }
+
+    /**
      * Показывает ошибку
      */
     private showError(message: string): void {
         if (!this.containerElement) return;
         
-        const errorElement = this.containerElement.querySelector('#profileSetupError');
+        const errorElement = this.containerElement.querySelector('#profileSetupError') as HTMLElement;
         if (errorElement) {
             errorElement.textContent = message;
-            errorElement.classList.add('visible');
+            errorElement.style.display = 'block';
         }
     }
 
@@ -321,10 +360,10 @@ private async handleSubmit(event: Event): Promise<void> {
     private clearError(): void {
         if (!this.containerElement) return;
         
-        const errorElement = this.containerElement.querySelector('#profileSetupError');
+        const errorElement = this.containerElement.querySelector('#profileSetupError') as HTMLElement;
         if (errorElement) {
             errorElement.textContent = '';
-            errorElement.classList.remove('visible');
+            errorElement.style.display = 'none';
         }
     }
 }
