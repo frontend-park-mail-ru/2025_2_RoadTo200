@@ -35,9 +35,7 @@ class AuthBackgroundStore implements Store {
             bgElement = document.createElement('div');
             bgElement.className = 'auth-background';
             bgElement.innerHTML = `
-                <div class="auth-background__circle-activity-tablet" aria-hidden="true">
-                    Сайт для поиска друзей и партнеров
-                </div>
+                <div class="auth-background__circle-activity-tablet" aria-hidden="true"></div>
             `;
             if (root) {
                 document.body.insertBefore(bgElement, root);
