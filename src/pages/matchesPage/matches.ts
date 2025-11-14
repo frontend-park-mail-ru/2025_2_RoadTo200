@@ -72,7 +72,6 @@ export class MatchesPage {
             buttonId: 'goToHome'
         });
 
-        // Используем this.parent вместо поиска .matches-page
         this.parent.innerHTML = emptyStateHtml;
 
         const homeButton = document.getElementById('goToHome');
