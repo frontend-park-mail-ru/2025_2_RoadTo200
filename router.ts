@@ -46,10 +46,10 @@ export class Router {
         offlineBanner.parent = containers.offlineBanner;
 
         // Рендерим глобальные компоненты
-        Promise.resolve().then(() => {
-            dispatcher.process({ type: Actions.RENDER_HEADER });
-            dispatcher.process({ type: Actions.RENDER_PROFILE_MENU });
-            dispatcher.process({ type: Actions.RENDER_OFFLINE_BANNER });
-        });
+        // Promise.resolve().then(() => {
+        //     dispatcher.process({ type: Actions.RENDER_HEADER });
+        //     dispatcher.process({ type: Actions.RENDER_PROFILE_MENU });
+        //     dispatcher.process({ type: Actions.RENDER_OFFLINE_BANNER });
+        // });
     }
 }
