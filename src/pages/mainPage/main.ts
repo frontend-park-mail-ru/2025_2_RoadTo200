@@ -114,14 +114,13 @@ export class MainPage {
     }
 
     async displayEmptyState(): Promise<void> {
-        const pageContainer = document.querySelector('.cards-container');
+        const pageContainer = document.querySelector('.main-page-layout');
         if (!pageContainer) return;
 
         const emptyStateTemplateString = await fetchTemplate(EMPTY_STATE_TEMPLATE_PATH);
         const emptyStateTemplate = Handlebars.compile(emptyStateTemplateString);
 
         const emptyStateHtml = emptyStateTemplate({
-            icon: '❤️',
             title: 'Анкеты закончились',
             message: 'Вы посмотрели все доступные анкеты. Попробуйте изменить фильтры в настройках.',
             buttonText: 'Перейти в настройки',

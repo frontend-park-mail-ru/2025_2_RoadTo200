@@ -140,7 +140,7 @@ export class SettingsPage {
         section.innerHTML = `
             <h1 class="settings-section-title">Фильтры поиска</h1>
             
-                        <div class="form__input-wrapper">
+            <div class="form__input-wrapper">
                 <label class="settings-label">Показывать мне:</label>
                 <select class="form__input" id="showGender">
                     <option value="male" ${preferences.show_gender === 'male' ? 'selected' : ''}>Парней</option>
@@ -261,10 +261,19 @@ export class SettingsPage {
                 updateFiltersBtn.addEventListener('click', (e) => {
                     e.preventDefault();
                     const showGenderInput = this.parent?.querySelector('#showGender') as HTMLSelectElement | null;
-                    const ageMinInput = this.parent?.querySelector('#ageMin') as HTMLInputElement | null;
+                    let ageMinInput = this.parent?.querySelector('#ageMin') as HTMLInputElement | null;
                     const ageMaxInput = this.parent?.querySelector('#ageMax') as HTMLInputElement | null;
                     const maxDistanceInput = this.parent?.querySelector('#maxDistance') as HTMLInputElement | null;
                     const globalSearchInput = this.parent?.querySelector('#globalSearch') as HTMLInputElement | null;
+                    console.log("ageMinInput, ageMaxImput:", ageMinInput, ageMaxInput);
+                    if (ageMinInput && ageMaxInput && ageMinInput !== undefined && ageMaxInput !== undefined && ageMinInput > ageMaxInput) {
+                        console.log("here")
+                        ageMinInput = ageMaxInput;
+
+                        if (ageMinInput) {
+                            ageMinInput.value = String(ageMinInput);
+                        }
+                    }
                     
                     dispatcher.process({
                         type: Actions.UPDATE_FILTER_SETTINGS,
