@@ -17,7 +17,7 @@
             <div class="value">{{tickets_by_status.in_progress.absolute}}</div>
         </div>
         <div class="stat-card" data-status="closed">
-            <h3>Завершенные обращения</h3>
+            <h3>Завершенные</h3>
             <div class="value">{{tickets_by_status.closed.absolute}}</div>
         </div>
     </div>
@@ -30,7 +30,7 @@
                     {{#each tickets_by_category}}
                     <div class="category-item" data-category="{{@key}}" data-count="{{this.absolute}}">
                         <div class="category-info">
-                            <span class="category-name">{{@key}}</span>
+                            <span class="category-name">{{translateCategory @key}}</span>
                             <span class="category-count">{{this.absolute}}</span>
                         </div>
                         <div class="category-bar">
@@ -50,7 +50,7 @@
                     {{#each tickets_by_status}}
                     <div class="status-item" data-status="{{@key}}">
                         <div class="status-info">
-                            <span class="status-name">{{@key}}</span>
+                            <span class="status-name">{{translateStatus @key}}</span>
                             <span class="status-count">{{this.absolute}}</span>
                         </div>
                         <div class="status-visual">
@@ -95,14 +95,14 @@
                     <tr class="ticket-row" data-status="{{this.status}}">
                         <td class="ticket-id">{{this.id}}</td>
                         <td class="ticket-category">
-                            <span class="category-badge category-{{this.category}}">{{this.category}}</span>
+                            <span class="category-badge category-{{this.category}}">{{translateCategory this.category}}</span>
                         </td>
                         <td class="ticket-text" data-fulltext="{{this.text}}">
                             <span class="text-truncated">{{this.text}}</span>
                         </td>
                         <td class="ticket-email">{{this.email}}</td>
                         <td class="ticket-status">
-                            <span class="status-badge status-{{this.status}}">{{this.status}}</span>
+                            <span class="status-badge status-{{this.status}}">{{translateStatus this.status}}</span>
                         </td>
                         <td class="ticket-date">{{this.created_at}}</td>
                     </tr>

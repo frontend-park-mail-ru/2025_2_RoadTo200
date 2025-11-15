@@ -2,7 +2,27 @@ import Handlebars from 'handlebars';
 import { dispatcher } from '@/Dispatcher';
 import { Actions } from '@/actions';
 
-// Updated interfaces to match the actual API response structure
+Handlebars.registerHelper('translateCategory', function(category: string) {
+    const translations: Record<string, string> = {
+        'technical': 'Технические',
+        'feature': 'Предложения',
+        'question': 'Вопросы',
+        'security': 'Безопасность',
+        'billing': 'Оплата',
+        'device': 'Устройства'
+    };
+    return translations[category] || category;
+});
+
+Handlebars.registerHelper('translateStatus', function(status: string) {
+    const translations: Record<string, string> = {
+        'open': 'Открыто',
+        'in_progress': 'В работе',
+        'closed': 'Завершено'
+    };
+    return translations[status] || status;
+});
+
 export interface TicketsByCategory {
     technical: number;
     feature: number;
@@ -32,7 +52,7 @@ export interface StatisticsPayload {
     tickets_by_category: TicketsByCategory;
     tickets_by_status: TicketsByStatus;
     average_response_time: string;
-    all_tickets: Ticket[];  // Added missing field
+    all_tickets: Ticket[];
 }
 
 const TEMPLATE_PATH = '/src/pages/statisticsPage/statistics.hbs';
@@ -53,17 +73,14 @@ export class Statistics {
     async render(statsData: StatisticsPayload): Promise<void> {
         if (!this.parent) return;
 
-        // Calculate percentages for visualization
         const data = this.calculatePercentages(statsData);
 
         const templateString = await fetchTemplate(TEMPLATE_PATH);
         const pageTemplate = Handlebars.compile(templateString);
         this.parent.innerHTML = pageTemplate(data);
         
-        // Add CSS styles
         this.addStyles();
         
-        // Initialize any interactive elements
         this.initializeVisualizations();
         this.initializeTableInteractions();
     }
@@ -71,7 +88,6 @@ export class Statistics {
     private calculatePercentages(rawData: StatisticsPayload): any {
         const data = JSON.parse(JSON.stringify(rawData));
         
-        // Process categories
         const categoryAbsolutes = {...data.tickets_by_category};
         const totalCategory = Object.values(categoryAbsolutes).reduce((sum: number, count: number) => sum + count, 0);
         
@@ -85,7 +101,6 @@ export class Statistics {
             };
         });
 
-        // Process statuses
         const statusAbsolutes = {...data.tickets_by_status};
         const totalStatus = Object.values(statusAbsolutes).reduce((sum: number, count: number) => sum + count, 0);
         
@@ -122,13 +137,11 @@ export class Statistics {
     }
 
     private initializeTableInteractions(): void {
-        // Add click handlers for text truncation
         document.querySelectorAll('.text-truncated').forEach(element => {
             element.addEventListener('click', (e) => {
                 const target = e.target as HTMLElement;
                 const fullText = target.closest('.ticket-text')?.getAttribute('data-fulltext');
                 if (fullText) {
-                    alert(fullText); // You can replace this with a modal or tooltip
                 }
             });
         });
