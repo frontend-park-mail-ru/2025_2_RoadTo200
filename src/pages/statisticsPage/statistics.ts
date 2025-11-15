@@ -118,16 +118,22 @@ export class Statistics {
     }
 
     private addStyles(): void {
+        // Здесь можно импортировать SCSS файл или добавить критичные стили
+        // В реальном проекте лучше импортировать SCSS напрямую:
+        // import './statistics.scss';
+        
+        // Если нужно добавить динамические стили:
         const style = document.createElement('style');
         style.textContent = `
-          
+            /* Критичные стили или переопределения */
         `;
         document.head.appendChild(style);
     }
 
     private initializeVisualizations(): void {
+        // Анимация заполнения баров категорий (БЭМ классы)
         setTimeout(() => {
-            const fillElements = document.querySelectorAll('.category-fill');
+            const fillElements = document.querySelectorAll('.category-chart__fill');
             fillElements.forEach(fill => {
                 const computedStyle = getComputedStyle(fill);
                 const percentage = computedStyle.getPropertyValue('--percentage');
@@ -137,12 +143,34 @@ export class Statistics {
     }
 
     private initializeTableInteractions(): void {
-        document.querySelectorAll('.text-truncated').forEach(element => {
+        // Обработка кликов на текст в таблице (БЭМ классы)
+        document.querySelectorAll('.tickets-table__text-truncated').forEach(element => {
             element.addEventListener('click', (e) => {
                 const target = e.target as HTMLElement;
-                const fullText = target.closest('.ticket-text')?.getAttribute('data-fulltext');
+                const textCell = target.closest('.tickets-table__cell--text');
+                const fullText = textCell?.getAttribute('data-fulltext');
+                
                 if (fullText) {
+                    // Можно добавить модальное окно или другую логику
+                    console.log('Полный текст:', fullText);
                 }
+            });
+        });
+
+        // Дополнительно: добавить hover эффекты для строк таблицы
+        this.initializeTableRowHover();
+    }
+
+    private initializeTableRowHover(): void {
+        const rows = document.querySelectorAll('.tickets-table__row');
+        
+        rows.forEach(row => {
+            row.addEventListener('mouseenter', () => {
+                row.classList.add('tickets-table__row--hover');
+            });
+            
+            row.addEventListener('mouseleave', () => {
+                row.classList.remove('tickets-table__row--hover');
             });
         });
     }
