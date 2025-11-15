@@ -84,6 +84,24 @@ class NavigationStore implements Store {
                 </div>
             </div>
             <div id="profile-menu-container"></div>
+            <iframe
+
+  src="http://terabithia.online"    <!-- Устанавливает адрес документа для встраивания --> 
+
+  srcdoc="<p>Some html</p>"    <!-- Устанавливает HTML-содержимое страницы для отображения --> 
+
+  height="100px"               <!-- Устанавливает высоту iframe в пикселях -->
+
+  width="100px"                <!-- Устанавливает ширину iframe в пикселях -->
+
+  name="my-iframe"          <!-- Устанавливает имя iframe (в основном используется для ссылки на элемент в JavaScript -->
+
+  allow="fullscreen"           <!-- Устанавливает политику объектов для iframe.-->
+
+  referrerpolicy="no-referrer" <!-- Настройте реферер для отправки при получении содержимого iframe -->
+
+  sandbox="allow-same-origin"  <!-- Устанавливает ограничения iframe (подробнее об этом ниже) -->
+></iframe>
         `;
 
         this.offlineBannerContainer = rootElement.querySelector('#offline-banner-container');
