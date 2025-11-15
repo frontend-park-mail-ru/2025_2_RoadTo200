@@ -78,6 +78,9 @@ export const Actions = {
     // profile setup popup
     SHOW_PROFILE_SETUP_POPUP: "SHOW_PROFILE_SETUP_POPUP",
     HIDE_PROFILE_SETUP_POPUP: "HIDE_PROFILE_SETUP_POPUP",
+
+    // support 
+    RENDER_SUPPORT: "RENDER_SUPPORT",
 } as const;
 
 export type ActionType = typeof Actions[keyof typeof Actions];

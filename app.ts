@@ -13,6 +13,7 @@ import './src/components/MatchCard/matchCardStore';
 import './src/components/ProfileMenu/profileMenuStore';
 import './src/components/OfflineBanner/offlineBannerStore';
 import './src/components/ProfileSetupPopup/profileSetupPopupStore';
+import "./src/pages/support/supportStore";
 import navigationStore, { Route } from './src/navigation/navigationStore';
 
 import { Router } from "./router";
@@ -23,6 +24,7 @@ import { register } from "./src/pages/registerPage/register";
 import { matches } from "./src/pages/matchesPage/matches";
 import { profile } from "./src/pages/profilePage/profile";
 import { settings } from "./src/pages/settingsPage/settings";
+import { support } from "./src/pages/support/support";
 import type { PageComponent } from './src/navigation/navigationStore';
 
 const notFoundComponent: PageComponent = {
@@ -47,6 +49,7 @@ const routes: Route[] = [
     new Route('/matches', matches, true),
     new Route('/me', profile, true),
     new Route('/settings', settings, true),
+    new Route('/support', support, false),
     new Route('*', notFoundComponent, false)
 ];
 

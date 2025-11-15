@@ -45,3 +45,14 @@ body {
     z-index: 1;
   }
 }
+
+.support{
+  overflow: hidden;
+}
+
+#support-iframe {
+  // border: none;
+  position: absolute;
+  right: 0;
+  bottom: 0;;
+}
