@@ -2,16 +2,23 @@ import Handlebars from 'handlebars';
 import { dispatcher } from '@/Dispatcher';
 import { Actions } from '@/actions';
 
-const TEMPLATE_PATH = '/src/pages/statisticsPage/statistics.hbs';
+// Updated interfaces to match the actual API response structure
+export interface TicketsByCategory {
+    technical: number;
+    feature: number;
+    question: number;
+    security: number;
+    billing: number;
+    device: number;
+}
 
-const fetchTemplate = async (path: string): Promise<string> => {
-    const response = await fetch(path);
-    if (!response.ok) throw new Error('Ошибка: не удалось загрузить шаблон');
-    return await response.text();
-};
+export interface TicketsByStatus {
+    open: number;
+    in_progress: number;
+    closed: number;
+}
 
-// Data interface
-interface Ticket {
+export interface Ticket {
     id: string;
     category: string;
     text: string;
@@ -20,24 +27,21 @@ interface Ticket {
     created_at: string;
 }
 
-interface StatisticsData {
+export interface StatisticsPayload {
     total_tickets: number;
-    tickets_by_category: {
-        technical: number;
-        feature: number;
-        question: number;
-        security: number;
-        billing: number;
-        device: number;
-    };
-    tickets_by_status: {
-        open: number;
-        work: number;
-        closed: number;
-    };
+    tickets_by_category: TicketsByCategory;
+    tickets_by_status: TicketsByStatus;
     average_response_time: string;
-    all_tickets: Ticket[];
+    all_tickets: Ticket[];  // Added missing field
 }
+
+const TEMPLATE_PATH = '/src/pages/statisticsPage/statistics.hbs';
+
+const fetchTemplate = async (path: string): Promise<string> => {
+    const response = await fetch(path);
+    if (!response.ok) throw new Error('Ошибка: не удалось загрузить шаблон');
+    return await response.text();
+};
 
 export class Statistics {
     parent: HTMLElement | null = null;
@@ -46,64 +50,11 @@ export class Statistics {
         this.parent = parent;
     }
 
-    async render(): Promise<void> {
+    async render(statsData: StatisticsPayload): Promise<void> {
         if (!this.parent) return;
 
-        // Sample data - in real app, this would come from API
-        const rawData = {
-            total_tickets: 155,
-            tickets_by_category: {
-                technical: 50,
-                feature: 40,
-                question: 35,
-                security: 15,
-                billing: 10,
-                device: 5
-            },
-            tickets_by_status: {
-                open: 25,
-                work: 15,
-                closed: 115
-            },
-            average_response_time: "2h30m",
-            all_tickets: [
-                {
-                    "id": "550e8400-e29b-41d4-a716-446655440000",
-                    "category": "technical",
-                    "text": "При попытке загрузить фото приложение вылетает",
-                    "email": "user@example.com",
-                    "status": "open",
-                    "created_at": "2024-01-15T10:30:00Z"
-                },
-                {
-                    "id": "660e8400-e29b-41d4-a716-446655440000",
-                    "category": "feature",
-                    "text": "Предлагаю добавить видео-звонки",
-                    "email": "user2@example.com",
-                    "status": "work",
-                    "created_at": "2024-01-14T15:20:00Z"
-                },
-                {
-                    "id": "770e8400-e29b-41d4-a716-446655440000",
-                    "category": "question",
-                    "text": "Как восстановить пароль?",
-                    "email": "user3@example.com",
-                    "status": "closed",
-                    "created_at": "2024-01-13T09:15:00Z"
-                },
-                {
-                    "id": "880e8400-e29b-41d4-a716-446655440000",
-                    "category": "security",
-                    "text": "Обнаружена уязвимость в системе аутентификации",
-                    "email": "user4@example.com",
-                    "status": "open",
-                    "created_at": "2024-01-12T14:45:00Z"
-                }
-            ]
-        };
-
         // Calculate percentages for visualization
-        const data = this.calculatePercentages(rawData);
+        const data = this.calculatePercentages(statsData);
 
         const templateString = await fetchTemplate(TEMPLATE_PATH);
         const pageTemplate = Handlebars.compile(templateString);
@@ -114,31 +65,36 @@ export class Statistics {
         
         // Initialize any interactive elements
         this.initializeVisualizations();
+        this.initializeTableInteractions();
     }
 
-    private calculatePercentages(rawData: any): any {
+    private calculatePercentages(rawData: StatisticsPayload): any {
         const data = JSON.parse(JSON.stringify(rawData));
         
+        // Process categories
         const categoryAbsolutes = {...data.tickets_by_category};
         const totalCategory = Object.values(categoryAbsolutes).reduce((sum: number, count: number) => sum + count, 0);
         
         data.tickets_by_category = {};
         Object.keys(categoryAbsolutes).forEach(key => {
-            const percentage = Math.round((categoryAbsolutes[key] / totalCategory) * 100);
+            const count = categoryAbsolutes[key];
+            const percentage = totalCategory > 0 ? Math.round((count / totalCategory) * 100) : 0;
             data.tickets_by_category[key] = {
-                absolute: categoryAbsolutes[key],
+                absolute: count,
                 percentage: percentage
             };
         });
 
+        // Process statuses
         const statusAbsolutes = {...data.tickets_by_status};
         const totalStatus = Object.values(statusAbsolutes).reduce((sum: number, count: number) => sum + count, 0);
         
         data.tickets_by_status = {};
         Object.keys(statusAbsolutes).forEach(key => {
-            const percentage = Math.round((statusAbsolutes[key] / totalStatus) * 100);
+            const count = statusAbsolutes[key];
+            const percentage = totalStatus > 0 ? Math.round((count / totalStatus) * 100) : 0;
             data.tickets_by_status[key] = {
-                absolute: statusAbsolutes[key],
+                absolute: count,
                 percentage: percentage
             };
         });
@@ -148,7 +104,9 @@ export class Statistics {
 
     private addStyles(): void {
         const style = document.createElement('style');
-        style.textContent = ``;
+        style.textContent = `
+          
+        `;
         document.head.appendChild(style);
     }
 
@@ -163,8 +121,17 @@ export class Statistics {
         }, 100);
     }
 
-    destroy(): void {
-        // Cleanup if needed
+    private initializeTableInteractions(): void {
+        // Add click handlers for text truncation
+        document.querySelectorAll('.text-truncated').forEach(element => {
+            element.addEventListener('click', (e) => {
+                const target = e.target as HTMLElement;
+                const fullText = target.closest('.ticket-text')?.getAttribute('data-fulltext');
+                if (fullText) {
+                    alert(fullText); // You can replace this with a modal or tooltip
+                }
+            });
+        });
     }
 }
 

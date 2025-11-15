@@ -41,7 +41,7 @@ class StatisticsApi {
      * @returns Promise со статистикой поддержки
      */
     async getStatistics(): Promise<StatisticsResponse> {
-        return handleFetch<StatisticsResponse>(this.baseURL, '/statistics', { method: 'GET' });
+        return handleFetch<StatisticsResponse>(this.baseURL, '/report/stats', { method: 'GET' });
     }
 }
 

@@ -40,7 +40,7 @@
                 border-left-color: #2ecc71;
             }
             
-            .stat-card[data-status="work"] {
+            .stat-card[data-status="in_progress"] {
                 border-left-color: #f39c12;
             }
             
@@ -227,7 +227,7 @@
                 border-left: 4px solid #2ecc71;
             }
             
-            .status-item[data-status="work"] {
+            .status-item[data-status="in_progress"] {
                 --status-color: #f39c12;
                 border-left: 4px solid #f39c12;
             }

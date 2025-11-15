@@ -46,6 +46,7 @@ export async function handleFetch<T = unknown>(
   
     try {
         const response = await fetch(url, fetchOptions);
+
     
         if (!response.ok) {
             // Проверка на offline режим (503 от Service Worker)
