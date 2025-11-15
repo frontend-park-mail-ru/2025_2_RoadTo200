@@ -321,6 +321,10 @@ class NavigationStore implements Store {
             case '/support':
                 actionPayload.route = 'support';
                 return { type: Actions.RENDER_SUPPORT, payload: actionPayload };
+
+            case '/statistics':
+                actionPayload.route = 'statistics';
+                return { type: Actions.RENDER_STATISTICS, payload: actionPayload };
             
             case '/matches':
                 actionPayload.route = 'matches';

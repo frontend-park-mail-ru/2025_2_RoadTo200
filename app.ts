@@ -6,6 +6,7 @@ import './src/pages/matchesPage/matchesStore';
 import './src/pages/matchProfilePage/matchProfileStore';
 import './src/pages/profilePage/profileStore';
 import './src/pages/settingsPage/settingsStore';
+import './src/pages/statisticsPage/statisticsStore';
 import './src/components/Header/headerStore';
 import './src/components/Menu/menuStore';
 import './src/components/AuthBackground/authBackgroundStore';
@@ -25,6 +26,7 @@ import { matches } from "./src/pages/matchesPage/matches";
 import { profile } from "./src/pages/profilePage/profile";
 import { settings } from "./src/pages/settingsPage/settings";
 import { support } from "./src/pages/support/support";
+import { statistics } from "./src/pages/statisticsPage/statistics";
 import type { PageComponent } from './src/navigation/navigationStore';
 
 const notFoundComponent: PageComponent = {
@@ -50,6 +52,7 @@ const routes: Route[] = [
     new Route('/me', profile, true),
     new Route('/settings', settings, true),
     new Route('/support', support, false),
+    new Route('/statistics', statistics, true),
     new Route('*', notFoundComponent, false)
 ];
 
@@ -57,41 +60,41 @@ const routes: Route[] = [
 const router = new Router(routes, navigationStore);
 
 // Регистрация Service Worker
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', async () => {
-        try {
-            // Сначала удаляем все старые service workers
-            const registrations = await navigator.serviceWorker.getRegistrations();
-            for (const registration of registrations) {
-                await registration.unregister();
-                // console.log('Old Service Worker unregistered');
-            }
+// if ('serviceWorker' in navigator) {
+//     window.addEventListener('load', async () => {
+//         try {
+//             // Сначала удаляем все старые service workers
+//             const registrations = await navigator.serviceWorker.getRegistrations();
+//             for (const registration of registrations) {
+//                 await registration.unregister();
+//                 // console.log('Old Service Worker unregistered');
+//             }
             
-            // Регистрируем новый Service Worker
-            const registration = await navigator.serviceWorker.register('/service-worker.js', {
-                scope: '/'
-            });
-            // console.log('Service Worker registered successfully:', registration.scope);
+//             // Регистрируем новый Service Worker
+//             const registration = await navigator.serviceWorker.register('/service-worker.js', {
+//                 scope: '/'
+//             });
+//             // console.log('Service Worker registered successfully:', registration.scope);
             
-            // Проверка обновлений Service Worker
-            registration.addEventListener('updatefound', () => {
-                const newWorker = registration.installing;
-                // console.log('New Service Worker found');
+//             // Проверка обновлений Service Worker
+//             registration.addEventListener('updatefound', () => {
+//                 const newWorker = registration.installing;
+//                 // console.log('New Service Worker found');
                 
-                if (newWorker) {
-                    newWorker.addEventListener('statechange', () => {
-                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                            // console.log('New Service Worker available');
-                            // Автоматически активируем новый service worker
-                            newWorker.postMessage({ type: 'SKIP_WAITING' });
-                        }
-                    });
-                }
-            });
-        } catch (error) {
-            // console.error('Service Worker registration failed:', error);
-        }
-    });
-}
+//                 if (newWorker) {
+//                     newWorker.addEventListener('statechange', () => {
+//                         if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+//                             // console.log('New Service Worker available');
+//                             // Автоматически активируем новый service worker
+//                             newWorker.postMessage({ type: 'SKIP_WAITING' });
+//                         }
+//                     });
+//                 }
+//             });
+//         } catch (error) {
+//             // console.error('Service Worker registration failed:', error);
+//         }
+//     });
+// // }
 
 export default router;

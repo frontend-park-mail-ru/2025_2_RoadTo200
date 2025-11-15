@@ -81,6 +81,9 @@ export const Actions = {
 
     // support 
     RENDER_SUPPORT: "RENDER_SUPPORT",
+
+    //  statistics
+    RENDER_STATISTICS: "RENDER_STATISTICS",
 } as const;
 
 export type ActionType = typeof Actions[keyof typeof Actions];
