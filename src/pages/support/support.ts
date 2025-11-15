@@ -444,20 +444,27 @@ export class Support {
         }
 
         const popup = this.parent?.querySelector('.support-popup');
-        let height = OPEN_WIDGET_SIZE.height;
+        let contentHeight = OPEN_WIDGET_SIZE.height;
+
         if (popup) {
             const rect = popup.getBoundingClientRect();
-            height = Math.ceil(rect.height + 16);
+            contentHeight = Math.ceil(rect.height);
         }
-        const maxHeight = Math.max(Math.min(height, window.innerHeight - 48), OPEN_WIDGET_SIZE.height);
+
+        // Ограничиваем по окну родителя, но не меньше минимальной высоты
+        const maxAvailableHeight = window.parent?.innerHeight ? window.parent.innerHeight - 24 : window.innerHeight - 24;
+        const finalHeight = Math.max(contentHeight, OPEN_WIDGET_SIZE.height);
+        const height = Math.min(finalHeight, maxAvailableHeight);
+
         window.parent.postMessage({
             type: 'SUPPORT_WIDGET_RESIZE',
             payload: {
                 width: OPEN_WIDGET_SIZE.width,
-                height: maxHeight
+                height
             }
         }, window.location.origin);
     }
+
 
     private observePopupResize(): void {
         if (!this.isEmbedded) return;
