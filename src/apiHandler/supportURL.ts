@@ -1,3 +1,3 @@
-const supportServerURL: string = 'http://terabithia.online:8081';
+const supportServerURL: string = '/support-api';
 
 export default supportServerURL;

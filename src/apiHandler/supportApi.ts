@@ -3,7 +3,7 @@ import supportURL from './supportURL';
 
 const API_URL = `${supportURL}/api`;
 
-export type TicketCategory = 'technical' | 'feature' | 'question' | 'security' | 'billing' | 'device';
+export type TicketCategory = string;
 export type TicketStatus = 'open' | 'work' | 'closed';
 
 export interface CreateTicketRequest {
@@ -22,7 +22,12 @@ export interface Ticket {
 }
 
 export interface CreateTicketResponse {
-    ticket: Ticket;
+    id: string;
+    category: TicketCategory;
+    status: TicketStatus;
+    created_at: string;
+    text: string;
+    email: string;
 }
 
 export interface GetTicketsResponse {
@@ -30,9 +35,7 @@ export interface GetTicketsResponse {
     total: number;
 }
 
-export interface GetTicketResponse {
-    ticket: Ticket;
-}
+export type GetTicketResponse = Ticket;
 
 class SupportApi {
     private baseURL: string;
@@ -51,7 +54,7 @@ class SupportApi {
             method: 'POST',
             body: JSON.stringify(ticketData),
         };
-        return handleFetch<CreateTicketResponse>(this.baseURL, '/support', options);
+        return handleFetch<CreateTicketResponse>(this.baseURL, '/report', options);
     }
 
     /**
@@ -59,7 +62,7 @@ class SupportApi {
      * @returns Promise со списком тикетов
      */
     async getMyTickets(): Promise<GetTicketsResponse> {
-        return handleFetch<GetTicketsResponse>(this.baseURL, '/support', { method: 'GET' });
+        return handleFetch<GetTicketsResponse>(this.baseURL, '/report', { method: 'GET' });
     }
 
     /**
@@ -68,7 +71,7 @@ class SupportApi {
      * @returns Promise с данными тикета
      */
     async getTicket(ticketId: string): Promise<GetTicketResponse> {
-        return handleFetch<GetTicketResponse>(this.baseURL, `/support/${ticketId}`, { method: 'GET' });
+        return handleFetch<GetTicketResponse>(this.baseURL, `/report/${ticketId}`, { method: 'GET' });
     }
 }
 

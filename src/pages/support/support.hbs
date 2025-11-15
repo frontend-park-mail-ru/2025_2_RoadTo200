@@ -1,5 +1,173 @@
-<div class="support-page">
-   support page
-   <button class="btn btn-primary">Click Me</button>
-   
+<div class="support-page" role="presentation">
+   <button
+      id="support-widget-toggle"
+      class="support-widget__button{{#if isPopupOpen}} support-widget__button--active{{/if}}"
+      aria-haspopup="dialog"
+      aria-expanded="{{#if isPopupOpen}}true{{else}}false{{/if}}"
+      type="button"
+   >
+      <span class="support-widget__icon">?</span>
+      <span class="support-widget__label">Поддержка</span>
+   </button>
+
+   <div
+      class="support-popup{{#if isPopupOpen}} support-popup--visible{{/if}}"
+      role="dialog"
+      aria-modal="false"
+      aria-hidden="{{#if isPopupOpen}}false{{else}}true{{/if}}"
+   >
+      <div class="support-popup__card">
+         <div class="support-popup__header">
+            <button
+               id="support-popup-close"
+               class="support-popup__close"
+               type="button"
+               aria-label="Закрыть окно"
+            >
+               ✕
+            </button>
+            <div class="support-popup__tabs" role="tablist">
+               <button
+                  class="support-popup__tab{{#if (eq activeTab 'form')}} support-popup__tab--active{{/if}}"
+                  type="button"
+                  data-tab="form"
+               >
+                  Отправить обращение
+               </button>
+               <button
+                  class="support-popup__tab{{#if (eq activeTab 'tickets')}} support-popup__tab--active{{/if}}"
+                  type="button"
+                  data-tab="tickets"
+               >
+                  Мои обращения
+               </button>
+            </div>
+         </div>
+
+         <div class="support-popup__content">
+            {{#if (eq activeTab 'form')}}
+               <form id="support-form" class="support-popup__form" autocomplete="off">
+                  <label class="support-popup__field">
+                     <span>Тема обращения *</span>
+                     <select
+                        id="support-topic-select"
+                        name="category"
+                        required
+                        autocomplete="support-ticket-category"
+                     >
+                        <option value="" disabled {{#unless formValues.category}}selected{{/unless}}>
+                           Не выбрано
+                        </option>
+                        {{#each categories}}
+                           <option value="{{this.value}}" {{#if (eq ../formValues.category this.value)}}selected{{/if}}>
+                              {{this.label}}
+                           </option>
+                        {{/each}}
+                     </select>
+                  </label>
+
+                  <label class="support-popup__field">
+                     <span>Опишите вашу проблему *</span>
+                     <textarea
+                        id="support-problem"
+                        name="text"
+                        rows="4"
+                        placeholder="Напишите подробно"
+                        required
+                        autocomplete="off"
+                     >{{formValues.text}}</textarea>
+                  </label>
+
+                  <label class="support-popup__field">
+                     <span>Можете прикрепить скриншот</span>
+                     <div class="support-popup__file">
+                        <input type="file" id="support-screenshot" accept="image/*" />
+                        <label for="support-screenshot" class="support-popup__file-label">Выберите файл</label>
+                        <span class="support-popup__file-name" id="support-file-name">
+                           {{#if selectedFileName}}
+                              {{selectedFileName}}
+                           {{else}}
+                              Файл не выбран
+                           {{/if}}
+                        </span>
+                     </div>
+                  </label>
+
+                  <label class="support-popup__field">
+                     <span>Почта для связи *</span>
+                     <input
+                        type="email"
+                        id="support-email"
+                        name="email"
+                        placeholder="example@mail.com"
+                        value="{{formValues.email}}"
+                        required
+                        autocomplete="email"
+                     />
+                  </label>
+
+                  {{#if formError}}
+                     <p class="support-popup__message support-popup__message--error">{{formError}}</p>
+                  {{/if}}
+                  {{#if formSuccess}}
+                     <p class="support-popup__message support-popup__message--success">{{formSuccess}}</p>
+                  {{/if}}
+
+                  <button type="submit" class="support-popup__submit" {{#if isSubmitting}}disabled{{/if}}>
+                     {{#if isSubmitting}}
+                        Отправляем...
+                     {{else}}
+                        Отправить
+                     {{/if}}
+                  </button>
+                  <p class="support-popup__helper-text">* обязательные поля</p>
+               </form>
+            {{else}}
+               <div class="support-popup__tickets">
+                  <div class="support-popup__tickets-header">
+                     <p>История обращений</p>
+                     <button id="support-refresh-tickets" type="button">Обновить</button>
+                  </div>
+
+                  {{#if ticketsLoading}}
+                     <p class="support-popup__helper-text">Загружаем обращения...</p>
+                  {{else}}
+                     {{#if ticketsError}}
+                        <p class="support-popup__message support-popup__message--error">{{ticketsError}}</p>
+                     {{else}}
+                        {{#if hasTickets}}
+                           <table class="support-popup__table">
+                              <thead>
+                                 <tr>
+                                    <th>Тема</th>
+                                    <th>Дата</th>
+                                    <th>Статус</th>
+                                 </tr>
+                              </thead>
+                              <tbody>
+                                 {{#each tickets}}
+                                    <tr>
+                                       <td>{{this.categoryLabel}}</td>
+                                       <td>{{this.formattedDate}}</td>
+                                       <td>
+                                          <span class="support-popup__status support-popup__status--{{this.status}}">
+                                             {{this.statusLabel}}
+                                          </span>
+                                       </td>
+                                    </tr>
+                                 {{/each}}
+                              </tbody>
+                           </table>
+                        {{else}}
+                           <p class="support-popup__helper-text">
+                              У вас пока нет обращений. Расскажите о проблеме — мы поможем.
+                           </p>
+                        {{/if}}
+                     {{/if}}
+                  {{/if}}
+               </div>
+            {{/if}}
+         </div>
+      </div>
+   </div>
 </div>

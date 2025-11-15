@@ -51,11 +51,16 @@ body {
 }
 
 #support-iframe {
-  position: absolute;
-  right: 0;
-  pointer-events: auto !important;
-  bottom: 0;
-  z-index: 1;
   position: fixed;
-  width: 300px;
+  right: 24px;
+  bottom: 24px;
+  width: 200px;
+  height: 72px;
+  max-width: calc(100vw - 32px);
+  max-height: calc(100vh - 48px);
+  border: none;
+  background: transparent;
+  z-index: 2000;
+  transition: width 0.2s ease, height 0.2s ease;
+  pointer-events: auto;
 }

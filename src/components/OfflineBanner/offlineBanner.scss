@@ -10,7 +10,7 @@
     z-index: 10000;
     transform: translateY(0);
     transition: transform 0.3s ease-in-out;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.0);
     
     &--hidden {
         transform: translateY(-100%);
