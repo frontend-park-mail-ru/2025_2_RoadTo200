@@ -1,383 +1,503 @@
+// Переменные
+$color-primary: #3498db;
+$color-success: #2ecc71;
+$color-warning: #f39c12;
+$color-danger: #e74c3c;
+$color-purple: #9b59b6;
+$color-teal: #1abc9c;
 
-            
-            .statistics-page {
-                max-width: 1200px;
-                padding: 30px;
+$color-text-dark: #2c3e50;
+$color-text-muted: #7f8c8d;
+$color-border: #eaeaea;
+$color-bg-light: #f8f9fa;
+$color-bg-gray: #ecf0f1;
+
+$shadow-sm: 0 3px 10px rgba(0, 0, 0, 0.05);
+$shadow-md: 0 8px 25px rgba(0, 0, 0, 0.15);
+
+$border-radius: 10px;
+$border-radius-sm: 8px;
+$border-radius-xs: 4px;
+
+$transition-base: 0.2s ease;
+
+// Блок: statistics
+.statistics {
+    max-width: 1200px;
+    padding: 30px;
+
+    &__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid $color-border;
+    }
+
+    &__title {
+        color: $color-text-dark;
+        font-weight: 600;
+        margin: 0;
+    }
+}
+
+// Блок: stats-grid
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+
+    &__card {
+        background-color: white;
+        border-radius: $border-radius;
+        padding: 20px;
+        box-shadow: $shadow-sm;
+        border-left: 4px solid $color-primary;
+        transition: transform $transition-base, box-shadow $transition-base;
+
+        &--total {
+            border-left-color: $color-primary;
+        }
+
+        &--open {
+            border-left-color: $color-success;
+        }
+
+        &--work {
+            border-left-color: $color-warning;
+        }
+
+        &--closed {
+            border-left-color: $color-purple;
+        }
+    }
+
+    &__heading {
+        color: $color-text-muted;
+        font-size: 14px;
+        margin-bottom: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin: 0;
+    }
+
+    &__value {
+        font-size: 32px;
+        font-weight: 700;
+        color: $color-text-dark;
+        margin: 0;
+    }
+}
+
+// Блок: charts
+.charts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 25px;
+    margin-bottom: 30px;
+}
+
+// Блок: chart-card
+.chart-card {
+    background-color: white;
+    border-radius: $border-radius;
+    padding: 20px;
+    box-shadow: $shadow-sm;
+
+    &__title {
+        color: $color-text-dark;
+        margin-bottom: 20px;
+        font-size: 18px;
+        font-weight: 600;
+        margin: 0 0 20px 0;
+    }
+
+    &__container {
+        position: relative;
+        min-height: 250px;
+    }
+}
+
+// Блок: category-chart
+.category-chart {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+
+    &__item {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 10px 0;
+
+        &--technical .category-chart__fill {
+            background-color: $color-primary;
+        }
+
+        &--feature .category-chart__fill {
+            background-color: $color-success;
+        }
+
+        &--question .category-chart__fill {
+            background-color: $color-danger;
+        }
+
+        &--security .category-chart__fill {
+            background-color: $color-warning;
+        }
+
+        &--billing .category-chart__fill {
+            background-color: $color-purple;
+        }
+
+        &--device .category-chart__fill {
+            background-color: $color-teal;
+        }
+    }
+
+    &__info {
+        display: flex;
+        justify-content: space-between;
+        flex: 1;
+        min-width: 120px;
+    }
+
+    &__name {
+        text-transform: capitalize;
+        font-weight: 600;
+        color: $color-text-dark;
+    }
+
+    &__count {
+        color: $color-text-muted;
+        font-size: 14px;
+    }
+
+    &__bar {
+        flex: 2;
+        height: 8px;
+        background-color: $color-bg-gray;
+        border-radius: $border-radius-xs;
+        overflow: hidden;
+        min-width: 100px;
+    }
+
+    &__fill {
+        height: 100%;
+        border-radius: $border-radius-xs;
+        transition: width 0.8s ease-in-out;
+        width: 0%;
+    }
+
+    &__percentage {
+        min-width: 40px;
+        text-align: right;
+        font-weight: 600;
+        color: $color-text-dark;
+    }
+}
+
+// Блок: status-chart
+.status-chart {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+
+    &__item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 15px;
+        background-color: $color-bg-light;
+        border-radius: $border-radius-sm;
+        transition: transform $transition-base;
+
+        &--open {
+            --status-color: #{$color-success};
+            border-left: 4px solid $color-success;
+        }
+
+        &--in_progress {
+            --status-color: #{$color-warning};
+            border-left: 4px solid $color-warning;
+        }
+
+        &--closed {
+            --status-color: #{$color-purple};
+            border-left: 4px solid $color-purple;
+        }
+    }
+
+    &__info {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    &__name {
+        text-transform: capitalize;
+        font-weight: 600;
+        color: $color-text-dark;
+        font-size: 16px;
+    }
+
+    &__count {
+        color: $color-text-muted;
+        font-size: 14px;
+    }
+
+    &__visual {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    &__circle {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: conic-gradient(
+            var(--status-color) calc(var(--percentage) * 3.6deg),
+            $color-bg-gray 0deg
+        );
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+
+        &::before {
+            content: '';
+            position: absolute;
+            width: 45px;
+            height: 45px;
+            background-color: white;
+            border-radius: 50%;
+        }
+    }
+
+    &__percentage {
+        position: relative;
+        font-weight: 700;
+        font-size: 14px;
+        color: $color-text-dark;
+    }
+}
+
+// Блок: response-time
+.response-time {
+    text-align: center;
+
+    &__title {
+        color: $color-text-dark;
+        font-size: 18px;
+        font-weight: 600;
+    }
+
+    &__value {
+        font-size: 42px;
+        font-weight: 700;
+        margin: 10px 0;
+        color: $color-text-dark;
+    }
+}
+
+// Блок: tickets-list
+.tickets-list {
+    border-radius: 12px;
+    padding: 25px;
+
+    &__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid $color-border;
+    }
+
+    &__title {
+        color: $color-text-dark;
+        font-size: 20px;
+        font-weight: 600;
+        margin: 0;
+    }
+}
+
+// Блок: tickets-table
+.tickets-table {
+    overflow-x: auto;
+    border-radius: $border-radius-sm;
+    border: 1px solid $color-border;
+
+    &__content {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+    }
+
+    &__head {
+        background-color: $color-bg-light;
+    }
+
+    &__heading {
+        padding: 12px 16px;
+        text-align: left;
+        font-weight: 600;
+        color: $color-text-dark;
+        border-bottom: 1px solid $color-border;
+    }
+
+    &__body {
+        // Стили для тела таблицы
+    }
+
+    &__row {
+        &--open {
+            // Дополнительные стили для открытых обращений
+        }
+
+        &--work {
+            // Дополнительные стили для обращений в работе
+        }
+
+        &--closed {
+            // Дополнительные стили для закрытых обращений
+        }
+    }
+
+    &__cell {
+        padding: 12px 16px;
+        border-bottom: 1px solid #f1f2f6;
+
+        &--id {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            color: $color-text-muted;
+        }
+
+        &--category {
+            // Стили для ячейки категории
+        }
+
+        &--text {
+            max-width: 200px;
+            position: relative;
+            cursor: pointer;
+
+            &:hover {
+                &::after {
+                    content: attr(data-fulltext);
+                    position: absolute;
+                    top: 100%;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    background: $color-text-dark;
+                    color: white;
+                    padding: 12px 16px;
+                    border-radius: $border-radius-sm;
+                    font-size: 14px;
+                    white-space: normal;
+                    width: 300px;
+                    max-width: 90vw;
+                    z-index: 1000;
+                    box-shadow: $shadow-md;
+                    line-height: 1.5;
+                    text-align: left;
+                    word-wrap: break-word;
+                }
+
+                &::before {
+                    content: '';
+                    position: absolute;
+                    bottom: 100%;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    border: 8px solid transparent;
+                    border-top-color: $color-text-dark;
+                    margin-bottom: -16px;
+                    z-index: 1001;
+                }
             }
-            
-            .dashboard-header {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 30px;
-                padding-bottom: 20px;
-                border-bottom: 1px solid #eaeaea;
-            }
-            
-            .dashboard-header h1 {
-                color: #2c3e50;
-                font-weight: 600;
-                margin: 0;
-            }
-            
-            .stats-grid {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-                gap: 20px;
-                margin-bottom: 30px;
-            }
-            
-            .stat-card {
-                background-color: white;
-                border-radius: 10px;
-                padding: 20px;
-                box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
-                border-left: 4px solid #3498db;
-                transition: transform 0.2s ease, box-shadow 0.2s ease;
-            }
-            
-            .stat-card[data-status="open"] {
-                border-left-color: #2ecc71;
-            }
-            
-            .stat-card[data-status="in_progress"] {
-                border-left-color: #f39c12;
-            }
-            
-            .stat-card[data-status="closed"] {
-                border-left-color: #9b59b6;
-            }
-            
-            .stat-card h3 {
-                color: #7f8c8d;
-                font-size: 14px;
-                margin-bottom: 10px;
-                text-transform: uppercase;
-                letter-spacing: 0.5px;
-                margin: 0;
-            }
-            
-            .stat-card .value {
-                font-size: 32px;
-                font-weight: 700;
-                color: #2c3e50;
-                margin: 0;
-            }
-            
-            .charts-container {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-                gap: 25px;
-                margin-bottom: 30px;
-            }
-            
-            .chart-card {
-                background-color: white;
-                border-radius: 10px;
-                padding: 20px;
-                box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
-            }
-            
-            .chart-card h2 {
-                color: #2c3e50;
-                margin-bottom: 20px;
-                font-size: 18px;
-                font-weight: 600;
-                margin: 0 0 20px 0;
-            }
-            
-            .chart-container {
-                position: relative;
-                min-height: 250px;
-            }
-            
-            .category-chart {
-                display: flex;
-                flex-direction: column;
-                gap: 15px;
-            }
-            
-            .category-item {
-                display: flex;
-                align-items: center;
-                gap: 15px;
-                padding: 10px 0;
-            }
-            
-            .category-info {
-                display: flex;
-                justify-content: space-between;
-                flex: 1;
-                min-width: 120px;
-            }
-            
-            .category-name {
-                text-transform: capitalize;
-                font-weight: 600;
-                color: #2c3e50;
-            }
-            
-            .category-count {
-                color: #7f8c8d;
-                font-size: 14px;
-            }
-            
-            .category-bar {
-                flex: 2;
-                height: 8px;
-                background-color: #ecf0f1;
-                border-radius: 4px;
-                overflow: hidden;
-                min-width: 100px;
-            }
-            
-            .category-fill {
-                height: 100%;
-                border-radius: 4px;
-                transition: width 0.8s ease-in-out;
-                width: 0%;
-            }
-            
-            .category-item[data-category="technical"] .category-fill { background-color: #3498db; }
-            .category-item[data-category="feature"] .category-fill { background-color: #2ecc71; }
-            .category-item[data-category="question"] .category-fill { background-color: #e74c3c; }
-            .category-item[data-category="security"] .category-fill { background-color: #f39c12; }
-            .category-item[data-category="billing"] .category-fill { background-color: #9b59b6; }
-            .category-item[data-category="device"] .category-fill { background-color: #1abc9c; }
-            
-            .category-percentage {
-                min-width: 40px;
-                text-align: right;
-                font-weight: 600;
-                color: #2c3e50;
-            }
-            
-            .status-chart {
-                display: flex;
-                flex-direction: column;
-                gap: 20px;
-            }
-            
-            .status-item {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                padding: 15px;
-                background-color: #f8f9fa;
-                border-radius: 8px;
-                transition: transform 0.2s ease;
-            }
-            
-            .status-info {
-                display: flex;
-                flex-direction: column;
-                gap: 5px;
-            }
-            
-            .status-name {
-                text-transform: capitalize;
-                font-weight: 600;
-                color: #2c3e50;
-                font-size: 16px;
-            }
-            
-            .status-count {
-                color: #7f8c8d;
-                font-size: 14px;
-            }
-            
-            .status-visual {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-            }
-            
-            .status-circle {
-                width: 60px;
-                height: 60px;
-                border-radius: 50%;
-                background: conic-gradient(
-                    var(--status-color) calc(var(--percentage) * 3.6deg),
-                    #ecf0f1 0deg
-                );
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                position: relative;
-            }
-            
-            .status-circle::before {
-                content: '';
-                position: absolute;
-                width: 45px;
-                height: 45px;
-                background-color: white;
-                border-radius: 50%;
-            }
-            
-            .status-percentage {
-                position: relative;
-                font-weight: 700;
-                font-size: 14px;
-                color: #2c3e50;
-            }
-            
-            .status-item[data-status="open"] {
-                --status-color: #2ecc71;
-                border-left: 4px solid #2ecc71;
-            }
-            
-            .status-item[data-status="in_progress"] {
-                --status-color: #f39c12;
-                border-left: 4px solid #f39c12;
-            }
-            
-            .status-item[data-status="closed"] {
-                --status-color: #9b59b6;
-                border-left: 4px solid #9b59b6;
-            }
-            
-            
-            .response-time-content {
-                text-align: center;
-            }
-            
-            .response-time .time {
-                font-size: 42px;
-                font-weight: 700;
-                margin: 10px 0;
-            }
-            
-            .tickets-list-section {
-                border-radius: 12px;
-                padding: 25px;
-            }
-            
-            .section-header {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 20px;
-                padding-bottom: 15px;
-                border-bottom: 1px solid #eaeaea;
-            }
-            
-            .section-header h2 {
-                color: #2c3e50;
-                font-size: 20px;
-                font-weight: 600;
-                margin: 0;
-            }
-            
-            .tickets-count {
-                color: #7f8c8d;
-                font-size: 14px;
-                font-weight: 500;
-            }
-            
-            .tickets-table-container {
-                overflow-x: auto;
-                border-radius: 8px;
-                border: 1px solid #eaeaea;
-            }
-            
-            .tickets-table {
-                width: 100%;
-                border-collapse: collapse;
-                font-size: 14px;
-            }
-            
-            .tickets-table th {
-                background-color: #f8f9fa;
-                padding: 12px 16px;
-                text-align: left;
-                font-weight: 600;
-                color: #2c3e50;
-                border-bottom: 1px solid #eaeaea;
-            }
-            
-            .tickets-table td {
-                padding: 12px 16px;
-                border-bottom: 1px solid #f1f2f6;
-            }
-            
-            .ticket-id {
-                font-family: 'Courier New', monospace;
-                font-size: 12px;
-                color: #7f8c8d;
-            }
-            
-            .category-badge, .status-badge {
-                padding: 4px 8px;
-                border-radius: 4px;
-                font-size: 12px;
-                font-weight: 500;
-                text-transform: capitalize;
-            }
-            
-            .category-technical { background-color: #e3f2fd; color: #1976d2; }
-            .category-feature { background-color: #e8f5e8; color: #2e7d32; }
-            .category-question { background-color: #fff3e0; color: #f57c00; }
-            .category-security { background-color: #ffebee; color: #c62828; }
-            .category-billing { background-color: #f3e5f5; color: #7b1fa2; }
-            .category-device { background-color: #e0f2f1; color: #00695c; }
-            
-            .status-open { background-color: #e8f5e8; color: #2e7d32; }
-            .status-work { background-color: #fff3e0; color: #f57c00; }
-            .status-closed { background-color: #f5f5f5; color: #616161; }
-            
-            .ticket-text {
-                max-width: 200px;
-                position: relative;
-                cursor: pointer;
-            }
-            
-            .text-truncated {
-                display: block;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
-            }
-            
-            .ticket-text:hover::after {
-                content: attr(data-fulltext);
-                position: absolute;
-                top: 100%;
-                left: 50%;
-                transform: translateX(-50% );
-                background: #2c3e50;
-                color: white;
-                padding: 12px 16px;
-                border-radius: 8px;
-                font-size: 14px;
-                white-space: normal;
-                width: 300px;
-                max-width: 90vw;
-                z-index: 1000;
-                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-                line-height: 1.5;
-                text-align: left;
-                word-wrap: break-word;
-            }
-            
-            .ticket-text:hover::before {
-                content: '';
-                position: absolute;
-                bottom: 100%;
-                left: 50%;
-                transform: translateX(-50%);
-                border: 8px solid transparent;
-                border-top-color: #2c3e50;
-                margin-bottom: -16px;
-                z-index: 1001;
-            }
-            
-            .ticket-email {
-                color: #3498db;
-            }
-            
-            .ticket-date {
-                color: #7f8c8d;
-                font-size: 13px;
-            }
-            
+        }
+
+        &--email {
+            color: $color-primary;
+        }
+
+        &--status {
+            // Стили для ячейки статуса
+        }
+
+        &--date {
+            color: $color-text-muted;
+            font-size: 13px;
+        }
+    }
+
+    &__text-truncated {
+        display: block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+}
+
+// Блок: badge
+.badge {
+    padding: 4px 8px;
+    border-radius: $border-radius-xs;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: capitalize;
+
+    &--category {
+        &-technical {
+            background-color: #e3f2fd;
+            color: #1976d2;
+        }
+
+        &-feature {
+            background-color: #e8f5e8;
+            color: #2e7d32;
+        }
+
+        &-question {
+            background-color: #fff3e0;
+            color: #f57c00;
+        }
+
+        &-security {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+
+        &-billing {
+            background-color: #f3e5f5;
+            color: #7b1fa2;
+        }
+
+        &-device {
+            background-color: #e0f2f1;
+            color: #00695c;
+        }
+    }
+
+    &--status {
+        &-open {
+            background-color: #e8f5e8;
+            color: #2e7d32;
+        }
+
+        &-work {
+            background-color: #fff3e0;
+            color: #f57c00;
+        }
+
+        &-closed {
+            background-color: #f5f5f5;
+            color: #616161;
+        }
+    }
+}

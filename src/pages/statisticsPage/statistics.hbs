@@ -1,42 +1,42 @@
-<div class="statistics-page">
-    <div class="dashboard-header">
-        <h1>Статистика обращений</h1>
+<div class="statistics">
+    <div class="statistics__header">
+        <h1 class="statistics__title">Статистика обращений</h1>
     </div>
     
     <div class="stats-grid">
-        <div class="stat-card">
-            <h3>Всего обращений</h3>
-            <div class="value">{{total_tickets}}</div>
+        <div class="stats-grid__card stats-grid__card--total">
+            <h3 class="stats-grid__heading">Всего обращений</h3>
+            <div class="stats-grid__value">{{total_tickets}}</div>
         </div>
-        <div class="stat-card" data-status="open">
-            <h3>Открытые обращения</h3>
-            <div class="value">{{tickets_by_status.open.absolute}}</div>
+        <div class="stats-grid__card stats-grid__card--open">
+            <h3 class="stats-grid__heading">Открытые обращения</h3>
+            <div class="stats-grid__value">{{tickets_by_status.open.absolute}}</div>
         </div>
-        <div class="stat-card" data-status="work">
-            <h3>В работе</h3>
-            <div class="value">{{tickets_by_status.in_progress.absolute}}</div>
+        <div class="stats-grid__card stats-grid__card--work">
+            <h3 class="stats-grid__heading">В работе</h3>
+            <div class="stats-grid__value">{{tickets_by_status.in_progress.absolute}}</div>
         </div>
-        <div class="stat-card" data-status="closed">
-            <h3>Завершенные</h3>
-            <div class="value">{{tickets_by_status.closed.absolute}}</div>
+        <div class="stats-grid__card stats-grid__card--closed">
+            <h3 class="stats-grid__heading">Завершенные</h3>
+            <div class="stats-grid__value">{{tickets_by_status.closed.absolute}}</div>
         </div>
     </div>
     
-    <div class="charts-container">
+    <div class="charts">
         <div class="chart-card">
-            <h2>Обращения по категориям</h2>
-            <div class="chart-container">
+            <h2 class="chart-card__title">Обращения по категориям</h2>
+            <div class="chart-card__container">
                 <div class="category-chart">
                     {{#each tickets_by_category}}
-                    <div class="category-item" data-category="{{@key}}" data-count="{{this.absolute}}">
-                        <div class="category-info">
-                            <span class="category-name">{{translateCategory @key}}</span>
-                            <span class="category-count">{{this.absolute}}</span>
+                    <div class="category-chart__item category-chart__item--{{@key}}">
+                        <div class="category-chart__info">
+                            <span class="category-chart__name">{{translateCategory @key}}</span>
+                            <span class="category-chart__count">{{this.absolute}}</span>
                         </div>
-                        <div class="category-bar">
-                            <div class="category-fill" style="--percentage: {{this.percentage}};"></div>
+                        <div class="category-chart__bar">
+                            <div class="category-chart__fill" style="--percentage: {{this.percentage}};"></div>
                         </div>
-                        <div class="category-percentage">{{this.percentage}}%</div>
+                        <div class="category-chart__percentage">{{this.percentage}}%</div>
                     </div>
                     {{/each}}
                 </div>
@@ -44,18 +44,18 @@
         </div>
         
         <div class="chart-card">
-            <h2>Обращения по состояниям</h2>
-            <div class="chart-container">
+            <h2 class="chart-card__title">Обращения по состояниям</h2>
+            <div class="chart-card__container">
                 <div class="status-chart">
                     {{#each tickets_by_status}}
-                    <div class="status-item" data-status="{{@key}}">
-                        <div class="status-info">
-                            <span class="status-name">{{translateStatus @key}}</span>
-                            <span class="status-count">{{this.absolute}}</span>
+                    <div class="status-chart__item status-chart__item--{{@key}}">
+                        <div class="status-chart__info">
+                            <span class="status-chart__name">{{translateStatus @key}}</span>
+                            <span class="status-chart__count">{{this.absolute}}</span>
                         </div>
-                        <div class="status-visual">
-                            <div class="status-circle" style="--percentage: {{this.percentage}};">
-                                <span class="status-percentage">{{this.percentage}}%</span>
+                        <div class="status-chart__visual">
+                            <div class="status-chart__circle" style="--percentage: {{this.percentage}};">
+                                <span class="status-chart__percentage">{{this.percentage}}%</span>
                             </div>
                         </div>
                     </div>
@@ -66,45 +66,42 @@
     </div>
     
     <div class="response-time">
-        <div class="response-time-content">
-            <h2>Среднее время ответа</h2>
-            <div class="time">{{average_response_time}}</div>
-        </div>
+        <h2 class="response-time__title">Среднее время ответа</h2>
+        <div class="response-time__value">{{average_response_time}}</div>
     </div>
 
-    <!-- New Tickets List Section -->
-    <div class="tickets-list-section">
-        <div class="section-header">
-            <h2>Список всех обращений</h2>
+    <div class="tickets-list">
+        <div class="tickets-list__header">
+            <h2 class="tickets-list__title">Список всех обращений</h2>
         </div>
         
-        <div class="tickets-table-container">
-            <table class="tickets-table">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Категория</th>
-                        <th>Текст обращения</th>
-                        <th>Email</th>
-                        <th>Статус</th>
-                        <th>Дата создания</th>
+        <div class="tickets-table">
+            <table class="tickets-table__content">
+                <thead class="tickets-table__head">
+                    <tr class="tickets-table__row">
+                        <th class="tickets-table__heading">ID</th>
+                        <th class="tickets-table__heading">Категория</th>
+                        <th class="tickets-table__heading">Текст обращения</th>
+                        <th class="tickets-table__heading">Email</th>
+                        <th class="tickets-table__heading">Статус</th>
+                        <th class="tickets-table__heading">Дата создания</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="tickets-table__body">
                     {{#each all_tickets}}
-                    <tr class="ticket-row" data-status="{{this.status}}">
-                        <td class="ticket-id">{{this.id}}</td>
-                        <td class="ticket-category">
-                            <span class="category-badge category-{{this.category}}">{{translateCategory this.category}}</span>
+                    <tr class="tickets-table__row tickets-table__row--{{this.status}}">
+                        <td class="tickets-table__cell tickets-table__cell--id">{{this.id}}</td>
+                        <td class="tickets-table__cell tickets-table__cell--category">
+                            <span class="badge badge--category badge--category-{{this.category}}">{{translateCategory this.category}}</span>
                         </td>
-                        <td class="ticket-text" data-fulltext="{{this.text}}">
-                            <span class="text-truncated">{{this.text}}</span>
+                        <td class="tickets-table__cell tickets-table__cell--text" data-fulltext="{{this.text}}">
+                            <span class="tickets-table__text-truncated">{{this.text}}</span>
                         </td>
-                        <td class="ticket-email">{{this.email}}</td>
-                        <td class="ticket-status">
-                            <span class="status-badge status-{{this.status}}">{{translateStatus this.status}}</span>
+                        <td class="tickets-table__cell tickets-table__cell--email">{{this.email}}</td>
+                        <td class="tickets-table__cell tickets-table__cell--status">
+                            <span class="badge badge--status badge--status-{{this.status}}">{{translateStatus this.status}}</span>
                         </td>
-                        <td class="ticket-date">{{this.created_at}}</td>
+                        <td class="tickets-table__cell tickets-table__cell--date">{{this.created_at}}</td>
                     </tr>
                     {{/each}}
                 </tbody>
