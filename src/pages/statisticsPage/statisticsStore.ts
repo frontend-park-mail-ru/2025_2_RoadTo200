@@ -1,7 +1,6 @@
 import { Actions, type Action } from '@/actions';
 import { dispatcher, type Store } from '@/Dispatcher';
 import { statistics } from './statistics';
-// Import the API client and required types from the API file
 import statisticsApi, { StatisticsResponse } from '@/apiHandler/statisticsApi';
 
 class StatisticsStore implements Store {

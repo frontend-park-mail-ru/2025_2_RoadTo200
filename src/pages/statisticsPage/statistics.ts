@@ -118,11 +118,7 @@ export class Statistics {
     }
 
     private addStyles(): void {
-        // Здесь можно импортировать SCSS файл или добавить критичные стили
-        // В реальном проекте лучше импортировать SCSS напрямую:
-        // import './statistics.scss';
         
-        // Если нужно добавить динамические стили:
         const style = document.createElement('style');
         style.textContent = `
             /* Критичные стили или переопределения */
@@ -131,7 +127,6 @@ export class Statistics {
     }
 
     private initializeVisualizations(): void {
-        // Анимация заполнения баров категорий (БЭМ классы)
         setTimeout(() => {
             const fillElements = document.querySelectorAll('.category-chart__fill');
             fillElements.forEach(fill => {
@@ -143,7 +138,6 @@ export class Statistics {
     }
 
     private initializeTableInteractions(): void {
-        // Обработка кликов на текст в таблице (БЭМ классы)
         document.querySelectorAll('.tickets-table__text-truncated').forEach(element => {
             element.addEventListener('click', (e) => {
                 const target = e.target as HTMLElement;
@@ -151,13 +145,11 @@ export class Statistics {
                 const fullText = textCell?.getAttribute('data-fulltext');
                 
                 if (fullText) {
-                    // Можно добавить модальное окно или другую логику
                     console.log('Полный текст:', fullText);
                 }
             });
         });
 
-        // Дополнительно: добавить hover эффекты для строк таблицы
         this.initializeTableRowHover();
     }
 
