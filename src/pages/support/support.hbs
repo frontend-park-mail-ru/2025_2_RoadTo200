@@ -44,6 +44,7 @@
             </div>
          </div>
 
+            <div class="support-popup__content-wrapper {{#if isPopupOpen}}support-popup__content-wrapper--expanded{{/if}}">
             <div class="support-popup__content support-popup__content--{{activeTab}}">
             {{#if (eq activeTab 'form')}}
                <form id="support-form" class="support-popup__form support-popup__panel support-popup__panel--form" autocomplete="off">
@@ -210,6 +211,7 @@
                   {{/if}}
                </div>
             {{/if}}
+            </div>
          </div>
       </div>
    </div>

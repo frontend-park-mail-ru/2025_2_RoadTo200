@@ -34,8 +34,8 @@ const categoryOptions: Array<{ value: TicketCategory; label: string }> = [
     { value: 'Предложения по улучшению', label: 'Предложения по улучшению' },
     { value: 'Вопросы по использованию', label: 'Вопросы по использованию' },
     { value: 'Проблемы с безопасностью', label: 'Проблемы с безопасностью' },
-    { value: 'Оплата и подписки', label: 'Оплата и подписки' },
-    { value: 'Сбои приложения', label: 'Сбои приложения' },
+    { value: 'Вопросы по оплате', label: 'Вопросы по оплате' },
+    { value: 'Проблемы с устройством', label: 'Проблемы с устройством' },
 ];
 
 const categoryLabels = categoryOptions.reduce<Record<string, string>>((acc, option) => {
@@ -79,6 +79,7 @@ export class Support {
         email: ''
     };
     private selectedFileName: string | null = null;
+    private selectedFile: File | null = null;
     private successTimer: number | null = null;
     private globalListenersAttached = false;
     private readonly isEmbedded: boolean = window.parent !== window;
@@ -232,6 +233,7 @@ export class Support {
         fileInput?.addEventListener('change', (event) => {
             const file = (event.target as HTMLInputElement).files?.[0] || null;
             this.selectedFileName = file ? file.name : null;
+            this.selectedFile = file;
             this.updateFileLabel();
         });
 
@@ -361,7 +363,8 @@ export class Support {
         const payload = {
             category: this.formValues.category as TicketCategory,
             text: this.formValues.text.trim(),
-            email: this.formValues.email.trim()
+            email: this.formValues.email.trim(),
+            screenshot: this.selectedFile || undefined
         };
 
         this.setState({ isSubmitting: true, formError: null, formSuccess: null });
@@ -371,6 +374,7 @@ export class Support {
             this.saveEmail(payload.email);
             this.formValues = { category: '', text: '', email: payload.email };
             this.selectedFileName = null;
+            this.selectedFile = null;
             this.setState({
                 isSubmitting: false,
                 formSuccess: 'Обращение отправлено. Мы ответим на почту.',

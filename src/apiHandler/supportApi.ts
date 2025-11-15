@@ -10,6 +10,7 @@ export interface CreateTicketRequest {
     category: TicketCategory;
     text: string;
     email: string;
+    screenshot?: File;
 }
 
 export interface Ticket {
@@ -50,9 +51,27 @@ class SupportApi {
      * @returns Promise с созданным тикетом
      */
     async createTicket(ticketData: CreateTicketRequest): Promise<CreateTicketResponse> {
-        const options = {
+        const formData = new FormData();
+        formData.append('category', ticketData.category);
+        formData.append('text', ticketData.text);
+        formData.append('email', ticketData.email);
+        if (ticketData.screenshot) {
+            formData.append('screenshot', ticketData.screenshot);
+        }
+
+        const shouldUseFormData = typeof ticketData.screenshot !== 'undefined';
+
+        const options = shouldUseFormData ? {
             method: 'POST',
-            body: JSON.stringify(ticketData),
+            body: formData,
+            isFormData: true
+        } : {
+            method: 'POST',
+            body: JSON.stringify({
+                category: ticketData.category,
+                text: ticketData.text,
+                email: ticketData.email
+            })
         };
         return handleFetch<CreateTicketResponse>(this.baseURL, '/report', options);
     }
