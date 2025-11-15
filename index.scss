@@ -53,5 +53,9 @@ body {
 #support-iframe {
   position: absolute;
   right: 0;
-  bottom: 0;;
+  pointer-events: auto !important;
+  bottom: 0;
+  z-index: 1;
+  position: fixed;
+  width: 300px;
 }
