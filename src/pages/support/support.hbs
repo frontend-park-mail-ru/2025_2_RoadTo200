@@ -44,9 +44,9 @@
             </div>
          </div>
 
-         <div class="support-popup__content">
+            <div class="support-popup__content support-popup__content--{{activeTab}}">
             {{#if (eq activeTab 'form')}}
-               <form id="support-form" class="support-popup__form" autocomplete="off">
+               <form id="support-form" class="support-popup__form support-popup__panel support-popup__panel--form" autocomplete="off">
                   <label class="support-popup__field">
                      <span>Тема обращения *</span>
                      <select
@@ -81,7 +81,7 @@
                   <label class="support-popup__field">
                      <span>Можете прикрепить скриншот</span>
                      <div class="support-popup__file">
-                        <input type="file" id="support-screenshot" accept="image/*" />
+                        <input type="file" id="support-screenshot" style="display:none" accept="image/*" />
                         <label for="support-screenshot" class="support-popup__file-label">Выберите файл</label>
                         <span class="support-popup__file-name" id="support-file-name">
                            {{#if selectedFileName}}
@@ -123,7 +123,7 @@
                   <p class="support-popup__helper-text">* обязательные поля</p>
                </form>
             {{else}}
-               <div class="support-popup__tickets">
+               <div class="support-popup__tickets support-popup__panel support-popup__panel--tickets">
                   <div class="support-popup__tickets-header">
                      <p>История обращений</p>
                      <button id="support-refresh-tickets" type="button">Обновить</button>
@@ -146,7 +146,11 @@
                               </thead>
                               <tbody>
                                  {{#each tickets}}
-                                    <tr>
+                                    <tr
+                                       class="support-popup__row{{#if (eq ../selectedTicketId this.id)}} support-popup__row--active{{/if}}"
+                                       data-ticket-id="{{this.id}}"
+                                       tabindex="0"
+                                    >
                                        <td>{{this.categoryLabel}}</td>
                                        <td>{{this.formattedDate}}</td>
                                        <td>
@@ -158,6 +162,45 @@
                                  {{/each}}
                               </tbody>
                            </table>
+                           <div class="support-popup__details">
+                              {{#if selectedTicketError}}
+                                 <p class="support-popup__message support-popup__message--error">{{selectedTicketError}}</p>
+                              {{/if}}
+
+                              {{#if selectedTicketLoading}}
+                                 <p class="support-popup__helper-text">Загружаем подробности обращения...</p>
+                              {{else}}
+                                 {{#if selectedTicket}}
+                                    <div class="support-popup__details-card">
+                                       <div class="support-popup__details-meta">
+                                          <span class="support-popup__status support-popup__status--{{selectedTicket.status}}">
+                                             {{selectedTicket.statusLabel}}
+                                          </span>
+                                          <span class="support-popup__details-date">{{selectedTicket.formattedDateTime}}</span>
+                                       </div>
+                                       <div class="support-popup__details-fields">
+                                          <label class="support-popup__field">
+                                             <span>Тема обращения</span>
+                                             <input type="text" value="{{selectedTicket.category}}" readonly>
+                                          </label>
+                                          <label class="support-popup__field">
+                                             <span>Описание</span>
+                                             <textarea rows="3" readonly>{{selectedTicket.text}}</textarea>
+                                          </label>
+                                          <label class="support-popup__field">
+                                             <span>Почта для связи</span>
+                                             <input type="text" value="{{selectedTicket.email}}" readonly>
+                                          </label>
+                                       </div>
+                                       <button type="button" id="support-ticket-clear" class="support-popup__ghost-button">К списку</button>
+                                    </div>
+                                 {{else}}
+                                    <p class="support-popup__helper-text">
+                                       Выберите обращение из списка, чтобы посмотреть детали.
+                                    </p>
+                                 {{/if}}
+                              {{/if}}
+                           </div>
                         {{else}}
                            <p class="support-popup__helper-text">
                               У вас пока нет обращений. Расскажите о проблеме — мы поможем.

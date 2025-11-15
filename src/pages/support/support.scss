@@ -36,14 +36,18 @@ body.support-route #content-container {
     display: flex;
     gap: 8px;
     align-items: center;
-    box-shadow: 0 12px 3px rgba(253, 41, 123, 0.25);
+    box-shadow: 0 12px 24px rgba(253, 41, 123, 0.18);
     cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
     pointer-events: auto;
     z-index: 2;
 }
 
 .support-widget__button--active {
+    .support-widget__button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 14px 28px rgba(253, 41, 123, 0.25);
+    }
     transform: translateY(-4px);
     box-shadow: 0 6px 6px rgba(253, 41, 123, 0.35);
 }
@@ -83,6 +87,7 @@ body.support-route #content-container {
     padding: 16px;
     box-shadow: 0 2px 6px rgba(24, 15, 38, 0.2);
     border: 1px solid rgba(0, 0, 0, 0.04);
+    overflow: hidden;
 }
 
 .support-popup__header {
@@ -98,6 +103,12 @@ body.support-route #content-container {
     align-self: flex-end;
     cursor: pointer;
     color: #8f8f9d;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.support-popup__close:hover {
+    color: var(--color-primary-dark);
+    transform: rotate(10deg);
 }
 
 .support-popup__tabs {
@@ -124,8 +135,33 @@ body.support-route #content-container {
     box-shadow: inset 0 0 0 1px rgba(253, 41, 123, 0.2);
 }
 
+.support-popup__tab:not(.support-popup__tab--active):hover {
+    background: #fff;
+}
+
 .support-popup__content {
     margin-top: 12px;
+    position: relative;
+    min-height: 280px;
+}
+
+.support-popup__panel {
+    animation: popupFade 0.25s ease;
+}
+
+.support-popup__panel--tickets {
+    animation-duration: 0.3s;
+}
+
+@keyframes popupFade {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .support-popup__form {
@@ -197,13 +233,18 @@ body.support-route #content-container {
     color: #fff;
     font-weight: 600;
     cursor: pointer;
-    transition: opacity 0.2s ease, box-shadow 0.2s ease;
+    transition: opacity 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
     box-shadow: 0 8px 20px rgba(253, 41, 123, 0.2);
 }
 
 .support-popup__submit:disabled {
     opacity: 0.6;
     cursor: not-allowed;
+}
+
+.support-popup__submit:not(:disabled):hover {
+    transform: translateY(-1px);
+    box-shadow: 0 12px 24px rgba(253, 41, 123, 0.25);
 }
 
 .support-popup__helper-text {
@@ -247,6 +288,11 @@ body.support-route #content-container {
     color: var(--color-primary-dark);
     font-size: 13px;
     cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.support-popup__tickets-header button:hover {
+    color: var(--color-primary-light);
 }
 
 .support-popup__table {
@@ -268,6 +314,20 @@ body.support-route #content-container {
 
 .support-popup__table tbody tr + tr {
     border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.support-popup__row {
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.support-popup__row:hover,
+.support-popup__row:focus-visible {
+    background: rgba(253, 41, 123, 0.06);
+}
+
+.support-popup__row--active {
+    background: rgba(253, 41, 123, 0.12);
 }
 
 .support-popup__status {
@@ -294,4 +354,58 @@ body.support-route #content-container {
 
 .support-popup__tickets .support-popup__message {
     margin: 0;
+}
+
+.support-popup__details {
+    margin-top: 12px;
+}
+
+.support-popup__details-card {
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: 16px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    box-shadow: 0 4px 12px rgba(19, 9, 31, 0.08);
+}
+
+.support-popup__details-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: #8f8f9d;
+}
+
+.support-popup__details-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.support-popup__details-card input,
+.support-popup__details-card textarea {
+    background: #f8f8fb;
+    cursor: default;
+}
+
+.support-popup__details-card textarea {
+    resize: none;
+    min-height: 72px;
+}
+
+.support-popup__ghost-button {
+    border: none;
+    background: transparent;
+    color: var(--color-primary-dark);
+    font-size: 13px;
+    align-self: flex-start;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.support-popup__ghost-button:hover {
+    color: var(--color-primary-light);
 }

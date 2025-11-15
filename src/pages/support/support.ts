@@ -2,8 +2,8 @@ import Handlebars from 'handlebars';
 import SupportApi, { type Ticket, type TicketCategory } from '@/apiHandler/supportApi';
 
 const TEMPLATE_PATH = '/src/pages/support/support.hbs';
-const CLOSED_WIDGET_SIZE = { width: 200, height: 72 } as const;
-const OPEN_WIDGET_SIZE = { width: 360, height: 520 } as const;
+const CLOSED_WIDGET_SIZE = { width: 200, height: 72 };
+const OPEN_WIDGET_SIZE = { width: 360, height: 520 };
 
 type SupportTab = 'form' | 'tickets';
 
@@ -17,6 +17,10 @@ interface SupportState {
     ticketsLoading: boolean;
     ticketsLoaded: boolean;
     ticketsError: string | null;
+    selectedTicketId: string | null;
+    selectedTicket: Ticket | null;
+    selectedTicketLoading: boolean;
+    selectedTicketError: string | null;
 }
 
 interface SupportFormValues {
@@ -63,7 +67,11 @@ export class Support {
         tickets: [],
         ticketsLoading: false,
         ticketsLoaded: false,
-        ticketsError: null
+        ticketsError: null,
+        selectedTicketId: null,
+        selectedTicket: null,
+        selectedTicketLoading: false,
+        selectedTicketError: null
     };
     private formValues: SupportFormValues = {
         category: '',
@@ -74,6 +82,8 @@ export class Support {
     private successTimer: number | null = null;
     private globalListenersAttached = false;
     private readonly isEmbedded: boolean = window.parent !== window;
+    private resizeObserver: ResizeObserver | null = null;
+    private readonly ticketDetailsCache = new Map<string, Ticket>();
 
     constructor(parent: HTMLElement | null) {
         this.parent = parent;
@@ -133,13 +143,18 @@ export class Support {
             tickets: this.mapTickets(this.state.tickets),
             hasTickets: this.state.tickets.length > 0,
             ticketsLoading: this.state.ticketsLoading,
-            ticketsError: this.state.ticketsError
+            ticketsError: this.state.ticketsError,
+            selectedTicketId: this.state.selectedTicketId,
+            selectedTicketLoading: this.state.selectedTicketLoading,
+            selectedTicketError: this.state.selectedTicketError,
+            selectedTicket: this.getTicketDetailsContext(this.state.selectedTicket)
         };
 
         this.parent.innerHTML = this.template(context);
         this.attachEventListeners();
         this.updateFileLabel();
         this.syncWidgetSize();
+        this.observePopupResize();
     }
 
     private mapTickets(tickets: Ticket[]): Array<{ categoryLabel: string; formattedDate: string; status: Ticket['status']; statusLabel: string; id: string; }> {
@@ -224,6 +239,25 @@ export class Support {
         refreshButton?.addEventListener('click', () => {
             this.loadTickets(true);
         });
+
+        const ticketRows = this.parent.querySelectorAll<HTMLTableRowElement>('[data-ticket-id]');
+        ticketRows.forEach(row => {
+            const ticketId = row.dataset.ticketId;
+            if (!ticketId) return;
+            const handler = () => this.selectTicket(ticketId);
+            row.addEventListener('click', handler);
+            row.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    handler();
+                }
+            });
+        });
+
+        const clearButton = this.parent.querySelector<HTMLButtonElement>('#support-ticket-clear');
+        clearButton?.addEventListener('click', () => {
+            this.clearSelectedTicket();
+        });
     }
 
     private updateFileLabel(): void {
@@ -259,10 +293,60 @@ export class Support {
                 ticketsLoaded: true,
                 ticketsError: null
             });
+            if (this.state.selectedTicketId && !sorted.find(ticket => ticket.id === this.state.selectedTicketId)) {
+                this.clearSelectedTicket();
+            }
         } catch (error) {
             const message = error instanceof Error ? error.message : 'Не удалось загрузить обращения';
             this.setState({ ticketsLoading: false, ticketsError: message });
         }
+    }
+
+    private async selectTicket(ticketId: string): Promise<void> {
+        if (!ticketId) return;
+        const cached = this.ticketDetailsCache.get(ticketId);
+        if (cached) {
+            this.setState({
+                selectedTicketId: ticketId,
+                selectedTicket: cached,
+                selectedTicketLoading: false,
+                selectedTicketError: null
+            });
+            this.syncWidgetSize();
+            return;
+        }
+
+        this.setState({
+            selectedTicketId: ticketId,
+            selectedTicket: null,
+            selectedTicketLoading: true,
+            selectedTicketError: null
+        });
+
+        try {
+            const ticket = await SupportApi.getTicket(ticketId);
+            if (ticket) {
+                this.ticketDetailsCache.set(ticketId, ticket);
+                this.setState({
+                    selectedTicket: ticket,
+                    selectedTicketLoading: false
+                });
+            } else {
+                throw new Error('Пустой ответ сервера');
+            }
+        } catch (error) {
+            const message = error instanceof Error ? error.message : 'Не удалось загрузить обращение';
+            this.setState({ selectedTicketLoading: false, selectedTicketError: message });
+        }
+    }
+
+    private clearSelectedTicket(): void {
+        this.setState({
+            selectedTicketId: null,
+            selectedTicket: null,
+            selectedTicketLoading: false,
+            selectedTicketError: null
+        });
     }
 
     private handleSubmit = async (event: Event): Promise<void> => {
@@ -347,11 +431,86 @@ export class Support {
     private syncWidgetSize(forceState?: boolean): void {
         if (!this.isEmbedded) return;
         const isOpen = forceState ?? this.state.isPopupOpen;
-        const payload = isOpen ? OPEN_WIDGET_SIZE : CLOSED_WIDGET_SIZE;
+        if (!isOpen) {
+            window.parent.postMessage({
+                type: 'SUPPORT_WIDGET_RESIZE',
+                payload: CLOSED_WIDGET_SIZE
+            }, window.location.origin);
+            return;
+        }
+
+        const popup = this.parent?.querySelector('.support-popup');
+        let height = OPEN_WIDGET_SIZE.height;
+        if (popup) {
+            const rect = popup.getBoundingClientRect();
+            height = Math.ceil(rect.height + 16);
+        }
+        const maxHeight = Math.max(Math.min(height, window.innerHeight - 48), OPEN_WIDGET_SIZE.height);
         window.parent.postMessage({
             type: 'SUPPORT_WIDGET_RESIZE',
-            payload
+            payload: {
+                width: OPEN_WIDGET_SIZE.width,
+                height: maxHeight
+            }
         }, window.location.origin);
+    }
+
+    private observePopupResize(): void {
+        if (!this.isEmbedded) return;
+        const card = this.parent?.querySelector('.support-popup__card');
+        if (!card) {
+            this.resizeObserver?.disconnect();
+            this.resizeObserver = null;
+            return;
+        }
+
+        if (typeof ResizeObserver !== 'undefined') {
+            if (!this.resizeObserver) {
+                this.resizeObserver = new ResizeObserver(() => this.syncWidgetSize());
+            } else {
+                this.resizeObserver.disconnect();
+            }
+            this.resizeObserver.observe(card);
+        } else {
+            window.setTimeout(() => this.syncWidgetSize(), 0);
+        }
+    }
+
+    private getTicketDetailsContext(ticket: Ticket | null): null | {
+        id: string;
+        category: string;
+        text: string;
+        email: string;
+        status: Ticket['status'];
+        statusLabel: string;
+        formattedDateTime: string;
+    } {
+        if (!ticket) {
+            return null;
+        }
+        return {
+            id: ticket.id,
+            category: ticket.category,
+            text: ticket.text || '',
+            email: ticket.email || '',
+            status: ticket.status,
+            statusLabel: statusLabels[ticket.status] || ticket.status,
+            formattedDateTime: this.formatDateTime(ticket.created_at)
+        };
+    }
+
+    private formatDateTime(dateString: string): string {
+        const date = new Date(dateString);
+        if (Number.isNaN(date.getTime())) {
+            return dateString;
+        }
+        return date.toLocaleString('ru-RU', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
     }
 }
 
