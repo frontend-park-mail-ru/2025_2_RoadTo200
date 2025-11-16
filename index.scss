@@ -45,3 +45,23 @@ body {
     z-index: 1;
   }
 }
+
+.support{
+  overflow: hidden;
+}
+
+#support-iframe {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  width: 200px;
+  height: 72px;
+  max-width: calc(100vw - 0px);
+  max-height: calc(100vh - 0px);
+  border: none;
+  background: transparent;
+  z-index: 2000;
+  transition: width 0.25s ease-in-out, height 0.35s ease-in-out;
+
+  pointer-events: auto;
+}

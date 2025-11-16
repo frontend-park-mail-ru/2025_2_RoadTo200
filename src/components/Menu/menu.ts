@@ -28,6 +28,7 @@ const MENU_ITEMS_DATA: MenuItem[] = [
     { name: 'Мэтчи', icon: 'matches.svg', route: 'matches', actionType: Actions.RENDER_MATCHES },
     { name: 'Чаты', icon: 'chats.svg', route: 'chats', actionType: Actions.RENDER_CHATS },
     { name: 'Моя Анкета', icon: 'myCard.svg', route: 'me', actionType: Actions.RENDER_MYCARD },
+    { name: 'Статистика Обращений', icon: 'statistics-circle.svg', route: 'statistics', actionType: Actions.RENDER_STATISTICS },
 ];
 
 const fetchTemplate = async (path: string): Promise<string> => {

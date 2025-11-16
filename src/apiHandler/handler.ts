@@ -19,6 +19,7 @@ export interface FetchError extends Error {
 
 interface FetchOptions extends RequestInit {
     headers?: Record<string, string>;
+    isFormData?: boolean;
 }
 
 /**
@@ -34,8 +35,9 @@ export async function handleFetch<T = unknown>(
     options: FetchOptions = {}
 ): Promise<T> {
     const url = `${baseURL}${endpoint}`;
+    const isFormData = options.isFormData ?? (typeof FormData !== 'undefined' && options.body instanceof FormData);
     const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
+        ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
         ...options.headers
     };
     const fetchOptions: RequestInit = {
@@ -46,6 +48,7 @@ export async function handleFetch<T = unknown>(
   
     try {
         const response = await fetch(url, fetchOptions);
+
     
         if (!response.ok) {
             // Проверка на offline режим (503 от Service Worker)

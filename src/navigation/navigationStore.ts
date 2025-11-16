@@ -37,6 +37,7 @@ interface Containers {
     content: HTMLElement | null;
     profileMenu: HTMLElement | null;
     offlineBanner: HTMLElement | null;
+    supportIframe: HTMLIFrameElement | null;
 }
 
 class NavigationStore implements Store {
@@ -48,9 +49,25 @@ class NavigationStore implements Store {
     private profileMenuContainer: HTMLElement | null = null;
     private contentContainer: HTMLElement | null = null;
     private offlineBannerContainer: HTMLElement | null = null;
+    private supportIframe: HTMLIFrameElement | null = null;
+    private pendingSupportDimensions: { width?: number; height?: number } | null = null;
+    private readonly supportMessageHandler = (event: MessageEvent): void => {
+        if (event.origin !== window.location.origin) return;
+        if (!event.data || typeof event.data !== 'object') return;
+        if ((event.data as { type?: string }).type !== 'SUPPORT_WIDGET_RESIZE') return;
+        const payload = (event.data as { payload?: { width?: number; height?: number } }).payload || {};
+
+        if (!this.supportIframe) {
+            this.pendingSupportDimensions = payload;
+            return;
+        }
+
+        this.applySupportIframeSize(payload);
+    };
 
     constructor() {
         dispatcher.register(this);
+        window.addEventListener('message', this.supportMessageHandler);
     }
 
     /**
@@ -84,6 +101,12 @@ class NavigationStore implements Store {
                 </div>
             </div>
             <div id="profile-menu-container"></div>
+            <iframe id = "support-iframe" 
+                src="/support"
+                referrerpolicy="no-referrer"
+                sandbox="allow-same-origin allow-scripts allow-forms">
+            </iframe>
+            
         `;
 
         this.offlineBannerContainer = rootElement.querySelector('#offline-banner-container');
@@ -91,6 +114,28 @@ class NavigationStore implements Store {
         this.menuContainer = rootElement.querySelector('#menu-container-internal');
         this.contentContainer = rootElement.querySelector('#content-container');
         this.profileMenuContainer = rootElement.querySelector('#profile-menu-container');
+        this.supportIframe = rootElement.querySelector('#support-iframe');
+        if (this.supportIframe) {
+            this.supportIframe.style.width = '200px';
+            this.supportIframe.style.height = '72px';
+            if (this.pendingSupportDimensions) {
+                this.applySupportIframeSize(this.pendingSupportDimensions);
+                this.pendingSupportDimensions = null;
+            }
+        }
+    }
+
+    private applySupportIframeSize(dimensions?: { width?: number; height?: number } | null): void {
+        if (!this.supportIframe || !dimensions) return;
+        const { width, height } = dimensions;
+        if (typeof width === 'number' && width > 0) {
+            const clampedWidth = Math.min(Math.max(width, 160), 420);
+            this.supportIframe.style.width = `${clampedWidth}px`;
+        }
+        if (typeof height === 'number' && height > 0) {
+            const clampedHeight = Math.max(Math.min(height, window.innerHeight), 64);
+            this.supportIframe.style.height = `${clampedHeight + 200}px`;
+        }
     }
 
     /**
@@ -218,12 +263,19 @@ class NavigationStore implements Store {
         // Определяем, является ли страница страницей авторизации
         const isAuthPage = normalizedPath === '/login' || normalizedPath === '/register';
 
+        const isSupportPage = normalizedPath === '/support';
+
+        if (typeof document !== 'undefined' && document.body) {
+            document.body.classList.toggle('support-route', isSupportPage);
+        }
+
         // Управляем видимостью header и menu
-        if (this.headerContainer) {
-            this.headerContainer.style.display = isAuthPage ? 'none' : 'block';
+        if (this.headerContainer && this.supportIframe) {
+            this.headerContainer.style.display = isAuthPage || isSupportPage ? 'none' : 'block';
+            this.supportIframe.style.display = isAuthPage || isSupportPage ? 'none' : 'block';
         }
         if (this.menuContainer) {
-            this.menuContainer.style.display = isAuthPage ? 'none' : 'block';
+            this.menuContainer.style.display = isAuthPage || isSupportPage ? 'none' : 'block';
         }
 
         // Очищаем контент
@@ -305,6 +357,14 @@ class NavigationStore implements Store {
             case '/settings':
                 actionPayload.route = 'settings';
                 return { type: Actions.RENDER_SETTINGS, payload: actionPayload };
+
+            case '/support':
+                actionPayload.route = 'support';
+                return { type: Actions.RENDER_SUPPORT, payload: actionPayload };
+
+            case '/statistics':
+                actionPayload.route = 'statistics';
+                return { type: Actions.RENDER_STATISTICS, payload: actionPayload };
             
             case '/matches':
                 actionPayload.route = 'matches';
@@ -329,7 +389,8 @@ class NavigationStore implements Store {
             menu: this.menuContainer,
             content: this.contentContainer,
             profileMenu: this.profileMenuContainer,
-            offlineBanner: this.offlineBannerContainer
+            offlineBanner: this.offlineBannerContainer,
+            supportIframe: this.supportIframe
         };
     }
 }
