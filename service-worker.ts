@@ -2,7 +2,7 @@
 
 const sw = self as unknown as ServiceWorkerGlobalScope;
 
-const VERSION = '18';
+const VERSION = '19';
 const CACHE_STATIC = `terabithia-static-v${VERSION}`;
 const CACHE_API = `terabithia-api-v${VERSION}`;
 const CACHE_IMAGES = `terabithia-images-v${VERSION}`;
@@ -199,11 +199,11 @@ sw.addEventListener('fetch', (event: FetchEvent) => {
 
     const url = request.url;
 
-    // API-запросы: в localhost НЕ перехватываем (нужен proxy Vite)
-    // В production используем Network First
+    // API-запросы:
+    // В dev-режиме (service-worker.ts) не кэшируем
+    // В production-режиме (service-worker.js) используем Network First
     if (matchesPattern(url, PATTERNS.api)) {
-        if (sw.location.hostname === 'localhost' || sw.location.hostname === '127.0.0.1') {
-            // В localhost пропускаем запрос напрямую (через Vite proxy)
+        if (IS_DEV) {
             return;
         }
         event.respondWith(networkFirst(request, CACHE_API));
