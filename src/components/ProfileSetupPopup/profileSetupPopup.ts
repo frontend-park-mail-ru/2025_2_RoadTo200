@@ -258,20 +258,8 @@ export class ProfileSetupPopup {
             };
 
             // Добавляем дату рождения только если она заполнена
-            // Конвертируем в ISO формат с учетом UTC (полдень по UTC, чтобы избежать проблем с часовыми поясами)
             if (birthDate) {
-                const [year, month, day] = birthDate.split('-');
-                const birthDateISO = new Date(
-                    Date.UTC(
-                        parseInt(year),
-                        parseInt(month) - 1,
-                        parseInt(day),
-                        12,
-                        0,
-                        0
-                    )
-                ).toISOString();
-                updateData.birth_date = birthDateISO;
+                updateData.birth_date = birthDate;
             }
 
             // Отправляем данные на сервер

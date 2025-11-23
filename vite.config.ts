@@ -17,7 +17,7 @@ export default defineConfig({
         open: true,
         proxy: {
             '/api': {
-                target: 'http://terabithia.online:8080',
+                target: 'http://terabithia.online:8081',
                 changeOrigin: true,
                 secure: false,
             },
@@ -34,7 +34,7 @@ export default defineConfig({
         port: 8001,
         proxy: {
             '/api': {
-                target: 'http://terabithia.online:8080',
+                target: 'http://terabithia.online:8081',
                 changeOrigin: true,
                 secure: false,
             },

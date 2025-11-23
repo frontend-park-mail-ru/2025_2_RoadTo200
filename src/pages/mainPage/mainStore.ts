@@ -1,11 +1,7 @@
 import { Actions, type Action } from '@/actions';
 import { dispatcher, type Store } from '@/Dispatcher';
 import { main } from './main';
-import CardApi, {
-    type CardsResponse,
-    type Card as ApiCard,
-    type CardAction,
-} from '@/apiHandler/cardApi';
+import CardApi, { type FeedUser, type CardAction } from '@/apiHandler/cardApi';
 import { ProfileSetupPopup } from '@/components/ProfileSetupPopup/profileSetupPopup';
 
 interface TransformedCard {
@@ -90,75 +86,57 @@ class MainStore implements Store {
 
     private async getCards(): Promise<void> {
         try {
-            const response = (await CardApi.getAllCards()) as any;
-
-            const cards = response.users || response.cards || [];
-
-            // console.log('Raw cards from backend:', cards);
-            // console.log('First card detail:', cards[0]);
+            const response = await CardApi.getAllCards();
+            const cards = response.users || [];
 
             const mockPhotoUrl = '/src/assets/image.png';
 
             const transformedCards: TransformedCard[] = cards.map(
-                (card: any) => {
-                    let photoUrls = card.photos || card.images || [];
+                (card: FeedUser, index: number) => {
+                    const photoUrls = Array.isArray(card.images)
+                        ? card.images.length
+                            ? card.images
+                            : [mockPhotoUrl]
+                        : [mockPhotoUrl];
 
-                    if (!Array.isArray(photoUrls)) {
-                        photoUrls = [];
-                    }
-
-                    if (photoUrls.length === 0) {
-                        photoUrls.push(mockPhotoUrl);
-                    }
-
-                    // Преобразуем interests если они есть
-                    let interests:
-                        | Array<{ id: number; name: string }>
-                        | undefined;
-                    if (card.interests && Array.isArray(card.interests)) {
-                        interests = card.interests.map(
-                            (interest: any, index: number) => ({
-                                id: index,
-                                name:
-                                    typeof interest === 'string'
-                                        ? interest
-                                        : interest.name || '',
-                            })
-                        );
-                    }
+                    const interests = Array.isArray(card.interests)
+                        ? card.interests.map((interest, interestIndex) => ({
+                              id: interestIndex,
+                              name:
+                                  typeof interest === 'string'
+                                      ? interest
+                                      : interest.theme || 'Интерес',
+                          }))
+                        : undefined;
 
                     return {
-                        id: card.id?.toString() || String(Math.random()),
-                        name: card.name || 'Unknown',
+                        id: card.id?.toString() || `card-${index}`,
+                        name: card.name || 'Неизвестно',
                         age: card.age || 0,
-                        description: card.bio || card.description || '',
-                        bio: card.bio || card.description || '',
+                        description: card.description || '',
+                        bio: card.description || '',
                         images: photoUrls.map((url: string) => ({
                             imageUrl: url,
                         })),
                         photosCount: photoUrls.length,
-                        interests: interests,
-                        musician: card.musician || '',
+                        interests,
+                        musician: (card as { artist?: string }).artist || '',
                         quote: card.quote || '',
-                        // Передаем все активности
-                        workout: card.workout,
-                        fun: card.fun,
-                        party: card.party,
-                        chill: card.chill,
-                        love: card.love,
-                        relax: card.relax,
-                        yoga: card.yoga,
-                        friendship: card.friendship,
-                        culture: card.culture,
-                        cinema: card.cinema,
+                        workout: (card as { workout?: boolean }).workout,
+                        fun: (card as { fun?: boolean }).fun,
+                        party: (card as { party?: boolean }).party,
+                        chill: (card as { chill?: boolean }).chill,
+                        love: (card as { love?: boolean }).love,
+                        relax: (card as { relax?: boolean }).relax,
+                        yoga: (card as { yoga?: boolean }).yoga,
+                        friendship: (card as { friendship?: boolean }).friendship,
+                        culture: (card as { culture?: boolean }).culture,
+                        cinema: (card as { cinema?: boolean }).cinema,
                     };
                 }
             );
 
             this.cards = transformedCards;
-
-            // console.log('Transformed cards:', transformedCards);
-
             main.setCards(transformedCards);
         } catch (error) {
             // console.error('Error getting cards:', error);

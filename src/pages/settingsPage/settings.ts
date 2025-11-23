@@ -179,6 +179,7 @@ export class SettingsPage {
                 </label>
             </div>
 
+            <p class="form__error-message" id="filtersError"></p>
             <button class="form__btn-primary" id="updateFiltersBtn">Сохранить фильтры</button>
         `;
         return section;
@@ -394,9 +395,11 @@ export class SettingsPage {
     clearErrors(): void {
         if (!this.parent) return;
 
-        this.parent.querySelectorAll('.error-message').forEach((el) => {
+        this.parent
+            .querySelectorAll('.form__error-message')
+            .forEach((el) => {
             el.textContent = '';
-        });
+            });
         this.parent.querySelectorAll('.form__input').forEach((input) => {
             input.classList.remove('error-input');
         });

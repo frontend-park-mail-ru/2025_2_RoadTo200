@@ -1,7 +1,9 @@
 import { Actions, type Action } from '@/actions';
 import { dispatcher, type Store } from '@/Dispatcher';
 import { settings } from './settings';
-import ProfileApi from '@/apiHandler/profileApi';
+import ProfileApi, {
+    type PreferencesUpdateData,
+} from '@/apiHandler/profileApi';
 
 interface ProfileData {
     name: string;
@@ -45,6 +47,14 @@ class SettingsStore implements Store {
                             birthdate: string;
                             email: string;
                         }
+                    );
+                }
+                break;
+
+            case Actions.UPDATE_FILTER_SETTINGS:
+                if (action.payload) {
+                    await this.updateFilterSettings(
+                        action.payload as PreferencesUpdateData
                     );
                 }
                 break;
@@ -188,11 +198,10 @@ class SettingsStore implements Store {
             return;
         }
 
-        // Конвертируем дату из DD.MM.YYYY в ISO формат для бэкенда
-        // Используем полдень по UTC, чтобы избежать проблем с часовыми поясами
-        const birthDateISO = new Date(
-            Date.UTC(year, month - 1, day, 12, 0, 0)
-        ).toISOString();
+        // Конвертируем дату из DD.MM.YYYY в формат YYYY-MM-DD для бэкенда
+        const birthDateISO = `${year}-${String(month).padStart(2, '0')}-${String(
+            day
+        ).padStart(2, '0')}`;
 
         try {
             await ProfileApi.updateProfileInfo({
@@ -207,6 +216,35 @@ class SettingsStore implements Store {
             console.error('Error updating profile settings:', err);
             settings.showErrors({
                 emailError: 'Ошибка при обновлении профиля',
+            });
+        }
+    }
+
+    private async updateFilterSettings(
+        payload: PreferencesUpdateData
+    ): Promise<void> {
+        settings.clearErrors();
+
+        const {
+            age_min,
+            age_max,
+            max_distance,
+            show_gender,
+            global_search,
+        } = payload;
+
+        try {
+            await ProfileApi.updatePreferences({
+                age_min,
+                age_max,
+                max_distance,
+                show_gender,
+                global_search,
+            });
+        } catch (error) {
+            console.error('Error updating filters:', error);
+            settings.showErrors({
+                filtersError: 'Не удалось сохранить фильтры',
             });
         }
     }
@@ -259,30 +297,15 @@ class SettingsStore implements Store {
             return;
         }
 
-        try {
-            await ProfileApi.changePassword(oldPassword, newPassword);
-            console.log('Password changed successfully');
-            this.updateView();
-        } catch (error) {
-            console.error('Error changing password:', error);
-            settings.showErrors({ oldPasswordError: 'Неверный старый пароль' });
-        }
+        settings.showErrors({
+            oldPasswordError: 'Смена пароля появится в следующем релизе',
+        });
     }
 
     private async deleteAccount(): Promise<void> {
-        try {
-            await ProfileApi.deleteAccount();
-
-            await dispatcher.process({
-                type: Actions.NAVIGATE_TO,
-                payload: { path: '/login' },
-            });
-        } catch (error) {
-            console.error('Ошибка при удалении аккаунта:', error);
-            settings.showErrors({
-                generalError: 'Ошибка при удалении аккаунта',
-            });
-        }
+        settings.showErrors({
+            generalError: 'Удаление аккаунта временно недоступно',
+        });
     }
 }
 

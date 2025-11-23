@@ -82,9 +82,7 @@ class ProfileStore implements Store {
 
     private async renderProfile(): Promise<void> {
         try {
-            const response = (await ProfileApi.getProfile()) as any;
-
-            // console.log('Profile API response:', response);
+            const response = await ProfileApi.getProfile();
 
             const user = response.user || {};
             const photos = response.photos || [];
@@ -92,17 +90,25 @@ class ProfileStore implements Store {
             // Получаем активности из данных пользователя
             const activities = getActivitiesFromData(user);
 
+            const interests: Interest[] = Array.isArray(
+                (user as { interests?: Array<{ theme?: string }> }).interests
+            )
+                ? ((user as { interests?: Array<{ theme?: string }> })
+                      .interests ||
+                      []
+                  ).map((interest, index) => ({
+                      id: index,
+                      name: interest?.theme || 'Интерес',
+                  }))
+                : [];
+
             this.profileData = {
                 description: user.bio || '',
-                musician: '',
-                quote: '',
+                musician: user.artist || '',
+                quote: user.quote || '',
                 name: user.name || '',
                 age: user.birth_date ? this.calculateAge(user.birth_date) : '',
-                interests: [
-                    { id: 1, name: 'Рыбалка' },
-                    { id: 2, name: 'Кино' },
-                    { id: 3, name: 'Живопись' },
-                ],
+                interests,
                 photoCards: this.transformPhotosToCards(photos),
                 activities: activities,
             };
@@ -141,9 +147,9 @@ class ProfileStore implements Store {
             isPrimary: photo.is_primary || photo.display_order === 0 || false,
         }));
 
-        if (photoCards.length < 4) {
+        while (photoCards.length < 4) {
             photoCards.push({
-                id: 'placeholder',
+                id: `placeholder-${photoCards.length}`,
                 image: '',
                 isUserPhoto: false,
             });
@@ -164,8 +170,8 @@ class ProfileStore implements Store {
             const fieldMapping: Record<string, string> = {
                 description: 'bio',
                 name: 'name',
-                musician: 'bio',
-                quote: 'bio',
+                musician: 'artist',
+                quote: 'quote',
             };
 
             const backendField = fieldMapping[field] || field;
@@ -187,14 +193,14 @@ class ProfileStore implements Store {
     private async deletePhoto(payload: { photoId: string }): Promise<void> {
         try {
             const { photoId } = payload;
-            if (!photoId || photoId === 'placeholder') {
+            if (!photoId || photoId.startsWith('placeholder')) {
                 // console.warn('Invalid photoId:', photoId);
                 return;
             }
 
             // console.log('Deleting photo with ID:', photoId);
 
-            const response = await ProfileApi.deletePhoto(photoId);
+            const response = await ProfileApi.deletePhoto(String(photoId));
 
             // console.log('Delete photo response:', response);
 

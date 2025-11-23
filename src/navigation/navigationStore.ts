@@ -46,6 +46,7 @@ class NavigationStore implements Store {
     private currentPath: string | null = null;
     private headerContainer: HTMLElement | null = null;
     private menuContainer: HTMLElement | null = null;
+    private menuOverlay: HTMLElement | null = null;
     private profileMenuContainer: HTMLElement | null = null;
     private contentContainer: HTMLElement | null = null;
     private offlineBannerContainer: HTMLElement | null = null;
@@ -110,6 +111,7 @@ class NavigationStore implements Store {
                     <div id="content-container"></div>
                 </div>
             </div>
+            <div class="menu-overlay" id="menu-overlay"></div>
             <div id="profile-menu-container"></div>
             <iframe
                 id="support-iframe"
@@ -128,6 +130,7 @@ class NavigationStore implements Store {
         this.menuContainer = rootElement.querySelector(
             '#menu-container-internal'
         );
+        this.menuOverlay = rootElement.querySelector('#menu-overlay');
         this.contentContainer = rootElement.querySelector('#content-container');
         this.profileMenuContainer = rootElement.querySelector(
             '#profile-menu-container'
@@ -141,6 +144,14 @@ class NavigationStore implements Store {
                 this.applySupportIframeSize(this.pendingSupportDimensions);
                 this.pendingSupportDimensions = null;
             }
+        }
+
+        if (this.menuOverlay) {
+            this.menuOverlay.addEventListener('click', () => {
+                if (typeof document !== 'undefined') {
+                    document.body.classList.remove('menu-open');
+                }
+            });
         }
     }
 
@@ -174,6 +185,12 @@ class NavigationStore implements Store {
                     path: window.location.pathname + window.location.search,
                 },
             });
+        });
+
+        window.addEventListener('resize', () => {
+            if (window.innerWidth >= 1024) {
+                document.body.classList.remove('menu-open');
+            }
         });
 
         document.addEventListener('click', (e) => {
@@ -242,6 +259,10 @@ class NavigationStore implements Store {
         }
 
         this.currentPath = currentPath;
+
+        if (typeof document !== 'undefined') {
+            document.body.classList.remove('menu-open');
+        }
 
         const matchProfileMatch = currentPath.match(/^\/matches\/([^/]+)$/);
         const normalizedPath = matchProfileMatch ? '/matches' : currentPath;

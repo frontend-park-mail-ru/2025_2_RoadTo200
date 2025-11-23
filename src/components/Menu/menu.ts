@@ -116,6 +116,12 @@ export class Menu implements PageComponent {
             const sidebar = this.parent.querySelector('.sidebar');
             if (!sidebar) return;
 
+            const closeSidebar = (): void => {
+                if (typeof document !== 'undefined') {
+                    document.body.classList.remove('menu-open');
+                }
+            };
+
             sidebar.addEventListener('click', (event) => {
                 const target = event.target as HTMLElement;
                 const menuItem = target.closest(
@@ -141,9 +147,19 @@ export class Menu implements PageComponent {
                             type: Actions.NAVIGATE_TO,
                             payload: { path },
                         });
+
+                        closeSidebar();
                     }
                 }
             });
+
+            const closeButton = this.parent.querySelector('#menuCloseButton');
+            if (closeButton) {
+                closeButton.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    closeSidebar();
+                });
+            }
         }
     }
 }

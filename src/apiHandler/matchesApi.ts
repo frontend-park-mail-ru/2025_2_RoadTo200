@@ -3,33 +3,38 @@ import serverURL from './serverURL';
 
 const API_URL = `${serverURL}/api`;
 
-export interface Match {
-    id: string | number;
-    userId: string;
-    name: string;
-    age: number;
-    bio?: string;
+export interface MatchDTO {
+    match: {
+        id: string;
+        is_active: boolean;
+        matched_at: string;
+        user1_id: string;
+        user2_id: string;
+    };
+    user: {
+        id: string;
+        name: string;
+        email?: string;
+        bio?: string;
+        quote?: string;
+        birth_date?: string;
+        [key: string]: unknown;
+    };
     photos: string[];
-    interests?: string[];
-    matchedAt?: string;
-    workout?: boolean;
-    fun?: boolean;
-    party?: boolean;
-    chill?: boolean;
-    love?: boolean;
-    relax?: boolean;
-    yoga?: boolean;
-    friendship?: boolean;
-    culture?: boolean;
-    cinema?: boolean;
+    age: number;
+    description: string;
+    photos_count: number;
 }
 
 export interface MatchesResponse {
-    matches: Match[];
+    matches: MatchDTO[];
+    total: number;
+    limit: number;
+    offset: number;
 }
 
-export interface MatchResponse {
-    match: Match;
+export interface UnmatchRequest {
+    target_user_id: string;
 }
 
 class MatchesApi {
@@ -40,23 +45,28 @@ class MatchesApi {
     }
 
     /**
-     * GET /api/matches - Получить все матчи
-     * @returns Promise со всеми матчами
+     * GET /api/match - Получить все матчи
      */
-    async getAllMatches(): Promise<MatchesResponse> {
-        return handleFetch<MatchesResponse>(this.baseURL, '/matches', {
+    async getAllMatches(
+        params: { limit?: number; offset?: number } = {}
+    ): Promise<MatchesResponse> {
+        const query = new URLSearchParams();
+        if (params.limit) query.set('limit', params.limit.toString());
+        if (params.offset) query.set('offset', params.offset.toString());
+
+        const endpoint = `/match${query.toString() ? `?${query.toString()}` : ''}`;
+        return handleFetch<MatchesResponse>(this.baseURL, endpoint, {
             method: 'GET',
         });
     }
 
     /**
-     * GET /api/matches/:matchId - Получить конкретный матч
-     * @param matchId ID матча
-     * @returns Promise с данными матча
+     * DELETE /api/match/unmatch - удалить мэтч
      */
-    async getMatch(matchId: string | number): Promise<MatchResponse> {
-        return handleFetch<MatchResponse>(this.baseURL, `/matches/${matchId}`, {
-            method: 'GET',
+    async unmatch(targetUserId: string): Promise<void> {
+        await handleFetch(this.baseURL, '/match/unmatch', {
+            method: 'DELETE',
+            body: JSON.stringify({ target_user_id: targetUserId } satisfies UnmatchRequest),
         });
     }
 }

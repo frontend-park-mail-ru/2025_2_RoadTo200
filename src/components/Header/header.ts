@@ -89,6 +89,15 @@ export class Header {
                     });
                 });
             }
+
+            const burgerButton = this.parent.querySelector('#burgerButton');
+            if (burgerButton) {
+                burgerButton.addEventListener('click', () => {
+                    if (typeof document !== 'undefined') {
+                        document.body.classList.toggle('menu-open');
+                    }
+                });
+            }
         }
     }
 

@@ -1,64 +1,80 @@
 .sidebar {
     width: 100%;
     height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: #fff;
 
     &__header {
         display: flex;
         align-items: center;
+        justify-content: space-between;
         padding: 32px;
-        gap: 20px;
+        gap: 16px;
     }
 
-    &__icon {
-        color: #ff477e;
-        font-size: 48px;
-        margin-right: 14px;
+    &__brand {
         display: flex;
         align-items: center;
-
-        // Второй набор свойств для иконки (объединено)
-        width: 28px;
-        height: 28px;
-        fill: #ff477e;
-        margin-right: 10px;
-        flex-shrink: 0;
+        gap: 12px;
     }
 
     &__name {
         color: #ff477e;
         font-size: 32px;
-        font-weight: 700;
+        font-weight: 800;
         letter-spacing: -1px;
+    }
+
+    &__close {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        border: 1px solid #ffd1dd;
+        background: #fff;
+        font-size: 24px;
+        color: #ff477e;
+        cursor: pointer;
+        display: none;
+        align-items: center;
+        justify-content: center;
+    }
+
+    &__list-wrapper {
+        padding: 0 24px 24px;
+        overflow-y: auto;
+        flex: 1;
     }
 
     &__list {
         list-style: none;
-        padding: 0 24px;
+        padding: 0;
         margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
     }
 
     &__item {
-        margin-bottom: 16px;
         border-radius: 22px;
-        transition: background 0.18s;
+        transition: background 0.18s, transform 0.18s;
 
-        &-disabled:hover {
-            background: #f6f6f6;
-        }
+        // &-disabled {
+        //     opacity: 0.6;
+        //     pointer-events: none;
+        // }
 
         &-active {
             background: #ffe6ee;
         }
 
-        // Временное решение: блокируем кнопку чатов
+        &:hover:not(&-active) {
+            background: #fff6f8;
+        }
+
+        // disable chats
         &[data-route='chats'] {
             cursor: not-allowed;
-            opacity: 0.5;
-            pointer-events: none;
-
-            .sidebar__link {
-                cursor: not-allowed;
-            }
         }
     }
 
@@ -71,6 +87,44 @@
         font-size: 19px;
         font-weight: 600;
         gap: 16px;
-        transition: color 0.15s;
+    }
+
+    &__link-disabled {
+        color: #d6b9c5;
+    }
+
+    &__link-active {
+        color: #ff477e;
+    }
+
+    &__icon {
+        width: 28px;
+        height: 28px;
+        fill: #ff477e;
+        flex-shrink: 0;
+    }
+
+    &__icon-disabled {
+        opacity: 0.4;
+    }
+}
+
+@media (max-width: 1023px) {
+    .sidebar {
+        &__header {
+            padding: 24px;
+        }
+
+        &__name {
+            font-size: 26px;
+        }
+
+        &__close {
+            display: inline-flex;
+        }
+
+        &__list-wrapper {
+            padding: 0 16px 24px;
+        }
     }
 }

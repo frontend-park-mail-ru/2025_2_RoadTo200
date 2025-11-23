@@ -3,34 +3,25 @@ import serverURL from './serverURL';
 
 const API_URL = `${serverURL}/api`;
 
-export interface Card {
-    id: string | number;
+export interface FeedUser {
+    id: string;
     name: string;
     age: number;
-    bio?: string;
-    photos: string[];
-    interests?: string[];
-    musician?: string;
+    gender: string;
+    description: string;
+    images: string[];
+    photos_count: number;
+    artist?: string;
     quote?: string;
-    distance?: number;
-    workout?: boolean;
-    fun?: boolean;
-    party?: boolean;
-    chill?: boolean;
-    love?: boolean;
-    relax?: boolean;
-    yoga?: boolean;
-    friendship?: boolean;
-    culture?: boolean;
-    cinema?: boolean;
+    interests?: Array<{ theme: string; user_id: string }>;
+    [key: string]: unknown;
 }
 
-export interface CardsResponse {
-    cards: Card[];
-}
-
-export interface CardResponse {
-    card: Card;
+export interface FeedResponse {
+    users: FeedUser[];
+    total: number;
+    limit: number;
+    offset: number;
 }
 
 export type CardAction = 'like' | 'dislike' | 'superlike';
@@ -42,8 +33,8 @@ export interface CardInteractionRequest {
 }
 
 export interface CardInteractionResponse {
-    success: boolean;
-    match?: boolean;
+    is_match: boolean;
+    match_id?: string;
     message?: string;
 }
 
@@ -58,19 +49,15 @@ class CardApi {
      * GET /cards/ - Получить все карточки
      * @returns Promise с данными всех карточек
      */
-    async getAllCards(): Promise<CardsResponse> {
-        return handleFetch<CardsResponse>(this.baseURL, '/feed', {
-            method: 'GET',
-        });
-    }
+    async getAllCards(
+        params: { limit?: number; offset?: number } = {}
+    ): Promise<FeedResponse> {
+        const query = new URLSearchParams();
+        if (params.limit) query.set('limit', params.limit.toString());
+        if (params.offset) query.set('offset', params.offset.toString());
 
-    /**
-     * GET /cards/:cardId - Получить данные конкретной карточки
-     * @param cardId ID карточки
-     * @returns Promise с данными карточки
-     */
-    async getCardById(cardId: string | number): Promise<CardResponse> {
-        return handleFetch<CardResponse>(this.baseURL, `/feed/${cardId}`, {
+        const endpoint = `/feed${query.toString() ? `?${query.toString()}` : ''}`;
+        return handleFetch<FeedResponse>(this.baseURL, endpoint, {
             method: 'GET',
         });
     }

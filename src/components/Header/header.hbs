@@ -1,5 +1,17 @@
 <header class='header'>
     <div class='header__content'>
+        <div class='header__left'>
+            <button
+                class='header__burger'
+                id='burgerButton'
+                aria-label='Открыть меню'
+            >
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <span class='header__logo'>Терабития</span>
+        </div>
 
         <div class='header__right'>
             {{#if isAuthenticated}}
@@ -7,7 +19,8 @@
                     class='header__welcome-text'
                     id='userEmailBtn'
                 >{{userName}}</span>
-
+            {{else}}
+                <a class='header__auth-link' Link href='/login'>Войти</a>
             {{/if}}
         </div>
     </div>

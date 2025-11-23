@@ -51,58 +51,57 @@ class MatchesStore implements Store {
                 matches.parent = contentContainer;
             }
 
-            const response = (await MatchesApi.getAllMatches()) as any;
-
-            // console.log('Matches API Response:', response);
+            const response = await MatchesApi.getAllMatches();
 
             const matchesArray = response.matches || [];
 
-            this.matches = matchesArray.map((item: any) => {
-                const match = item.match || {};
-                const user = item.user || {};
-                const photos = item.photos || [];
+            this.matches = matchesArray.map((item) => {
+                const match = item.match || ({} as Record<string, unknown>);
+                const user = item.user || ({} as Record<string, unknown>);
+                const photos = Array.isArray(item.photos) ? item.photos : [];
 
-                const matchedAt = match.matched_at
-                    ? new Date(match.matched_at)
+                const matchedAtRaw =
+                    (match as { matched_at?: string }).matched_at;
+                const matchedAt = matchedAtRaw
+                    ? new Date(matchedAtRaw)
                     : new Date();
                 const expiresAt = new Date(
                     matchedAt.getTime() + 24 * 60 * 60 * 1000
                 );
 
-                const imagesArray = photos;
-
-                let photoUrl = '/src/assets/image.png';
-                if (imagesArray.length > 0) {
-                    photoUrl = imagesArray[0];
-                }
+                const photoUrl = photos[0] || '/src/assets/image.png';
+                const fallbackId =
+                    (match as { id?: string }).id ||
+                    (match as { match_id?: string }).match_id ||
+                    (user as { id?: string }).id ||
+                    (typeof crypto !== 'undefined' &&
+                    'randomUUID' in crypto
+                        ? crypto.randomUUID()
+                        : `${Date.now()}-${Math.random().toString(16).slice(2)}`);
 
                 return {
-                    id: user.id || match.id,
-                    name: user.name || 'Unknown',
-                    age: user.birth_date
-                        ? this.calculateAge(user.birth_date)
-                        : null,
+                    id: (user as { id?: string }).id || fallbackId,
+                    name: (user as { name?: string }).name || 'Unknown',
+                    age:
+                        (user as { birth_date?: string }).birth_date
+                            ? this.calculateAge(
+                                  (user as { birth_date?: string }).birth_date!
+                              )
+                            : null,
                     image: photoUrl,
-                    matchId: String(match.id),
+                    matchId: String(fallbackId),
                     matchedAt: matchedAt.toISOString(),
                     expiresAt: expiresAt.toISOString(),
                     isNew: this.isMatchNew(matchedAt),
-                    isActive: match.is_active !== false,
+                    isActive:
+                        (match as { is_active?: boolean }).is_active !== false,
                     userData: {
                         ...user,
-                        images: imagesArray,
-                        bio: user.bio || user.description || '',
-                        // Явно передаем активности
-                        workout: user.workout,
-                        fun: user.fun,
-                        party: user.party,
-                        chill: user.chill,
-                        love: user.love,
-                        relax: user.relax,
-                        yoga: user.yoga,
-                        friendship: user.friendship,
-                        culture: user.culture,
-                        cinema: user.cinema,
+                        images: photos,
+                        bio:
+                            (user as { bio?: string }).bio ||
+                            item.description ||
+                            '',
                     },
                 };
             });

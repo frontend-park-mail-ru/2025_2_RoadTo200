@@ -1,70 +1,64 @@
+import handleFetch from './handler';
 import serverURL from './serverURL';
 
 const API_URL = `${serverURL}/api/profile`;
 
-export interface Profile {
+export interface ProfileUser {
     id: string;
     email: string;
     name: string;
-    age: number;
-    birthDate: string;
-    gender: string;
     bio?: string;
-    workout?: boolean;
-    fun?: boolean;
-    party?: boolean;
-    chill?: boolean;
-    love?: boolean;
-    relax?: boolean;
-    yoga?: boolean;
-    friendship?: boolean;
-    culture?: boolean;
-    cinema?: boolean;
-    photos: string[];
-    interests?: string[];
-    location?: {
-        latitude: number;
-        longitude: number;
-    };
-    preferences?: {
-        minAge: number;
-        maxAge: number;
-        gender: string;
-        distance: number;
-    };
+    quote?: string;
+    birth_date?: string;
+    gender?: string;
+    artist?: string;
+    phone?: string;
+    [key: string]: unknown;
+}
+
+export interface UserPhoto {
+    id: string;
+    photo_url: string;
+    is_approved: boolean;
+    display_order: number;
+    is_primary?: boolean;
+}
+
+export interface ProfilePreferences {
+    age_min?: number;
+    age_max?: number;
+    max_distance?: number;
+    global_search?: boolean;
+    show_gender?: string;
 }
 
 export interface ProfileResponse {
-    profile: Profile;
+    user: ProfileUser;
+    photos: UserPhoto[];
+    preferences?: ProfilePreferences | null;
 }
 
-export interface UpdateProfileData {
-    name?: string;
-    bio?: string;
-    birthDate?: string;
-    birth_date?: string; // snake_case для бэкенда
-    gender?: string;
-    interests?: string[];
-    workout?: boolean;
-    fun?: boolean;
-    party?: boolean;
-    chill?: boolean;
-    love?: boolean;
-    relax?: boolean;
-    yoga?: boolean;
-    friendship?: boolean;
-    culture?: boolean;
-    cinema?: boolean;
-}
+export type ProfileUpdateData = Partial<{
+    artist: string;
+    bio: string;
+    birth_date: string;
+    gender: string;
+    latitude: number;
+    longitude: number;
+    name: string;
+    phone: string;
+    quote: string;
+}>;
 
-export interface ApiResponse {
-    success: boolean;
+export type PreferencesUpdateData = ProfilePreferences;
+
+export interface SuccessResponse {
     message?: string;
 }
 
-export interface UploadPhotoResponse extends ApiResponse {
-    photos?: string[];
-}
+type InterestPayload = {
+    theme: string;
+};
 
 class ProfileApi {
     private baseURL: string;
@@ -73,184 +67,82 @@ class ProfileApi {
         this.baseURL = baseURL;
     }
 
-    async getProfile(): Promise<ProfileResponse> {
-        const response = await fetch(`${this.baseURL}/profile`, {
+    getProfile(): Promise<ProfileResponse> {
+        return handleFetch<ProfileResponse>(this.baseURL, '', {
             method: 'GET',
-            credentials: 'include',
         });
-
-        if (!response.ok) {
-            const error = await response
-                .json()
-                .catch(() => ({ error: 'Unknown error' }));
-            throw new Error(error.error || `HTTP ${response.status}`);
-        }
-
-        return (await response.json()) as ProfileResponse;
     }
 
-    async updateProfileInfo(
-        profileData: UpdateProfileData
-    ): Promise<ApiResponse> {
-        const response = await fetch(`${this.baseURL}/changeProfile`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
+    updateProfileInfo(profileData: ProfileUpdateData): Promise<SuccessResponse> {
+        const sanitizedPayload = Object.entries(profileData).reduce(
+            (acc, [key, value]) => {
+                if (value === undefined || value === null || value === '') {
+                    return acc;
+                }
+
+                if (key === 'birth_date' && typeof value === 'string') {
+                    acc[key] = value.split('T')[0];
+                    return acc;
+                }
+
+                acc[key] = value;
+                return acc;
             },
-            credentials: 'include',
-            body: JSON.stringify({
-                action: 'updateInfo',
-                ...profileData,
-            }),
+            {} as Record<string, unknown>
+        );
+
+        return handleFetch<SuccessResponse>(this.baseURL, '/info', {
+            method: 'PUT',
+            body: JSON.stringify(sanitizedPayload),
         });
-
-        if (!response.ok) {
-            const error = await response
-                .json()
-                .catch(() => ({ error: 'Unknown error' }));
-            throw new Error(error.error || `HTTP ${response.status}`);
-        }
-
-        return (await response.json()) as ApiResponse;
     }
 
-    async updateActivities(activities: {
-        workout?: boolean;
-        fun?: boolean;
-        party?: boolean;
-        chill?: boolean;
-        love?: boolean;
-        relax?: boolean;
-        yoga?: boolean;
-        friendship?: boolean;
-        culture?: boolean;
-        cinema?: boolean;
-    }): Promise<ApiResponse> {
-        return this.updateProfileInfo(activities);
+    updatePreferences(
+        preferences: PreferencesUpdateData
+    ): Promise<SuccessResponse> {
+        return handleFetch<SuccessResponse>(this.baseURL, '/preferences', {
+            method: 'PUT',
+            body: JSON.stringify(preferences),
+        });
     }
 
-    async uploadPhoto(photos: File | File[]): Promise<UploadPhotoResponse> {
+    updateInterests(interests: InterestPayload[]): Promise<SuccessResponse> {
+        return handleFetch<SuccessResponse>(this.baseURL, '/interests', {
+            method: 'PUT',
+            body: JSON.stringify(interests),
+        });
+    }
+
+    uploadPhoto(file: File | File[]): Promise<UserPhoto> {
         const formData = new FormData();
+        const files = Array.isArray(file) ? file : [file];
+        files.forEach((item) => formData.append('photos', item));
 
-        const photoArray = Array.isArray(photos) ? photos : [photos];
-        photoArray.forEach((photo) => {
-            formData.append('photos', photo);
-        });
-
-        const response = await fetch(`${this.baseURL}/uploadPhotos`, {
+        return handleFetch<UserPhoto>(this.baseURL, '/photo', {
             method: 'POST',
-            credentials: 'include',
             body: formData,
+            isFormData: true,
         });
+    }
 
-        if (!response.ok) {
-            let errorMessage = `HTTP ${response.status}`;
-            try {
-                const error = await response.json();
-                errorMessage = error.error || errorMessage;
-            } catch {
-                const text = await response.text();
-                errorMessage = text || errorMessage;
+    setPrimaryPhoto(photoId: string): Promise<SuccessResponse> {
+        return handleFetch<SuccessResponse>(
+            this.baseURL,
+            `/photo/${photoId}`,
+            {
+                method: 'PUT',
             }
-            throw new Error(errorMessage);
-        }
-
-        return response.json() as Promise<UploadPhotoResponse>;
+        );
     }
 
-    async deletePhoto(photoId: string | number): Promise<ApiResponse> {
-        const response = await fetch(`${this.baseURL}/changeProfile`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            credentials: 'include',
-            body: JSON.stringify({
-                action: 'deletePhoto',
-                photo_id: photoId,
-            }),
-        });
-
-        if (!response.ok) {
-            const error = await response
-                .json()
-                .catch(() => ({ error: 'Unknown error' }));
-            throw new Error(error.error || `HTTP ${response.status}`);
-        }
-
-        return response.json() as Promise<ApiResponse>;
-    }
-
-    async setPrimaryPhoto(photoId: string | number): Promise<ApiResponse> {
-        const response = await fetch(`${this.baseURL}/changeProfile`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            credentials: 'include',
-            body: JSON.stringify({
-                action: 'setPrimaryPhoto',
-                photo_id: photoId,
-            }),
-        });
-
-        if (!response.ok) {
-            const error = await response
-                .json()
-                .catch(() => ({ error: 'Unknown error' }));
-            throw new Error(error.error || `HTTP ${response.status}`);
-        }
-
-        return response.json() as Promise<ApiResponse>;
-    }
-
-    async changePassword(
-        oldPassword: string,
-        newPassword: string
-    ): Promise<ApiResponse> {
-        const response = await fetch(`${this.baseURL}/changeProfile`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            credentials: 'include',
-            body: JSON.stringify({
-                action: 'changePassword',
-                oldPassword,
-                newPassword,
-            }),
-        });
-
-        if (!response.ok) {
-            const error = await response
-                .json()
-                .catch(() => ({ error: 'Unknown error' }));
-            throw new Error(error.error || `HTTP ${response.status}`);
-        }
-
-        return response.json() as Promise<ApiResponse>;
-    }
-
-    async deleteAccount(): Promise<ApiResponse> {
-        const response = await fetch(`${this.baseURL}/changeProfile`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            credentials: 'include',
-            body: JSON.stringify({
-                action: 'deleteAccount',
-            }),
-        });
-
-        if (!response.ok) {
-            const error = await response
-                .json()
-                .catch(() => ({ error: 'Unknown error' }));
-            throw new Error(error.error || `HTTP ${response.status}`);
-        }
-
-        return response.json() as Promise<ApiResponse>;
+    deletePhoto(photoId: string): Promise<SuccessResponse> {
+        return handleFetch<SuccessResponse>(
+            this.baseURL,
+            `/photo/${photoId}`,
+            {
+                method: 'DELETE',
+            }
+        );
     }
 }
 
