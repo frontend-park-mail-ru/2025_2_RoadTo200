@@ -25,6 +25,7 @@ interface ProfileData {
     interests: Interest[];
     photoCards: PhotoCard[];
     activities: Array<{ name: string; icon: string }>;
+    userId?: string;
 }
 
 class ProfileStore implements Store {
@@ -37,6 +38,7 @@ class ProfileStore implements Store {
         interests: [],
         photoCards: [],
         activities: [],
+        userId: '',
     };
 
     constructor() {
@@ -111,6 +113,7 @@ class ProfileStore implements Store {
                 interests,
                 photoCards: this.transformPhotosToCards(photos),
                 activities: activities,
+                userId: user.id || '',
             };
 
             const contentContainer =
@@ -140,22 +143,38 @@ class ProfileStore implements Store {
     }
 
     private transformPhotosToCards(photos: any[]): PhotoCard[] {
-        const photoCards: PhotoCard[] = photos.map((photo) => ({
-            id: photo.id,
-            image: photo.photo_url,
-            isUserPhoto: true,
-            isPrimary: photo.is_primary || photo.display_order === 0 || false,
-        }));
+        const MAX_VISIBLE_SLOTS = 4;
 
-        while (photoCards.length < 4) {
-            photoCards.push({
-                id: `placeholder-${photoCards.length}`,
+        const normalizedPhotos: PhotoCard[] = (photos || [])
+            .sort((a, b) => {
+                const orderA =
+                    typeof a.display_order === 'number'
+                        ? a.display_order
+                        : 0;
+                const orderB =
+                    typeof b.display_order === 'number'
+                        ? b.display_order
+                        : 0;
+                return orderA - orderB;
+            })
+            .map((photo) => ({
+                id: photo.id,
+                image: photo.photo_url,
+                isUserPhoto: true,
+                isPrimary:
+                    photo.is_primary || photo.display_order === 0 || false,
+            }))
+            .slice(0, MAX_VISIBLE_SLOTS);
+
+        if (normalizedPhotos.length < MAX_VISIBLE_SLOTS) {
+            normalizedPhotos.push({
+                id: `placeholder-${normalizedPhotos.length}`,
                 image: '',
                 isUserPhoto: false,
             });
         }
 
-        return photoCards;
+        return normalizedPhotos;
     }
 
     private async updateProfileField(payload: {

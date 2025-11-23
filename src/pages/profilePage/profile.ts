@@ -1,6 +1,7 @@
 import Handlebars from 'handlebars';
 import { dispatcher } from '@/Dispatcher';
 import { Actions } from '@/actions';
+import { reportPopup } from '@/components/ReportPopup/reportPopup';
 
 const TEMPLATE_PATH = '/src/pages/profilePage/profile.hbs';
 
@@ -12,6 +13,7 @@ interface ProfileData {
     age: string | number;
     interests: Array<{ id: number; name: string }>;
     photoCards: any[];
+    userId?: string;
 }
 
 const fetchTemplate = async (path: string): Promise<string> => {

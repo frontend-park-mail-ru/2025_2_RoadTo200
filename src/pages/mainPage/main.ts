@@ -3,6 +3,7 @@ import Card from '@/components/Card/card';
 import { dispatcher } from '@/Dispatcher';
 import { Actions } from '@/actions';
 import { getActivitiesFromData } from '@/utils/activityIcons';
+import { reportPopup } from '@/components/ReportPopup/reportPopup';
 
 const TEMPLATE_PATH = '/src/pages/mainPage/main.hbs';
 const EMPTY_STATE_TEMPLATE_PATH = '/src/components/EmptyState/emptyState.hbs';
@@ -210,9 +211,37 @@ export class MainPage {
             // console.log('CardInfo data:', dataWithActivities);
 
             infoPanelContainer.innerHTML = template(dataWithActivities);
+            this.attachReportButton(infoPanelContainer, dataWithActivities);
         } catch (error) {
             // console.error('Error updating card info:', error);
         }
+    }
+
+    private attachReportButton(
+        container: HTMLElement,
+        cardData: CardData
+    ): void {
+        const trigger = container.querySelector(
+            '[data-report-open]'
+        ) as HTMLButtonElement | null;
+        if (!trigger || !cardData.id) {
+            return;
+        }
+
+        trigger.dataset.reportId = cardData.id;
+        trigger.dataset.reportName = cardData.name || '';
+        trigger.dataset.reportAge = cardData.age
+            ? String(cardData.age)
+            : '';
+
+        trigger.addEventListener('click', (event) => {
+            event.preventDefault();
+            reportPopup.show({
+                targetUserId: cardData.id,
+                targetName: cardData.name,
+                targetAge: cardData.age,
+            });
+        });
     }
 
     private initSwipe(cardElement: HTMLElement, cardId: string): void {
