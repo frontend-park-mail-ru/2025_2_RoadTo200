@@ -40,7 +40,7 @@ export class ChatsPage {
             <div class="chats-page">
                 <div class="chats-page__sidebar">
                     <div class="chats-page__header">
-                        <h1 class="chats-page__title">Чаты</h1>
+                         <div id="chatsSearchContainer" class="chats-page__search"></div>
                     </div>
                     <div id="chatsListContainer" class="chats-page__list"></div>
                 </div>
