@@ -38,6 +38,11 @@
         display: none;
         align-items: center;
         justify-content: center;
+        transition: border-color 0.2s ease;
+
+        &:hover {
+            border-color: #ff98b6;
+        }
     }
 
     &__list-wrapper {
@@ -57,24 +62,21 @@
 
     &__item {
         border-radius: 22px;
-        transition: background 0.18s, transform 0.18s;
+        transition: background 0.18s ease;
 
-        // &-disabled {
-        //     opacity: 0.6;
-        //     pointer-events: none;
-        // }
-
-        &-active {
+        &--active {
             background: #ffe6ee;
+            box-shadow: inset 0 0 0 1px rgba(255, 83, 135, 0.3);
         }
 
-        &:hover:not(&-active) {
+        &:hover {
             background: #fff6f8;
         }
 
-        // disable chats
         &[data-route='chats'] {
             cursor: not-allowed;
+            opacity: 0.45;
+            pointer-events: none;
         }
     }
 
@@ -87,14 +89,11 @@
         font-size: 19px;
         font-weight: 600;
         gap: 16px;
-    }
+        transition: color 0.2s ease;
 
-    &__link-disabled {
-        color: #d6b9c5;
-    }
-
-    &__link-active {
-        color: #ff477e;
+        &--active {
+            color: #ff1f6b;
+        }
     }
 
     &__icon {
@@ -102,10 +101,11 @@
         height: 28px;
         fill: #ff477e;
         flex-shrink: 0;
-    }
+        transition: filter 0.2s ease;
 
-    &__icon-disabled {
-        opacity: 0.4;
+        &--active {
+            filter: drop-shadow(0 6px 16px rgba(255, 71, 126, 0.35));
+        }
     }
 }
 

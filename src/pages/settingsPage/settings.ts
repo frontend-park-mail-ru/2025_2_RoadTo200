@@ -26,9 +26,15 @@ const fetchTemplate = async (path: string): Promise<string> => {
 
 export class SettingsPage {
     parent: HTMLElement | null;
+    private mobileView: 'menu' | 'content' = 'menu';
+    private resizeHandler: (() => void) | null = null;
 
     constructor(parent: HTMLElement | null) {
         this.parent = parent;
+        if (typeof window !== 'undefined') {
+            this.resizeHandler = () => this.applyMobileLayout();
+            window.addEventListener('resize', this.resizeHandler);
+        }
     }
 
     async render(
@@ -45,39 +51,20 @@ export class SettingsPage {
         this.parent.innerHTML = pageTemplate({});
 
         this.renderContent(currentTab, profileData);
+        this.initBackButton();
+        this.setMobileView('menu');
 
         await dispatcher.process({
             type: Actions.RENDER_SETTINGS_MENU,
             payload: { tab: currentTab },
         });
-
-        // Добавляем обработчик для кнопки закрытия
-        const closeBtn = this.parent.querySelector('#settingsClose');
-        if (closeBtn) {
-            closeBtn.addEventListener('click', () => {
-                dispatcher.process({
-                    type: Actions.NAVIGATE_TO,
-                    payload: { path: '/' },
-                });
-            });
-        }
-
-        // Добавляем обработчик закрытия по клику на фон
-        const settingsPage = this.parent.querySelector('.settings-page');
-        if (settingsPage) {
-            settingsPage.addEventListener('click', (e: Event) => {
-                if (e.target === settingsPage) {
-                    // Закрываем настройки - переходим на главную
-                    dispatcher.process({
-                        type: Actions.NAVIGATE_TO,
-                        payload: { path: '/' },
-                    });
-                }
-            });
-        }
     }
 
-    renderContent(currentTab: string, profileData: ProfileData = {}): void {
+    renderContent(
+        currentTab: string,
+        profileData: ProfileData = {},
+        options: { focusContent?: boolean } = {}
+    ): void {
         const contentContainer = this.parent?.querySelector('#settingsContent');
         if (!contentContainer) {
             return;
@@ -105,6 +92,11 @@ export class SettingsPage {
         }
 
         this.attachEventListeners(currentTab);
+        if (options.focusContent) {
+            this.setMobileView('content');
+        } else {
+            this.applyMobileLayout();
+        }
     }
 
     private createProfileTab(profileData: ProfileData): HTMLDivElement {
@@ -206,6 +198,50 @@ export class SettingsPage {
                 <p class="form__error-message" id="${errorId}"></p>
             </div>
         `;
+    }
+
+    private initBackButton(): void {
+        const backButton = this.parent?.querySelector('#settingsMobileBack');
+        if (backButton) {
+            backButton.addEventListener('click', () => {
+                if (typeof window !== 'undefined' && window.innerWidth > 1023) {
+                    dispatcher.process({
+                        type: Actions.NAVIGATE_TO,
+                        payload: { path: '/' },
+                    });
+                } else {
+                    this.setMobileView('menu');
+                }
+            });
+        }
+    }
+
+    private getShellElement(): HTMLElement | null {
+        return this.parent?.querySelector('#settingsShell') as HTMLElement | null;
+    }
+
+    private setMobileView(view: 'menu' | 'content'): void {
+        this.mobileView = view;
+        this.applyMobileLayout();
+    }
+
+    private applyMobileLayout(): void {
+        if (typeof window === 'undefined') return;
+        const shell = this.getShellElement();
+        if (!shell) return;
+
+        shell.classList.remove(
+            'settings-shell--show-menu',
+            'settings-shell--show-content'
+        );
+
+        if (window.innerWidth <= 1023) {
+            shell.classList.add(
+                this.mobileView === 'menu'
+                    ? 'settings-shell--show-menu'
+                    : 'settings-shell--show-content'
+            );
+        }
     }
 
     private attachEventListeners(currentTab: string): void {

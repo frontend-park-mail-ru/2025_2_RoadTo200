@@ -1,8 +1,19 @@
 <div class='details'>
-    {{#if bio}}
-        <h3 class='details__section-title'>О себе</h3>
-        <p class='details__section-text'>{{bio}}</p>
-    {{/if}}
+    <div class='details__hero'>
+        <h2 class='details__title'>
+            {{#if name}}{{name}}{{/if}}
+            {{#if age}}{{#if name}}, {{/if}}{{age}}{{/if}}
+        </h2>
+    </div>
+
+    <h3 class='details__section-title'>О себе</h3>
+    <p class='details__section-text'>
+        {{#if bio}}
+            {{bio}}
+        {{else}}
+            Нет описания
+        {{/if}}
+    </p>
 
     {{#if interests}}
         {{#if interests.length}}
@@ -12,6 +23,8 @@
                     <span class='details__tag'>{{this.name}}</span>
                 {{/each}}
             </div>
+        {{else}}
+            <p class='details__section-text details__section-text--muted'>Добавьте интересы, чтобы быть заметнее</p>
         {{/if}}
     {{/if}}
 
@@ -33,13 +46,21 @@
         {{/if}}
     {{/if}}
 
-    {{#if musician}}
-        <h3 class='details__section-title'>Любимый исполнитель</h3>
-        <p class='details__section-text'>{{musician}}</p>
-    {{/if}}
+    <h3 class='details__section-title'>Любимый исполнитель</h3>
+    <p class='details__section-text'>
+        {{#if musician}}
+            {{musician}}
+        {{else}}
+            Пока не указан
+        {{/if}}
+    </p>
 
-    {{#if quote}}
-        <h3 class='details__section-title'>Любимая цитата</h3>
-        <p class='details__section-text'>{{quote}}</p>
-    {{/if}}
+    <h3 class='details__section-title'>Любимая цитата</h3>
+    <p class='details__section-text'>
+        {{#if quote}}
+            “{{quote}}”
+        {{else}}
+            Здесь появится цитата, как только вы ее добавите
+        {{/if}}
+    </p>
 </div>

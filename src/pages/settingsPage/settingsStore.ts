@@ -138,7 +138,9 @@ class SettingsStore implements Store {
 
     private updateView(): void {
         settings.clearErrors();
-        settings.renderContent(this.currentTab, this.profileData);
+        settings.renderContent(this.currentTab, this.profileData, {
+            focusContent: true,
+        });
     }
 
     private async updateProfileSettings({
