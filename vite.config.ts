@@ -38,6 +38,12 @@ export default defineConfig({
                 changeOrigin: true,
                 secure: false,
             },
+            '/support-api': {
+                target: 'http://terabithia.online:8081',
+                changeOrigin: true,
+                secure: false,
+                rewrite: (path: string) => path.replace(/^\/support-api/, '')
+            },
         },
     },
 
