@@ -44,7 +44,6 @@ const fetchCardTemplate = async (): Promise<string> => {
  * Объект карточки.
  */
 const Card = {
-
     /**
      * Обработка клика по изображению для навигации
      * @param {MouseEvent} event
@@ -65,7 +64,10 @@ const Card = {
             return;
         }
 
-        let currentIndex = parseInt(cardElement.getAttribute('data-current-image-index') || '0', 10);
+        let currentIndex = parseInt(
+            cardElement.getAttribute('data-current-image-index') || '0',
+            10
+        );
 
         const rect = target.getBoundingClientRect();
         const clickX = event.clientX - rect.left;
@@ -81,7 +83,10 @@ const Card = {
         if (newIndex !== currentIndex) {
             const imgElement = target as HTMLImageElement;
             imgElement.src = images[newIndex];
-            cardElement.setAttribute('data-current-image-index', String(newIndex));
+            cardElement.setAttribute(
+                'data-current-image-index',
+                String(newIndex)
+            );
         }
     },
 
@@ -102,8 +107,10 @@ const Card = {
 
         const templateData = {
             ...cardData,
-            imagesJson: JSON.stringify((cardData.images || []).map(img => img.imageUrl)),
-            activities: activities.length > 0 ? activities : null
+            imagesJson: JSON.stringify(
+                (cardData.images || []).map((img) => img.imageUrl)
+            ),
+            activities: activities.length > 0 ? activities : null,
         };
 
         // console.log('Card.render - templateData:', templateData);
@@ -121,7 +128,7 @@ const Card = {
     init: (cardElement: HTMLElement): void => {
         // console.log('Initializing card:', cardElement);
         cardElement.addEventListener('click', Card.handleImageNavigation);
-    }
+    },
 };
 
 export default Card;

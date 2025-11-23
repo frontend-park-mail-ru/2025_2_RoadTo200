@@ -11,7 +11,9 @@ const fetchTemplate = async (path: string): Promise<string> => {
     try {
         const response = await fetch(path);
         if (!response.ok) {
-            throw new Error('Ошибка: Не удалось загрузить шаблон маленького сердца');
+            throw new Error(
+                'Ошибка: Не удалось загрузить шаблон маленького сердца'
+            );
         }
         return response.text();
     } catch (error) {
@@ -21,7 +23,7 @@ const fetchTemplate = async (path: string): Promise<string> => {
 };
 
 /**
- * Объект малое сердце. 
+ * Объект малое сердце.
  * @property {function(): Promise<string>} render
  */
 const SmallHeart = {
@@ -33,7 +35,7 @@ const SmallHeart = {
         const templateString = await fetchTemplate(TEMPLATE_PATH);
         const template = Handlebars.compile(templateString);
         return template({});
-    }
+    },
 };
 
 export default SmallHeart;

@@ -1,21 +1,22 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
-import { copyFileSync, existsSync, mkdirSync } from 'fs';
+import { existsSync, cpSync, readFileSync, writeFileSync } from 'fs';
 import { fileURLToPath } from 'url';
+import legacy from '@vitejs/plugin-legacy';
+import { transformSync } from '@babel/core';
 
 const dirname = fileURLToPath(new URL('.', import.meta.url));
 
 export default defineConfig({
     root: './',
-    publicDir: 'src/assets',
+    publicDir: false,
+
     server: {
-        host: '0.0.0.0', 
+        host: '0.0.0.0',
         port: 8001,
         open: true,
         proxy: {
             '/api': {
-                // локальный сервер или на тачке
-                //target: 'http://127.0.0.1:8080',
                 target: 'http://terabithia.online:8080',
                 changeOrigin: true,
                 secure: false,
@@ -28,6 +29,24 @@ export default defineConfig({
             }
         },
     },
+
+    preview: {
+        port: 8001,
+        proxy: {
+            '/api': {
+                target: 'http://terabithia.online:8080',
+                changeOrigin: true,
+                secure: false,
+            },
+        },
+    },
+
+    resolve: {
+        alias: {
+            '@': resolve(dirname, './src'),
+        },
+    },
+
     build: {
         outDir: 'dist',
         rollupOptions: {
@@ -35,29 +54,102 @@ export default defineConfig({
                 main: resolve(dirname, 'index.html'),
             },
         },
+        assetsInlineLimit: 0,
+        copyPublicDir: false,
     },
-    resolve: {
-        alias: {
-            '@': resolve(dirname, './src'),
-        },
-    },
+
     plugins: [
+        /* --- 1. ES5 bundle for old browsers --- */
+        legacy({
+            targets: ['> 0.5%', 'last 2 versions', 'not dead'],
+            modernPolyfills: true,
+            additionalLegacyPolyfills: ['regenerator-runtime/runtime'],
+        }),
+
+        /* --- 2. Copy assets --- */
         {
-            name: 'copy-service-worker',
+            name: 'copy-assets',
             closeBundle() {
-                const swSource = resolve(dirname, 'service-worker.js');
-                const swDest = resolve(dirname, 'dist', 'service-worker.js');
-                const distDir = resolve(dirname, 'dist');
-                
-                if (!existsSync(distDir)) {
-                    mkdirSync(distDir, { recursive: true });
+                const src = resolve(dirname, 'src/assets');
+                const dest = resolve(dirname, 'dist/src/assets');
+
+                if (existsSync(src)) {
+                    cpSync(src, dest, {
+                        recursive: true,
+                    });
+                    console.log('Copied assets');
                 }
-                
-                if (existsSync(swSource)) {
-                    copyFileSync(swSource, swDest);
-                    // console.log('Service Worker copied to dist folder');
+
+                const manifestSrc = resolve(dirname, 'manifest.json');
+                const manifestDest = resolve(dirname, 'dist/manifest.json');
+                if (existsSync(manifestSrc)) {
+                    cpSync(manifestSrc, manifestDest);
+                    console.log('Copied manifest.json');
                 }
-            }
-        }
-    ]
+            },
+        },
+
+        /* --- 3. Copy .hbs templates --- */
+        {
+            name: 'copy-hbs',
+            closeBundle() {
+                const fs = require('fs');
+                const path = require('path');
+
+                const copy = (src: string, dest: string) => {
+                    if (!fs.existsSync(src)) return;
+
+                    if (fs.statSync(src).isDirectory()) {
+                        if (!fs.existsSync(dest)) {
+                            fs.mkdirSync(dest, { recursive: true });
+                        }
+                        fs.readdirSync(src).forEach((file: string) =>
+                            copy(path.join(src, file), path.join(dest, file))
+                        );
+                    } else if (src.endsWith('.hbs')) {
+                        fs.copyFileSync(src, dest);
+                        console.log(`Copied HBS: ${src}`);
+                    }
+                };
+
+                copy(resolve(dirname, 'src'), resolve(dirname, 'dist/src'));
+            },
+        },
+
+        /* --- 4. Babel-transpile service-worker --- */
+        {
+            name: 'transpile-service-worker',
+            closeBundle() {
+                const src = resolve(dirname, 'service-worker.ts');
+                const dest = resolve(dirname, 'dist/service-worker.js');
+
+                if (!existsSync(src)) return;
+
+                const code = readFileSync(src, 'utf8');
+
+                const result = transformSync(code, {
+                    filename: 'service-worker.ts',
+                    presets: [
+                        [
+                            '@babel/preset-env',
+                            {
+                                targets: ['> 0.5%', 'last 2 versions', 'not dead'],
+                                modules: false,
+                                useBuiltIns: false,
+                            },
+                        ],
+                        ['@babel/preset-typescript'],
+                    ],
+                    comments: false,
+                    minified: true,
+                });
+
+                if (!result || !result.code) {
+                    throw new Error('Babel did not return transformed code');
+                }
+                writeFileSync(dest, result!.code);
+                console.log('Transpiled service-worker.js');
+            },
+        },
+    ],
 });

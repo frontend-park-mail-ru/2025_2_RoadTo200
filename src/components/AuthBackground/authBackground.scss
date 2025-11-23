@@ -1,3 +1,12 @@
+@keyframes float-gentle {
+    0%, 100% {
+        transform: translate(-500px, -100px) rotate(-30deg);
+    }
+    50% {
+        transform: translate(-400px, -300px) rotate(-30deg);
+    }
+}
+
 .auth-background {
     position: fixed;
     inset: 0;
@@ -5,30 +14,20 @@
     z-index: 0;
     overflow: hidden;
     background: linear-gradient(135deg, #fef5f7 0%, #fff9fa 100%);
-    display: block; 
+    display: block;
+    
     &__circle-activity-tablet {
         position: relative;
         width: 100%;
         height: 100%;
-        transform: rotate(-30deg); 
+        transform: rotate(-30deg);
+        animation: float-gentle 20s ease-in-out infinite;
     }
 
-    &__background-text {
+    &__background-variant {
+        opacity: 0.25;
         position: absolute;
-        white-space: nowrap;
-        font-size: 32px;
-        font-weight: 700;
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-        background: linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary-light) 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        opacity: 0.2;
-        will-change: transform;
-        transform: translateZ(0);
-        -webkit-backface-visibility: hidden;
-        backface-visibility: hidden;
-        user-select: none;
-        pointer-events: none;
+        background: radial-gradient(circle, #F8829B 20%, #FFE0E8 100%);
+        will-change: auto;
     }
 }

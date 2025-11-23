@@ -1,25 +1,47 @@
-<div class="form">
-    <div class="form__container">
-        <h1 class="form__title">Вход</h1>
-        
-        <form id="loginForm" novalidate>
-            <div class="form__input-wrapper">
-                <input type="email" id="email" class="form__input" placeholder="Email">
+<div class='form'>
+    <div class='form__container'>
+        <h1 class='form__title'>Вход</h1>
+
+        <form id='loginForm' novalidate>
+            <div class='form__input-wrapper'>
+                <input
+                    type='email'
+                    id='email'
+                    class='form__input'
+                    placeholder='Email'
+                />
             </div>
-            <div class="form__input-wrapper form__password-wrapper">
-                <input type="password" id="password" class="form__input" placeholder="Пароль">
-                <button type="button" class="form__password-toggle" aria-label="Показать пароль">
-                    <img src="./src/assets/Eyes/close_eye.svg" alt="Показать пароль" class="eye-icon">
+            <div class='form__input-wrapper form__password-wrapper'>
+                <input
+                    type='password'
+                    id='password'
+                    class='form__input'
+                    placeholder='Пароль'
+                />
+                <button
+                    type='button'
+                    class='form__password-toggle'
+                    aria-label='Показать пароль'
+                >
+                    <img
+                        src='./src/assets/Eyes/close_eye.svg'
+                        alt='Показать пароль'
+                        class='eye-icon'
+                    />
                 </button>
             </div>
-            
-            <div class="form__error-message" style="display: none;"></div>
-            
-            <button type="submit" class="form__btn form__btn-primary">Войти</button>
+
+            <div class='form__error-message' style='display: none;'></div>
+
+            <button
+                type='submit'
+                class='form__btn form__btn-primary'
+            >Войти</button>
         </form>
 
-        <div class="form__link">
-            Нет аккаунта? <a href="/register" class = "form__a" Link> Зарегистрироваться </a>
+        <div class='form__link'>
+            Нет аккаунта?
+            <a href='/register' class='form__a' Link> Зарегистрироваться </a>
         </div>
     </div>
 </div>

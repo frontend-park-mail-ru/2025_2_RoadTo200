@@ -10,9 +10,15 @@ declare namespace Handlebars {
         decorators?: { [name: string]: Function };
     }
 
-    function compile<T = any>(input: string, options?: CompileOptions): TemplateDelegate<T>;
+    function compile<T = any>(
+        input: string,
+        options?: CompileOptions
+    ): TemplateDelegate<T>;
     function registerHelper(name: string, fn: Function): void;
-    function registerPartial(name: string, partial: string | TemplateDelegate): void;
+    function registerPartial(
+        name: string,
+        partial: string | TemplateDelegate
+    ): void;
 
     interface CompileOptions {
         data?: boolean;

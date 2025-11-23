@@ -13,7 +13,9 @@ const fetchTemplate = async (path: string): Promise<string> => {
     try {
         const response = await fetch(path);
         if (!response.ok) {
-            throw new Error('Ошибка: Не удалось загрузить шаблон offline баннера');
+            throw new Error(
+                'Ошибка: Не удалось загрузить шаблон offline баннера'
+            );
         }
         return await response.text();
     } catch (error) {
@@ -39,12 +41,12 @@ export class OfflineBanner implements PageComponent {
         if (!this.parent) return;
 
         const { isOnline } = bannerData;
-        
+
         const templateString = await fetchTemplate(TEMPLATE_PATH);
         const template = Handlebars.compile(templateString);
-        
+
         const renderedHtml = template({ isOnline });
-        
+
         this.parent.innerHTML = renderedHtml;
     }
 

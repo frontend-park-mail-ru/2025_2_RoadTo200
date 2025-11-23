@@ -35,12 +35,16 @@ class MatchProfileStore implements Store {
         switch (action.type) {
             case Actions.RENDER_MATCH_PROFILE:
                 if (action.payload) {
-                    await this.renderMatchProfile(action.payload as { matchId: string });
+                    await this.renderMatchProfile(
+                        action.payload as { matchId: string }
+                    );
                 }
                 break;
             case Actions.MATCH_CARD_CLICK:
                 if (action.payload) {
-                    await this.handleMatchCardClick(action.payload as { matchId: string; userData: any });
+                    await this.handleMatchCardClick(
+                        action.payload as { matchId: string; userData: any }
+                    );
                 }
                 break;
             default:
@@ -48,21 +52,26 @@ class MatchProfileStore implements Store {
         }
     }
 
-    private async handleMatchCardClick(payload: { matchId: string; userData: any }): Promise<void> {
+    private async handleMatchCardClick(payload: {
+        matchId: string;
+        userData: any;
+    }): Promise<void> {
         const { matchId, userData } = payload;
         if (!matchId) return;
-        
+
         if (userData) {
             this.matchesCache.set(matchId, userData);
         }
-        
+
         await dispatcher.process({
             type: Actions.NAVIGATE_TO,
-            payload: { path: `/matches/${matchId}` }
+            payload: { path: `/matches/${matchId}` },
         });
     }
 
-    private async renderMatchProfile(payload: { matchId: string }): Promise<void> {
+    private async renderMatchProfile(payload: {
+        matchId: string;
+    }): Promise<void> {
         try {
             const { matchId } = payload;
             if (!matchId) {
@@ -72,13 +81,14 @@ class MatchProfileStore implements Store {
 
             this.currentMatchId = matchId;
 
-            const contentContainer = document.getElementById('content-container');
+            const contentContainer =
+                document.getElementById('content-container');
             if (contentContainer) {
                 matchProfile.parent = contentContainer;
             }
 
             const userData = this.matchesCache.get(matchId);
-            
+
             if (!userData) {
                 // console.error('No user data found in cache for matchId:', matchId);
                 return;
@@ -89,14 +99,14 @@ class MatchProfileStore implements Store {
 
             this.matchData = {
                 id: userData.id,
-                name: userData.name || "",
+                name: userData.name || '',
                 age: this.calculateAge(userData.birth_date),
-                description: userData.bio || "Информация отсутствует",
-                musician: "Не указано",
-                quote: "Не указано",
+                description: userData.bio || 'Информация отсутствует',
+                musician: 'Не указано',
+                quote: 'Не указано',
                 interests: [],
                 photoCards: this.transformImagesToCards(userData.images || []),
-                activities: activities
+                activities: activities,
             };
 
             await matchProfile.render(this.matchData);
@@ -104,14 +114,17 @@ class MatchProfileStore implements Store {
             // console.error('Error loading match profile:', error);
         }
     }
-    
+
     private calculateAge(birthDate: string | undefined): number | null {
         if (!birthDate) return null;
         const birth = new Date(birthDate);
         const today = new Date();
         let age = today.getFullYear() - birth.getFullYear();
         const monthDiff = today.getMonth() - birth.getMonth();
-        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+        if (
+            monthDiff < 0 ||
+            (monthDiff === 0 && today.getDate() < birth.getDate())
+        ) {
             age--;
         }
         return age;
@@ -122,14 +135,14 @@ class MatchProfileStore implements Store {
             id: `photo-${index}`,
             image: imageUrl,
             isUserPhoto: true,
-            isPrimary: index === 0
+            isPrimary: index === 0,
         }));
 
         while (photoCards.length < 4) {
             photoCards.push({
                 id: `placeholder-${photoCards.length}`,
                 image: '',
-                isUserPhoto: false
+                isUserPhoto: false,
             });
         }
 

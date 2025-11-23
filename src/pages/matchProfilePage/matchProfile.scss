@@ -82,7 +82,11 @@
         font-size: 14px;
         font-weight: 500;
         color: var(--color-text-light);
-        background: linear-gradient(90deg, var(--color-primary-light) 0%, var(--color-primary-dark) 100%);
+        background: linear-gradient(
+            90deg,
+            var(--color-primary-light) 0%,
+            var(--color-primary-dark) 100%
+        );
         cursor: default;
         position: relative;
         overflow: hidden;
@@ -106,7 +110,11 @@
         align-items: center;
         justify-content: center;
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        background: linear-gradient(135deg, var(--color-primary-light) 0%, var(--color-primary-dark) 100%);
+        background: linear-gradient(
+            135deg,
+            var(--color-primary-light) 0%,
+            var(--color-primary-dark) 100%
+        );
     }
 
     &__activity-icon {
@@ -134,4 +142,3 @@
         }
     }
 }
-

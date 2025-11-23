@@ -1,24 +1,29 @@
-<div class="match-profile-page">
-    <div class="match-profile-page__content">
-        <div class="match-photo-grid">
+<div class='match-profile-page'>
+    <div class='match-profile-page__content'>
+        <div class='match-photo-grid'>
             {{#each photoCards}}
-            <div class="match-photo-grid__card" data-photo-id="{{this.id}}">
-                {{#if this.isUserPhoto}}
-                <div class="match-photo-grid__image" style="background-image: url('{{this.image}}');"></div>
-                {{else}}
-                <div class="match-photo-grid__placeholder"></div>
-                {{/if}}
-            </div>
+                <div class='match-photo-grid__card' data-photo-id='{{this.id}}'>
+                    {{#if this.isUserPhoto}}
+                        <div
+                            class='match-photo-grid__image'
+                            style="background-image: url('{{this.image}}');"
+                        ></div>
+                    {{else}}
+                        <div class='match-photo-grid__placeholder'></div>
+                    {{/if}}
+                </div>
             {{/each}}
         </div>
 
-        <div class="match-details">
-    
-            <h3 class="match-details__section-title">О себе</h3>
-            <div class="match-details__editable-content">
-                <p class="match-details__section-text match-details__section-text-current">{{description}}</p>
+        <div class='match-details'>
+
+            <h3 class='match-details__section-title'>О себе</h3>
+            <div class='match-details__editable-content'>
+                <p
+                    class='match-details__section-text match-details__section-text-current'
+                >{{description}}</p>
             </div>
-            
+
             {{!-- <h3 class="match-details__section-title">Увлечения</h3>
             <div class="match-details__tags">
                 {{#each interests}}
@@ -28,12 +33,17 @@
                 {{/each}}
             </div> --}}
 
-            <h3 class="match-details__section-title">Активности</h3>
-            <div class="match-details__icons">
+            <h3 class='match-details__section-title'>Активности</h3>
+            <div class='match-details__icons'>
                 {{#each activities}}
-                <div class="match-details__icon-circle">
-                    <img src="{{this.icon}}" alt="{{this.name}}" class="match-details__activity-icon" title="{{this.name}}">
-                </div>
+                    <div class='match-details__icon-circle'>
+                        <img
+                            src='{{this.icon}}'
+                            alt='{{this.name}}'
+                            class='match-details__activity-icon'
+                            title='{{this.name}}'
+                        />
+                    </div>
                 {{/each}}
             </div>
 
@@ -47,7 +57,7 @@
                 <p class="match-details__section-text match-details__section-text-current">{{quote}}</p>
             </div> --}}
 
-            <button class="match-details__chat-button">Перейти в чат</button>
+            <button class='match-details__chat-button'>Перейти в чат</button>
         </div>
     </div>
 </div>

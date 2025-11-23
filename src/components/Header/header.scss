@@ -16,7 +16,11 @@
         background-clip: text;
         font-weight: 700;
         font-size: 18px;
-        font-family: "Inter", system-ui, -apple-system, sans-serif;
+        font-family:
+            'Inter',
+            system-ui,
+            -apple-system,
+            sans-serif;
         cursor: pointer;
         transition: opacity 0.2s ease;
         opacity: 0.7;
@@ -40,7 +44,11 @@
         box-shadow: 0 4px 15px rgba(255, 75, 114, 0.3);
         font-weight: 700;
         font-size: 16px;
-        font-family: "Inter", system-ui, -apple-system, sans-serif;
+        font-family:
+            'Inter',
+            system-ui,
+            -apple-system,
+            sans-serif;
 
         &:hover {
             transform: translateY(-2px);

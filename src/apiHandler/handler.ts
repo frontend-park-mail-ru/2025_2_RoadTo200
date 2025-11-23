@@ -35,41 +35,44 @@ export async function handleFetch<T = unknown>(
     options: FetchOptions = {}
 ): Promise<T> {
     const url = `${baseURL}${endpoint}`;
-    const isFormData = options.isFormData ?? (typeof FormData !== 'undefined' && options.body instanceof FormData);
+    const isFormData =
+        options.isFormData ??
+        (typeof FormData !== 'undefined' && options.body instanceof FormData);
     const headers: Record<string, string> = {
         ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
-        ...options.headers
+        ...options.headers,
     };
     const fetchOptions: RequestInit = {
         ...options,
         headers,
-        credentials: 'include'
+        credentials: 'include',
     };
-  
+
     try {
         const response = await fetch(url, fetchOptions);
 
-    
         if (!response.ok) {
             // Проверка на offline режим (503 от Service Worker)
             if (response.status === 503) {
-                const data = await response.json() as OfflineResponse;
+                const data = (await response.json()) as OfflineResponse;
                 if (data.error === 'Offline') {
-                    const error = new Error(data.error || 'Данные недоступны в offline режиме') as FetchError;
+                    const error = new Error(
+                        data.error || 'Данные недоступны в offline режиме'
+                    ) as FetchError;
                     error.status = 503;
                     error.isOffline = true;
                     error.cachedData = data;
                     throw error;
                 }
             }
-            
+
             let errorDetails: ErrorResponse | null = null;
             try {
-                errorDetails = await response.json() as ErrorResponse;
+                errorDetails = (await response.json()) as ErrorResponse;
             } catch (e) {
                 // Игнорируем, если не JSON
             }
-      
+
             // Формируем понятное сообщение об ошибке
             let errorMessage = 'Неверный email или пароль';
             if (errorDetails && errorDetails.error) {
@@ -79,13 +82,13 @@ export async function handleFetch<T = unknown>(
             } else if (response.status === 404) {
                 errorMessage = 'Сервис недоступен';
             }
-      
+
             const error = new Error(errorMessage) as FetchError;
             error.status = response.status;
             error.details = errorDetails;
             throw error;
         }
-    
+
         return response.json() as Promise<T>;
     } catch (error) {
         const fetchError = error as FetchError;

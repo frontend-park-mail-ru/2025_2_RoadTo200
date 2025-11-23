@@ -1,24 +1,17 @@
 module.exports = {
     root: true,
 
-
     env: {
         browser: true,
         es2021: true,
         node: true,
     },
 
-
-    extends: [
-        'eslint:recommended',  
-        'airbnb-base',
-        'prettier',
-    ],
-
+    extends: ['eslint:recommended', 'airbnb-base', 'prettier'],
 
     parserOptions: {
         ecmaVersion: 'latest',
-        sourceType: 'module', 
+        sourceType: 'module',
     },
     rules: {
         'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'off',
@@ -28,10 +21,10 @@ module.exports = {
 
         // 1. Разрешить несколько классов в файле - пока проблемы только в роутере, где класс Router и Route вместе
         'max-classes-per-file': 'off',
-        
+
         // 2. Разрешить унарные операторы (++, --)
         'no-plusplus': 'off',
-        
+
         // 3. Разрешить использование расширений файлов в импортах - разобраться потом, почему проект не билдится без расширений
         'import/extensions': [
             'error',
@@ -43,11 +36,13 @@ module.exports = {
                 tsx: 'always',
             },
         ],
-        'indent': ['error', 4, {
-            'SwitchCase': 1,
-            'ignoredNodes': ['TemplateLiteral']
-        }],
-
+        indent: [
+            'error',
+            4,
+            {
+                SwitchCase: 1,
+                ignoredNodes: ['TemplateLiteral'],
+            },
+        ],
     },
-
 };
