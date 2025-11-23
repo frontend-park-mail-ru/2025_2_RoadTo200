@@ -1,0 +1,39 @@
+<div class="chat-window">
+    {{#if chatId}}
+        <div class="chat-window__messages">
+            {{#if hasMessages}}
+                {{#each messages}}
+                <div class="chat-message {{#if isMine}}chat-message--mine{{else}}chat-message--theirs{{/if}}">
+                    <div class="chat-message__bubble">
+                        <p class="chat-message__text">{{text}}</p>
+                    </div>
+                </div>
+                {{/each}}
+            {{else}}
+                <div class="chat-window__empty">
+                    <p>Начните разговор!</p>
+                </div>
+            {{/if}}
+        </div>
+
+        <form class="chat-window__input-form">
+            <div class="chat-window__input-wrapper">
+                <textarea 
+                    class="chat-window__input" 
+                    placeholder="Сообщение"
+                    rows="1"
+                    maxlength="1000"
+                ></textarea>
+                <button type="submit" class="chat-window__send-btn" aria-label="Отправить">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </div>
+        </form>
+    {{else}}
+        <div class="chat-window__no-chat">
+            <p>Выберите чат для начала общения</p>
+        </div>
+    {{/if}}
+</div>

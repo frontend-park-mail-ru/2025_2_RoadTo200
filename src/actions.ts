@@ -84,6 +84,17 @@ export const Actions = {
 
     // statistics
     RENDER_STATISTICS: 'RENDER_STATISTICS',
+
+    // chats
+    RENDER_CHATS_LIST: 'RENDER_CHATS_LIST',
+    SELECT_CHAT: 'SELECT_CHAT',
+    LOAD_CHATS: 'LOAD_CHATS',
+
+    // chat window
+    RENDER_CHAT_WINDOW: 'RENDER_CHAT_WINDOW',
+    SEND_MESSAGE: 'SEND_MESSAGE',
+    LOAD_CHAT_MESSAGES: 'LOAD_CHAT_MESSAGES',
+
 } as const;
 
 export type ActionType = (typeof Actions)[keyof typeof Actions];

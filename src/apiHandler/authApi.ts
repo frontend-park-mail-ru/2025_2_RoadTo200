@@ -75,6 +75,8 @@ class AuthApi {
         return handleFetch<CheckAuthResponse>(this.baseURL, '/session', {
             method: 'GET',
         });
+        
+        
     }
 
     /**

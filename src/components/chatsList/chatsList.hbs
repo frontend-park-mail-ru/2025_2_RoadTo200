@@ -1,0 +1,22 @@
+<div class="chats-list">
+    {{#if hasChats}}
+        {{#each chats}}
+        <div class="chat-item {{#if isSelected}}chat-item--selected{{/if}}" data-chat-id="{{id}}">
+            <div class="chat-item__avatar">
+                <img src="{{userAvatar}}" alt="{{userName}}" class="chat-item__avatar-img">
+            </div>
+            <div class="chat-item__content">
+                <div class="chat-item__header">
+                    <h3 class="chat-item__name">{{userName}}, {{userAge}}</h3>
+                    <span class="chat-item__time">{{timestamp}}</span>
+                </div>
+                <p class="chat-item__message">{{lastMessage}}</p>
+            </div>
+        </div>
+        {{/each}}
+    {{else}}
+        <div class="chats-list__empty">
+            <p>Пока нет чатов</p>
+        </div>
+    {{/if}}
+</div>

@@ -13,6 +13,7 @@ class Dispatcher {
     }
 
     process(action: Action): void {
+        console.log(`Dispatcher: Processing action ${action.type}`);
         for (const store of this.subscribers) {
             store.handleAction(action);
         }

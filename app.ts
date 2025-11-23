@@ -15,6 +15,9 @@ import './src/components/ProfileMenu/profileMenuStore';
 import './src/components/OfflineBanner/offlineBannerStore';
 import './src/components/ProfileSetupPopup/profileSetupPopupStore';
 import './src/pages/support/supportStore';
+import './src/pages/chatsPage/chatsStore';
+import './src/components/chatsList/chatsListStore';
+import './src/components/chatWindow/chatWindowStore';
 import navigationStore, { Route } from './src/navigation/navigationStore';
 
 import { Router } from './router';
@@ -27,7 +30,9 @@ import { profile } from './src/pages/profilePage/profile';
 import { settings } from './src/pages/settingsPage/settings';
 import { support } from './src/pages/support/support';
 import { statistics } from './src/pages/statisticsPage/statistics';
+import { chats } from './src/pages/chatsPage/chats';
 import type { PageComponent } from './src/navigation/navigationStore';
+
 
 const notFoundComponent: PageComponent = {
     parent: null,
@@ -53,6 +58,7 @@ const routes: Route[] = [
     new Route('/settings', settings, true),
     new Route('/support', support, false),
     new Route('/statistics', statistics, true),
+    new Route('/chats', chats, false),
     new Route('*', notFoundComponent, false),
 ];
 

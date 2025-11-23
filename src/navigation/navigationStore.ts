@@ -413,6 +413,10 @@ class NavigationStore implements Store {
                     };
                 }
                 return { type: Actions.RENDER_MATCHES, payload: actionPayload };
+            case '/chats':
+                console.log('NavigationStore: navigating to /chats');
+                actionPayload.route = 'chats';
+                return { type: Actions.RENDER_CHATS, payload: actionPayload };
             default:
                 return null;
         }

@@ -1,0 +1,105 @@
+.chats-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+
+    &__empty {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 48px 24px;
+        color: #999;
+        font-size: 16px;
+    }
+}
+
+.chat-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 24px;
+    cursor: pointer;
+    transition: background 0.2s;
+    border-radius: 24px;
+    border: 2px solid #ff477e;
+    margin: 0 16px 12px 16px;
+    background: #fff;
+
+    &:first-child {
+        margin-top: 16px;
+    }
+
+    &:hover:not(&--selected) {
+        background: #fff6f8;
+    }
+
+    &--selected {
+        background: #ff477e;
+        
+        .chat-item__name,
+        .chat-item__time,
+        .chat-item__message {
+            color: #fff;
+        }
+    }
+
+    &__avatar {
+        flex-shrink: 0;
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        overflow: hidden;
+        background: #f0f0f0;
+    }
+
+    &__avatar-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    &__content {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    &__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+    &__name {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+        color: #1a1a1a;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    &__time {
+        font-size: 14px;
+        color: #666;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+
+    &__message {
+        margin: 0;
+        font-size: 15px;
+        color: #666;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        line-height: 1.4;
+    }
+}
