@@ -101,13 +101,24 @@ class MainStore implements Store {
 
                     const interests = Array.isArray(card.interests)
                         ? card.interests.map((interest, interestIndex) => ({
-                              id: interestIndex,
-                              name:
-                                  typeof interest === 'string'
-                                      ? interest
-                                      : interest.theme || 'Интерес',
-                          }))
+                            id: interestIndex,
+                            name:
+                                typeof interest === 'string'
+                                    ? interest
+                                    : interest.theme || 'Интерес',
+                        }))
                         : undefined;
+
+                    // Convert interests array to boolean fields for getActivitiesFromData
+                    const activityFlags: Record<string, boolean> = {};
+                    if (Array.isArray(card.interests)) {
+                        card.interests.forEach((interest: any) => {
+                            const theme = typeof interest === 'string' ? interest : interest.theme;
+                            if (theme) {
+                                activityFlags[theme] = true;
+                            }
+                        });
+                    }
 
                     return {
                         id: card.id?.toString() || `card-${index}`,
@@ -122,16 +133,8 @@ class MainStore implements Store {
                         interests,
                         musician: (card as { artist?: string }).artist || '',
                         quote: card.quote || '',
-                        workout: (card as { workout?: boolean }).workout,
-                        fun: (card as { fun?: boolean }).fun,
-                        party: (card as { party?: boolean }).party,
-                        chill: (card as { chill?: boolean }).chill,
-                        love: (card as { love?: boolean }).love,
-                        relax: (card as { relax?: boolean }).relax,
-                        yoga: (card as { yoga?: boolean }).yoga,
-                        friendship: (card as { friendship?: boolean }).friendship,
-                        culture: (card as { culture?: boolean }).culture,
-                        cinema: (card as { cinema?: boolean }).cinema,
+                        // Set boolean flags from interests array
+                        ...activityFlags,
                     };
                 }
             );

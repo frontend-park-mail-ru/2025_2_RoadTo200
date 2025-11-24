@@ -54,6 +54,23 @@
         font-weight: 300;
     }
 
+    &__interests {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 8px;
+    }
+
+    &__interest-tag {
+        background-color: rgba(255, 255, 255, 0.9);
+        color: #333;
+        padding: 4px 10px;
+        border-radius: 16px;
+        font-size: 12px;
+        font-weight: 500;
+        text-shadow: none;
+    }
+
     &__actions {
         display: flex;
         justify-content: space-around;
@@ -113,6 +130,7 @@
         transform: translate(-50%, 0) rotate(0deg);
         opacity: 1;
     }
+
     100% {
         transform: translate(-200%, -20%) rotate(-30deg);
         opacity: 0;
@@ -124,6 +142,7 @@
         transform: translate(-50%, 0) rotate(0deg);
         opacity: 1;
     }
+
     100% {
         transform: translate(100%, -20%) rotate(30deg);
         opacity: 0;
@@ -135,6 +154,7 @@
         transform: translate(-50%, 0) rotate(0deg);
         opacity: 1;
     }
+
     100% {
         transform: translate(-50%, -150%) rotate(0deg);
         opacity: 0;

@@ -69,13 +69,6 @@ class ProfileStore implements Store {
             case Actions.ADD_PHOTO:
                 await this.addPhoto();
                 break;
-            case Actions.UPDATE_ACTIVITY:
-                if (action.payload) {
-                    await this.toggleActivity(
-                        action.payload as { [key: string]: boolean }
-                    );
-                }
-                break;
             default:
                 break;
         }
