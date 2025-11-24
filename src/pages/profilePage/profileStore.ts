@@ -261,7 +261,7 @@ class ProfileStore implements Store {
 
             fileInput.click();
         } catch (error) {
-            // console.error('Error in addPhoto:', error);
+            console.error('Error in addPhoto:', error);
         }
     }
 
@@ -275,7 +275,7 @@ class ProfileStore implements Store {
             }
 
             await this.saveInterests();
-            await this.rerenderProfile();
+            // await this.rerenderProfile();
         } catch (error) {
             // console.error('Error toggling activity:', error);
         }
