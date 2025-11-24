@@ -113,6 +113,7 @@ class NavigationStore implements Store {
             </div>
             <div class="menu-overlay" id="menu-overlay"></div>
             <div id="profile-menu-container"></div>
+            <!--
             <iframe
                 id="support-iframe"
                 src="/support"
@@ -120,6 +121,7 @@ class NavigationStore implements Store {
                 sandbox="allow-same-origin allow-scripts allow-forms"
                 scrolling="no"
             ></iframe>
+            -->
         `;
 
         this.offlineBannerContainer = rootElement.querySelector(
