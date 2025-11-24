@@ -10,7 +10,10 @@ class ChatsPageStore implements Store {
     async handleAction(action: Action): Promise<void> {
         switch (action.type) {
             case Actions.RENDER_CHATS:
-                
+                if (typeof document === 'undefined') {
+                    return;
+                }
+
                 if (!chats.parent) {
                     const rootContainer = document.getElementById('root');
                     if (rootContainer) {
@@ -19,7 +22,7 @@ class ChatsPageStore implements Store {
                         return;
                     }
                 }
-                
+
                 await chats.render();
                 
                 dispatcher.process({ type: Actions.RENDER_CHATS_LIST });

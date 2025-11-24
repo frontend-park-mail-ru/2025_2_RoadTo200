@@ -2,23 +2,29 @@ import { Actions } from '../../actions';
 import { dispatcher } from '../../Dispatcher';
 import type { PageComponent } from '../../navigation/navigationStore';
 
-const TEMPLATE_PATH = '/src/components/ChatsList/chatsList.hbs';
+const TEMPLATE_PATH = '/src/components/chatsList/chatsList.hbs';
 
-interface Chat {
+interface ChatListItem {
     id: string;
     userId: string;
     userName: string;
-    userAge: number;
-    userAvatar: string;
+    userAvatar?: string;
+    initials: string;
     lastMessage: string;
     timestamp: string;
-    unread: boolean;
+    unreadCount: number;
     isSelected?: boolean;
 }
 
 interface ChatsListData {
-    chats: Chat[];
+    chats: ChatListItem[];
     selectedChatId?: string;
+    searchQuery?: string;
+    isLoading?: boolean;
+    emptyState?: {
+        title: string;
+        subtitle: string;
+    };
 }
 
 const fetchTemplate = async (path: string): Promise<string> => {
@@ -36,6 +42,7 @@ const fetchTemplate = async (path: string): Promise<string> => {
 
 export class ChatsList implements PageComponent {
     parent: HTMLElement | null;
+    private searchTimer: number | null = null;
 
     constructor(parent: HTMLElement | null) {
         this.parent = parent;
@@ -44,9 +51,7 @@ export class ChatsList implements PageComponent {
     async render(data: ChatsListData = { chats: [] }): Promise<void> {
         if (!this.parent) return;
 
-        const { chats, selectedChatId } = data;
-
-        console.log('ChatsList: Rendering with chats:', chats, 'and selectedChatId:', selectedChatId);
+        const { chats, selectedChatId, searchQuery, isLoading, emptyState } = data;
 
         const chatsWithSelection = chats.map((chat) => ({
             ...chat,
@@ -56,11 +61,12 @@ export class ChatsList implements PageComponent {
         const templateString = await fetchTemplate(TEMPLATE_PATH);
         const template = Handlebars.compile(templateString);
 
-        console.log('ChatsList: Compiled template:', templateString);
-
         const renderedHtml = template({
             chats: chatsWithSelection,
             hasChats: chats.length > 0,
+            searchQuery,
+            isLoading,
+            emptyState,
         });
 
         this.parent.innerHTML = renderedHtml;
@@ -76,15 +82,55 @@ export class ChatsList implements PageComponent {
             item.addEventListener('click', (event) => {
                 event.preventDefault();
                 const chatId = (item as HTMLElement).dataset.chatId;
-                
+                const userName = (item as HTMLElement).dataset.userName || '';
+                const userPhoto = (item as HTMLElement).dataset.userPhoto || '';
+
                 if (chatId) {
                     dispatcher.process({
                         type: Actions.SELECT_CHAT,
-                        payload: { chatId },
+                        payload: { chatId, userName, userPhoto },
                     });
+                    if (typeof document !== 'undefined') {
+                        document
+                            .querySelector('.chats-page')
+                            ?.classList.add('chats-page--conversation-open');
+                    }
                 }
             });
         });
+
+        const searchInput = this.parent.querySelector(
+            '.chats-sidebar__search-input'
+        ) as HTMLInputElement | null;
+
+        if (searchInput) {
+            searchInput.addEventListener('input', () => {
+                if (this.searchTimer) {
+                    clearTimeout(this.searchTimer);
+                }
+
+                const value = searchInput.value;
+                this.searchTimer = window.setTimeout(() => {
+                    dispatcher.process({
+                        type: Actions.UPDATE_CHAT_SEARCH,
+                        payload: { query: value },
+                    });
+                }, 300);
+            });
+        }
+
+        const emptyButton = this.parent.querySelector(
+            '[data-action="go-home"]'
+        ) as HTMLButtonElement | null;
+
+        if (emptyButton) {
+            emptyButton.addEventListener('click', () => {
+                dispatcher.process({
+                    type: Actions.NAVIGATE_TO,
+                    payload: { path: '/' },
+                });
+            });
+        }
     }
 }
 

@@ -1,63 +1,57 @@
 .chats-page {
     display: flex;
-    height: 100vh;
+    height: calc(100vh - 48px);
     width: 100%;
-    background: #fff;
+    background: linear-gradient(180deg, #fff5f9 0%, #ffffff 65%);
+    border-radius: 40px;
     overflow: hidden;
+    box-shadow: 0 40px 80px rgba(255, 75, 114, 0.1);
 
     &__sidebar {
-        width: 400px;
-        min-width: 400px;
-        height: 100%;
-        border-right: 1px solid #ffd1dd;
-        display: flex;
-        flex-direction: column;
+        width: 360px;
+        min-width: 320px;
+        border-right: 1px solid rgba(255, 75, 114, 0.15);
         background: #fff;
-    }
-
-    &__header {
-        padding: 24px;
-        border-bottom: 1px solid #ffd1dd;
-        background: #fff;
-    }
-
-    &__title {
-        margin: 0;
-        font-size: 28px;
-        font-weight: 700;
-        color: #ff477e;
-    }
-
-    &__list {
-        flex: 1;
-        overflow-y: auto;
-        background: #fff;
-
-        &::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        &::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        &::-webkit-scrollbar-thumb {
-            background: rgba(255, 71, 126, 0.3);
-            border-radius: 3px;
-        }
     }
 
     &__main {
         flex: 1;
-        height: 100%;
+        background: transparent;
         display: flex;
-        flex-direction: column;
-        overflow: hidden;
     }
 
     &__window {
         flex: 1;
-        height: 100%;
-        overflow: hidden;
+        padding: 24px;
+    }
+}
+
+@media (max-width: 1024px) {
+    .chats-page {
+        flex-direction: column;
+        border-radius: 24px;
+        height: auto;
+
+        &__sidebar,
+        &__main,
+        &__window {
+            width: 100%;
+            min-width: 0;
+            padding: 16px;
+        }
+
+        &__main {
+            display: none;
+        }
+    }
+
+    .chats-page--conversation-open {
+        .chats-page__sidebar {
+            display: none;
+        }
+
+        .chats-page__main {
+            display: flex;
+        }
     }
 }

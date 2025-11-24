@@ -89,6 +89,10 @@ export const Actions = {
     RENDER_CHATS_LIST: 'RENDER_CHATS_LIST',
     SELECT_CHAT: 'SELECT_CHAT',
     LOAD_CHATS: 'LOAD_CHATS',
+    UPDATE_CHAT_SEARCH: 'UPDATE_CHAT_SEARCH',
+    CHAT_SOCKET_MESSAGE: 'CHAT_SOCKET_MESSAGE',
+    CHAT_SOCKET_STATUS: 'CHAT_SOCKET_STATUS',
+    CHAT_MARKED_AS_READ: 'CHAT_MARKED_AS_READ',
 
     // chat window
     RENDER_CHAT_WINDOW: 'RENDER_CHAT_WINDOW',
@@ -96,6 +100,8 @@ export const Actions = {
     LOAD_CHAT_MESSAGES: 'LOAD_CHAT_MESSAGES',
 
 } as const;
+
+export type { ChatSocketEvent, ChatSocketStatus, SelectChatPayload } from './types/chat';
 
 export type ActionType = (typeof Actions)[keyof typeof Actions];
 

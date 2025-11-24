@@ -2,199 +2,320 @@ import { dispatcher } from '../../Dispatcher';
 import { Actions, Action } from '../../actions';
 import { chatWindow } from './chatWindow';
 import type { Store } from '../../Dispatcher';
+import ChatApi, { type MessageDTO } from '@/apiHandler/chatApi';
+import AuthApi from '@/apiHandler/authApi';
+import chatSocket from '@/services/chatSocket';
+import type {
+    ChatSocketEvent,
+    ChatSocketStatus,
+    SelectChatPayload,
+} from '@/types/chat';
 
-interface Message {
+interface MessageView {
     id: string;
     text: string;
     senderId: string;
     timestamp: string;
+    createdAt: string;
     isMine: boolean;
 }
 
-interface Chat {
-    id: string;
-    userId: string;
+interface ChatMeta {
     userName: string;
-    userAge: number;
-    messages: Message[];
+    userPhoto?: string;
+    initials: string;
 }
 
 class ChatWindowStore implements Store {
     private currentChatId: string | null = null;
-    private chats: Map<string, Chat> = new Map();
-    private currentUserId = 'me'; // Current user ID
-    private chatWindowComponent = chatWindow;
+    private readonly messagesByChat = new Map<string, MessageView[]>();
+    private readonly chatMeta = new Map<string, ChatMeta>();
+    private readonly chatWindowComponent = chatWindow;
+    private currentUserId: string | null = null;
+    private isLoading = false;
+    private isSending = false;
+    private socketStatus: ChatSocketStatus = 'disconnected';
+    private markAsReadTimer: number | null = null;
 
     constructor() {
         dispatcher.register(this);
-        this.loadMockData();
+        void this.ensureUser();
+        chatSocket.connect();
     }
 
     async handleAction(action: Action): Promise<void> {
         switch (action.type) {
+            case Actions.RENDER_CHAT_WINDOW:
+                await this.renderChatWindow();
+                break;
+
             case Actions.SELECT_CHAT:
-                if (action.payload && (action.payload as { chatId: string }).chatId) {
-                    this.currentChatId = (action.payload as { chatId: string }).chatId;
-                    await this.renderChatWindow();
-                }
+                await this.handleChatSelection(action.payload as SelectChatPayload);
                 break;
-            
+
             case Actions.SEND_MESSAGE:
-                if (action.payload && (action.payload as { text: string }).text) {
-                    await this.sendMessage((action.payload as { text: string }).text);
-                }
+                await this.handleSendMessage((action.payload as { text?: string })?.text);
                 break;
-            
+
             case Actions.LOAD_CHAT_MESSAGES:
-                if (action.payload && (action.payload as { chatId: string }).chatId) {
-                    await this.loadMessages((action.payload as { chatId: string }).chatId);
-                }
+                await this.loadMessages((action.payload as { chatId: string })?.chatId);
                 break;
-            
+
+            case Actions.CHAT_SOCKET_MESSAGE:
+                this.handleSocketEvent(action.payload as ChatSocketEvent);
+                break;
+
+            case Actions.CHAT_SOCKET_STATUS:
+                this.socketStatus = (action.payload as { status: ChatSocketStatus })?.status;
+                await this.renderChatWindow();
+                break;
+
+            case Actions.AUTH_STATE_UPDATED:
+                await this.handleAuthUpdate(action.payload as { user?: { id?: string } | null });
+                break;
+
             default:
                 break;
         }
     }
 
-    private async sendMessage(text: string): Promise<void> {
-        if (!this.currentChatId) return;
-
-        const chat = this.chats.get(this.currentChatId);
-        if (!chat) return;
-
-        const newMessage: Message = {
-            id: `msg-${Date.now()}`,
-            text,
-            senderId: this.currentUserId,
-            timestamp: new Date().toLocaleTimeString('ru-RU', { 
-                hour: '2-digit', 
-                minute: '2-digit' 
-            }),
-            isMine: true,
-        };
-
-        chat.messages.push(newMessage);
-        await this.renderChatWindow();
-
-        // Mock response after 1 second
-        setTimeout(() => {
-            this.simulateResponse();
-        }, 1000);
+    private async ensureUser(): Promise<void> {
+        try {
+            const response = await AuthApi.checkAuth();
+            this.currentUserId = response.user?.id || null;
+        } catch {
+            this.currentUserId = null;
+        }
     }
 
-    private simulateResponse(): void {
-        if (!this.currentChatId) return;
-
-        const chat = this.chats.get(this.currentChatId);
-        if (!chat) return;
-
-        const responses = [
-            'Спасибо! Ты тоже классный!',
-            'Очень приятно 😊',
-            'Давай познакомимся поближе?',
-            'Как твои дела?',
-        ];
-
-        const responseMessage: Message = {
-            id: `msg-${Date.now()}`,
-            text: responses[Math.floor(Math.random() * responses.length)],
-            senderId: chat.userId,
-            timestamp: new Date().toLocaleTimeString('ru-RU', { 
-                hour: '2-digit', 
-                minute: '2-digit' 
-            }),
-            isMine: false,
-        };
-
-        chat.messages.push(responseMessage);
-        this.renderChatWindow();
+    private async handleAuthUpdate(payload: { user?: { id?: string } | null }): Promise<void> {
+        this.currentUserId = payload?.user?.id || null;
+        if (!this.currentUserId) {
+            this.currentChatId = null;
+            this.messagesByChat.clear();
+            this.chatMeta.clear();
+            chatSocket.disconnect();
+            await this.renderChatWindow();
+        } else {
+            chatSocket.connect();
+        }
     }
 
-    private async loadMessages(chatId: string): Promise<void> {
-        // Mock API call - replace with actual API
-        // const response = await fetch(`/api/chats/${chatId}/messages`);
-        // const messages = await response.json();
-        
-        this.currentChatId = chatId;
-        await this.renderChatWindow();
-    }
-
-    private loadMockData(): void {
-        // Mock chat data
-        this.chats.set('1', {
-            id: '1',
-            userId: 'user1',
-            userName: 'Kirill',
-            userAge: 19,
-            messages: [
-                {
-                    id: 'msg1',
-                    text: 'Привет! Улыбка у тебя супер!',
-                    senderId: 'user1',
-                    timestamp: '14:30',
-                    isMine: false,
-                },
-                {
-                    id: 'msg2',
-                    text: 'Спасибо! Чем ты занимаешься?',
-                    senderId: 'me',
-                    timestamp: '14:32',
-                    isMine: true,
-                },
-                {
-                    id: 'msg3',
-                    text: 'На самом деле я человек довольно творческий – работаю графическим дизайнером, люблю придумывать визуальные концепции и экспериментировать с цветом. В свободное время часто хожу по музеям и старым улицам, фотографирую детали - трещины на стенах, отражения в окнах, случайные надписи. Кажется, в таких мелочах больше жизни, чем в идеально выстроенных кадрах. А ещё люблю кофе с корицей и вечерние разговоры под музыку из старого плейлиста.',
-                    senderId: 'user1',
-                    timestamp: '14:35',
-                    isMine: false,
-                },
-                {
-                    id: 'msg4',
-                    text: 'Привет! Улыбка у тебя супер!',
-                    senderId: 'me',
-                    timestamp: '14:40',
-                    isMine: true,
-                },
-            ],
+    private async handleChatSelection(payload?: SelectChatPayload): Promise<void> {
+        if (!payload?.chatId) return;
+        this.currentChatId = payload.chatId;
+        this.chatMeta.set(payload.chatId, {
+            userName: payload.userName,
+            userPhoto: payload.userPhoto,
+            initials: this.getInitials(payload.userName),
         });
 
-        this.chats.set('2', {
-            id: '2',
-            userId: 'user2',
-            userName: 'Kirill',
-            userAge: 19,
-            messages: [
-                {
-                    id: 'msg1',
-                    text: 'Привет! Улыбка у тебя супер!',
-                    senderId: 'user2',
-                    timestamp: '12:10',
-                    isMine: false,
-                },
-            ],
+        if (typeof document !== 'undefined') {
+            document
+                .querySelector('.chats-page')
+                ?.classList.add('chats-page--conversation-open');
+        }
+
+        await this.loadMessages(payload.chatId);
+    }
+
+    private async loadMessages(chatId?: string): Promise<void> {
+        if (!chatId) return;
+        this.isLoading = true;
+        await this.renderChatWindow();
+
+        try {
+            const { messages } = await ChatApi.getMessages(chatId, { limit: 100 });
+            const mapped = messages.map((message) => this.mapMessage(message));
+            this.messagesByChat.set(chatId, mapped);
+            this.scrollToBottom();
+            this.scheduleMarkAsRead(chatId);
+        } catch (error) {
+            console.error('ChatWindowStore: failed to load messages', error);
+        } finally {
+            this.isLoading = false;
+            await this.renderChatWindow();
+        }
+    }
+
+    private mapMessage(message: MessageDTO): MessageView {
+        const created = new Date(message.created_at);
+        const timestamp = created.toLocaleTimeString('ru-RU', {
+            hour: '2-digit',
+            minute: '2-digit',
         });
+
+        return {
+            id: message.id,
+            text: message.content,
+            senderId: message.sender_id,
+            timestamp,
+            createdAt: message.created_at,
+            isMine: message.sender_id === this.currentUserId,
+        };
+    }
+
+    private getMessages(chatId: string | null): MessageView[] {
+        if (!chatId) return [];
+        return this.messagesByChat.get(chatId) || [];
+    }
+
+    private async handleSendMessage(text?: string): Promise<void> {
+        if (!text || !this.currentChatId) return;
+        const trimmed = text.trim();
+        if (!trimmed) return;
+
+        this.isSending = true;
+        await this.renderChatWindow();
+
+        try {
+            if (chatSocket.isConnected()) {
+                chatSocket.sendMessage(this.currentChatId, trimmed);
+            } else {
+                const response = await ChatApi.sendMessage(this.currentChatId, trimmed);
+                this.appendMessage(this.currentChatId, {
+                    id: response.message_id,
+                    text: trimmed,
+                    senderId: this.currentUserId || '',
+                    timestamp: new Date(response.created_at).toLocaleTimeString('ru-RU', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                    }),
+                    createdAt: response.created_at,
+                    isMine: true,
+                });
+            }
+        } catch (error) {
+            console.error('ChatWindowStore: failed to send message', error);
+        } finally {
+            this.isSending = false;
+            await this.renderChatWindow();
+        }
+    }
+
+    private appendMessage(chatId: string, message: MessageView): void {
+        const list = this.messagesByChat.get(chatId) || [];
+        list.push(message);
+        this.messagesByChat.set(chatId, list);
+        if (chatId === this.currentChatId) {
+            void this.renderChatWindow();
+            this.scrollToBottom();
+        }
+    }
+
+    private handleSocketEvent(event: ChatSocketEvent): void {
+        if (!event || !event.match_id) return;
+
+        if (event.type === 'message') {
+            const mapped: MessageView = {
+                id: event.message_id || `msg-${Date.now()}`,
+                text: event.content || '',
+                senderId: event.sender_id || '',
+                timestamp: event.created_at
+                    ? new Date(event.created_at).toLocaleTimeString('ru-RU', {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                      })
+                    : '',
+                createdAt: event.created_at || new Date().toISOString(),
+                isMine: event.sender_id === this.currentUserId,
+            };
+
+            this.appendMessage(event.match_id, mapped);
+
+            if (
+                event.match_id === this.currentChatId &&
+                event.sender_id &&
+                event.sender_id !== this.currentUserId
+            ) {
+                this.scheduleMarkAsRead(event.match_id);
+            }
+        }
+    }
+
+    private scheduleMarkAsRead(chatId: string): void {
+        if (typeof window === 'undefined') return;
+        if (this.markAsReadTimer) {
+            clearTimeout(this.markAsReadTimer);
+        }
+
+        this.markAsReadTimer = window.setTimeout(() => {
+            void this.markAsRead(chatId);
+        }, 400);
+    }
+
+    private async markAsRead(chatId: string): Promise<void> {
+        if (!chatId) return;
+        try {
+            await ChatApi.markAsRead(chatId);
+            dispatcher.process({
+                type: Actions.CHAT_MARKED_AS_READ,
+                payload: { chatId },
+            });
+        } catch (error) {
+            console.error('ChatWindowStore: failed to mark messages as read', error);
+        }
     }
 
     private async renderChatWindow(): Promise<void> {
-        if (!this.currentChatId) {
-            await this.chatWindowComponent.render({
-                messages: [],
-                chatId: null,
-            });
-            return;
-        }
+        const messages = this.getMessages(this.currentChatId);
+        const meta = this.currentChatId
+            ? this.chatMeta.get(this.currentChatId)
+            : null;
 
-        const chat = this.chats.get(this.currentChatId);
-        if (!chat) return;
+        const placeholder = !this.currentChatId
+            ? {
+                  title: 'У Вас пока нет чатов',
+                  subtitle: 'Возможно, Вам стоит еще поискать подходящих людей',
+                  action: 'home' as const,
+              }
+            : undefined;
 
-        const data = {
-            messages: chat.messages,
+        await this.chatWindowComponent.render({
+            messages,
             chatId: this.currentChatId,
-            otherUserName: chat.userName,
-            otherUserAge: chat.userAge,
-        };
+            otherUserName: meta?.userName,
+            otherUserPhoto: meta?.userPhoto,
+            otherUserInitials: meta?.initials,
+            isLoading: this.isLoading,
+            isInputDisabled: !this.currentChatId || this.isLoading || this.isSending,
+            placeholder,
+            socketStatus: this.formatSocketStatus(),
+        });
+    }
 
-        await this.chatWindowComponent.render(data);
+    private formatSocketStatus(): string {
+        switch (this.socketStatus) {
+            case 'connected':
+                return 'Онлайн';
+            case 'connecting':
+                return 'Подключаемся…';
+            case 'disconnected':
+            default:
+                return 'Соединение отсутствует';
+        }
+    }
+
+    private getInitials(name?: string): string {
+        if (!name) return 'T';
+        const parts = name.trim().split(/\s+/);
+        return parts
+            .slice(0, 2)
+            .map((part) => part[0]?.toUpperCase() || '')
+            .join('') || 'T';
+    }
+
+    private scrollToBottom(): void {
+        if (typeof window === 'undefined') return;
+        setTimeout(() => {
+            if (typeof document === 'undefined') return;
+            const container = document.querySelector(
+                '.chat-window__messages'
+            ) as HTMLElement | null;
+            if (container) {
+                container.scrollTop = container.scrollHeight;
+            }
+        }, 100);
     }
 }
 

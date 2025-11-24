@@ -21,6 +21,12 @@ export default defineConfig({
                 changeOrigin: true,
                 secure: false,
             },
+            '/ws': {
+                target: 'http://terabithia.online',
+                changeOrigin: true,
+                secure: false,
+                ws: true,
+            },
             '/support-api': {
                 target: 'http://terabithia.online',
                 changeOrigin: true,
@@ -37,6 +43,12 @@ export default defineConfig({
                 target: 'http://terabithia.online',
                 changeOrigin: true,
                 secure: false,
+            },
+            '/ws': {
+                target: 'http://terabithia.online',
+                changeOrigin: true,
+                secure: false,
+                ws: true,
             },
             '/support-api': {
                 target: 'http://terabithia.online',

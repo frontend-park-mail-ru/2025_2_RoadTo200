@@ -1,30 +1,56 @@
 <div class="chat-window">
     {{#if chatId}}
-        <div class="chat-window__messages">
-            {{#if hasMessages}}
-                {{#each messages}}
-                <div class="chat-message {{#if isMine}}chat-message--mine{{else}}chat-message--theirs{{/if}}">
-                    <div class="chat-message__bubble">
-                        <p class="chat-message__text">{{text}}</p>
-                    </div>
+        <div class="chat-window__header">
+            <button class="chat-window__back" data-action="back-to-list">
+                ← Назад
+            </button>
+            <div class="chat-window__person">
+                <div class="chat-window__avatar">
+                    {{#if otherUserPhoto}}
+                        <img src="{{otherUserPhoto}}" alt="{{otherUserName}}" />
+                    {{else}}
+                        <span>{{otherUserInitials}}</span>
+                    {{/if}}
                 </div>
-                {{/each}}
+                <div>
+                    <p class="chat-window__name">{{otherUserName}}</p>
+                    <p class="chat-window__status">{{#if socketStatus}}{{socketStatus}}{{else}}Готовы к диалогу{{/if}}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="chat-window__body">
+            {{#if isLoading}}
+                <div class="chat-window__loader">Загружаем историю…</div>
+            {{else if hasMessages}}
+                <div class="chat-window__messages">
+                    {{#each messages}}
+                        <div class="chat-message {{#if isMine}}chat-message--mine{{else}}chat-message--theirs{{/if}}">
+                            <div class="chat-message__bubble">
+                                <p class="chat-message__text">{{text}}</p>
+                                <span class="chat-message__time">{{timestamp}}</span>
+                            </div>
+                        </div>
+                    {{/each}}
+                </div>
             {{else}}
-                <div class="chat-window__empty">
-                    <p>Начните разговор!</p>
+                <div class="chat-window__placeholder">
+                    <h3>Пока нет сообщений</h3>
+                    <p>Станьте инициатором знакомства</p>
                 </div>
             {{/if}}
         </div>
 
-        <form class="chat-window__input-form">
+        <form class="chat-window__input-form {{#if isInputDisabled}}chat-window__input-form--disabled{{/if}}">
             <div class="chat-window__input-wrapper">
                 <textarea 
                     class="chat-window__input" 
                     placeholder="Сообщение"
                     rows="1"
                     maxlength="1000"
+                    {{#if isInputDisabled}}disabled{{/if}}
                 ></textarea>
-                <button type="submit" class="chat-window__send-btn" aria-label="Отправить">
+                <button type="submit" class="chat-window__send-btn" aria-label="Отправить" {{#if isInputDisabled}}disabled{{/if}}>
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
@@ -32,8 +58,12 @@
             </div>
         </form>
     {{else}}
-        <div class="chat-window__no-chat">
-            <p>Выберите чат для начала общения</p>
+        <div class="chat-window__placeholder">
+            <h3>{{#if placeholder}}{{placeholder.title}}{{else}}У Вас пока нет чатов{{/if}}</h3>
+            <p>{{#if placeholder}}{{placeholder.subtitle}}{{else}}Возможно, Вам стоит еще поискать подходящих людей{{/if}}</p>
+            {{#if placeholder.action}}
+                <button type="button" data-action="go-home">Вернуться на главную</button>
+            {{/if}}
         </div>
     {{/if}}
 </div>

@@ -34,6 +34,11 @@ body {
     --color-primary-light: #ff4b72;
     --color-primary-dark: #ff79a1;
     --border-radius-large: 30px;
+    --primary-gradient: linear-gradient(
+        to right,
+        var(--color-primary-dark) 0%,
+        var(--color-primary-light) 100%
+    );
 }
 
 .page-layout {
