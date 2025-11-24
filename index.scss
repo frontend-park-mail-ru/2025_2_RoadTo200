@@ -111,6 +111,7 @@ body.menu-open .menu-overlay {
     z-index: 2000;
     transition: width 0.25s ease-in-out, height 0.35s ease-in-out;
     pointer-events: auto;
+    overflow: hidden;
 }
 
 @media (max-width: 1199px) {

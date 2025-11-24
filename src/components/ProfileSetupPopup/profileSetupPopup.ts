@@ -1,5 +1,9 @@
 import Handlebars from 'handlebars';
-import ProfileApi, { type Profile } from '@/apiHandler/profileApi';
+import ProfileApi, {
+    type ProfileResponse,
+    type ProfileUser,
+    type UserPhoto,
+} from '@/apiHandler/profileApi';
 import './profileSetupPopup.scss';
 import { Actions } from '../../actions';
 import { dispatcher } from '../../Dispatcher';
@@ -31,37 +35,16 @@ export class ProfileSetupPopup {
     static async isProfileComplete(): Promise<boolean> {
         try {
             const response = await ProfileApi.getProfile();
-            // console.log('API response in isProfileComplete:', response);
-
-            // Проверяем разные форматы ответа от API
-            let profile: Profile;
-            if (response && response.profile) {
-                profile = response.profile;
-            } else if (response && (response as any).user) {
-                // API возвращает объект с полем user
-                profile = (response as any).user;
-            } else if (response && (response as any).name !== undefined) {
-                // API возвращает профиль напрямую
-                profile = response as any as Profile;
-            } else {
-                // console.warn('Profile data is missing or has unexpected format', response);
+            const profile = ProfileSetupPopup.extractUser(response);
+            if (!profile) {
                 return false;
             }
 
-            // console.log('Profile data:', profile);
+            const hasName = ProfileSetupPopup.hasMeaningfulName(profile);
+            const hasGender = ProfileSetupPopup.hasValidGender(profile);
+            const hasPhoto = ProfileSetupPopup.hasApprovedPhoto(response);
 
-            // Проверяем обязательные поля (убрали проверку даты рождения)
-            const hasName = !!(
-                profile.name && profile.name.trim() !== 'NAAAAAAne'
-            );
-            const hasGender = !!(profile.gender && profile.gender !== '');
-
-            // Дата рождения больше не обязательна для проверки
-            // const birthDate = (profile as any).birth_date || profile.birthDate;
-
-            const isComplete = hasName && hasGender;
-
-            return isComplete;
+            return hasName && hasGender && hasPhoto;
         } catch (error) {
             // console.error('Error checking profile completeness:', error);
             return false;
@@ -74,43 +57,22 @@ export class ProfileSetupPopup {
     private async getCurrentProfileData(): Promise<ProfileSetupData> {
         try {
             const response = await ProfileApi.getProfile();
-
-            // Проверяем разные форматы ответа от API
-            let profile: Profile;
-            if (response && response.profile) {
-                profile = response.profile;
-            } else if (response && (response as any).user) {
-                // API возвращает объект с полем user
-                profile = (response as any).user;
-            } else if (response && (response as any).name !== undefined) {
-                // API возвращает профиль напрямую
-                profile = response as any as Profile;
-            } else {
-                // console.warn('Profile data is missing in getCurrentProfileData');
+            const profile = ProfileSetupPopup.extractUser(response);
+            if (!profile) {
                 return {};
             }
 
-            // Обрабатываем snake_case поля от API
-            let birthDate =
-                (profile as any).birth_date || profile.birthDate || '';
-
-            // Конвертируем дату из ISO формата в YYYY-MM-DD для input type="date"
-            if (birthDate && birthDate !== '0001-01-01T00:00:00Z') {
-                // Извлекаем компоненты даты из ISO строки
-                const isoMatch = birthDate.match(/^(\d{4})-(\d{2})-(\d{2})/);
-                if (isoMatch) {
-                    const [, year, month, day] = isoMatch;
-                    birthDate = `${year}-${month}-${day}`;
-                } else {
-                    birthDate = '';
-                }
-            } else {
-                birthDate = '';
-            }
+            const profileRecord = profile as Record<string, unknown>;
+            const birthDate = ProfileSetupPopup.normalizeBirthDate(
+                profile.birth_date ||
+                    (typeof profileRecord.birthDate === 'string'
+                        ? profileRecord.birthDate
+                        : undefined)
+            );
 
             return {
                 name: profile.name || '',
-                birthDate: birthDate,
+                birthDate,
                 gender: profile.gender || '',
                 bio: profile.bio || '',
             };
@@ -189,9 +151,6 @@ export class ProfileSetupPopup {
     /**
      * Обрабатывает отправку формы
      */
-    /**
-     * Обрабатывает отправку формы
-     */
     private async handleSubmit(event: Event): Promise<void> {
         event.preventDefault();
 
@@ -267,21 +226,9 @@ export class ProfileSetupPopup {
 
             // Получаем обновленные данные профиля для AUTH_STATE_UPDATED
             const updatedProfileResponse = await ProfileApi.getProfile();
-            let updatedUser: any = null;
-
-            if (updatedProfileResponse && updatedProfileResponse.profile) {
-                updatedUser = updatedProfileResponse.profile;
-            } else if (
-                updatedProfileResponse &&
-                (updatedProfileResponse as any).user
-            ) {
-                updatedUser = (updatedProfileResponse as any).user;
-            } else if (
-                updatedProfileResponse &&
-                (updatedProfileResponse as any).name !== undefined
-            ) {
-                updatedUser = updatedProfileResponse as any;
-            }
+            const updatedUser = ProfileSetupPopup.extractUser(
+                updatedProfileResponse
+            );
 
             // Обновляем состояние аутентификации
             dispatcher.process({
@@ -355,9 +302,9 @@ export class ProfileSetupPopup {
      */
     private showError(message: string): void {
         if (!this.containerElement) return;
-    const errorElement = this.containerElement.querySelector(
-        '#profileSetupError'
-    ) as HTMLElement | null;
+        const errorElement = this.containerElement.querySelector(
+            '#profileSetupError'
+        ) as HTMLElement | null;
         if (errorElement) {
             errorElement.textContent = message;
             errorElement.style.display = 'block';
@@ -369,13 +316,130 @@ export class ProfileSetupPopup {
      */
     private clearError(): void {
         if (!this.containerElement) return;
-    const errorElement = this.containerElement.querySelector(
-        '#profileSetupError'
-    ) as HTMLElement | null;
+        const errorElement = this.containerElement.querySelector(
+            '#profileSetupError'
+        ) as HTMLElement | null;
         if (errorElement) {
             errorElement.textContent = '';
             errorElement.style.display = 'none';
         }
+    }
+
+    private static extractUser(
+        response:
+            | ProfileResponse
+            | { profile?: ProfileUser }
+            | { user?: ProfileUser }
+            | ProfileUser
+            | null
+            | undefined
+    ): ProfileUser | null {
+        if (!response || typeof response !== 'object') {
+            return null;
+        }
+
+        if ('user' in response && response.user) {
+            return response.user as ProfileUser;
+        }
+
+        if ('profile' in response && response.profile) {
+            return response.profile as ProfileUser;
+        }
+
+        if ('name' in response) {
+            return response as ProfileUser;
+        }
+
+        return null;
+    }
+
+    private static hasMeaningfulName(profile: ProfileUser): boolean {
+        const normalizedName = (profile.name || '').trim();
+        if (normalizedName.length < 2) {
+            return false;
+        }
+
+        const lowerName = normalizedName.toLowerCase();
+        const invalidNames = new Set(['naaaaaane', 'name', 'username']);
+        if (invalidNames.has(lowerName)) {
+            return false;
+        }
+
+        if (/^user[\d_-]*$/i.test(normalizedName)) {
+            return false;
+        }
+
+        const emailLower = (profile.email || '').trim().toLowerCase();
+        if (emailLower.length > 0) {
+            const emailLocal = emailLower.split('@')[0] || '';
+            if (lowerName === emailLower || lowerName === emailLocal) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static hasValidGender(profile: ProfileUser): boolean {
+        const genderValue = (profile.gender || '').toString().toLowerCase();
+        const invalidValues = new Set([
+            '',
+            'not_specified',
+            'unspecified',
+            'unknown',
+            'prefer_not_to_say',
+            'none',
+        ]);
+
+        return genderValue.length > 0 && !invalidValues.has(genderValue);
+    }
+
+    private static hasApprovedPhoto(response: ProfileResponse): boolean {
+        const photos = Array.isArray(response.photos) ? response.photos : [];
+        if (photos.length === 0) {
+            return true;
+        }
+
+        return photos.some((photo) => ProfileSetupPopup.isPhotoApproved(photo));
+    }
+
+    private static isPhotoApproved(photo: UserPhoto): boolean {
+        if (!photo) {
+            return false;
+        }
+
+        if (typeof photo.is_approved === 'boolean') {
+            return photo.is_approved;
+        }
+
+        return true;
+    }
+
+    private static normalizeBirthDate(birthDate?: string): string {
+        if (!birthDate) {
+            return '';
+        }
+
+        const trimmed = birthDate.trim();
+        if (!trimmed || trimmed.startsWith('0001-01-01')) {
+            return '';
+        }
+
+        const isoMatch = trimmed.match(/^(\d{4})-(\d{2})-(\d{2})/);
+        if (isoMatch) {
+            const [, year, month, day] = isoMatch;
+            return `${year}-${month}-${day}`;
+        }
+
+        const parsed = new Date(trimmed);
+        if (!Number.isNaN(parsed.getTime())) {
+            const year = parsed.getFullYear();
+            const month = String(parsed.getMonth() + 1).padStart(2, '0');
+            const day = String(parsed.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        return '';
     }
 }
 

@@ -11,6 +11,7 @@ interface ProcessedMatch {
     age: number | null;
     image: string;
     matchId: string;
+    userId: string;
     matchedAt: string;
     expiresAt: string;
     isNew: boolean;
@@ -60,6 +61,20 @@ class MatchesStore implements Store {
                 const user = item.user || ({} as Record<string, unknown>);
                 const photos = Array.isArray(item.photos) ? item.photos : [];
 
+                const matchIdentifier =
+                    (match as { id?: string }).id ||
+                    (match as { match_id?: string }).match_id ||
+                    (user as { id?: string }).id ||
+                    (typeof crypto !== 'undefined' &&
+                    'randomUUID' in crypto
+                        ? crypto.randomUUID()
+                        : `${Date.now()}-${Math.random()
+                              .toString(16)
+                              .slice(2)}`);
+
+                const userId =
+                    (user as { id?: string }).id || `user-${matchIdentifier}`;
+
                 const matchedAtRaw =
                     (match as { matched_at?: string }).matched_at;
                 const matchedAt = matchedAtRaw
@@ -70,17 +85,10 @@ class MatchesStore implements Store {
                 );
 
                 const photoUrl = photos[0] || '/src/assets/image.png';
-                const fallbackId =
-                    (match as { id?: string }).id ||
-                    (match as { match_id?: string }).match_id ||
-                    (user as { id?: string }).id ||
-                    (typeof crypto !== 'undefined' &&
-                    'randomUUID' in crypto
-                        ? crypto.randomUUID()
-                        : `${Date.now()}-${Math.random().toString(16).slice(2)}`);
 
                 return {
-                    id: (user as { id?: string }).id || fallbackId,
+                    id: String(matchIdentifier),
+                    userId,
                     name: (user as { name?: string }).name || 'Unknown',
                     age:
                         (user as { birth_date?: string }).birth_date
@@ -89,7 +97,7 @@ class MatchesStore implements Store {
                               )
                             : null,
                     image: photoUrl,
-                    matchId: String(fallbackId),
+                    matchId: String(matchIdentifier),
                     matchedAt: matchedAt.toISOString(),
                     expiresAt: expiresAt.toISOString(),
                     isNew: this.isMatchNew(matchedAt),
@@ -97,6 +105,8 @@ class MatchesStore implements Store {
                         (match as { is_active?: boolean }).is_active !== false,
                     userData: {
                         ...user,
+                        id: userId,
+                        matchId: String(matchIdentifier),
                         images: photos,
                         bio:
                             (user as { bio?: string }).bio ||

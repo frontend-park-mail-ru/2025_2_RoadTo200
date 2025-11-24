@@ -89,7 +89,29 @@ export async function handleFetch<T = unknown>(
             throw error;
         }
 
-        return response.json() as Promise<T>;
+        const contentType = response.headers.get('content-type') || '';
+        const isJson = contentType.includes('application/json');
+
+        // Многие эндпоинты (например, POST /profile) отвечают 204 или пустым телом
+        if (response.status === 204 || response.headers.get('content-length') === '0') {
+            return undefined as T;
+        }
+
+        const rawBody = await response.text();
+        if (!rawBody.trim()) {
+            return undefined as T;
+        }
+
+        if (isJson) {
+            try {
+                return JSON.parse(rawBody) as T;
+            } catch (parseError) {
+                console.error('handleFetch: failed to parse JSON', parseError);
+                throw new Error('Некорректный ответ сервера');
+            }
+        }
+
+        return rawBody as unknown as T;
     } catch (error) {
         const fetchError = error as FetchError;
         if (fetchError.name === 'TypeError' && !navigator.onLine) {

@@ -12,6 +12,8 @@ interface PhotoCard {
 
 interface MatchProfileData {
     id: string;
+    matchId: string;
+    userId: string;
     name: string;
     age: number | null;
     description: string;
@@ -19,6 +21,7 @@ interface MatchProfileData {
     quote: string;
     interests: any[];
     photoCards: PhotoCard[];
+    heroPhoto?: string;
     activities: Array<{ name: string; icon: string }>;
 }
 
@@ -97,16 +100,29 @@ class MatchProfileStore implements Store {
             // Получаем активности из данных пользователя
             const activities = getActivitiesFromData(userData);
 
+            const photoCards = this.transformImagesToCards(
+                userData.images || []
+            );
+
+            const userId =
+                userData.id ||
+                userData.user_id ||
+                userData.other_user_id ||
+                matchId;
+
             this.matchData = {
-                id: userData.id,
+                id: userId,
+                matchId,
+                userId,
                 name: userData.name || '',
                 age: this.calculateAge(userData.birth_date),
                 description: userData.bio || 'Информация отсутствует',
-                musician: 'Не указано',
-                quote: 'Не указано',
-                interests: [],
-                photoCards: this.transformImagesToCards(userData.images || []),
-                activities: activities,
+                musician: userData.favorite_artist || 'Не указано',
+                quote: userData.quote || 'Не указано',
+                interests: userData.interests || [],
+                heroPhoto: photoCards[0]?.image,
+                photoCards: photoCards.slice(1),
+                activities,
             };
 
             await matchProfile.render(this.matchData);

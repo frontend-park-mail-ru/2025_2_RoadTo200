@@ -3,6 +3,17 @@ import serverURL from './serverURL';
 
 const API_URL = `${serverURL}/api/profile`;
 
+const formatBirthDateForApi = (dateValue: string | Date): string | null => {
+    const date =
+        dateValue instanceof Date ? dateValue : new Date(dateValue ?? '');
+
+    if (!date || Number.isNaN(date.getTime())) {
+        return null;
+    }
+
+    return date.toISOString();
+};
+
 export interface ProfileUser {
     id: string;
     email: string;
@@ -80,8 +91,14 @@ class ProfileApi {
                     return acc;
                 }
 
-                if (key === 'birth_date' && typeof value === 'string') {
-                    acc[key] = value.split('T')[0];
+                if (key === 'birth_date') {
+                    const isoBirthDate = formatBirthDateForApi(
+                        value as string | Date
+                    );
+
+                    if (isoBirthDate) {
+                        acc[key] = isoBirthDate;
+                    }
                     return acc;
                 }
 

@@ -1,63 +1,82 @@
 <div class='match-profile-page'>
+    <div class='match-profile-page__heading'>
+        <p class='match-profile-page__eyebrow'>Ваш мэтч</p>
+        <h1 class='match-profile-page__title'>{{name}}{{#if age}}, {{age}}{{/if}}</h1>
+        <p class='match-profile-page__subtitle'>Познакомьтесь ближе и переходите в чат</p>
+        <div class='match-profile-page__actions match-profile-page__actions--mobile'>
+            <button class='match-profile-page__chat-btn' data-action='open-chat'>Перейти в чат</button>
+            <button
+                class='match-profile-page__report-btn'
+                type='button'
+                data-report-open
+            >Пожаловаться</button>
+        </div>
+    </div>
+
     <div class='match-profile-page__content'>
-        <div class='match-photo-grid'>
-            {{#each photoCards}}
-                <div class='match-photo-grid__card' data-photo-id='{{this.id}}'>
-                    {{#if this.isUserPhoto}}
-                        <div
-                            class='match-photo-grid__image'
+        <section class='match-profile-page__photos'>
+            <div
+                class='match-profile-page__cover {{#unless heroPhoto}}match-profile-page__cover--placeholder{{/unless}}'
+                {{#if heroPhoto}}
+                    style="background-image: url('{{heroPhoto}}');"
+                {{/if}}
+            >
+                <span class='match-profile-page__chip'>Совпадение</span>
+            </div>
+            <div class='match-profile-page__gallery'>
+                {{#each photoCards}}
+                    <div
+                        class='match-profile-page__thumb {{#unless this.isUserPhoto}}match-profile-page__thumb--placeholder{{/unless}}'
+                        {{#if this.isUserPhoto}}
                             style="background-image: url('{{this.image}}');"
-                        ></div>
-                    {{else}}
-                        <div class='match-photo-grid__placeholder'></div>
-                    {{/if}}
-                </div>
-            {{/each}}
-        </div>
-
-        <div class='match-details'>
-
-            <h3 class='match-details__section-title'>О себе</h3>
-            <div class='match-details__editable-content'>
-                <p
-                    class='match-details__section-text match-details__section-text-current'
-                >{{description}}</p>
-            </div>
-
-            {{!-- <h3 class="match-details__section-title">Увлечения</h3>
-            <div class="match-details__tags">
-                {{#each interests}}
-                    <span class="match-details__tag" data-interest-id="{{this.id}}">
-                        {{this.name}}
-                    </span>
+                        {{/if}}
+                    ></div>
                 {{/each}}
-            </div> --}}
+            </div>
+        </section>
 
-            <h3 class='match-details__section-title'>Активности</h3>
-            <div class='match-details__icons'>
-                {{#each activities}}
-                    <div class='match-details__icon-circle'>
-                        <img
-                            src='{{this.icon}}'
-                            alt='{{this.name}}'
-                            class='match-details__activity-icon'
-                            title='{{this.name}}'
-                        />
+        <section class='match-details match-details--match'>
+            <article class='match-details__block'>
+                <h3 class='match-details__section-title'>О себе</h3>
+                <p class='match-details__section-text'>{{description}}</p>
+            </article>
+
+            {{#if activities.length}}
+                <article class='match-details__block'>
+                    <h3 class='match-details__section-title'>Активности</h3>
+                    <div class='match-details__icons'>
+                        {{#each activities}}
+                            <div class='match-details__icon-circle'>
+                                <img
+                                    src='{{this.icon}}'
+                                    alt='{{this.name}}'
+                                    class='match-details__activity-icon'
+                                    title='{{this.name}}'
+                                />
+                            </div>
+                        {{/each}}
                     </div>
-                {{/each}}
+                </article>
+            {{/if}}
+
+            <article class='match-details__block'>
+                <h3 class='match-details__section-title'>Любимый исполнитель</h3>
+                <p class='match-details__section-text'>{{musician}}</p>
+            </article>
+
+            <article class='match-details__block'>
+                <h3 class='match-details__section-title'>Любимая цитата</h3>
+                <p class='match-details__section-text'>{{quote}}</p>
+            </article>
+
+            <div class='match-profile-page__actions match-profile-page__actions--desktop'>
+                <button class='match-profile-page__chat-btn' data-action='open-chat'>Перейти в чат</button>
+                <button
+                    class='match-profile-page__report-btn'
+                    type='button'
+                    data-report-open
+                >Пожаловаться</button>
             </div>
-
-            {{!-- <h3 class="match-details__section-title">Любимый исполнитель</h3>
-            <div class="match-details__editable-content">
-                <p class="match-details__section-text match-details__section-text-current">{{musician}}</p>
-            </div>
-
-            <h3 class="match-details__section-title">Любимая цитата</h3>
-            <div class="match-details__editable-content">
-                <p class="match-details__section-text match-details__section-text-current">{{quote}}</p>
-            </div> --}}
-
-            <button class='match-details__chat-button'>Перейти в чат</button>
-        </div>
+        </section>
     </div>
 </div>

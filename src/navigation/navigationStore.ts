@@ -118,6 +118,7 @@ class NavigationStore implements Store {
                 src="/support"
                 referrerpolicy="no-referrer"
                 sandbox="allow-same-origin allow-scripts allow-forms"
+                scrolling="no"
             ></iframe>
         `;
 
@@ -140,6 +141,7 @@ class NavigationStore implements Store {
         if (this.supportIframe) {
             this.supportIframe.style.width = '200px';
             this.supportIframe.style.height = '72px';
+            this.disableSupportScroll();
             if (this.pendingSupportDimensions) {
                 this.applySupportIframeSize(this.pendingSupportDimensions);
                 this.pendingSupportDimensions = null;
@@ -172,6 +174,21 @@ class NavigationStore implements Store {
             );
             this.supportIframe.style.height = `${clampedHeight + 200}px`;
         }
+    }
+
+    private disableSupportScroll(): void {
+        if (!this.supportIframe) return;
+        this.supportIframe.setAttribute('scrolling', 'no');
+        this.supportIframe.addEventListener('load', () => {
+            try {
+                const iframeDoc = this.supportIframe?.contentDocument;
+                if (iframeDoc?.body) {
+                    iframeDoc.body.style.overflow = 'hidden';
+                }
+            } catch (error) {
+                console.warn('Support iframe scroll lock failed', error);
+            }
+        });
     }
 
     /**
