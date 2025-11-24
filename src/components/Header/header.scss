@@ -3,7 +3,7 @@
     top: 0;
     z-index: 40;
     background: #fff;
-    border-bottom: 1px solid #f4dfe8;
+    
     min-height: 76px;
     display: flex;
     align-items: center;
@@ -115,6 +115,9 @@
 
 @media (max-width: 599px) {
     .header {
+
+        border-bottom: 1px solid #f4dfe8;
+        
         &__content {
             padding: 0 16px;
         }
