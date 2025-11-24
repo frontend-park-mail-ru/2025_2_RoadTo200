@@ -217,15 +217,11 @@ class ChatsListStore implements Store {
     }
 
     private async renderChatsList(): Promise<void> {
-        const emptyState = this.error
-            ? {
-                title: 'Не удалось загрузить чаты',
-                subtitle: this.error,
-            }
-            : {
-                title: 'У Вас пока нет чатов',
-                subtitle: 'Возможно Вам стоит еще поискать подходящих людей',
-            };
+        const emptyState = 
+            {
+                  title: 'У Вас пока нет чатов',
+                  subtitle: 'Возможно Вам стоит еще поискать подходящих людей',
+              };
 
         await this.chatsListComponent.render({
             chats: this.chats,

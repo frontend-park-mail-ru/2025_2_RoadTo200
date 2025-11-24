@@ -1,10 +1,13 @@
 .chat-window {
     display: flex;
     flex-direction: column;
-    height: 100%;
-    background: linear-gradient(180deg, #fff0f6 0%, #ffffff 60%);
-    border-radius: 40px;
     overflow: hidden;
+    max-height: 85vh;
+    min-height: 85vh;
+  
+    
+    border-radius: 40px;
+    
 
     &__header {
         display: flex;
@@ -64,8 +67,12 @@
 
     &__body {
         flex: 1;
-        padding: 0 24px 24px;
-        overflow-y: auto;
+        padding: 24px 24px 24px;
+        overflow-y: scroll;
+
+        background: linear-gradient(180deg, #fff0f6 0%, #ffffff 60%);
+
+
 
         &::-webkit-scrollbar {
             width: 6px;
@@ -111,12 +118,13 @@
 
     &__input-form {
         padding: 16px 24px 32px;
+        flex-shrink: 0;
     }
 
     &__input-wrapper {
         display: flex;
         gap: 12px;
-        align-items: flex-end;
+        align-items: center;
         padding: 12px 18px;
         border-radius: 28px;
         background: #fff;
@@ -124,7 +132,6 @@
         background-image: linear-gradient(#fff, #fff), var(--primary-gradient);
         background-origin: border-box;
         background-clip: padding-box, border-box;
-        box-shadow: 0 14px 30px rgba(255, 75, 114, 0.15);
     }
 
     &__input {
@@ -220,10 +227,30 @@
 
 @media (max-width: 900px) {
     .chat-window {
-        border-radius: 32px;
+        padding: 0;
+        max-height: 90vh;
+        min-height: 90vh;
+
+        border-radius: 0;
 
         &__back {
+
+            width: fit-content;
+
+            margin: 12px;
+            
             display: inline-flex;
+            border: none;
+            background: rgba(255, 75, 114, 0.08);
+            color: #ff4b72;
+            font-size: 16px;
+            border-radius: 8px;
+            padding: 8px;
+            cursor: pointer;
+            transition: opacity 0.2s ease;
+        
         }
+
+        
     }
 }

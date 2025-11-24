@@ -58,7 +58,7 @@ const routes: Route[] = [
     new Route('/settings', settings, true),
     new Route('/support', support, false),
     new Route('/statistics', statistics, true),
-    new Route('/chats', chats, false),
+    new Route('/chats', chats, true),
     new Route('*', notFoundComponent, false),
 ];
 

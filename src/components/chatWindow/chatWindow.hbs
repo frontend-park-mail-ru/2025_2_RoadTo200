@@ -1,9 +1,11 @@
 <div class="chat-window">
-    {{#if chatId}}
-        <div class="chat-window__header">
-            <button class="chat-window__back" data-action="back-to-list">
+    <button class="chat-window__back" data-action="back-to-list">
                 ← Назад
-            </button>
+    </button>
+    {{#if chatId}}
+        
+        <div class="chat-window__header">
+            
             <div class="chat-window__person">
                 <div class="chat-window__avatar">
                     {{#if otherUserPhoto}}

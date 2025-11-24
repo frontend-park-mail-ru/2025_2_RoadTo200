@@ -1,11 +1,11 @@
 <div class="chats-sidebar">
     <div class="chats-sidebar__header">
         <h2>Чаты</h2>
-        <div class="chats-sidebar__menu-icon" aria-hidden="true">
+        {{!-- <div class="chats-sidebar__menu-icon" aria-hidden="true">
             <span></span>
             <span></span>
             <span></span>
-        </div>
+        </div> --}}
     </div>
 
     <label class="chats-sidebar__search" aria-label="Поиск по чатам">
@@ -62,7 +62,7 @@
             {{/each}}
         {{else}}
             <div class="chats-list__empty">
-                <div>
+                <div class="chats-list__empty-text">
                     <h3>{{emptyState.title}}</h3>
                     <p>{{emptyState.subtitle}}</p>
                 </div>

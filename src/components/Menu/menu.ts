@@ -53,12 +53,12 @@ const MENU_ITEMS_DATA: MenuItem[] = [
         route: 'me',
         actionType: Actions.RENDER_MYCARD,
     },
-    {
-        name: 'Статистика Обращений',
-        icon: 'statistics-circle.svg',
-        route: 'statistics',
-        actionType: Actions.RENDER_STATISTICS,
-    },
+    // {
+    //     name: 'Статистика Обращений',
+    //     icon: 'statistics-circle.svg',
+    //     route: 'statistics',
+    //     actionType: Actions.RENDER_STATISTICS,
+    // },
 ];
 
 const fetchTemplate = async (path: string): Promise<string> => {

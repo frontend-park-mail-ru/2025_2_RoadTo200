@@ -1,35 +1,23 @@
 .chats-page {
     display: flex;
-    height: calc(100vh - 48px);
+    height: 85vh;
     width: 100%;
-    background: linear-gradient(180deg, #fff5f9 0%, #ffffff 65%);
-    border-radius: 40px;
     overflow: hidden;
-    box-shadow: 0 40px 80px rgba(255, 75, 114, 0.1);
 
     &__sidebar {
         width: 360px;
-        min-width: 320px;
         border-right: 1px solid rgba(255, 75, 114, 0.15);
         background: #fff;
     }
 
     &__main {
         flex: 1;
-        background: transparent;
-        display: flex;
-    }
-
-    &__window {
-        flex: 1;
-        padding: 24px;
     }
 }
 
 @media (max-width: 1024px) {
     .chats-page {
         flex-direction: column;
-        border-radius: 24px;
         height: auto;
 
         &__sidebar,
@@ -37,7 +25,6 @@
         &__window {
             width: 100%;
             min-width: 0;
-            padding: 16px;
         }
 
         &__main {

@@ -70,7 +70,7 @@ body {
 
 #content-container {
     flex: 1;
-    padding: 24px 48px 48px;
+    padding: 24px 0 0;
 }
 
 .menu-overlay {
@@ -145,8 +145,8 @@ body.menu-open .menu-overlay {
     }
 }
 
-@media (max-width: 599px) {
+@media (max-width: 900px) {
     #content-container {
-        padding: 12px 16px 64px;
+        padding: 0;
     }
 }

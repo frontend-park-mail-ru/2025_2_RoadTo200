@@ -24,9 +24,12 @@ class ChatsPageStore implements Store {
                 }
 
                 await chats.render();
+
+
+                dispatcher.process({ type: Actions.RENDER_CHAT_WINDOW });
                 
                 dispatcher.process({ type: Actions.RENDER_CHATS_LIST });
-                dispatcher.process({ type: Actions.RENDER_CHAT_WINDOW });
+
                 break;
 
             default:
