@@ -2,7 +2,7 @@ import { Actions, type Action } from '@/actions';
 import { dispatcher, type Store } from '@/Dispatcher';
 import { profile } from './profile';
 import ProfileApi from '@/apiHandler/profileApi';
-import { getActivitiesFromData } from '@/utils/activityIcons';
+import { ACTIVITY_ICONS } from '@/utils/activityIcons';
 
 interface PhotoCard {
     id: string | number;
@@ -11,9 +11,11 @@ interface PhotoCard {
     isPrimary?: boolean;
 }
 
-interface Interest {
-    id: number;
+interface ActivityItem {
+    id: string;
     name: string;
+    icon: string;
+    isActive: boolean;
 }
 
 interface ProfileData {
@@ -22,9 +24,9 @@ interface ProfileData {
     quote: string;
     name: string;
     age: string | number;
-    interests: Interest[];
     photoCards: PhotoCard[];
-    activities: Array<{ name: string; icon: string }>;
+    activities: ActivityItem[];
+    interests: any[];
     userId?: string;
 }
 
@@ -35,9 +37,9 @@ class ProfileStore implements Store {
         quote: '',
         name: '',
         age: '',
-        interests: [],
         photoCards: [],
         activities: [],
+        interests: [],
         userId: '',
     };
 
@@ -67,14 +69,11 @@ class ProfileStore implements Store {
             case Actions.ADD_PHOTO:
                 await this.addPhoto();
                 break;
-            case Actions.ADD_INTEREST:
+            case Actions.UPDATE_ACTIVITY:
                 if (action.payload) {
-                    await this.addInterest(action.payload as { name: string });
-                }
-                break;
-            case Actions.DELETE_INTEREST:
-                if (action.payload) {
-                    await this.deleteInterest(action.payload as { id: number });
+                    await this.toggleActivity(
+                        action.payload as { [key: string]: boolean }
+                    );
                 }
                 break;
             default:
@@ -89,20 +88,43 @@ class ProfileStore implements Store {
             const user = response.user || {};
             const photos = response.photos || [];
 
-            // Получаем активности из данных пользователя
-            const activities = getActivitiesFromData(user);
+            // Parse user interests (can be array of objects or boolean flags)
+            const userInterests = new Set<string>();
 
-            const interests: Interest[] = Array.isArray(
-                (user as { interests?: Array<{ theme?: string }> }).interests
-            )
-                ? ((user as { interests?: Array<{ theme?: string }> })
-                      .interests ||
-                      []
-                  ).map((interest, index) => ({
-                      id: index,
-                      name: interest?.theme || 'Интерес',
-                  }))
-                : [];
+            // Check for interests array at response level (primary source)
+            if (Array.isArray(response.interests)) {
+                response.interests.forEach((interest: any) => {
+                    if (interest?.theme) {
+                        userInterests.add(interest.theme.toLowerCase());
+                    }
+                });
+            }
+
+            // Check for interests array in user object (fallback)
+            if (Array.isArray((user as any).interests)) {
+                (user as any).interests.forEach((interest: any) => {
+                    if (interest?.theme) {
+                        userInterests.add(interest.theme.toLowerCase());
+                    }
+                });
+            }
+
+            // Check for boolean flags (fallback/legacy)
+            Object.keys(ACTIVITY_ICONS).forEach((key) => {
+                if ((user as any)[key] === true) {
+                    userInterests.add(key.toLowerCase());
+                }
+            });
+
+            // Filter to show only selected activities
+            const activities = Object.entries(ACTIVITY_ICONS)
+                .filter(([key]) => userInterests.has(key.toLowerCase()))
+                .map(([, data]) => ({
+                    id: data.name,
+                    name: data.name,
+                    icon: data.icon,
+                    isActive: true,
+                }));
 
             this.profileData = {
                 description: user.bio || '',
@@ -110,9 +132,9 @@ class ProfileStore implements Store {
                 quote: user.quote || '',
                 name: user.name || '',
                 age: user.birth_date ? this.calculateAge(user.birth_date) : '',
-                interests,
                 photoCards: this.transformPhotosToCards(photos),
                 activities: activities,
+                interests: [],
                 userId: user.id || '',
             };
 
@@ -196,16 +218,10 @@ class ProfileStore implements Store {
             const backendField = fieldMapping[field] || field;
             const updateData = { [backendField]: value };
 
-            // console.log('Updating profile field:', field, '→', backendField, 'with value:', value);
-
             await ProfileApi.updateProfileInfo(updateData);
-
-            // console.log('Profile field updated successfully');
-
             await this.renderProfile();
         } catch (error) {
             // console.error('Error updating profile:', error);
-            // console.error('Не удалось сохранить изменения');
         }
     }
 
@@ -213,16 +229,10 @@ class ProfileStore implements Store {
         try {
             const { photoId } = payload;
             if (!photoId || photoId.startsWith('placeholder')) {
-                // console.warn('Invalid photoId:', photoId);
                 return;
             }
 
-            // console.log('Deleting photo with ID:', photoId);
-
-            const response = await ProfileApi.deletePhoto(String(photoId));
-
-            // console.log('Delete photo response:', response);
-
+            await ProfileApi.deletePhoto(String(photoId));
             await this.renderProfile();
         } catch (error) {
             // console.error('Error deleting photo:', error);
@@ -242,34 +252,10 @@ class ProfileStore implements Store {
                 if (files.length === 0) return;
 
                 try {
-                    const response = await ProfileApi.uploadPhoto(files);
-
-                    // console.log('Upload photo response:', response);
-
+                    await ProfileApi.uploadPhoto(files);
                     await this.renderProfile();
                 } catch (error: any) {
-                    // console.error('Error uploading photo:', error);
-                    let errorMessage = 'Ошибка при загрузке фотографий';
-
-                    if (error.message) {
-                        if (
-                            error.message.includes('413') ||
-                            error.message.includes('слишком большой')
-                        ) {
-                            errorMessage =
-                                'Файл слишком большой. Максимальный размер: 10MB';
-                        } else if (error.message.includes('500')) {
-                            errorMessage =
-                                'Ошибка сервера при загрузке фотографий';
-                        } else if (
-                            error.message.includes('Необходима авторизация')
-                        ) {
-                            errorMessage =
-                                'Сессия истекла. Пожалуйста, войдите снова';
-                        }
-                    }
-
-                    // console.error(errorMessage);
+                    // Handle error
                 }
             };
 
@@ -279,47 +265,32 @@ class ProfileStore implements Store {
         }
     }
 
-    private async addInterest(payload: { name: string }): Promise<void> {
+    private async toggleActivity(payload: { [key: string]: boolean }): Promise<void> {
         try {
-            const { name } = payload;
+            const [activityId, isActive] = Object.entries(payload)[0];
 
-            if (!name || name.trim() === '') {
-                return;
+            const activity = this.profileData.activities.find(a => a.id === activityId);
+            if (activity) {
+                activity.isActive = isActive;
             }
 
-            const newInterest: Interest = {
-                id: Date.now(),
-                name: name.trim(),
-            };
-
-            this.profileData.interests = this.profileData.interests || [];
-            this.profileData.interests.push(newInterest);
-
+            await this.saveInterests();
             await this.rerenderProfile();
-
-            // console.log('Interest added:', newInterest);
         } catch (error) {
-            // console.error('Error adding interest:', error);
+            // console.error('Error toggling activity:', error);
         }
     }
 
-    private async deleteInterest(payload: { id: number }): Promise<void> {
+    private async saveInterests(): Promise<void> {
         try {
-            const { id } = payload;
-
-            if (!this.profileData.interests) {
-                return;
-            }
-
-            this.profileData.interests = this.profileData.interests.filter(
-                (interest) => interest.id !== id
-            );
-
-            await this.rerenderProfile();
-
-            // console.log('Interest deleted:', id);
+            const interestsPayload = this.profileData.activities
+                .filter(a => a.isActive)
+                .map((activity) => ({
+                    theme: activity.id.toLowerCase(),
+                }));
+            await ProfileApi.updateInterests(interestsPayload);
         } catch (error) {
-            // console.error('Error deleting interest:', error);
+            // console.error('Error saving interests:', error);
         }
     }
 

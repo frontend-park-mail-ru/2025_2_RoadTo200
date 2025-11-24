@@ -54,30 +54,15 @@ class HomeStore implements Store {
     private async loadUserActivities(): Promise<void> {
         try {
             const response = await ProfileApi.getProfile();
-            const profile = response.user;
+            const interests = response.interests || [];
 
-            // Собираем активные активности
-            const activeActivities: string[] = [];
-            const activityIds = [
-                'workout',
-                'fun',
-                'party',
-                'chill',
-                'love',
-                'relax',
-                'yoga',
-                'friendship',
-                'culture',
-                'cinema',
-            ];
+            // Extract themes from interests
+            const activeActivities = interests.map((interest) => interest.theme);
 
-            activityIds.forEach((activityId) => {
-                if (profile[activityId as keyof typeof profile] === true) {
-                    activeActivities.push(activityId);
-                }
-            });
+            // Update store state
+            this.selectedActivities = activeActivities;
 
-            // Устанавливаем активные активности в Home компонент
+            // Update UI
             home.setActiveActivities(activeActivities);
 
             // console.log('HomeStore: Loaded user activities:', activeActivities);
@@ -90,15 +75,31 @@ class HomeStore implements Store {
         activityData: Record<string, boolean>
     ): Promise<void> {
         try {
-            await ProfileApi.updateActivities(activityData);
-            // console.log('HomeStore: Activity updated:', activityData);
+            // Update local state based on the change
+            Object.entries(activityData).forEach(([activityId, isSelected]) => {
+                if (isSelected) {
+                    if (!this.selectedActivities.includes(activityId)) {
+                        this.selectedActivities.push(activityId);
+                    }
+                } else {
+                    this.selectedActivities = this.selectedActivities.filter(
+                        (id) => id !== activityId
+                    );
+                }
+            });
 
-            // После обновления активности, перезагружаем данные пользователя
+            // Prepare payload for API
+            const interestsPayload = this.selectedActivities.map((theme) => ({
+                theme,
+            }));
+
+            await ProfileApi.updateInterests(interestsPayload);
+            // console.log('HomeStore: Interests updated:', interestsPayload);
+
+            // Reload to ensure sync (optional, but good for consistency)
             await this.loadUserActivities();
         } catch (error) {
             // console.error('HomeStore: Failed to update activity:', error);
-            // Можно добавить обработку ошибки через dispatcher
-            // dispatcher.process({ type: Actions.SHOW_ERROR, payload: { message: 'Не удалось обновить активность' } });
         }
     }
 

@@ -97,6 +97,32 @@
         height: 34px;
         filter: brightness(0) invert(1);
     }
+
+    .details__report-btn {
+        margin-top: 28px;
+        background: #fff;
+        color: #ff2f73;
+        border: 1px solid rgba(255, 75, 114, 0.2);
+        border-radius: 999px;
+        padding: 12px 28px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.2s ease;
+
+        &:hover {
+            background: rgba(255, 75, 114, 0.08);
+            border-color: rgba(255, 75, 114, 0.3);
+        }
+    }
+
+    .details__report-icon {
+        width: 18px;
+        height: 18px;
+    }
 }
 
 @media (max-width: 1199px) {

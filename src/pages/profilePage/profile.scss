@@ -88,7 +88,7 @@
     flex: 1;
     min-width: 0;
     padding: 0 12px;
-    
+
 
     &__section-title {
         font-size: 18px;
@@ -212,8 +212,19 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        background: linear-gradient(135deg, #ff4b72, #ff98b6);
-        box-shadow: 0 12px 24px rgba(255, 75, 114, 0.25);
+        background: #f2f2f7;
+        cursor: pointer;
+        transition: all 0.2s ease;
+
+        &--active {
+            background: linear-gradient(135deg, #ff4b72, #ff98b6);
+            box-shadow: 0 12px 24px rgba(255, 75, 114, 0.25);
+            transform: scale(1.05);
+
+            .details__activity-icon {
+                filter: brightness(0) invert(1);
+            }
+        }
 
         &-plus {
             background: #fff;
@@ -225,7 +236,8 @@
     &__activity-icon {
         width: 34px;
         height: 34px;
-        filter: brightness(0) invert(1);
+        filter: grayscale(100%) opacity(0.5);
+        transition: all 0.2s ease;
     }
 
     &__icon-plus {

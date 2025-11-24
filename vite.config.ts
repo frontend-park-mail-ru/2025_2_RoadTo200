@@ -17,18 +17,18 @@ export default defineConfig({
         open: true,
         proxy: {
             '/api': {
-                target: 'http://terabithia.online',
+                target: 'http://terabithia.online:8080',
                 changeOrigin: true,
                 secure: false,
             },
             '/ws': {
-                target: 'http://terabithia.online',
+                target: 'http://terabithia.online:8080',
                 changeOrigin: true,
                 secure: false,
                 ws: true,
             },
             '/support-api': {
-                target: 'http://terabithia.online',
+                target: 'http://terabithia.online:8080',
                 changeOrigin: true,
                 secure: false,
                 rewrite: (path: string) => path.replace(/^\/support-api/, '')
@@ -40,18 +40,18 @@ export default defineConfig({
         port: 8001,
         proxy: {
             '/api': {
-                target: 'http://terabithia.online',
+                target: 'http://terabithia.online:8080',
                 changeOrigin: true,
                 secure: false,
             },
             '/ws': {
-                target: 'http://terabithia.online',
+                target: 'http://terabithia.online:8080',
                 changeOrigin: true,
                 secure: false,
                 ws: true,
             },
             '/support-api': {
-                target: 'http://terabithia.online',
+                target: 'http://terabithia.online:8080',
                 changeOrigin: true,
                 secure: false,
                 rewrite: (path: string) => path.replace(/^\/support-api/, '')

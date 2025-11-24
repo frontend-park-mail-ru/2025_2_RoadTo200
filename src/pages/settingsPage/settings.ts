@@ -104,6 +104,7 @@ export class SettingsPage {
         section.className = 'settings-section';
         section.innerHTML = `
             <h1 class="settings-section-title">Профиль</h1>
+            <p class="form__success-message" id="profileSuccessMessage"></p>
             ${SettingsPage.createFormGroupHTML('Имя:', 'text', 'settingsName', profileData.name, 'settingsNameError')}
             ${SettingsPage.createFormGroupHTML('Дата рождения:', 'text', 'settingsBirthdate', profileData.birthdate, 'birthdateError', 'ДД.ММ.ГГГГ')}
             ${SettingsPage.createFormGroupHTML('Email:', 'email', 'settingsEmail', profileData.email, 'emailError')}
@@ -139,6 +140,7 @@ export class SettingsPage {
         section.className = 'settings-section';
         section.innerHTML = `
             <h1 class="settings-section-title">Фильтры поиска</h1>
+            <p class="form__success-message" id="filtersSuccessMessage"></p>
             
             <div class="form__input-wrapper">
                 <label class="settings-label">Показывать мне:</label>
@@ -191,10 +193,7 @@ export class SettingsPage {
         return `
             <div class="form__input-wrapper">
                 <label class="settings-label">${label}</label>
-                <div class="input-with-icon">
-                    <input type="${type}" class="form__input" id="${id}" value="${value || ''}" ${placeholderAttr} disabled/>
-                    <img src="/src/assets/edit.svg" alt="Редактировать" class="edit-icon" data-input-id="${id}"/>
-                </div>
+                <input type="${type}" class="form__input" id="${id}" value="${value || ''}" ${placeholderAttr} />
                 <p class="form__error-message" id="${errorId}"></p>
             </div>
         `;
@@ -246,23 +245,6 @@ export class SettingsPage {
 
     private attachEventListeners(currentTab: string): void {
         if (!this.parent) return;
-
-        // Добавляем обработчики для карандашиков
-        const editIcons = this.parent.querySelectorAll('.edit-icon');
-        editIcons.forEach((icon) => {
-            icon.addEventListener('click', () => {
-                const inputId = icon.getAttribute('data-input-id');
-                if (inputId) {
-                    const input = this.parent?.querySelector(
-                        `#${inputId}`
-                    ) as HTMLInputElement | null;
-                    if (input) {
-                        input.disabled = false;
-                        input.focus();
-                    }
-                }
-            });
-        });
 
         if (currentTab === 'profile') {
             // Добавляем автоформатирование даты рождения
@@ -432,13 +414,25 @@ export class SettingsPage {
         if (!this.parent) return;
 
         this.parent
-            .querySelectorAll('.form__error-message')
+            .querySelectorAll('.form__error-message, .form__success-message')
             .forEach((el) => {
-            el.textContent = '';
+                el.textContent = '';
             });
         this.parent.querySelectorAll('.form__input').forEach((input) => {
             input.classList.remove('error-input');
         });
+    }
+
+    showSuccess(messageId: string, message: string): void {
+        if (!this.parent) return;
+
+        const successElement = this.parent.querySelector(`#${messageId}`);
+        if (successElement) {
+            successElement.textContent = message;
+            setTimeout(() => {
+                successElement.textContent = '';
+            }, 5000); // Clear after 5 seconds
+        }
     }
 }
 

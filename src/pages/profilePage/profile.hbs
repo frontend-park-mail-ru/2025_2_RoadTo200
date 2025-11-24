@@ -5,24 +5,18 @@
     <div class='profile-page__content'>
         <div class='photo-grid'>
             {{#each photoCards}}
-                <div class='photo-grid__card' data-photo-id='{{this.id}}'>
-                    {{#if this.isUserPhoto}}
-                        <div
-                            class='photo-grid__image'
-                            style="background-image: url('{{this.image}}');"
-                        >
-                            <button class='photo-grid__delete-btn'><img
-                                    src='./src/assets/trash.svg'
-                                    alt='/'
-                                    class='photo-grid__icon-delete'
-                                /></button>
-                        </div>
-                    {{else}}
-                        <div class='photo-grid__add'>
-                            <span class='photo-grid__icon-plus'>+</span>
-                        </div>
-                    {{/if}}
+            <div class='photo-grid__card' data-photo-id='{{this.id}}'>
+                {{#if this.isUserPhoto}}
+                <div class='photo-grid__image' style="background-image: url('{{this.image}}');">
+                    <button class='photo-grid__delete-btn'><img src='./src/assets/trash.svg' alt='/'
+                            class='photo-grid__icon-delete' /></button>
                 </div>
+                {{else}}
+                <div class='photo-grid__add'>
+                    <span class='photo-grid__icon-plus'>+</span>
+                </div>
+                {{/if}}
+            </div>
             {{/each}}
         </div>
 
@@ -30,67 +24,28 @@
 
             <h3 class='details__section-title'>
                 О себе
-                <span
-                    class='details__icon-edit'
-                    data-target='description'
-                    data-type='paragraph'
-                ><img
-                        src='./src/assets/edit.svg'
-                        alt='/'
-                        class='icon-edit'
-                    /></span>
+                <span class='details__icon-edit' data-target='description' data-type='paragraph'><img
+                        src='./src/assets/edit.svg' alt='/' class='icon-edit' /></span>
             </h3>
             <div id='description' class='details__editable-content'>
-                <p
-                    class='details__section-text details__section-text-current'
-                >{{description}}</p>
+                <p class='details__section-text details__section-text-current'>{{description}}</p>
             </div>
 
-            <h3 class='details__section-title'>Увлечения</h3>
-            <div id='interests-list' class='details__tags'>
-                {{#if interests.length}}
-                    {{#each interests}}
-                        <span class='details__tag' data-interest-id='{{this.id}}'>
-                            {{this.name}}
-                            <span class='details__delete-layer'>×</span>
-                        </span>
-                    {{/each}}
-                {{else}}
-                    <span class='details__tag details__tag--placeholder'>Добавьте первое увлечение</span>
-                {{/if}}
-                <span
-                    id='add-interest-tag'
-                    class='details__tag details__tag-add'
-                >
-                    Добавить
-                </span>
-            </div>
-
+            {{#if activities.length}}
             <h3 class='details__section-title'>Активности</h3>
             <div class='details__icons'>
                 {{#each activities}}
-                    <div class='details__icon-circle'>
-                        <img
-                            src='{{this.icon}}'
-                            alt='{{this.name}}'
-                            class='details__activity-icon'
-                            title='{{this.name}}'
-                        />
-                    </div>
+                <div class='details__icon-circle details__icon-circle--active'>
+                    <img src='{{this.icon}}' alt='{{this.name}}' class='details__activity-icon' title='{{this.name}}' />
+                </div>
                 {{/each}}
             </div>
+            {{/if}}
 
             <h3 class='details__section-title'>
                 Любимый исполнитель
-                <span
-                    class='details__icon-edit'
-                    data-target='musician'
-                    data-type='single-line'
-                ><img
-                        src='./src/assets/edit.svg'
-                        alt='/'
-                        class='icon-edit'
-                    /></span>
+                <span class='details__icon-edit' data-target='musician' data-type='single-line'><img
+                        src='./src/assets/edit.svg' alt='/' class='icon-edit' /></span>
             </h3>
             <div id='musician' class='details__editable-content'>
                 <p class='details__section-text details__section-text-current'>
@@ -100,15 +55,8 @@
 
             <h3 class='details__section-title'>
                 Любимая цитата
-                <span
-                    class='details__icon-edit'
-                    data-target='quote'
-                    data-type='paragraph'
-                ><img
-                        src='./src/assets/edit.svg'
-                        alt='/'
-                        class='icon-edit'
-                    /></span>
+                <span class='details__icon-edit' data-target='quote' data-type='paragraph'><img
+                        src='./src/assets/edit.svg' alt='/' class='icon-edit' /></span>
             </h3>
             <div id='quote' class='details__editable-content'>
                 <p class='details__section-text details__section-text-current'>
@@ -116,16 +64,7 @@
                 </p>
             </div>
 
-            <button
-                class='details__report-btn'
-                type='button'
-                data-report-open
-                data-report-id='{{userId}}'
-                data-report-name='{{name}}'
-                data-report-age='{{age}}'
-            >
-                Пожаловаться
-            </button>
+
         </div>
     </div>
 </div>

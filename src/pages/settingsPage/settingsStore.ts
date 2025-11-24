@@ -214,6 +214,7 @@ class SettingsStore implements Store {
 
             this.profileData = { name, birthdate, email };
             this.updateView();
+            settings.showSuccess('profileSuccessMessage', 'Данные успешно обновлены');
         } catch (err) {
             console.error('Error updating profile settings:', err);
             settings.showErrors({
@@ -243,6 +244,7 @@ class SettingsStore implements Store {
                 show_gender,
                 global_search,
             });
+            settings.showSuccess('filtersSuccessMessage', 'Фильтры успешно сохранены');
         } catch (error) {
             console.error('Error updating filters:', error);
             settings.showErrors({

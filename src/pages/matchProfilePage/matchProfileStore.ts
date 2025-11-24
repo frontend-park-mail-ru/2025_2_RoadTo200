@@ -1,7 +1,7 @@
 import { Actions, type Action } from '@/actions';
 import { dispatcher, type Store } from '@/Dispatcher';
 import { matchProfile } from './matchProfile';
-import { getActivitiesFromData } from '@/utils/activityIcons';
+import { ACTIVITY_ICONS } from '@/utils/activityIcons';
 
 interface PhotoCard {
     id: string;
@@ -66,9 +66,13 @@ class MatchProfileStore implements Store {
             this.matchesCache.set(matchId, userData);
         }
 
+        // Update URL without triggering navigation cycle
+        window.history.pushState(null, '', `/matches/${matchId}`);
+
+        // Directly render match profile
         await dispatcher.process({
-            type: Actions.NAVIGATE_TO,
-            payload: { path: `/matches/${matchId}` },
+            type: Actions.RENDER_MATCH_PROFILE,
+            payload: { matchId },
         });
     }
 
@@ -97,8 +101,32 @@ class MatchProfileStore implements Store {
                 return;
             }
 
-            // Получаем активности из данных пользователя
-            const activities = getActivitiesFromData(userData);
+            // Parse user interests to get selected activities
+            const userInterests = new Set<string>();
+
+            // Check for interests array in userData
+            if (Array.isArray(userData.interests)) {
+                userData.interests.forEach((interest: any) => {
+                    if (interest?.theme) {
+                        userInterests.add(interest.theme.toLowerCase());
+                    }
+                });
+            }
+
+            // Check for boolean flags (fallback/legacy)
+            Object.keys(ACTIVITY_ICONS).forEach((key) => {
+                if (userData[key] === true) {
+                    userInterests.add(key.toLowerCase());
+                }
+            });
+
+            // Filter activities to only show selected ones
+            const activities = Object.entries(ACTIVITY_ICONS)
+                .filter(([key]) => userInterests.has(key.toLowerCase()))
+                .map(([, data]) => ({
+                    name: data.name,
+                    icon: data.icon,
+                }));
 
             const photoCards = this.transformImagesToCards(
                 userData.images || []

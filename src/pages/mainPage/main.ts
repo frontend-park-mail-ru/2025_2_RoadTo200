@@ -323,7 +323,7 @@ export class MainPage {
 
                 animateCardOut(cardElement, direction);
             } else {
-                cardElement.style.transform = 'translate(-200px, 0) rotate(0deg)';
+                cardElement.style.transform = 'translate(-175px, 0) rotate(0deg)';
             }
         };
 

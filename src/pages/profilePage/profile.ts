@@ -1,7 +1,6 @@
 import Handlebars from 'handlebars';
 import { dispatcher } from '@/Dispatcher';
 import { Actions } from '@/actions';
-import { reportPopup } from '@/components/ReportPopup/reportPopup';
 
 const TEMPLATE_PATH = '/src/pages/profilePage/profile.hbs';
 
@@ -85,34 +84,6 @@ export class ProfilePage {
                     }
                 });
             });
-
-        const addTagButton = this.parent.querySelector('#add-interest-tag');
-        if (addTagButton) {
-            addTagButton.addEventListener('click', (e) => {
-                e.preventDefault();
-                if (addTagButton.classList.contains('editing')) return;
-                this.enableInterestAdding(addTagButton as HTMLElement);
-            });
-        }
-
-        this.parent
-            .querySelectorAll('.details__delete-layer')
-            .forEach((layer) => {
-                layer.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    const tag = (e.currentTarget as HTMLElement).closest(
-                        '.details__tag'
-                    ) as HTMLElement | null;
-                    const interestId = tag?.dataset.interestId;
-                    if (interestId) {
-                        // console.log(interestId);
-                        dispatcher.process({
-                            type: Actions.DELETE_INTEREST,
-                            payload: { id: parseInt(interestId) },
-                        });
-                    }
-                });
-            });
     }
 
     private enableEditing(
@@ -189,52 +160,7 @@ export class ProfilePage {
         inputElement.addEventListener('keypress', saveEdit);
     }
 
-    private enableInterestAdding(addTagButton: HTMLElement): void {
-        if (!this.parent) return;
 
-        const wrapper = this.parent.querySelector('#interests-list');
-        if (!wrapper) return;
-
-        const inputElement = document.createElement('input');
-        inputElement.type = 'text';
-        inputElement.id = 'new-interest-input-field';
-        inputElement.placeholder = 'Введите увлечение';
-        inputElement.className = 'details__tag details__new-interest-input';
-
-        if (addTagButton.parentNode) {
-            addTagButton.parentNode.insertBefore(inputElement, addTagButton);
-        }
-        addTagButton.style.display = 'none';
-        addTagButton.classList.add('editing');
-        inputElement.focus();
-
-        const finishAdding = (e: Event) => {
-            inputElement.removeEventListener('blur', finishAdding);
-            inputElement.removeEventListener('keydown', finishAdding);
-            if (!inputElement.isConnected) return;
-
-            const newInterest = inputElement.value.trim();
-            const shouldSave =
-                (e.type === 'blur' || (e as KeyboardEvent).key === 'Enter') &&
-                newInterest !== '';
-
-            if (shouldSave) {
-                dispatcher.process({
-                    type: Actions.ADD_INTEREST,
-                    payload: { name: newInterest },
-                });
-            }
-
-            inputElement.remove();
-            addTagButton.style.display = 'inline-flex';
-            addTagButton.classList.remove('editing');
-        };
-
-        inputElement.addEventListener('blur', finishAdding);
-        inputElement.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') finishAdding(e);
-        });
-    }
 }
 
 export const profile = new ProfilePage(null);
