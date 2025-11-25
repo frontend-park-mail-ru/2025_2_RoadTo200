@@ -121,6 +121,10 @@ class ChatWindowStore implements Store {
 
     private async loadMessages(chatId?: string): Promise<void> {
         if (!chatId) return;
+
+        // Убедимся что currentUserId загружен перед мапингом сообщений
+        await this.ensureUser();
+
         this.isLoading = true;
         await this.renderChatWindow();
 
