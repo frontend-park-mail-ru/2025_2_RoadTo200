@@ -15,6 +15,7 @@ export default defineConfig({
         host: '0.0.0.0',
         port: 8001,
         open: true,
+        allowedHosts: ['terabithia.online'],
         proxy: {
             '/api': {
                 target: 'http://terabithia.online',
@@ -38,6 +39,7 @@ export default defineConfig({
 
     preview: {
         port: 8001,
+        allowedHosts: ['terabithia.online'],
         proxy: {
             '/api': {
                 target: 'http://terabithia.online',
