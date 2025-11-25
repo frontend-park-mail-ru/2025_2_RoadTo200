@@ -19,15 +19,7 @@ class ChatSocketService {
             return;
         }
 
-        const token = this.getSessionToken();
-        console.log('[ChatSocket] Got session token:', token ? 'YES' : 'NO');
-        if (!token) {
-            console.warn('[ChatSocket] No session token, disconnected');
-            this.updateStatus('disconnected');
-            return;
-        }
-
-        const url = this.buildWebSocketURL(token);
+        const url = this.buildWebSocketURL();
         console.log('[ChatSocket] Built WebSocket URL:', url);
         if (!url) {
             console.warn('[ChatSocket] Failed to build URL');
@@ -159,31 +151,9 @@ class ChatSocketService {
         });
     }
 
-    private getSessionToken(): string | null {
-        if (typeof document === 'undefined') return null;
-        console.log('[ChatSocket] Getting session token from cookies:', document.cookie);
 
-        // Try localStorage first (if token is stored there)
-        const storedToken = localStorage.getItem('session_token');
-        if (storedToken) {
-            console.log('[ChatSocket] Found session_token in localStorage');
-            return storedToken;
-        }
 
-        // Try cookies
-        const cookies = document.cookie.split(';');
-        for (const cookie of cookies) {
-            const [name, value] = cookie.trim().split('=');
-            if (name === 'session_token') {
-                console.log('[ChatSocket] Found session_token cookie');
-                return value;
-            }
-        }
-        console.warn('[ChatSocket] No session_token found in localStorage or cookies');
-        return null;
-    }
-
-    private buildWebSocketURL(token: string): string | null {
+    private buildWebSocketURL(): string | null {
         if (typeof window === 'undefined') return null;
 
         // Use window.location to determine the correct WebSocket protocol and host
@@ -191,8 +161,8 @@ class ChatSocketService {
         const host = window.location.host; // includes port if present
 
         console.log('[ChatSocket] Building URL - protocol:', protocol, 'host:', host);
-        // Backend requires session_token query parameter (see backend line 63)
-        const url = `${protocol}//${host}/ws/chat?session_token=${token}`;
+        // Backend uses cookie-based authentication, browser sends cookies automatically
+        const url = `${protocol}//${host}/ws/chat`;
         console.log('[ChatSocket] Final WebSocket URL:', url);
         return url;
     }
