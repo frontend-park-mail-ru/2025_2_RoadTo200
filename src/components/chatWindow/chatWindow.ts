@@ -87,22 +87,29 @@ export class ChatWindow implements PageComponent {
         const input = this.parent.querySelector('.chat-window__input') as HTMLInputElement;
         const sendButton = this.parent.querySelector('.chat-window__send-btn') as HTMLButtonElement;
 
-        if (form && input && sendButton) {
-            const handleSend = (event: Event) => {
-                event.preventDefault();
-                const text = input.value.trim();
-                
-                if (text) {
-                    dispatcher.process({
-                        type: Actions.SEND_MESSAGE,
-                        payload: { text },
-                    });
-                    input.value = '';
-                }
-            };
+        const handleSend = (event: Event) => {
+            event.preventDefault();
+            const text = input.value.trim();
+            
+            if (text) {
+                dispatcher.process({
+                    type: Actions.SEND_MESSAGE,
+                    payload: { text },
+                });
+                input.value = '';
+            }
+        };
 
+        if (form && input && sendButton) {
             form.addEventListener('submit', handleSend);
             sendButton.addEventListener('click', handleSend);
+
+            input.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter' && !event.shiftKey) { 
+                    event.preventDefault(); 
+                    handleSend(event); 
+                }
+            });
 
             input.addEventListener('input', () => {
                 input.style.height = 'auto';
