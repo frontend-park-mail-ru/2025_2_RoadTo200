@@ -130,7 +130,7 @@ export class ReportPopup {
             let message = error?.message || 'Не удалось отправить жалобу. Попробуйте позже.';
 
             // Переводим специфичные ошибки бэкенда на русский
-            if (message.includes('duplicate active strike')) {
+            if (message.includes('internal server error')) {
                 message = 'Вы уже отправили жалобу на этого пользователя';
             } else if (message.includes('self strike not allowed')) {
                 message = 'Нельзя пожаловаться на самого себя';
