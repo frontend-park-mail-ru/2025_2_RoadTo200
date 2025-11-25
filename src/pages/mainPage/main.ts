@@ -282,7 +282,7 @@ export class MainPage {
             const deltaX = endX - startX;
             const deltaY = endY - startY;
 
-            cardElement.style.transform = `translate(${deltaX - 200}px, ${deltaY}px) rotate(${deltaX * 0.1}deg)`;
+            cardElement.style.transform = `translate(${deltaX - 175}px, ${deltaY}px) rotate(${deltaX * 0.1}deg)`;
 
             if (Math.abs(deltaX) > 200 || Math.abs(deltaY) > 200) {
                 stopSwipe();
