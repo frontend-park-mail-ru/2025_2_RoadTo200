@@ -80,32 +80,32 @@ if ('serviceWorker' in navigator) {
                 { scope: '/' }
             );
 
-            console.log(
-                'Service Worker registered:',
-                registration.scope
-            );
+            // console.log(
+            //     'Service Worker registered:',
+            //     registration.scope
+            // );
 
             // Обработка обновлений Service Worker
             registration.addEventListener('updatefound', () => {
                 const newWorker = registration.installing;
                 if (!newWorker) return;
 
-                console.log('New Service Worker found, installing...');
+                // console.log('New Service Worker found, installing...');
 
                 newWorker.addEventListener('statechange', () => {
                     if (
                         newWorker.state === 'installed' &&
                         navigator.serviceWorker.controller
                     ) {
-                        console.log('New Service Worker available');
+                        // console.log('New Service Worker available');
                         newWorker.postMessage({ type: 'SKIP_WAITING' });
                     }
                 });
             });
 
-            
+
             navigator.serviceWorker.addEventListener('controllerchange', () => {
-                console.log('Service Worker updated, reloading page...');
+                // console.log('Service Worker updated, reloading page...');
                 window.location.reload();
             });
         } catch (error) {

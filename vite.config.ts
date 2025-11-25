@@ -17,18 +17,18 @@ export default defineConfig({
         open: true,
         proxy: {
             '/api': {
-                target: 'http://terabithia.online:8080',
+                target: 'http://terabithia.online',
                 changeOrigin: true,
                 secure: false,
             },
             '/ws': {
-                target: 'http://terabithia.online:8080',
+                target: 'http://terabithia.online',
                 changeOrigin: true,
                 secure: false,
                 ws: true,
             },
             '/support-api': {
-                target: 'http://terabithia.online:8080',
+                target: 'http://terabithia.online',
                 changeOrigin: true,
                 secure: false,
                 rewrite: (path: string) => path.replace(/^\/support-api/, '')
@@ -40,18 +40,18 @@ export default defineConfig({
         port: 8001,
         proxy: {
             '/api': {
-                target: 'http://terabithia.online:8080',
+                target: 'http://terabithia.online',
                 changeOrigin: true,
                 secure: false,
             },
             '/ws': {
-                target: 'http://terabithia.online:8080',
+                target: 'http://terabithia.online',
                 changeOrigin: true,
                 secure: false,
                 ws: true,
             },
             '/support-api': {
-                target: 'http://terabithia.online:8080',
+                target: 'http://terabithia.online',
                 changeOrigin: true,
                 secure: false,
                 rewrite: (path: string) => path.replace(/^\/support-api/, '')
@@ -95,14 +95,14 @@ export default defineConfig({
                     cpSync(src, dest, {
                         recursive: true,
                     });
-                    console.log('Copied assets');
+                    // console.log('Copied assets');
                 }
 
                 const manifestSrc = resolve(dirname, 'manifest.json');
                 const manifestDest = resolve(dirname, 'dist/manifest.json');
                 if (existsSync(manifestSrc)) {
                     cpSync(manifestSrc, manifestDest);
-                    console.log('Copied manifest.json');
+                    // console.log('Copied manifest.json');
                 }
             },
         },
@@ -126,7 +126,7 @@ export default defineConfig({
                         );
                     } else if (src.endsWith('.hbs')) {
                         fs.copyFileSync(src, dest);
-                        console.log(`Copied HBS: ${src}`);
+                        // console.log(`Copied HBS: ${src}`);
                     }
                 };
 
@@ -166,7 +166,7 @@ export default defineConfig({
                     throw new Error('Babel did not return transformed code');
                 }
                 writeFileSync(dest, result!.code);
-                console.log('Transpiled service-worker.js');
+                // console.log('Transpiled service-worker.js');
             },
         },
     ],

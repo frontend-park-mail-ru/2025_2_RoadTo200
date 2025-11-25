@@ -2,7 +2,7 @@ import Handlebars from 'handlebars';
 import { dispatcher } from '@/Dispatcher';
 import { Actions } from '@/actions';
 
-Handlebars.registerHelper('translateCategory', function(category: string) {
+Handlebars.registerHelper('translateCategory', function (category: string) {
     const translations: Record<string, string> = {
         'technical': 'Технические',
         'feature': 'Предложения',
@@ -14,7 +14,7 @@ Handlebars.registerHelper('translateCategory', function(category: string) {
     return translations[category] || category;
 });
 
-Handlebars.registerHelper('translateStatus', function(status: string) {
+Handlebars.registerHelper('translateStatus', function (status: string) {
     const translations: Record<string, string> = {
         'open': 'Открыто',
         'in_progress': 'В работе',
@@ -78,19 +78,19 @@ export class Statistics {
         const templateString = await fetchTemplate(TEMPLATE_PATH);
         const pageTemplate = Handlebars.compile(templateString);
         this.parent.innerHTML = pageTemplate(data);
-        
+
         this.addStyles();
-        
+
         this.initializeVisualizations();
         this.initializeTableInteractions();
     }
 
     private calculatePercentages(rawData: StatisticsPayload): any {
         const data = JSON.parse(JSON.stringify(rawData));
-        
-        const categoryAbsolutes = {...data.tickets_by_category};
+
+        const categoryAbsolutes = { ...data.tickets_by_category };
         const totalCategory = Object.values(categoryAbsolutes).reduce((sum: number, count: number) => sum + count, 0);
-        
+
         data.tickets_by_category = {};
         Object.keys(categoryAbsolutes).forEach(key => {
             const count = categoryAbsolutes[key];
@@ -101,9 +101,9 @@ export class Statistics {
             };
         });
 
-        const statusAbsolutes = {...data.tickets_by_status};
+        const statusAbsolutes = { ...data.tickets_by_status };
         const totalStatus = Object.values(statusAbsolutes).reduce((sum: number, count: number) => sum + count, 0);
-        
+
         data.tickets_by_status = {};
         Object.keys(statusAbsolutes).forEach(key => {
             const count = statusAbsolutes[key];
@@ -118,7 +118,7 @@ export class Statistics {
     }
 
     private addStyles(): void {
-        
+
         const style = document.createElement('style');
         style.textContent = `
             /* Критичные стили или переопределения */
@@ -143,9 +143,9 @@ export class Statistics {
                 const target = e.target as HTMLElement;
                 const textCell = target.closest('.tickets-table__cell--text');
                 const fullText = textCell?.getAttribute('data-fulltext');
-                
+
                 if (fullText) {
-                    console.log('Полный текст:', fullText);
+                    // console.log('Полный текст:', fullText);
                 }
             });
         });
@@ -155,12 +155,12 @@ export class Statistics {
 
     private initializeTableRowHover(): void {
         const rows = document.querySelectorAll('.tickets-table__row');
-        
+
         rows.forEach(row => {
             row.addEventListener('mouseenter', () => {
                 row.classList.add('tickets-table__row--hover');
             });
-            
+
             row.addEventListener('mouseleave', () => {
                 row.classList.remove('tickets-table__row--hover');
             });

@@ -151,7 +151,7 @@ class ChatWindowStore implements Store {
         });
 
         const isMine = message.sender_id === this.currentUserId;
-        console.log('[ChatWindow] mapMessage - sender_id:', message.sender_id, 'currentUserId:', this.currentUserId, 'isMine:', isMine);
+        // console.log('[ChatWindow] mapMessage - sender_id:', message.sender_id, 'currentUserId:', this.currentUserId, 'isMine:', isMine);
 
         return {
             id: message.id,

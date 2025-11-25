@@ -6,6 +6,8 @@ const TEMPLATE_PATH = '/src/components/Header/header.hbs';
 interface HeaderData {
     user: { name?: string; email?: string } | null;
     isAuthenticated: boolean;
+    userPhoto?: string | null;
+    userName?: string;
 }
 
 /**
@@ -45,19 +47,24 @@ export class Header {
     ): Promise<void> {
         if (!this.parent) return;
 
-        const { user, isAuthenticated } = headerData;
+        const { user, isAuthenticated, userPhoto } = headerData;
 
         const templateString = await fetchTemplate(TEMPLATE_PATH);
         const template = Handlebars.compile(templateString);
 
-        const baseName =
-            user?.name?.trim() ||
-            user?.email?.split('@')[0] ||
-            'Пользователь';
-        const userName =
-            baseName.length > 10 ? `${baseName.slice(0, 10)}...` : baseName;
+        // Используем userName из headerData, если есть, иначе вычисляем из user
+        let userName = headerData.userName;
+        if (!userName) {
+            const baseName =
+                user?.name?.trim() ||
+                user?.email?.split('@')[0] ||
+                'Пользователь';
+            userName = baseName.length > 10 ? `${baseName.slice(0, 10)}...` : baseName;
+        }
 
-        const renderedHtml = template({ isAuthenticated, userName });
+        // console.log('[Header.render] Passing to template - userPhoto:', userPhoto, 'userName:', userName);
+
+        const renderedHtml = template({ isAuthenticated, userName, userPhoto });
 
         this.parent.innerHTML = renderedHtml;
         this.initEventListeners();

@@ -2,10 +2,13 @@ import { dispatcher } from '../../Dispatcher';
 import { Actions, Action } from '../../actions';
 import { header } from './header';
 import AuthApi from '../../apiHandler/authApi';
+import ProfileApi from '../../apiHandler/profileApi';
 import type { Store } from '../../Dispatcher';
 
 interface User {
     email?: string;
+    name?: string;
+    photos?: any[];
     [key: string]: unknown;
 }
 
@@ -101,15 +104,36 @@ class HeaderStore implements Store {
                 const response = await AuthApi.checkAuth();
                 this.user = (response.user as User | null) || null;
                 this.isAuthenticated = !!this.user;
+
+                // Загружаем профиль с фотками если пользователь авторизован
+                if (this.isAuthenticated && this.user) {
+                    try {
+                        const profile = await ProfileApi.getProfile();
+                        // console.loglog('[Header] Profile loaded:', profile);
+                        this.user = { ...this.user, ...profile };
+                        // console.loglog('[Header] User after merge:', this.user);
+                    } catch (error) {
+                        console.error('[Header] Failed to load profile:', error);
+                        // Профиль не загрузился, используем данные из checkAuth
+                    }
+                }
             } catch (error) {
                 this.user = null;
                 this.isAuthenticated = false;
             }
         }
 
+        // Извлекаем URL первой фотографии из массива photos
+        const userPhoto = (this.user?.photos as Array<{ photo_url: string }> | undefined)?.[0]?.photo_url || null;
+        const userName = (this.user?.name as string | undefined) || (this.user?.email as string | undefined) || '';
+
+        // console.loglog('[Header] Rendering with userPhoto:', userPhoto, 'userName:', userName);
+
         const headerData = {
             user: this.user,
             isAuthenticated: this.isAuthenticated,
+            userPhoto,
+            userName,
         };
 
         // Всегда рендерим header заново, чтобы обработчики событий были актуальными

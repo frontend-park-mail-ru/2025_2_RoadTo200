@@ -13,15 +13,15 @@ class StatisticsStore implements Store {
             case Actions.RENDER_STATISTICS:
                 try {
                     const response: StatisticsResponse = await statisticsApi.getStatistics();
-                    
-                    console.log('Fetched statistics data:', response);
+
+                    // console.log('Fetched statistics data:', response);
                     await statistics.render(response);
-                    
+
                 } catch (error) {
                     console.error('Failed to fetch and render statistics:', error);
                 }
                 break;
-        
+
             default:
                 break;
         }

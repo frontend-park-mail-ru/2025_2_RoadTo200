@@ -64,17 +64,17 @@ class MainStore implements Store {
 
     private async checkProfileCompleteness(): Promise<void> {
         try {
-            // console.log('Checking profile completeness...');
+            // // console.log('Checking profile completeness...');
             const isComplete = await ProfileSetupPopup.isProfileComplete();
-            // console.log('Profile is complete:', isComplete);
+            // // console.log('Profile is complete:', isComplete);
 
             if (!isComplete) {
                 // Показываем попап для заполнения профиля
-                // console.log('Showing profile setup popup...');
+                // // console.log('Showing profile setup popup...');
                 dispatcher.process({ type: Actions.SHOW_PROFILE_SETUP_POPUP });
             } else {
                 // Профиль заполнен, загружаем карточки
-                // console.log('Profile is complete, loading cards...');
+                // // console.log('Profile is complete, loading cards...');
                 await this.getCards();
             }
         } catch (error) {
