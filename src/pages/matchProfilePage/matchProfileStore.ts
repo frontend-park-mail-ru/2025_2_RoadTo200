@@ -175,6 +175,16 @@ class MatchProfileStore implements Store {
     }
 
     private transformImagesToCards(images: string[]): PhotoCard[] {
+        // Если нет фотографий вообще, показываем одну заглушку
+        if (!images || images.length === 0) {
+            return [{
+                id: 'placeholder-0',
+                image: '/src/assets/image.png',
+                isUserPhoto: true, // Изменили на true, чтобы отображалась
+                isPrimary: true,
+            }];
+        }
+
         const photoCards: PhotoCard[] = images.map((imageUrl, index) => ({
             id: `photo-${index}`,
             image: imageUrl,
@@ -182,6 +192,7 @@ class MatchProfileStore implements Store {
             isPrimary: index === 0,
         }));
 
+        // Добавляем пустые плейсхолдеры только если есть хотя бы одна фотка
         while (photoCards.length < 4) {
             photoCards.push({
                 id: `placeholder-${photoCards.length}`,

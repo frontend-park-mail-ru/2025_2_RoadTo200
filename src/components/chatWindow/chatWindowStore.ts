@@ -146,13 +146,16 @@ class ChatWindowStore implements Store {
             minute: '2-digit',
         });
 
+        const isMine = message.sender_id === this.currentUserId;
+        console.log('[ChatWindow] mapMessage - sender_id:', message.sender_id, 'currentUserId:', this.currentUserId, 'isMine:', isMine);
+
         return {
             id: message.id,
             text: message.content,
             senderId: message.sender_id,
             timestamp,
             createdAt: message.created_at,
-            isMine: message.sender_id === this.currentUserId,
+            isMine,
         };
     }
 

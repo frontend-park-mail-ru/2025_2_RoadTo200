@@ -265,9 +265,8 @@ class NavigationStore implements Store {
         const { path } = action.payload!;
         const currentPath = path || window.location.pathname;
 
-        if (this.currentPath === currentPath) {
-            return;
-        }
+        // Удалили проверку this.currentPath === currentPath чтобы разрешить
+        // повторный рендер при навигации назад через кнопку браузера
 
         if (
             this.currentPath &&

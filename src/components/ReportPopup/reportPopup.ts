@@ -127,8 +127,15 @@ export class ReportPopup {
             form.reset();
             setTimeout(() => this.hide(), 900);
         } catch (error: any) {
-            const message =
-                error?.message || 'Не удалось отправить жалобу. Попробуйте позже.';
+            let message = error?.message || 'Не удалось отправить жалобу. Попробуйте позже.';
+
+            // Переводим специфичные ошибки бэкенда на русский
+            if (message.includes('duplicate active strike')) {
+                message = 'Вы уже отправили жалобу на этого пользователя';
+            } else if (message.includes('self strike not allowed')) {
+                message = 'Нельзя пожаловаться на самого себя';
+            }
+
             this.showError(message);
         } finally {
             this.toggleLoadingState(submitButton, false);

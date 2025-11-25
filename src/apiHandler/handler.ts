@@ -74,9 +74,13 @@ export async function handleFetch<T = unknown>(
             }
 
             // Формируем понятное сообщение об ошибке
-            let errorMessage = 'Неверный email или пароль';
+            let errorMessage = 'Произошла ошибка';
+
+            // Приоритет: сообщение от сервера, затем стандартные сообщения для статусов
             if (errorDetails && errorDetails.error) {
                 errorMessage = errorDetails.error;
+            } else if (response.status === 401) {
+                errorMessage = 'Неверный email или пароль';
             } else if (response.status === 500) {
                 errorMessage = 'Ошибка сервера. Попробуйте позже';
             } else if (response.status === 404) {
