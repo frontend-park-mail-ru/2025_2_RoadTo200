@@ -49,8 +49,7 @@
                     class="chat-window__input" 
                     placeholder="Сообщение"
                     rows="1"
-                    maxlength="1000"
-                    {{#if isInputDisabled}}disabled{{/if}}
+                    maxlength="250" {{#if isInputDisabled}}disabled{{/if}}
                 ></textarea>
                 <button type="submit" class="chat-window__send-btn" aria-label="Отправить" {{#if isInputDisabled}}disabled{{/if}}>
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -58,6 +57,7 @@
                     </svg>
                 </button>
             </div>
+            <span class="chat-window__counter">0 / 250</span>
         </form>
     {{else}}
         <div class="chat-window__placeholder">

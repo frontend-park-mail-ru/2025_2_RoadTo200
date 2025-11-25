@@ -30,8 +30,7 @@
             <div id='description' class='details__editable-content'>
                 <p class='details__section-text details__section-text-current'>{{description}}</p>
             </div>
-
-            {{#if activities.length}}
+            <p class='details__counter' data-counter-for='description'></p> {{#if activities.length}}
             <h3 class='details__section-title'>Активности</h3>
             <div class='details__icons'>
                 {{#each activities}}
@@ -52,8 +51,7 @@
                     {{musician}}
                 </p>
             </div>
-
-            <h3 class='details__section-title'>
+            <p class='details__counter' data-counter-for='musician'></p> <h3 class='details__section-title'>
                 Любимая цитата
                 <span class='details__icon-edit' data-target='quote' data-type='paragraph'><img
                         src='./src/assets/edit.svg' alt='/' class='icon-edit' /></span>
@@ -63,8 +61,6 @@
                     {{quote}}
                 </p>
             </div>
-
-
-        </div>
+            <p class='details__counter' data-counter-for='quote'></p> </div>
     </div>
 </div>

@@ -175,6 +175,17 @@
             transform: translateY(-1px);
         }
     }
+
+
+    &__counter {
+        display: block; 
+        text-align: right;
+        font-size: 13px;
+        color: #9a9a9a;
+        padding-top: 8px;
+        padding-right: 10px;
+    }
+
 }
 
 .chat-message {
@@ -189,6 +200,7 @@
     &--theirs {
         justify-content: flex-start;
     }
+
 
     &__bubble {
         padding: 14px 18px;

@@ -86,6 +86,8 @@ export class ChatWindow implements PageComponent {
         const form = this.parent.querySelector('.chat-window__input-form') as HTMLFormElement;
         const input = this.parent.querySelector('.chat-window__input') as HTMLInputElement;
         const sendButton = this.parent.querySelector('.chat-window__send-btn') as HTMLButtonElement;
+        // 💡 Select the new counter element
+        const counter = this.parent.querySelector('.chat-window__counter') as HTMLSpanElement;
 
         const handleSend = (event: Event) => {
             event.preventDefault();
@@ -97,6 +99,10 @@ export class ChatWindow implements PageComponent {
                     payload: { text },
                 });
                 input.value = '';
+                // 💡 Reset counter after sending
+                if (counter) {
+                    counter.textContent = '0 / 250';
+                }
             }
         };
 
@@ -114,6 +120,13 @@ export class ChatWindow implements PageComponent {
             input.addEventListener('input', () => {
                 input.style.height = 'auto';
                 input.style.height = input.scrollHeight + 'px';
+
+                if (counter) {
+                    const currentLength = input.value.length;
+                    const maxLength = 250; 
+
+                    counter.textContent = `${currentLength} / ${maxLength}`;
+                }
             });
         }
 
