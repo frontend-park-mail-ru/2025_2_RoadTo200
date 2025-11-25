@@ -128,6 +128,7 @@ class ChatWindowStore implements Store {
             const { messages } = await ChatApi.getMessages(chatId, { limit: 100 });
             const mapped = messages.map((message) => this.mapMessage(message));
             this.messagesByChat.set(chatId, mapped);
+            this.sortMessages(chatId);
             this.scrollToBottom();
             this.scheduleMarkAsRead(chatId);
         } catch (error) {
@@ -197,10 +198,23 @@ class ChatWindowStore implements Store {
         const list = this.messagesByChat.get(chatId) || [];
         list.push(message);
         this.messagesByChat.set(chatId, list);
+        this.sortMessages(chatId);
         if (chatId === this.currentChatId) {
             void this.renderChatWindow();
             this.scrollToBottom();
         }
+    }
+
+    private sortMessages(chatId: string): void {
+        const messages = this.messagesByChat.get(chatId);
+        if (!messages) return;
+
+        // Sort by createdAt timestamp in descending order (newest last)
+        messages.sort((a, b) => {
+            const timeA = new Date(a.createdAt).getTime();
+            const timeB = new Date(b.createdAt).getTime();
+            return timeA - timeB;
+        });
     }
 
     private handleSocketEvent(event: ChatSocketEvent): void {
@@ -213,9 +227,9 @@ class ChatWindowStore implements Store {
                 senderId: event.sender_id || '',
                 timestamp: event.created_at
                     ? new Date(event.created_at).toLocaleTimeString('ru-RU', {
-                          hour: '2-digit',
-                          minute: '2-digit',
-                      })
+                        hour: '2-digit',
+                        minute: '2-digit',
+                    })
                     : '',
                 createdAt: event.created_at || new Date().toISOString(),
                 isMine: event.sender_id === this.currentUserId,
@@ -265,10 +279,10 @@ class ChatWindowStore implements Store {
 
         const placeholder = !this.currentChatId
             ? {
-                  title: 'У Вас пока нет чатов',
-                  subtitle: 'Возможно, Вам стоит еще поискать подходящих людей',
-                  action: 'home' as const,
-              }
+                title: 'У Вас пока нет чатов',
+                subtitle: 'Возможно, Вам стоит еще поискать подходящих людей',
+                action: 'home' as const,
+            }
             : undefined;
 
         await this.chatWindowComponent.render({
