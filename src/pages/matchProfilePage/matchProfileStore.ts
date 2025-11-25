@@ -97,7 +97,11 @@ class MatchProfileStore implements Store {
             const userData = this.matchesCache.get(matchId);
 
             if (!userData) {
-                // console.error('No user data found in cache for matchId:', matchId);
+                // Данных нет в кэше (например, обновили страницу) - редирект на список мэтчей
+                await dispatcher.process({
+                    type: Actions.NAVIGATE_TO,
+                    payload: { path: '/matches' },
+                });
                 return;
             }
 
