@@ -20,7 +20,6 @@ interface ChatListItem {
 
 class ChatsListStore implements Store {
     private chats: ChatListItem[] = [];
-    private allChats: ChatListItem[] = [];
     private selectedChatId: string | null = null;
     private readonly chatsListComponent = chatsList;
     private isLoading = false;
@@ -56,8 +55,7 @@ class ChatsListStore implements Store {
             case Actions.UPDATE_CHAT_SEARCH:
                 this.searchQuery = ((action.payload as { query?: string })?.query || '')
                     .trim();
-                this.filterChats();
-                await this.renderChatsList();
+                await this.fetchChats();
                 break;
 
             case Actions.CHAT_SOCKET_MESSAGE:
@@ -92,7 +90,6 @@ class ChatsListStore implements Store {
         this.currentUserId = userId;
         if (!userId) {
             this.chats = [];
-            this.allChats = [];
             this.selectedChatId = null;
             this.error = null;
             await this.renderChatsList();
@@ -111,13 +108,11 @@ class ChatsListStore implements Store {
         await this.renderChatsList();
 
         try {
-            // Backend ignores search query, so we fetch all and filter locally
-            const { conversations } = await ChatApi.getConversations();
-            this.allChats = conversations.map((conversation) =>
+            // Use server-side search via backend API
+            const { conversations } = await ChatApi.getConversations(this.searchQuery);
+            this.chats = conversations.map((conversation) =>
                 this.mapConversation(conversation)
             );
-            this.filterChats();
-            this.sortChats();
 
             if (!this.selectedChatId && this.chats.length > 0) {
                 const firstChat = this.chats[0];
@@ -142,17 +137,7 @@ class ChatsListStore implements Store {
         }
     }
 
-    private filterChats(): void {
-        if (!this.searchQuery) {
-            this.chats = [...this.allChats];
-            return;
-        }
 
-        const query = this.searchQuery.toLowerCase();
-        this.chats = this.allChats.filter((chat) =>
-            chat.userName.toLowerCase().includes(query)
-        );
-    }
 
     private mapConversation(conversation: ConversationDTO): ChatListItem {
         const date = conversation.last_message_time
@@ -173,8 +158,7 @@ class ChatsListStore implements Store {
     }
 
     private sortChats(): void {
-        this.allChats.sort((a, b) => b.lastMessageDate - a.lastMessageDate);
-        this.filterChats();
+        this.chats.sort((a, b) => b.lastMessageDate - a.lastMessageDate);
     }
 
     private getInitials(name?: string | null): string {
@@ -217,11 +201,11 @@ class ChatsListStore implements Store {
     }
 
     private async renderChatsList(): Promise<void> {
-        const emptyState = 
-            {
-                  title: 'У Вас пока нет чатов',
-                  subtitle: 'Возможно Вам стоит еще поискать подходящих людей',
-              };
+        const emptyState =
+        {
+            title: 'У Вас пока нет чатов',
+            subtitle: 'Возможно Вам стоит еще поискать подходящих людей',
+        };
 
         await this.chatsListComponent.render({
             chats: this.chats,
@@ -248,9 +232,12 @@ class ChatsListStore implements Store {
     }
 
     private applyIncomingMessage(event: ChatSocketEvent): void {
-        const chat = this.allChats.find((item) => item.id === event.match_id);
+        const chat = this.chats.find((item) => item.id === event.match_id);
         if (!chat) {
-            void this.fetchChats();
+            // Only refresh if not searching, otherwise the new chat might not match search
+            if (!this.searchQuery) {
+                void this.fetchChats();
+            }
             return;
         }
 
@@ -270,10 +257,9 @@ class ChatsListStore implements Store {
 
     private clearUnread(chatId?: string): void {
         if (!chatId) return;
-        const chat = this.allChats.find((item) => item.id === chatId);
+        const chat = this.chats.find((item) => item.id === chatId);
         if (chat) {
             chat.unreadCount = 0;
-            this.filterChats(); // Re-filter to update view
             void this.renderChatsList();
         }
     }
