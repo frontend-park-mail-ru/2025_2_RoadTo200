@@ -23,7 +23,7 @@ export default defineConfig({
                 secure: false,
             },
             '/ws': {
-                target: 'http://terabithia.online:8080',
+                target: 'http://terabithia.online',
                 changeOrigin: true,
                 secure: false,
                 ws: true,
@@ -47,7 +47,7 @@ export default defineConfig({
                 secure: false,
             },
             '/ws': {
-                target: 'http://terabithia.online:8080',
+                target: 'http://terabithia.online',
                 changeOrigin: true,
                 secure: false,
                 ws: true,
