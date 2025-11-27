@@ -129,19 +129,19 @@ export class MainPage {
         const emptyStateHtml = emptyStateTemplate({
             title: 'Анкеты закончились',
             message:
-                'Вы посмотрели все доступные анкеты. Попробуйте изменить фильтры в настройках.',
-            buttonText: 'Перейти в настройки',
-            buttonId: 'goToSettings',
+                'Вы посмотрели все доступные анкеты. Попробуйте изменить активности.',
+            buttonText: 'Перейти на главную',
+            buttonId: 'goToMain',
         });
 
         pageContainer.innerHTML = emptyStateHtml;
 
-        const settingsButton = document.getElementById('goToSettings');
-        if (settingsButton) {
-            settingsButton.addEventListener('click', () => {
+        const goToMainButton = document.getElementById('goToMain');
+        if (goToMainButton) {
+            goToMainButton.addEventListener('click', () => {
                 dispatcher.process({
                     type: Actions.NAVIGATE_TO,
-                    payload: { path: '/settings' },
+                    payload: { path: '/' },
                 });
             });
         }
