@@ -53,6 +53,12 @@ export class ChatsList implements PageComponent {
 
         const { chats, selectedChatId, searchQuery, isLoading, emptyState } = data;
 
+        const searchInput = this.parent.querySelector(
+            '.chats-sidebar__search-input'
+        ) as HTMLInputElement | null;
+        const hadFocus = searchInput === document.activeElement;
+        const cursorPosition = hadFocus ? searchInput?.selectionStart ?? 0 : 0;
+
         const chatsWithSelection = chats.map((chat) => ({
             ...chat,
             isSelected: chat.id === selectedChatId,
@@ -71,6 +77,16 @@ export class ChatsList implements PageComponent {
 
         this.parent.innerHTML = renderedHtml;
         this.initEventListeners();
+
+        if (hadFocus) {
+            const newSearchInput = this.parent.querySelector(
+                '.chats-sidebar__search-input'
+            ) as HTMLInputElement | null;
+            if (newSearchInput) {
+                newSearchInput.focus();
+                newSearchInput.setSelectionRange(cursorPosition, cursorPosition);
+            }
+        }
     }
 
     private initEventListeners(): void {

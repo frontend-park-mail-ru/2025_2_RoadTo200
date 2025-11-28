@@ -76,7 +76,8 @@ export class ReportPopup {
         if (context.targetAge) {
             parts.push(`${context.targetAge}`);
         }
-        return parts.length ? parts.join(', ') : 'Пользователь';
+        const userInfo = parts.length ? parts.join(', ') : 'Пользователь';
+        return `Оставить жалобу на пользователя ${userInfo}`;
     }
 
     private attachEventListeners(): void {
@@ -127,13 +128,25 @@ export class ReportPopup {
             form.reset();
             setTimeout(() => this.hide(), 900);
         } catch (error: any) {
-            let message = error?.message || 'Не удалось отправить жалобу. Попробуйте позже.';
+            let message = 'Не удалось отправить жалобу. Попробуйте позже.';
+
+            // Получаем текст ошибки из разных возможных источников
+            const errorMessage = error?.message || error?.error || '';
+            const errorLower = errorMessage.toLowerCase();
 
             // Переводим специфичные ошибки бэкенда на русский
-            if (message.includes('internal server error')) {
+            if (errorLower.includes('internal server error') || errorLower.includes('duplicate')) {
                 message = 'Вы уже отправили жалобу на этого пользователя';
-            } else if (message.includes('self strike not allowed')) {
+            } else if (errorLower.includes('self strike') || errorLower.includes('not allowed')) {
                 message = 'Нельзя пожаловаться на самого себя';
+            } else if (errorLower.includes('unauthorized') || errorLower.includes('401')) {
+                message = 'Необходимо авторизоваться для отправки жалобы';
+            } else if (errorLower.includes('not found') || errorLower.includes('404')) {
+                message = 'Пользователь не найден';
+            } else if (errorLower.includes('validation') || errorLower.includes('invalid')) {
+                message = 'Некорректные данные. Проверьте форму и попробуйте снова';
+            } else if (errorMessage) {
+                message = errorMessage;
             }
 
             this.showError(message);
