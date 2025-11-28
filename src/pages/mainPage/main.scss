@@ -37,6 +37,9 @@
         font-size: 28px;
         font-weight: 700;
         color: #ff2f73;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        word-break: break-word;
     }
 
     .details__section-title {
@@ -52,6 +55,9 @@
         line-height: 1.6;
         color: #4a4a4a;
         margin: 0;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        word-break: break-word;
     }
 
     .details__section-text--muted {

@@ -39,19 +39,18 @@
         padding: 15px;
         color: #fff;
         z-index: 10;
+        min-width: 250px;
+        width: 100%;
     }
 
     &__name {
         font-size: 28px;
         margin: 0;
         text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
-    }
-
-    &__description {
-        font-size: 16px;
-        margin: 5px 0 0 0;
-        text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
-        font-weight: 300;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        max-width: 100%;
     }
 
     &__interests {

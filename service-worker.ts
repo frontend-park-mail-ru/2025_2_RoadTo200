@@ -24,12 +24,7 @@ const PATTERNS = {
         /\/uploads\//,
         /\/assets\//,
     ],
-    // Handlebars шаблоны - должны кэшироваться для offline
     hbs: [/\.hbs$/],
-    // Игнорируем служебные запросы Vite в dev-режиме
-    // chrome-extension - расширения браузера
-    // @vite, @fs - служебные модули Vite для HMR
-    // ?token= - токены Vite для аутентификации WebSocket HMR
     ignore: [/chrome-extension/, /@vite/, /@fs/, /\?token=/],
 };
 
@@ -102,9 +97,6 @@ const networkFirst = async (
 /**
  * Стратегия Stale While Revalidate
  * Отдаём закэшированный ответ сразу, но в фоне обновляем кэш
- * Идеально для контента, где можно показать старую версию, пока грузится новая
- * 
- * В dev-режиме всегда ждём свежие данные, чтобы не кэшировать код при разработке
  */
 const staleWhileRevalidate = async (
     request: Request,
@@ -122,10 +114,8 @@ const staleWhileRevalidate = async (
         })
         .catch(() => cached || new Response('Offline', { status: 503 }));
 
-    // В dev-режиме всегда ждём актуальные данные
     if (IS_DEV) return fetchPromise;
 
-    // В продакшене: отдаём кэш сразу, обновляем в фоне
     if (event) event.waitUntil(fetchPromise);
     return cached || fetchPromise;
 };
@@ -237,11 +227,11 @@ sw.addEventListener('fetch', (event: FetchEvent) => {
                     // Пытаемся вернуть закэшированный index.html
                     const cachedIndex = await caches.match('/index.html');
                     if (cachedIndex) return cachedIndex;
-                    
+
                     // Пытаемся найти любую закэшированную версию этого URL
                     const cached = await caches.match(request);
                     if (cached) return cached;
-                    
+
                     // Если и его нет - возвращаем offline-страницу
                     return new Response(
                         `<!DOCTYPE html>
@@ -288,7 +278,7 @@ sw.addEventListener('fetch', (event: FetchEvent) => {
     </div>
 </body>
 </html>`,
-                        { 
+                        {
                             status: 503,
                             headers: { 'Content-Type': 'text/html; charset=utf-8' }
                         }
@@ -304,54 +294,10 @@ sw.addEventListener('fetch', (event: FetchEvent) => {
 });
 
 /**
- * Интерфейс для сообщений от приложения к SW
- */
-interface SWMessage {
-    type: 'SKIP_WAITING' | 'CLEAR_CACHE' | 'UPDATE_PROFILE_CACHE' | 'UPDATE_MATCHES_CACHE';
-}
-
-/**
- * Событие message - обработка сообщений от страницы
- * Позволяет управлять SW из основного потока
+ * Событие message - обработка команды SKIP_WAITING от app.ts
  */
 sw.addEventListener('message', (event: ExtendableMessageEvent) => {
-    const data = event.data as SWMessage | undefined;
-    if (!data) return;
-
-    const { type } = data;
-
-    switch (type) {
-        case 'SKIP_WAITING':
-            // Принудительная активация нового SW
-            sw.skipWaiting();
-            break;
-
-        case 'CLEAR_CACHE':
-            // Полная очистка всех кэшей
-            event.waitUntil(
-                caches
-                    .keys()
-                    .then((keys) =>
-                        Promise.all(keys.map((k) => caches.delete(k)))
-                    )
-                    .then(() => {
-                        if (event.ports[0]) {
-                            event.ports[0].postMessage({ success: true });
-                        }
-                    })
-            );
-            break;
-
-        case 'UPDATE_PROFILE_CACHE':
-        case 'UPDATE_MATCHES_CACHE':
-            // Инвалидация конкретных API-запросов
-            const cacheKey =
-                type === 'UPDATE_PROFILE_CACHE'
-                    ? '/api/profile/profile'
-                    : '/api/matches';
-            event.waitUntil(
-                caches.open(CACHE_API).then((cache) => cache.delete(cacheKey))
-            );
-            break;
+    if (event.data?.type === 'SKIP_WAITING') {
+        sw.skipWaiting();
     }
 });

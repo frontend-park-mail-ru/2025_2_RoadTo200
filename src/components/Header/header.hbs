@@ -10,15 +10,11 @@
 
         <div class='header__right'>
             {{#if isAuthenticated}}
-            {{#if userPhoto}}
             <button class='header__avatar-btn' id='userEmailBtn' aria-label='Профиль пользователя'>
                 <div class='header__avatar'>
                     <img src='{{userPhoto}}' alt='{{userName}}' />
                 </div>
             </button>
-            {{else}}
-            <span class='header__welcome-text' id='userEmailBtn'>{{userName}}</span>
-            {{/if}}
             {{else}}
             <a class='header__auth-link' Link href='/login'>Войти</a>
             {{/if}}

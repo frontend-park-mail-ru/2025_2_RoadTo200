@@ -123,8 +123,8 @@ class HeaderStore implements Store {
             }
         }
 
-        // Извлекаем URL первой фотографии из массива photos
-        const userPhoto = (this.user?.photos as Array<{ photo_url: string }> | undefined)?.[0]?.photo_url || null;
+        // Извлекаем URL первой фотографии из массива photos или используем дефолтный аватар
+        const userPhoto = (this.user?.photos as Array<{ photo_url: string }> | undefined)?.[0]?.photo_url || '/src/assets/default-avatar.svg';
         const userName = (this.user?.name as string | undefined) || (this.user?.email as string | undefined) || '';
 
         // console.loglog('[Header] Rendering with userPhoto:', userPhoto, 'userName:', userName);
