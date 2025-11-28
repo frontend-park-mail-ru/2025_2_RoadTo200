@@ -44,15 +44,8 @@ export class ProfileSetupPopup {
             const hasGender = ProfileSetupPopup.hasValidGender(profile);
             const hasPhoto = ProfileSetupPopup.hasApprovedPhoto(response) || true; 
 
-            console.log('Profile completeness check:', {
-                hasName,
-                hasGender,
-                hasPhoto,
-            });
-
             return hasName && hasGender && hasPhoto;
         } catch (error) {
-            // console.error('Error checking profile completeness:', error);
             return false;
         }
     }
@@ -368,7 +361,6 @@ export class ProfileSetupPopup {
 
         const lowerName = normalizedName.toLowerCase();
 
-        console.log(lowerName)
         const invalidNames = new Set(['naaaaaane', 'name', 'username']);
         if (invalidNames.has(lowerName)) {
             return false;

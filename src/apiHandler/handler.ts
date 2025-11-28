@@ -110,7 +110,6 @@ export async function handleFetch<T = unknown>(
             try {
                 return JSON.parse(rawBody) as T;
             } catch (parseError) {
-                console.error('handleFetch: failed to parse JSON', parseError);
                 throw new Error('Некорректный ответ сервера');
             }
         }

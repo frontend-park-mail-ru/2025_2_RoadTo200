@@ -34,8 +34,6 @@ class MatchesStore implements Store {
     async handleAction(action: Action): Promise<void> {
         switch (action.type) {
             case Actions.RENDER_MATCHES:
-                // console.log('[MatchesStore] RENDER_MATCHES called, stack trace:');
-                // console.trace();
                 await this.renderMatches();
                 break;
 
@@ -118,8 +116,6 @@ class MatchesStore implements Store {
 
             this.updateDerivedFields();
 
-            // console.log('Processed matches:', this.matches);
-
             await matches.setMatches(this.matches);
 
             if (!this.timerId) {
@@ -129,7 +125,6 @@ class MatchesStore implements Store {
                 }, UPDATE_INTERVAL);
             }
         } catch (error) {
-            // console.error('Error loading matches:', error);
             await matches.setMatches([]);
         }
     }

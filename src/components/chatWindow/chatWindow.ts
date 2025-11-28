@@ -38,7 +38,6 @@ const fetchTemplate = async (path: string): Promise<string> => {
         }
         return await response.text();
     } catch (error) {
-        console.error('Ошибка загрузки шаблона окна чата:', error);
         return '<div></div>';
     }
 };

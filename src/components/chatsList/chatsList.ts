@@ -35,7 +35,6 @@ const fetchTemplate = async (path: string): Promise<string> => {
         }
         return await response.text();
     } catch (error) {
-        console.error('Ошибка загрузки шаблона списка чатов:', error);
         return '<div></div>';
     }
 };

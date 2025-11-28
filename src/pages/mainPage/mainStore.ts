@@ -64,22 +64,14 @@ class MainStore implements Store {
 
     private async checkProfileCompleteness(): Promise<void> {
         try {
-            // // console.log('Checking profile completeness...');
             const isComplete = await ProfileSetupPopup.isProfileComplete();
-            // // console.log('Profile is complete:', isComplete);
 
             if (!isComplete) {
-                // Показываем попап для заполнения профиля
-                // // console.log('Showing profile setup popup...');
                 dispatcher.process({ type: Actions.SHOW_PROFILE_SETUP_POPUP });
             } else {
-                // Профиль заполнен, загружаем карточки
-                // // console.log('Profile is complete, loading cards...');
                 await this.getCards();
             }
         } catch (error) {
-            // console.error('Error checking profile completeness:', error);
-            // В случае ошибки пытаемся загрузить карточки
             await this.getCards();
         }
     }
@@ -142,7 +134,6 @@ class MainStore implements Store {
             this.cards = transformedCards;
             main.setCards(transformedCards);
         } catch (error) {
-            // console.error('Error getting cards:', error);
             this.cards = [];
             main.setCards([]);
         }
@@ -160,7 +151,7 @@ class MainStore implements Store {
                     : (actionType as CardAction);
             await CardApi.postCardInteraction(cardId, mappedAction);
         } catch (error) {
-            // console.error('Error sending card action:', error);
+            // Card action failed
         }
     }
 }

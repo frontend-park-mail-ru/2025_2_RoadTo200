@@ -188,7 +188,7 @@ class NavigationStore implements Store {
                     iframeDoc.body.style.overflow = 'hidden';
                 }
             } catch (error) {
-                console.warn('Support iframe scroll lock failed', error);
+                // iframe scroll lock failed
             }
         });
     }
@@ -381,7 +381,7 @@ class NavigationStore implements Store {
                     await route.component.controller();
                 }
             } catch (error) {
-                // console.error('Error rendering component:', error);
+                // Component render failed
             }
         }
     }
@@ -432,7 +432,6 @@ class NavigationStore implements Store {
                 }
                 return { type: Actions.RENDER_MATCHES, payload: actionPayload };
             case '/chats':
-                // console.log('NavigationStore: navigating to /chats');
                 actionPayload.route = 'chats';
                 return { type: Actions.RENDER_CHATS, payload: actionPayload };
             default:

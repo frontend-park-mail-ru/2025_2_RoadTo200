@@ -75,22 +75,17 @@ export class MainPage {
     }
 
     async render(): Promise<void> {
-        // console.log('MainPage render called, parent:', this.parent);
         this.parent.innerHTML = '';
 
         const pageTemplateString = await fetchTemplate(TEMPLATE_PATH);
         const pageTemplate = Handlebars.compile(pageTemplateString);
 
         const renderedHtml = pageTemplate({ cardsHtml: '' });
-        // console.log('Rendered HTML:', renderedHtml.substring(0, 200));
 
         const newDiv = document.createElement('div');
         newDiv.id = 'mainDiv';
         newDiv.innerHTML = renderedHtml;
         this.parent.appendChild(newDiv);
-
-        // console.log('Main page DOM inserted');
-        // console.log('cards-container exists:', !!document.querySelector('.cards-container'));
 
         document.addEventListener('click', (event: Event) => {
             const target = event.target as HTMLElement;
@@ -104,12 +99,10 @@ export class MainPage {
     }
 
     setCards(cards: CardData[]): void {
-        // console.log('setCards called with:', cards);
         // Если cards уже массив, используем его напрямую
         this.cardsData = Array.isArray(cards) ? cards : Object.values(cards);
         this.currentCardIndex = 0;
 
-        // console.log('Cards data length:', this.cardsData.length);
         if (this.cardsData.length > 0) {
             this.displayFirstCard();
         } else {
@@ -149,21 +142,16 @@ export class MainPage {
 
     async displayFirstCard(): Promise<void> {
         const pageContainer = document.querySelector('.cards-container');
-        // console.log('displayFirstCard called, pageContainer:', pageContainer);
 
         if (!pageContainer) {
-            // console.error('pageContainer not found!');
             return;
         }
 
         const firstCardData = this.cardsData[this.currentCardIndex];
-        // console.log('firstCardData:', firstCardData);
 
         const cardHtml = await Card.render(firstCardData);
-        // console.log('cardHtml length:', cardHtml.length);
 
         pageContainer.insertAdjacentHTML('beforeend', cardHtml);
-        // console.log('Card inserted into DOM');
 
         this.initCardActions();
 
@@ -177,7 +165,6 @@ export class MainPage {
         const pageContainer = document.querySelector('.cards-container');
 
         if (!pageContainer) return;
-        // console.log(this.currentCardIndex);
         if (this.currentCardIndex < this.cardsData.length) {
             const nextCardData = this.cardsData[this.currentCardIndex];
             const cardHtml = await Card.render(nextCardData);
@@ -208,12 +195,10 @@ export class MainPage {
                 activities,
             };
 
-            // console.log('CardInfo data:', dataWithActivities);
-
             infoPanelContainer.innerHTML = template(dataWithActivities);
             this.attachReportButton(infoPanelContainer, dataWithActivities);
         } catch (error) {
-            // console.error('Error updating card info:', error);
+            // Update card info failed
         }
     }
 

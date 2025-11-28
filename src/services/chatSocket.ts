@@ -10,31 +10,24 @@ class ChatSocketService {
     private status: ChatSocketStatus = 'disconnected';
 
     connect(): void {
-        // console.log('[ChatSocket] connect() called');
         if (typeof window === 'undefined') return;
         if (this.socket &&
             (this.socket.readyState === WebSocket.OPEN ||
                 this.socket.readyState === WebSocket.CONNECTING)) {
-            // console.log('[ChatSocket] Already connected or connecting');
             return;
         }
 
         const url = this.buildWebSocketURL();
-        // console.log('[ChatSocket] Built WebSocket URL:', url);
         if (!url) {
-            console.warn('[ChatSocket] Failed to build URL');
             this.updateStatus('disconnected');
             return;
         }
 
         try {
-            // console.log('[ChatSocket] Updating status to connecting');
             this.updateStatus('connecting');
-            // console.log('[ChatSocket] Creating new WebSocket connection to:', url);
             this.socket = new WebSocket(url);
             this.registerListeners();
         } catch (error) {
-            console.error('ChatSocket: failed to connect', error);
             this.scheduleReconnect();
         }
     }
@@ -87,17 +80,14 @@ class ChatSocketService {
 
     private registerListeners(): void {
         if (!this.socket) return;
-        // console.log('[ChatSocket] Registering WebSocket listeners');
 
         this.socket.addEventListener('open', () => {
-            // console.log('[ChatSocket] ✅ WebSocket OPENED successfully!');
             this.reconnectAttempts = 0;
             this.updateStatus('connected');
             this.flushQueue();
         });
 
         this.socket.addEventListener('message', (event) => {
-            // console.log('[ChatSocket] Message received:', event.data);
             try {
                 const data = JSON.parse(event.data) as ChatSocketEvent;
                 dispatcher.process({
@@ -105,18 +95,16 @@ class ChatSocketService {
                     payload: data,
                 });
             } catch (error) {
-                console.error('ChatSocket: failed to parse message', error);
+                // Message parsing failed
             }
         });
 
         this.socket.addEventListener('close', (event) => {
-            // console.log('[ChatSocket] ❌ WebSocket CLOSED - code:', event.code, 'reason:', event.reason);
             this.updateStatus('disconnected');
             this.scheduleReconnect();
         });
 
         this.socket.addEventListener('error', (event) => {
-            console.error('[ChatSocket] ❌ WebSocket ERROR:', event);
             this.updateStatus('disconnected');
             this.socket?.close();
         });
@@ -142,7 +130,6 @@ class ChatSocketService {
     }
 
     private updateStatus(status: ChatSocketStatus): void {
-        // console.log('[ChatSocket] Status update:', this.status, '->', status);
         if (this.status === status) return;
         this.status = status;
         dispatcher.process({
@@ -160,10 +147,8 @@ class ChatSocketService {
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
         const host = window.location.host; // includes port if present
 
-        // console.log('[ChatSocket] Building URL - protocol:', protocol, 'host:', host);
         // Backend uses cookie-based authentication, browser sends cookies automatically
         const url = `${protocol}//${host}/ws/chat`;
-        // console.log('[ChatSocket] Final WebSocket URL:', url);
         return url;
     }
 }

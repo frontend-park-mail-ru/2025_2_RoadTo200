@@ -145,7 +145,7 @@ export class Statistics {
                 const fullText = textCell?.getAttribute('data-fulltext');
 
                 if (fullText) {
-                    // console.log('Полный текст:', fullText);
+                    // Show full text if needed
                 }
             });
         });

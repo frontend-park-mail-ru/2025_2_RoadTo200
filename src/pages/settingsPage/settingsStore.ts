@@ -92,7 +92,6 @@ class SettingsStore implements Store {
 
         try {
             const response = (await ProfileApi.getProfile()) as any;
-            console.log('Settings: Profile response:', response);
 
             const user = response.user || {};
             this.profileData = {
@@ -103,7 +102,6 @@ class SettingsStore implements Store {
                 email: user.email || '',
             };
         } catch (error) {
-            console.error('Error loading profile for settings:', error);
             this.profileData = { name: '', birthdate: '', email: '' };
         }
 
@@ -210,13 +208,11 @@ class SettingsStore implements Store {
                 name,
                 birth_date: birthDateISO,
             });
-            console.log('Profile settings updated successfully');
 
             this.profileData = { name, birthdate, email };
             this.updateView();
             settings.showSuccess('profileSuccessMessage', 'Данные успешно обновлены');
         } catch (err) {
-            console.error('Error updating profile settings:', err);
             settings.showErrors({
                 emailError: 'Ошибка при обновлении профиля',
             });
@@ -246,7 +242,6 @@ class SettingsStore implements Store {
             });
             settings.showSuccess('filtersSuccessMessage', 'Фильтры успешно сохранены');
         } catch (error) {
-            console.error('Error updating filters:', error);
             settings.showErrors({
                 filtersError: 'Не удалось сохранить фильтры',
             });

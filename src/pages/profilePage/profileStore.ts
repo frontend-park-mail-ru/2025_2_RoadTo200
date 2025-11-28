@@ -139,7 +139,7 @@ class ProfileStore implements Store {
 
             await profile.render(this.profileData);
         } catch (error) {
-            // console.error('Error loading profile:', error);
+            // Profile load failed
         }
     }
 
@@ -214,7 +214,7 @@ class ProfileStore implements Store {
             await ProfileApi.updateProfileInfo(updateData);
             await this.renderProfile();
         } catch (error) {
-            // console.error('Error updating profile:', error);
+            // Profile update failed
         }
     }
 
@@ -254,7 +254,7 @@ class ProfileStore implements Store {
 
             fileInput.click();
         } catch (error) {
-            console.error('Error in addPhoto:', error);
+            // Add photo failed
         }
     }
 

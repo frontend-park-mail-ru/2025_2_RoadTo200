@@ -136,7 +136,7 @@ class ChatWindowStore implements Store {
             this.scrollToBottom();
             this.scheduleMarkAsRead(chatId);
         } catch (error) {
-            console.error('ChatWindowStore: failed to load messages', error);
+            // Failed to load messages
         } finally {
             this.isLoading = false;
             await this.renderChatWindow();
@@ -151,7 +151,6 @@ class ChatWindowStore implements Store {
         });
 
         const isMine = message.sender_id === this.currentUserId;
-        // console.log('[ChatWindow] mapMessage - sender_id:', message.sender_id, 'currentUserId:', this.currentUserId, 'isMine:', isMine);
 
         return {
             id: message.id,
@@ -194,7 +193,7 @@ class ChatWindowStore implements Store {
                 });
             }
         } catch (error) {
-            console.error('ChatWindowStore: failed to send message', error);
+            // Message send failed
         } finally {
             this.isSending = false;
             await this.renderChatWindow();
@@ -274,7 +273,7 @@ class ChatWindowStore implements Store {
                 payload: { chatId },
             });
         } catch (error) {
-            console.error('ChatWindowStore: failed to mark messages as read', error);
+            // Mark as read failed
         }
     }
 

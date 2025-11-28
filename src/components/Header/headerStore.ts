@@ -109,11 +109,8 @@ class HeaderStore implements Store {
                 if (this.isAuthenticated && this.user) {
                     try {
                         const profile = await ProfileApi.getProfile();
-                        // console.loglog('[Header] Profile loaded:', profile);
                         this.user = { ...this.user, ...profile };
-                        // console.loglog('[Header] User after merge:', this.user);
                     } catch (error) {
-                        console.error('[Header] Failed to load profile:', error);
                         // Профиль не загрузился, используем данные из checkAuth
                     }
                 }
@@ -126,8 +123,6 @@ class HeaderStore implements Store {
         // Извлекаем URL первой фотографии из массива photos или используем дефолтный аватар
         const userPhoto = (this.user?.photos as Array<{ photo_url: string }> | undefined)?.[0]?.photo_url || '/src/assets/default-avatar.svg';
         const userName = (this.user?.name as string | undefined) || (this.user?.email as string | undefined) || '';
-
-        // console.loglog('[Header] Rendering with userPhoto:', userPhoto, 'userName:', userName);
 
         const headerData = {
             user: this.user,
