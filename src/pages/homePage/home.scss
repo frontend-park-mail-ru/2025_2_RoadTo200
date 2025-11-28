@@ -1,0 +1,87 @@
+.home-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.home-page__title {
+    font-size: 32px;
+    font-weight: 600;
+    color: #ff3b84;
+    margin-bottom: 50px;
+    text-align: center;
+}
+
+.home-page__activities {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 30px;
+    margin-bottom: 60px;
+}
+
+@media (max-width: 768px) {
+    .home-page__activities {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+    }
+}
+
+.home-page__activity-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.home-page__activity-item:hover {
+    transform: scale(1.05);
+}
+
+/* Используем классы из CircleActivity компонента */
+.home-page__activity-item .circle-activity {
+    width: 124px;
+    height: 124px;
+    position: relative;
+    margin-bottom: 12px;
+    opacity: 0.5;
+    transition: opacity 0.3s ease;
+}
+
+.home-page__activity-item--selected .circle-activity {
+    opacity: 1;
+}
+
+.home-page__activity-name {
+    font-size: 14px;
+    color: #333;
+    text-align: center;
+    margin: 0;
+}
+
+.home-page__submit-button {
+    background: linear-gradient(135deg, #ff3b84 0%, #ff6b9d 100%);
+    color: white;
+    border: none;
+    border-radius: 30px;
+    padding: 16px 48px;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+    box-shadow: 0 4px 15px rgba(255, 59, 132, 0.3);
+}
+
+.home-page__submit-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 59, 132, 0.4);
+}
+
+.home-page__submit-button:active {
+    transform: translateY(0);
+}

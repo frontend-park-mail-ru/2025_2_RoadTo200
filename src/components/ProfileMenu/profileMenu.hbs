@@ -1,0 +1,16 @@
+<div class="profile-menu-overlay {{#unless isVisible}}hidden{{/unless}}" id="profileMenuOverlay">
+    <div class="profile-menu-popup">
+        <div class="profile-menu-header">
+            <h2 class="profile-menu-name">{{userName}}</h2>
+            <p class="profile-menu-email">{{userEmail}}</p>
+        </div>
+        <ul class="profile-menu-list">
+            {{#each menuItems}}
+                <li class="profile-menu-item {{#if isLogout}}profile-menu-item-logout{{/if}}" data-route="{{route}}" data-action="{{action}}">
+                    <img src="{{../SVG_PATH_BASE}}{{icon}}" alt="{{name}}" class="profile-menu-icon">
+                    {{name}}
+                </li>
+            {{/each}}
+        </ul>
+    </div>
+</div>

@@ -1,0 +1,44 @@
+.chats-page {
+    display: flex;
+    height: 85vh;
+    width: 100%;
+    overflow: hidden;
+
+    &__sidebar {
+        width: 360px;
+        border-right: 1px solid rgba(255, 75, 114, 0.15);
+        background: #fff;
+    }
+
+    &__main {
+        flex: 1;
+    }
+}
+
+@media (max-width: 1024px) {
+    .chats-page {
+        flex-direction: column;
+        height: auto;
+
+        &__sidebar,
+        &__main,
+        &__window {
+            width: 100%;
+            min-width: 0;
+        }
+
+        &__main {
+            display: none;
+        }
+    }
+
+    .chats-page--conversation-open {
+        .chats-page__sidebar {
+            display: none;
+        }
+
+        .chats-page__main {
+            display: flex;
+        }
+    }
+}

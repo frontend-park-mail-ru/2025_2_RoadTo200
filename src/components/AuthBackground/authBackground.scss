@@ -1,0 +1,36 @@
+@keyframes float-gentle {
+
+    0%,
+    100% {
+        transform: translate(-600px, -100px) rotate(-30deg);
+    }
+
+    50% {
+        transform: translate(-300px, -300px) rotate(-30deg);
+    }
+}
+
+.auth-background {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+    background: linear-gradient(135deg, #fef5f7 0%, #fff9fa 100%);
+    display: block;
+
+    &__circle-activity-tablet {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        transform: rotate(-30deg);
+        animation: float-gentle 40s ease-in-out infinite;
+    }
+
+    &__background-variant {
+        opacity: 0.25;
+        position: absolute;
+        background: radial-gradient(circle, #F8829B 20%, #FFE0E8 100%);
+        will-change: auto;
+    }
+}

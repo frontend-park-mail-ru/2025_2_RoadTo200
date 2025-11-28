@@ -1,0 +1,73 @@
+<div class="profile-setup-popup">
+    <div class="profile-setup-popup__overlay"></div>
+    <div class="profile-setup-popup__modal">
+        <div class="profile-setup-popup__header">
+            <h2 class="profile-setup-popup__title">Давайте знакомиться! 👋</h2>
+        </div>
+        
+        <form class="profile-setup-popup__form" id="profileSetupForm">
+            <div class="profile-setup-popup__error-message" id="profileSetupError" style="display: none;"></div>
+            
+            <div class="profile-setup-popup__field">
+                <label for="setupName" class="profile-setup-popup__label">
+                    Имя <span class="profile-setup-popup__required">*</span>
+                </label>
+                <input 
+                    type="text" 
+                    id="setupName" 
+                    name="name"
+                    class="profile-setup-popup__input" 
+                    placeholder="Введите ваше имя"
+                    {{!-- value="{{name}}" --}}
+                    required
+                />
+            </div>
+            
+            <div class="profile-setup-popup__field">
+                <label for="setupBirthDate" class="profile-setup-popup__label">
+                    Дата рождения <span class="profile-setup-popup__optional">(необязательно)</span>
+                </label>
+                <input 
+                    type="date" 
+                    id="setupBirthDate" 
+                    name="birthDate"
+                    class="profile-setup-popup__input" 
+                    value="{{birthDate}}"
+                />
+            </div>
+            
+            <div class="profile-setup-popup__field">
+                <label for="setupGender" class="profile-setup-popup__label">
+                    Пол <span class="profile-setup-popup__required">*</span>
+                </label>
+                <select 
+                    id="setupGender" 
+                    name="gender"
+                    class="profile-setup-popup__input profile-setup-popup__select"
+                    required
+                >
+                    <option value="">Выберите пол</option>
+                    <option value="male" {{#if (eq gender "male")}}selected{{/if}}>Мужской</option>
+                    <option value="female" {{#if (eq gender "female")}}selected{{/if}}>Женский</option>
+                </select>
+            </div>
+            
+            <div class="profile-setup-popup__field">
+                <label for="setupBio" class="profile-setup-popup__label">
+                    О себе <span class="profile-setup-popup__optional">(необязательно)</span>
+                </label>
+                <textarea 
+                    id="setupBio" 
+                    name="bio"
+                    class="profile-setup-popup__input profile-setup-popup__textarea" 
+                    placeholder="Расскажите немного о себе"
+                    rows="3"
+                >{{bio}}</textarea>
+            </div>
+            
+            <button type="submit" class="profile-setup-popup__submit">
+                Сохранить и продолжить
+            </button>
+        </form>
+    </div>
+</div>

@@ -1,15 +1,22 @@
-<header class="app-header">
-    <div class="header-content">
-        <div class="title-with-heart">
-            {{{smallHeartHtml}}}
-            <h1 class="app-title">Терабития</h1>
+<header class='header'>
+    <div class='header__content'>
+        <div class='header__left'>
+            <button class='header__burger' id='burgerButton' aria-label='Открыть меню'>
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
         </div>
-        <div class="header-right">
+
+        <div class='header__right'>
             {{#if isAuthenticated}}
-                <span class="welcome-text">Привет, {{userName}}!</span>
-                <button id="logoutBtn" class="logout-btn">
-                    <span>Выйти</span>
-                </button>
+            <button class='header__avatar-btn' id='userEmailBtn' aria-label='Профиль пользователя'>
+                <div class='header__avatar'>
+                    <img src='{{userPhoto}}' alt='{{userName}}' />
+                </div>
+            </button>
+            {{else}}
+            <a class='header__auth-link' Link href='/login'>Войти</a>
             {{/if}}
         </div>
     </div>

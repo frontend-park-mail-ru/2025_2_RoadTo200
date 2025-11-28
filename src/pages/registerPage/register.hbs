@@ -1,20 +1,70 @@
-<div class="container">
-    <div class="form-container">
-        <h1 class="form-title">Регистрация</h1>
-        
-        {{#if error}}
-        <div class="error">{{error}}</div>
-        {{/if}}
-        
-        <form id="registerForm">
-            <input type="email" id="email" class="form-input" placeholder="Email" required>
-            <input type="password" id="password" class="form-input" placeholder="Пароль" minlength="6" required>
-            <input type="password" id="passwordConfirm" class="form-input" placeholder="Подтвердите пароль" minlength="6" required>
-            <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
+<div class='form'>
+    <div class='form__container'>
+        <h1 class='form__title'>Регистрация</h1>
+
+        <form id='registerForm' novalidate>
+            <div class='form__input-wrapper'>
+                <input
+                    type='email'
+                    id='email'
+                    class='form__input'
+                    placeholder='Email'
+                />
+            </div>
+            <div class='form__input-wrapper form__password-wrapper'>
+                <input
+                    type='password'
+                    id='password'
+                    class='form__input'
+                    placeholder='Пароль'
+                />
+                <button
+                    type='button'
+                    class='form__password-toggle'
+                    aria-label='Показать пароль'
+                >
+                    <img
+                        src='./src/assets/Eyes/close_eye.svg'
+                        alt='Показать пароль'
+                        class='eye-icon'
+                    />
+                </button>
+            </div>
+            <div class='form__input-wrapper form__password-wrapper'>
+                <input
+                    type='password'
+                    id='passwordConfirm'
+                    class='form__input'
+                    placeholder='Подтвердите пароль'
+                />
+                <button
+                    type='button'
+                    class='form__password-toggle'
+                    aria-label='Показать пароль'
+                >
+                    <img
+                        src='./src/assets/Eyes/close_eye.svg'
+                        alt='Показать пароль'
+                        class='eye-icon'
+                    />
+                </button>
+            </div>
+
+            <div
+                class='form__error-message'
+                id='registerError'
+                style='display: none;'
+            ></div>
+
+            <button
+                type='submit'
+                class='form__btn form__btn-primary'
+            >Зарегистрироваться</button>
         </form>
-        
-        <div class="link">
-            Уже есть аккаунт? <a href="/login" Link> Войти</a>
+
+        <div class='form__link'>
+            Уже есть аккаунт?
+            <a href='/login' class='form__a' Link>Войти</a>
         </div>
     </div>
 </div>

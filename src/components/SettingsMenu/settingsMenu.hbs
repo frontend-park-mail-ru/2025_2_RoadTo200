@@ -1,0 +1,21 @@
+<nav class="settings-sidebar">
+    <div class="sidebar__header">
+        <h2 class="settings-title">Настройки</h2>
+    </div>
+
+    <ul class="sidebar__list">
+        {{#each menuItems}}
+            <li class="sidebar__item {{#if isActive}}sidebar__item--active{{/if}}" data-tab="{{tab}}">
+                <a href="#" class="sidebar__link {{#if isActive}}sidebar__link--active{{/if}}">
+                    <img src="{{icon}}" alt="{{name}}" class="sidebar__icon {{#if isActive}}sidebar__icon--active{{/if}}">
+                    {{name}}
+                </a>
+            </li>
+        {{/each}}
+    </ul>
+    
+    <button class="sidebar__logout-btn" id="logoutBtn">
+        <img src="/src/assets/menu/exit.svg" alt="Выйти" class="sidebar__icon">
+        Выйти
+    </button>
+</nav>

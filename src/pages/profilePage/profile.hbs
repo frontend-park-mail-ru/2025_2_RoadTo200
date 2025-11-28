@@ -1,0 +1,66 @@
+<div class='profile-page'>
+    <div class='profile-page__heading'>
+        <h1 class='profile-page__title'>Моя анкета</h1>
+    </div>
+    <div class='profile-page__content'>
+        <div class='photo-grid'>
+            {{#each photoCards}}
+            <div class='photo-grid__card' data-photo-id='{{this.id}}'>
+                {{#if this.isUserPhoto}}
+                <div class='photo-grid__image' style="background-image: url('{{this.image}}');">
+                    <button class='photo-grid__delete-btn'><img src='./src/assets/trash.svg' alt='/'
+                            class='photo-grid__icon-delete' /></button>
+                </div>
+                {{else}}
+                <div class='photo-grid__add'>
+                    <span class='photo-grid__icon-plus'>+</span>
+                </div>
+                {{/if}}
+            </div>
+            {{/each}}
+        </div>
+
+        <div class='details'>
+
+            <h3 class='details__section-title'>
+                О себе
+                <span class='details__icon-edit' data-target='description' data-type='paragraph'><img
+                        src='./src/assets/edit.svg' alt='/' class='icon-edit' /></span>
+            </h3>
+            <div id='description' class='details__editable-content'>
+                <p class='details__section-text details__section-text-current'>{{description}}</p>
+            </div>
+            <p class='details__counter' data-counter-for='description'></p> {{#if activities.length}}
+            <h3 class='details__section-title'>Активности</h3>
+            <div class='details__icons'>
+                {{#each activities}}
+                <div class='details__icon-circle details__icon-circle--active'>
+                    <img src='{{this.icon}}' alt='{{this.name}}' class='details__activity-icon' title='{{this.name}}' />
+                </div>
+                {{/each}}
+            </div>
+            {{/if}}
+
+            <h3 class='details__section-title'>
+                Любимый исполнитель
+                <span class='details__icon-edit' data-target='musician' data-type='single-line'><img
+                        src='./src/assets/edit.svg' alt='/' class='icon-edit' /></span>
+            </h3>
+            <div id='musician' class='details__editable-content'>
+                <p class='details__section-text details__section-text-current'>
+                    {{musician}}
+                </p>
+            </div>
+            <p class='details__counter' data-counter-for='musician'></p> <h3 class='details__section-title'>
+                Любимая цитата
+                <span class='details__icon-edit' data-target='quote' data-type='paragraph'><img
+                        src='./src/assets/edit.svg' alt='/' class='icon-edit' /></span>
+            </h3>
+            <div id='quote' class='details__editable-content'>
+                <p class='details__section-text details__section-text-current'>
+                    {{quote}}
+                </p>
+            </div>
+            <p class='details__counter' data-counter-for='quote'></p> </div>
+    </div>
+</div>

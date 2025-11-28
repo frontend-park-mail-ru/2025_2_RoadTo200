@@ -1,0 +1,19 @@
+<div class="home-page">
+    <h1 class="home-page__title">Как хотите провести вместе время?</h1>
+    
+    <div class="home-page__activities" id="activities-grid">
+        {{#each activities}}
+        <div class="home-page__activity-item {{#if this.selected}}home-page__activity-item--selected{{/if}}" 
+             data-activity-id="{{this.id}}">
+            <div class="circle-activity">
+                <img src="{{this.icon}}" alt="{{this.name}}" class="circle-activity-icon">
+            </div>
+            <p class="home-page__activity-name">{{this.name}}</p>
+        </div>
+        {{/each}}
+    </div>
+    
+    <button class="home-page__submit-button" id="submit-activities">
+        Смотреть анкеты
+    </button>
+</div>

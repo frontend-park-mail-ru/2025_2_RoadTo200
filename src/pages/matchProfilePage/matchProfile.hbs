@@ -1,0 +1,58 @@
+<div class='profile-page'>
+    <div class='profile-page__heading'>
+        <h1 class='profile-page__title'>{{name}}{{#if age}}, {{age}}{{/if}}</h1>
+    </div>
+    <div class='profile-page__content'>
+        <div class='photo-grid'>
+            {{#if heroPhoto}}
+            <div class='photo-grid__card'>
+                <div class='photo-grid__image' style="background-image: url('{{heroPhoto}}');"></div>
+            </div>
+            {{/if}}
+            {{#each photoCards}}
+            {{#if this.isUserPhoto}}
+            <div class='photo-grid__card'>
+                <div class='photo-grid__image' style="background-image: url('{{this.image}}');"></div>
+            </div>
+            {{/if}}
+            {{/each}}
+        </div>
+
+        <div class='details'>
+            <h3 class='details__section-title'>О себе</h3>
+            <div class='details__editable-content'>
+                <p class='details__section-text'>{{description}}</p>
+            </div>
+
+            {{#if activities.length}}
+            <h3 class='details__section-title'>Активности</h3>
+            <div class='details__icons'>
+                {{#each activities}}
+                <div class='details__icon-circle details__icon-circle--active'>
+                    <img src='{{this.icon}}' alt='{{this.name}}' class='details__activity-icon' title='{{this.name}}' />
+                </div>
+                {{/each}}
+            </div>
+            {{/if}}
+
+            <h3 class='details__section-title'>Любимый исполнитель</h3>
+            <div class='details__editable-content'>
+                <p class='details__section-text'>{{musician}}</p>
+            </div>
+
+            <h3 class='details__section-title'>Любимая цитата</h3>
+            <div class='details__editable-content'>
+                <p class='details__section-text'>{{quote}}</p>
+            </div>
+
+            <div class='details__actions'>
+                <button class='details__chat-btn' data-action='open-chat'>Перейти в чат</button>
+                <button class='details__report-btn' type='button' data-report-open>
+                    <img src='/src/assets/menu/material-symbols_report-outline.svg' alt=''
+                        class='details__report-icon' />
+                    Пожаловаться
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
