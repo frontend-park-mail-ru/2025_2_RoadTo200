@@ -1,6 +1,6 @@
 .circle-activity {
     border-radius: 50%;
-    box-shadow: 0 4px 20px rgba(253, 41, 123, 0.15);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
     will-change: transform;
     transform: translateZ(0);
     -webkit-backface-visibility: hidden;
@@ -9,9 +9,17 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary-light) 100%);
+    background: linear-gradient(
+        135deg,
+        var(--color-primary-dark) 0%,
+        var(--color-primary-light) 100%
+    );
     overflow: hidden;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family:
+        'Inter',
+        -apple-system,
+        BlinkMacSystemFont,
+        sans-serif;
 
     &-icon {
         width: 70%;
@@ -28,7 +36,9 @@
 
     &.interactive {
         cursor: pointer;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        transition:
+            transform 0.3s ease,
+            box-shadow 0.3s ease;
 
         &:hover {
             transform: translateZ(0) scale(1.1);

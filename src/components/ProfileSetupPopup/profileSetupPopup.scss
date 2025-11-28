@@ -71,20 +71,16 @@
         gap: 20px;
     }
 
-    &__error {
-        display: none;
-        padding: 12px 16px;
-        background: #fee;
-        border: 1px solid #fcc;
-        border-radius: 12px;
-        color: #c33;
-        font-size: 14px;
+    &__error-message {
+        background-color: transparent;
+        color: #ff4b72;
+        padding: 0;
         text-align: center;
-        animation: shake 0.3s ease-in-out;
-
-        &.visible {
-            display: block;
-        }
+        margin: 0;
+        font-weight: 400;
+        font-size: 0.875rem;
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        min-height: 1.25rem;
     }
 
     &__field {
@@ -204,7 +200,8 @@
 }
 
 @keyframes shake {
-    0%, 100% {
+    0%,
+    100% {
         transform: translateX(0);
     }
     25% {

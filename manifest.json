@@ -1,26 +1,26 @@
 {
-  "name": "Терабития - Знакомства",
-  "short_name": "Терабития",
-  "description": "Приложение для знакомств",
-  "start_url": "/",
-  "display": "standalone",
-  "background_color": "#ffffff",
-  "orientation": "portrait-primary",
-  "icons": [
-    {
-      "src": "/src/assets/icon.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/src/assets/icon.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
-    }
-  ],
-  "categories": ["social", "lifestyle"],
-  "screenshots": [],
-  "prefer_related_applications": false
+    "name": "Терабития - Знакомства",
+    "short_name": "Терабития",
+    "description": "Приложение для знакомств",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "orientation": "portrait-primary",
+    "icons": [
+        {
+            "src": "/src/assets/icon.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/src/assets/icon.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ],
+    "categories": ["social", "lifestyle"],
+    "screenshots": [],
+    "prefer_related_applications": false
 }

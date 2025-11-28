@@ -14,11 +14,19 @@ class MenuStore implements Store {
     async handleAction(action: Action): Promise<void> {
         switch (action.type) {
             case Actions.RENDER_MENU:
-                if (action.payload && (action.payload as { route?: string }).route) {
-                    this.currentRoute = (action.payload as { route: string }).route;
+                if (
+                    action.payload &&
+                    (action.payload as { route?: string }).route
+                ) {
+                    this.currentRoute = (
+                        action.payload as { route: string }
+                    ).route;
                 } else if (typeof window !== 'undefined') {
                     const path = window.location.pathname || '/';
-                    this.currentRoute = path === '/' ? 'main' : path.replace(/^\//, '').split('/')[0];
+                    this.currentRoute =
+                        path === '/'
+                            ? 'main'
+                            : path.replace(/^\//, '').split('/')[0];
                 }
                 await this.renderMenu();
                 break;
@@ -30,9 +38,9 @@ class MenuStore implements Store {
 
     private async renderMenu(): Promise<void> {
         const menuData = {
-            currentRoute: this.currentRoute
+            currentRoute: this.currentRoute,
         };
-        
+
         await this.menuComponent.render(menuData);
     }
 }

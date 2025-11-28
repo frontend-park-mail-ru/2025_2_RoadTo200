@@ -1,0 +1,51 @@
+<div class='report-popup' aria-hidden='true'>
+    <div class='report-popup__overlay' data-report-close></div>
+    <div
+        class='report-popup__dialog'
+        role='dialog'
+        aria-modal='true'
+        aria-labelledby='reportPopupTitle'
+    >
+        <div class='report-popup__header'>
+            <h3 class='report-popup__title' id='reportPopupTitle'>Жалоба</h3>
+            <button
+                class='report-popup__close'
+                type='button'
+                aria-label='Закрыть'
+                data-report-close
+            >
+                ×
+            </button>
+        </div>
+        {{#if targetLine}}
+            <p class='report-popup__subtitle'>{{targetLine}}</p>
+        {{/if}}
+        <form class='report-popup__form' id='reportPopupForm'>
+            <div class='report-popup__chips'>
+                {{#each reasons}}
+                    <label class='report-popup__chip'>
+                        <input
+                            type='radio'
+                            name='reportReason'
+                            value='{{value}}'
+                            {{#if @first}}
+                                checked
+                            {{/if}}
+                        />
+                        <span>{{label}}</span>
+                    </label>
+                {{/each}}
+            </div>
+            <label class='report-popup__label' for='reportPopupComment'>Ваш комментарий:</label>
+            <textarea
+                class='report-popup__textarea'
+                id='reportPopupComment'
+                name='reportComment'
+                placeholder='Опишите проблему'
+            ></textarea>
+            <p class='report-popup__error' id='reportPopupError'></p>
+            <p class='report-popup__success' id='reportPopupSuccess'></p>
+            <button class='report-popup__submit' type='submit'>Отправить</button>
+        </form>
+    </div>
+</div>

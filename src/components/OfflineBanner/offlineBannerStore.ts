@@ -10,7 +10,7 @@ class OfflineBannerStore implements Store {
 
     constructor() {
         dispatcher.register(this);
-        
+
         // Устанавливаем слушатели online/offline событий
         this.initConnectivityListeners();
     }
@@ -22,7 +22,9 @@ class OfflineBannerStore implements Store {
                 break;
 
             case Actions.CONNECTIVITY_CHANGED:
-                await this.updateConnectivityState(action as ConnectivityAction);
+                await this.updateConnectivityState(
+                    action as ConnectivityAction
+                );
                 break;
 
             default:
@@ -48,23 +50,25 @@ class OfflineBannerStore implements Store {
         if (!this.bannerComponent) {
             return;
         }
-        
+
         const bannerData = {
-            isOnline: this.isOnline
+            isOnline: this.isOnline,
         };
-        
+
         await this.bannerComponent.render(bannerData);
         this.isBannerRendered = true;
-        
+
         // Если мы онлайн при первом рендере, скрываем баннер
         if (this.isOnline) {
             this.bannerComponent.hide();
         }
     }
 
-    private async updateConnectivityState(action: ConnectivityAction): Promise<void> {
+    private async updateConnectivityState(
+        action: ConnectivityAction
+    ): Promise<void> {
         this.isOnline = action.payload!.isOnline;
-        
+
         if (this.isOnline) {
             this.bannerComponent.hide();
         } else {

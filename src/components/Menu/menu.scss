@@ -1,65 +1,78 @@
 .sidebar {
     width: 100%;
     height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: #fff;
 
     &__header {
         display: flex;
         align-items: center;
+        justify-content: space-between;
         padding: 32px;
-        gap: 20px;
+        gap: 16px;
     }
 
-    &__icon {
-        color: #ff477e;
-        font-size: 48px;  
-        margin-right: 14px;
+    &__brand {
         display: flex;
         align-items: center;
-
-        // Второй набор свойств для иконки (объединено)
-        width: 28px;
-        height: 28px;
-        fill: #ff477e;
-        margin-right: 10px;
-        flex-shrink: 0;
+        gap: 20px;
     }
 
     &__name {
         color: #ff477e;
         font-size: 32px;
-        font-weight: 700;
+        font-weight: 800;
         letter-spacing: -1px;
+    }
+
+    &__close {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        border: 1px solid #ffd1dd;
+        background: #fff;
+        font-size: 24px;
+        color: #ff477e;
+        cursor: pointer;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        transition: border-color 0.2s ease;
+
+        &:hover {
+            border-color: #ff98b6;
+        }
+    }
+
+    &__list-wrapper {
+        padding: 0 24px 24px;
+        overflow-y: auto;
+        flex: 1;
     }
 
     &__list {
         list-style: none;
-        padding: 0 24px;
+        padding: 0;
         margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
     }
 
     &__item {
-        margin-bottom: 16px;
         border-radius: 22px;
-        transition: background 0.18s;
+        transition: background 0.18s ease;
 
-        &-disabled:hover {
-            background: #f6f6f6;
-        }
-
-        &-active {
+        &--active {
             background: #ffe6ee;
+            box-shadow: inset 0 0 0 1px rgba(255, 83, 135, 0.3);
         }
 
-        // Временное решение: блокируем кнопку чатов
-        &[data-route="chats"] {
-            cursor: not-allowed;
-            opacity: 0.5;
-            pointer-events: none;
-
-            .sidebar__link {
-                cursor: not-allowed;
-            }
+        &:hover {
+            background: #fff6f8;
         }
+
     }
 
     &__link {
@@ -71,6 +84,42 @@
         font-size: 19px;
         font-weight: 600;
         gap: 16px;
-        transition: color 0.15s;
+        transition: color 0.2s ease;
+
+        &--active {
+            color: #ff1f6b;
+        }
+    }
+
+    &__icon {
+        width: 28px;
+        height: 28px;
+        fill: #ff477e;
+        flex-shrink: 0;
+        transition: filter 0.2s ease;
+
+        &--active {
+            filter: drop-shadow(0 6px 16px rgba(255, 71, 126, 0.35));
+        }
+    }
+}
+
+@media (max-width: 1023px) {
+    .sidebar {
+        &__header {
+            padding: 24px;
+        }
+
+        &__name {
+            font-size: 26px;
+        }
+
+        &__close {
+            display: inline-flex;
+        }
+
+        &__list-wrapper {
+            padding: 0 16px 24px;
+        }
     }
 }

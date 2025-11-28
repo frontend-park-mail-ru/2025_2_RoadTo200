@@ -6,36 +6,39 @@ import type { PageComponent } from '../../navigation/navigationStore';
 const TEMPLATE_PATH = '/src/pages/loginPage/login.hbs';
 
 /**
- * Валидация email RFC 5322 SMTPUTF8 
+ * Валидация email RFC 5322 SMTPUTF8
  */
 const validateEmail = (email: string): boolean => {
-    const emailRegex = /^[\p{L}\p{N}.!#$%&'*+/=?^_`{|}~-]+@[\p{L}\p{N}](?:[\p{L}\p{N}-]{0,61}[\p{L}\p{N}])?(?:\.[\p{L}\p{N}](?:[\p{L}\p{N}-]{0,61}[\p{L}\p{N}])?)*$/u;
-    
+    const emailRegex =
+        /^[\p{L}\p{N}.!#$%&'*+/=?^_`{|}~-]+@[\p{L}\p{N}](?:[\p{L}\p{N}-]{0,61}[\p{L}\p{N}])?(?:\.[\p{L}\p{N}](?:[\p{L}\p{N}-]{0,61}[\p{L}\p{N}])?)*$/u;
+
     if (!emailRegex.test(email)) {
         return false;
     }
-    
+
     // Проверка длины до @
     const atIndex = email.indexOf('@');
     if (atIndex === -1) return false;
-    
+
     const localPart = email.substring(0, atIndex);
     const domain = email.substring(atIndex + 1);
-    
+
     if (localPart.length > 64) {
         return false;
     }
-    
+
     // Проверка на недопустимые символы в domain
     if (domain && domain.includes('_')) {
         return false;
     }
-    
+
     return true;
 };
 
 const showError = (message: string): void => {
-    const errorDiv = document.querySelector('.form__error-message') as HTMLElement | null;
+    const errorDiv = document.querySelector(
+        '.form__error-message'
+    ) as HTMLElement | null;
     if (errorDiv) {
         errorDiv.textContent = message;
         errorDiv.style.display = 'block';
@@ -43,19 +46,21 @@ const showError = (message: string): void => {
 };
 
 const clearError = (): void => {
-    const errorDiv = document.querySelector('.form__error-message') as HTMLElement | null;
+    const errorDiv = document.querySelector(
+        '.form__error-message'
+    ) as HTMLElement | null;
     if (errorDiv) {
         errorDiv.textContent = '';
         errorDiv.style.display = 'none';
     }
-    
+
     // Убираем красную обводку с полей
-    document.querySelectorAll('.form__input').forEach(input => {
+    document.querySelectorAll('.form__input').forEach((input) => {
         input.classList.remove('form__error-input');
     });
 };
 
-const fetchTemplate = async (path: string): Promise<string> => { 
+const fetchTemplate = async (path: string): Promise<string> => {
     try {
         const response = await fetch(path);
 
@@ -65,9 +70,8 @@ const fetchTemplate = async (path: string): Promise<string> => {
 
         const templateContent = await response.text();
         return templateContent;
-
     } catch (error) {
-        return '<h1>Ошибка: Не удалось загрузить шаблон</h1>'; 
+        return '<h1>Ошибка: Не удалось загрузить шаблон</h1>';
     }
 };
 
@@ -76,7 +80,7 @@ export class LoginPage implements PageComponent, Store {
 
     constructor(parent: HTMLElement | null) {
         this.parent = parent;
-        
+
         // Регистрируем LoginPage в Dispatcher для получения ошибок
         dispatcher.register(this);
     }
@@ -94,21 +98,27 @@ export class LoginPage implements PageComponent, Store {
 
     showError(message: string): void {
         // console.log('showError called with:', message);
-        
+
         // Try multiple selectors to find the error div
-        let errorDiv = document.querySelector('.form__error-message') as HTMLElement | null;
-        
+        let errorDiv = document.querySelector(
+            '.form__error-message'
+        ) as HTMLElement | null;
+
         if (!errorDiv) {
-            errorDiv = document.querySelector('#loginDiv .form__error-message') as HTMLElement | null;
+            errorDiv = document.querySelector(
+                '#loginDiv .form__error-message'
+            ) as HTMLElement | null;
         }
-        
+
         if (!errorDiv) {
-            errorDiv = document.querySelector('#loginForm .form__error-message') as HTMLElement | null;
+            errorDiv = document.querySelector(
+                '#loginForm .form__error-message'
+            ) as HTMLElement | null;
         }
-        
+
         // console.log('errorDiv found:', errorDiv);
         // console.log('errorDiv exists:', !!errorDiv);
-        
+
         if (errorDiv) {
             errorDiv.textContent = message;
             errorDiv.style.display = 'block';
@@ -121,7 +131,7 @@ export class LoginPage implements PageComponent, Store {
 
     async render(): Promise<void> {
         if (!this.parent) return;
-        
+
         this.parent.innerHTML = '';
 
         const pageTemplateString = await fetchTemplate(TEMPLATE_PATH);
@@ -135,7 +145,7 @@ export class LoginPage implements PageComponent, Store {
 
         this.initPasswordToggles();
         this.initFormActions();
-        
+
         // После того как страница отрендерена, показываем фон
         requestAnimationFrame(() => {
             requestAnimationFrame(() => {
@@ -145,14 +155,20 @@ export class LoginPage implements PageComponent, Store {
     }
 
     private initPasswordToggles(): void {
-        const toggleButtons = document.querySelectorAll('.form__password-toggle');
-        
-        toggleButtons.forEach(button => {
+        const toggleButtons = document.querySelectorAll(
+            '.form__password-toggle'
+        );
+
+        toggleButtons.forEach((button) => {
             button.addEventListener('click', () => {
                 const wrapper = button.closest('.form__password-wrapper');
-                const input = wrapper?.querySelector('input') as HTMLInputElement | null;
-                const icon = button.querySelector('.eye-icon') as HTMLImageElement | null;
-                
+                const input = wrapper?.querySelector(
+                    'input'
+                ) as HTMLInputElement | null;
+                const icon = button.querySelector(
+                    '.eye-icon'
+                ) as HTMLImageElement | null;
+
                 if (input && icon) {
                     if (input.type === 'password') {
                         input.type = 'text';
@@ -170,53 +186,57 @@ export class LoginPage implements PageComponent, Store {
 
     private handleLogin = async (event: Event): Promise<void> => {
         event.preventDefault();
-        
+
         clearError();
-        
-        const emailInput = document.getElementById('email') as HTMLInputElement | null;
-        const passwordInput = document.getElementById('password') as HTMLInputElement | null;
-        
+
+        const emailInput = document.getElementById(
+            'email'
+        ) as HTMLInputElement | null;
+        const passwordInput = document.getElementById(
+            'password'
+        ) as HTMLInputElement | null;
+
         if (!emailInput || !passwordInput) return;
-        
+
         const email = emailInput.value.trim();
         const password = passwordInput.value;
-        
+
         // Проверка на пустые поля
         if (!email) {
             emailInput.classList.add('form__error-input');
             showError('Введите email');
             return;
         }
-        
+
         if (!password) {
             passwordInput.classList.add('form__error-input');
             showError('Введите пароль');
             return;
         }
-        
+
         // Валидация email
         if (!validateEmail(email)) {
             emailInput.classList.add('form__error-input');
             showError('Некорректный email');
             return;
         }
-        
+
         // Валидация пароля
         if (password.length < 6) {
             passwordInput.classList.add('form__error-input');
             showError('Пароль должен содержать минимум 6 символов');
             return;
         }
-        
+
         dispatcher.process({
             type: Actions.REQUEST_LOGIN,
-            payload: { email, password }
+            payload: { email, password },
         });
     };
 
     private initFormActions(): void {
         const form = document.getElementById('loginForm');
-        
+
         if (form) {
             form.removeEventListener('submit', this.handleLogin);
             form.addEventListener('submit', this.handleLogin);

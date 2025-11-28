@@ -19,18 +19,28 @@ interface ProfileData {
 
 const fetchTemplate = async (path: string): Promise<string> => {
     const response = await fetch(path);
-    if (!response.ok) throw new Error('Ошибка: не удалось загрузить шаблон настроек');
+    if (!response.ok)
+        throw new Error('Ошибка: не удалось загрузить шаблон настроек');
     return response.text();
 };
 
 export class SettingsPage {
     parent: HTMLElement | null;
+    private mobileView: 'menu' | 'content' = 'menu';
+    private resizeHandler: (() => void) | null = null;
 
     constructor(parent: HTMLElement | null) {
         this.parent = parent;
+        if (typeof window !== 'undefined') {
+            this.resizeHandler = () => this.applyMobileLayout();
+            window.addEventListener('resize', this.resizeHandler);
+        }
     }
 
-    async render(profileData: ProfileData = {}, currentTab: string = 'profile'): Promise<void> {
+    async render(
+        profileData: ProfileData = {},
+        currentTab: string = 'profile'
+    ): Promise<void> {
         if (!this.parent) {
             // console.warn('SettingsPage: parent not assigned');
             return;
@@ -41,39 +51,20 @@ export class SettingsPage {
         this.parent.innerHTML = pageTemplate({});
 
         this.renderContent(currentTab, profileData);
+        this.initBackButton();
+        this.setMobileView('menu');
 
         await dispatcher.process({
             type: Actions.RENDER_SETTINGS_MENU,
-            payload: { tab: currentTab }
+            payload: { tab: currentTab },
         });
-
-        // Добавляем обработчик для кнопки закрытия
-        const closeBtn = this.parent.querySelector('#settingsClose');
-        if (closeBtn) {
-            closeBtn.addEventListener('click', () => {
-                dispatcher.process({
-                    type: Actions.NAVIGATE_TO,
-                    payload: { path: '/' }
-                });
-            });
-        }
-
-        // Добавляем обработчик закрытия по клику на фон
-        const settingsPage = this.parent.querySelector('.settings-page');
-        if (settingsPage) {
-            settingsPage.addEventListener('click', (e: Event) => {
-                if (e.target === settingsPage) {
-                    // Закрываем настройки - переходим на главную
-                    dispatcher.process({
-                        type: Actions.NAVIGATE_TO,
-                        payload: { path: '/' }
-                    });
-                }
-            });
-        }
     }
 
-    renderContent(currentTab: string, profileData: ProfileData = {}): void {
+    renderContent(
+        currentTab: string,
+        profileData: ProfileData = {},
+        options: { focusContent?: boolean } = {}
+    ): void {
         const contentContainer = this.parent?.querySelector('#settingsContent');
         if (!contentContainer) {
             return;
@@ -83,10 +74,14 @@ export class SettingsPage {
 
         switch (currentTab) {
             case 'profile':
-                contentContainer.appendChild(this.createProfileTab(profileData));
+                contentContainer.appendChild(
+                    this.createProfileTab(profileData)
+                );
                 break;
             case 'filters':
-                contentContainer.appendChild(this.createFiltersTab(profileData));
+                contentContainer.appendChild(
+                    this.createFiltersTab(profileData)
+                );
                 break;
             case 'security':
                 contentContainer.appendChild(this.createSecurityTab());
@@ -97,6 +92,11 @@ export class SettingsPage {
         }
 
         this.attachEventListeners(currentTab);
+        if (options.focusContent) {
+            this.setMobileView('content');
+        } else {
+            this.applyMobileLayout();
+        }
     }
 
     private createProfileTab(profileData: ProfileData): HTMLDivElement {
@@ -104,6 +104,7 @@ export class SettingsPage {
         section.className = 'settings-section';
         section.innerHTML = `
             <h1 class="settings-section-title">Профиль</h1>
+            <p class="form__success-message" id="profileSuccessMessage"></p>
             ${SettingsPage.createFormGroupHTML('Имя:', 'text', 'settingsName', profileData.name, 'settingsNameError')}
             ${SettingsPage.createFormGroupHTML('Дата рождения:', 'text', 'settingsBirthdate', profileData.birthdate, 'birthdateError', 'ДД.ММ.ГГГГ')}
             ${SettingsPage.createFormGroupHTML('Email:', 'email', 'settingsEmail', profileData.email, 'emailError')}
@@ -139,8 +140,9 @@ export class SettingsPage {
         section.className = 'settings-section';
         section.innerHTML = `
             <h1 class="settings-section-title">Фильтры поиска</h1>
+            <p class="form__success-message" id="filtersSuccessMessage"></p>
             
-                        <div class="form__input-wrapper">
+            <div class="form__input-wrapper">
                 <label class="settings-label">Показывать мне:</label>
                 <select class="form__input" id="showGender">
                     <option value="male" ${preferences.show_gender === 'male' ? 'selected' : ''}>Парней</option>
@@ -171,56 +173,94 @@ export class SettingsPage {
                 </label>
             </div>
 
+            <p class="form__error-message" id="filtersError"></p>
             <button class="form__btn-primary" id="updateFiltersBtn">Сохранить фильтры</button>
         `;
         return section;
     }
 
-    private static createFormGroupHTML(label: string, type: string, id: string, value: string | undefined, errorId: string, placeholder: string = ''): string {
-        const placeholderAttr = placeholder ? `placeholder="${placeholder}"` : '';
+    private static createFormGroupHTML(
+        label: string,
+        type: string,
+        id: string,
+        value: string | undefined,
+        errorId: string,
+        placeholder: string = ''
+    ): string {
+        const placeholderAttr = placeholder
+            ? `placeholder="${placeholder}"`
+            : '';
         return `
             <div class="form__input-wrapper">
                 <label class="settings-label">${label}</label>
-                <div class="input-with-icon">
-                    <input type="${type}" class="form__input" id="${id}" value="${value || ''}" ${placeholderAttr} disabled/>
-                    <img src="/src/assets/edit.svg" alt="Редактировать" class="edit-icon" data-input-id="${id}"/>
-                </div>
+                <input type="${type}" class="form__input" id="${id}" value="${value || ''}" ${placeholderAttr} />
                 <p class="form__error-message" id="${errorId}"></p>
             </div>
         `;
     }
 
+    private initBackButton(): void {
+        const backButton = this.parent?.querySelector('#settingsMobileBack');
+        if (backButton) {
+            backButton.addEventListener('click', () => {
+                if (typeof window !== 'undefined' && window.innerWidth > 1023) {
+                    dispatcher.process({
+                        type: Actions.NAVIGATE_TO,
+                        payload: { path: '/' },
+                    });
+                } else {
+                    this.setMobileView('menu');
+                }
+            });
+        }
+    }
+
+    private getShellElement(): HTMLElement | null {
+        return this.parent?.querySelector('#settingsShell') as HTMLElement | null;
+    }
+
+    private setMobileView(view: 'menu' | 'content'): void {
+        this.mobileView = view;
+        this.applyMobileLayout();
+    }
+
+    private applyMobileLayout(): void {
+        if (typeof window === 'undefined') return;
+        const shell = this.getShellElement();
+        if (!shell) return;
+
+        shell.classList.remove(
+            'settings-shell--show-menu',
+            'settings-shell--show-content'
+        );
+
+        if (window.innerWidth <= 1023) {
+            shell.classList.add(
+                this.mobileView === 'menu'
+                    ? 'settings-shell--show-menu'
+                    : 'settings-shell--show-content'
+            );
+        }
+    }
+
     private attachEventListeners(currentTab: string): void {
         if (!this.parent) return;
 
-        // Добавляем обработчики для карандашиков
-        const editIcons = this.parent.querySelectorAll('.edit-icon');
-        editIcons.forEach(icon => {
-            icon.addEventListener('click', () => {
-                const inputId = icon.getAttribute('data-input-id');
-                if (inputId) {
-                    const input = this.parent?.querySelector(`#${inputId}`) as HTMLInputElement | null;
-                    if (input) {
-                        input.disabled = false;
-                        input.focus();
-                    }
-                }
-            });
-        });
-
         if (currentTab === 'profile') {
             // Добавляем автоформатирование даты рождения
-            const birthdateInput = this.parent.querySelector('#settingsBirthdate') as HTMLInputElement | null;
+            const birthdateInput = this.parent.querySelector(
+                '#settingsBirthdate'
+            ) as HTMLInputElement | null;
             if (birthdateInput) {
                 birthdateInput.addEventListener('input', (e) => {
                     const input = e.target as HTMLInputElement;
                     let value = input.value.replace(/\D/g, ''); // Оставляем только цифры
-                    
+
                     // Ограничиваем до 8 цифр
                     if (value.length > 8) {
                         value = value.slice(0, 8);
                     }
-                    
+
                     // Форматируем с точками
                     let formatted = '';
                     if (value.length > 0) {
@@ -232,7 +272,7 @@ export class SettingsPage {
                     if (value.length >= 5) {
                         formatted += '.' + value.slice(4, 8);
                     }
-                    
+
                     input.value = formatted;
                 });
             }
@@ -241,10 +281,16 @@ export class SettingsPage {
             if (updateBtn) {
                 updateBtn.addEventListener('click', (e) => {
                     e.preventDefault();
-                    const nameInput = this.parent?.querySelector('#settingsName') as HTMLInputElement | null;
-                    const birthdateInput = this.parent?.querySelector('#settingsBirthdate') as HTMLInputElement | null;
-                    const emailInput = this.parent?.querySelector('#settingsEmail') as HTMLInputElement | null;
-                    
+                    const nameInput = this.parent?.querySelector(
+                        '#settingsName'
+                    ) as HTMLInputElement | null;
+                    const birthdateInput = this.parent?.querySelector(
+                        '#settingsBirthdate'
+                    ) as HTMLInputElement | null;
+                    const emailInput = this.parent?.querySelector(
+                        '#settingsEmail'
+                    ) as HTMLInputElement | null;
+
                     dispatcher.process({
                         type: Actions.UPDATE_PROFILE_SETTINGS,
                         payload: {
@@ -256,37 +302,77 @@ export class SettingsPage {
                 });
             }
         } else if (currentTab === 'filters') {
-            const updateFiltersBtn = this.parent.querySelector('#updateFiltersBtn');
+            const updateFiltersBtn =
+                this.parent.querySelector('#updateFiltersBtn');
             if (updateFiltersBtn) {
                 updateFiltersBtn.addEventListener('click', (e) => {
                     e.preventDefault();
-                    const showGenderInput = this.parent?.querySelector('#showGender') as HTMLSelectElement | null;
-                    const ageMinInput = this.parent?.querySelector('#ageMin') as HTMLInputElement | null;
-                    const ageMaxInput = this.parent?.querySelector('#ageMax') as HTMLInputElement | null;
-                    const maxDistanceInput = this.parent?.querySelector('#maxDistance') as HTMLInputElement | null;
-                    const globalSearchInput = this.parent?.querySelector('#globalSearch') as HTMLInputElement | null;
-                    
+                    const showGenderInput = this.parent?.querySelector(
+                        '#showGender'
+                    ) as HTMLSelectElement | null;
+                    const ageMinInput = this.parent?.querySelector(
+                        '#ageMin'
+                    ) as HTMLInputElement | null;
+                    const ageMaxInput = this.parent?.querySelector(
+                        '#ageMax'
+                    ) as HTMLInputElement | null;
+                    const maxDistanceInput = this.parent?.querySelector(
+                        '#maxDistance'
+                    ) as HTMLInputElement | null;
+                    const globalSearchInput = this.parent?.querySelector(
+                        '#globalSearch'
+                    ) as HTMLInputElement | null;
+
+                    const parsedMin = ageMinInput?.value
+                        ? parseInt(ageMinInput.value, 10)
+                        : undefined;
+                    const parsedMax = ageMaxInput?.value
+                        ? parseInt(ageMaxInput.value, 10)
+                        : undefined;
+
+                    let normalizedMin = parsedMin;
+                    let normalizedMax = parsedMax;
+
+                    if (
+                        typeof normalizedMin === 'number' &&
+                        typeof normalizedMax === 'number' &&
+                        normalizedMin > normalizedMax
+                    ) {
+                        normalizedMin = normalizedMax;
+                        if (ageMinInput) {
+                            ageMinInput.value = String(normalizedMin);
+                        }
+                    }
                     dispatcher.process({
                         type: Actions.UPDATE_FILTER_SETTINGS,
                         payload: {
                             show_gender: showGenderInput?.value,
-                            age_min: ageMinInput ? parseInt(ageMinInput.value, 10) : undefined,
-                            age_max: ageMaxInput ? parseInt(ageMaxInput.value, 10) : undefined,
-                            max_distance: maxDistanceInput ? parseInt(maxDistanceInput.value, 10) : undefined,
+                            age_min: normalizedMin,
+                            age_max: normalizedMax,
+                            max_distance: maxDistanceInput
+                                ? parseInt(maxDistanceInput.value, 10)
+                                : undefined,
                             global_search: globalSearchInput?.checked,
                         },
                     });
                 });
             }
         } else if (currentTab === 'security') {
-            const changePasswordBtn = this.parent.querySelector('#changePasswordBtn');
+            const changePasswordBtn =
+                this.parent.querySelector('#changePasswordBtn');
             if (changePasswordBtn) {
                 changePasswordBtn.addEventListener('click', (e) => {
                     e.preventDefault();
-                    const oldPasswordInput = this.parent?.querySelector('#oldPassword') as HTMLInputElement | null;
-                    const newPasswordInput = this.parent?.querySelector('#newPassword') as HTMLInputElement | null;
-                    const confirmPasswordInput = this.parent?.querySelector('#confirmPassword') as HTMLInputElement | null;
-                    
+                    const oldPasswordInput = this.parent?.querySelector(
+                        '#oldPassword'
+                    ) as HTMLInputElement | null;
+                    const newPasswordInput = this.parent?.querySelector(
+                        '#newPassword'
+                    ) as HTMLInputElement | null;
+                    const confirmPasswordInput = this.parent?.querySelector(
+                        '#confirmPassword'
+                    ) as HTMLInputElement | null;
+
                     dispatcher.process({
                         type: Actions.CHANGE_PASSWORD,
                         payload: {
@@ -298,7 +384,8 @@ export class SettingsPage {
                 });
             }
 
-            const deleteAccountBtn = this.parent.querySelector('#deleteAccountBtn');
+            const deleteAccountBtn =
+                this.parent.querySelector('#deleteAccountBtn');
             if (deleteAccountBtn) {
                 deleteAccountBtn.addEventListener('click', (e) => {
                     e.preventDefault();
@@ -316,7 +403,9 @@ export class SettingsPage {
         Object.entries(errors).forEach(([key, message]) => {
             const errorElement = this.parent?.querySelector(`#${key}`);
             if (errorElement) errorElement.textContent = message;
-            const inputElement = this.parent?.querySelector(`#${key.replace('Error', '')}`) as HTMLElement | null;
+            const inputElement = this.parent?.querySelector(
+                `#${key.replace('Error', '')}`
+            ) as HTMLElement | null;
             if (inputElement) inputElement.classList.add('error-input');
         });
     }
@@ -324,12 +413,26 @@ export class SettingsPage {
     clearErrors(): void {
         if (!this.parent) return;
 
-        this.parent.querySelectorAll('.error-message').forEach((el) => {
-            el.textContent = '';
-        });
+        this.parent
+            .querySelectorAll('.form__error-message, .form__success-message')
+            .forEach((el) => {
+                el.textContent = '';
+            });
         this.parent.querySelectorAll('.form__input').forEach((input) => {
             input.classList.remove('error-input');
         });
+    }
+
+    showSuccess(messageId: string, message: string): void {
+        if (!this.parent) return;
+
+        const successElement = this.parent.querySelector(`#${messageId}`);
+        if (successElement) {
+            successElement.textContent = message;
+            setTimeout(() => {
+                successElement.textContent = '';
+            }, 5000); // Clear after 5 seconds
+        }
     }
 }
 

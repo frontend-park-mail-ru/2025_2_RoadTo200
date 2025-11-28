@@ -3,10 +3,11 @@ import Card from '@/components/Card/card';
 import { dispatcher } from '@/Dispatcher';
 import { Actions } from '@/actions';
 import { getActivitiesFromData } from '@/utils/activityIcons';
+import { reportPopup } from '@/components/ReportPopup/reportPopup';
 
 const TEMPLATE_PATH = '/src/pages/mainPage/main.hbs';
 const EMPTY_STATE_TEMPLATE_PATH = '/src/components/EmptyState/emptyState.hbs';
-const CARD_INFO_TEMPLATE_PATH = '/src/components/CardInfo/cardInfo.hbs'; 
+const CARD_INFO_TEMPLATE_PATH = '/src/components/CardInfo/cardInfo.hbs';
 
 interface CardData {
     id: string;
@@ -40,21 +41,24 @@ const fetchTemplate = async (path: string): Promise<string> => {
         }
 
         const templateContent = await response.text();
-        
-        return templateContent;
 
+        return templateContent;
     } catch (error) {
-        return '<h1>Ошибка: Не удалось загрузить шаблон</h1>'; 
+        return '<h1>Ошибка: Не удалось загрузить шаблон</h1>';
     }
 };
 
 const animateCardOut = (cardElement: HTMLElement, direction: string): void => {
-    cardElement.classList.add(`swipe-out-${direction}`); 
+    cardElement.classList.add(`swipe-out-${direction}`);
 
-    cardElement.addEventListener('animationend', () => {
-        cardElement.remove();
-        main.renderNextCard(); 
-    }, { once: true }); 
+    cardElement.addEventListener(
+        'animationend',
+        () => {
+            cardElement.remove();
+            main.renderNextCard();
+        },
+        { once: true }
+    );
 };
 
 export class MainPage {
@@ -71,22 +75,17 @@ export class MainPage {
     }
 
     async render(): Promise<void> {
-        // console.log('MainPage render called, parent:', this.parent);
         this.parent.innerHTML = '';
 
         const pageTemplateString = await fetchTemplate(TEMPLATE_PATH);
         const pageTemplate = Handlebars.compile(pageTemplateString);
 
         const renderedHtml = pageTemplate({ cardsHtml: '' });
-        // console.log('Rendered HTML:', renderedHtml.substring(0, 200));
 
         const newDiv = document.createElement('div');
         newDiv.id = 'mainDiv';
         newDiv.innerHTML = renderedHtml;
         this.parent.appendChild(newDiv);
-        
-        // console.log('Main page DOM inserted');
-        // console.log('cards-container exists:', !!document.querySelector('.cards-container'));
 
         document.addEventListener('click', (event: Event) => {
             const target = event.target as HTMLElement;
@@ -100,12 +99,10 @@ export class MainPage {
     }
 
     setCards(cards: CardData[]): void {
-        // console.log('setCards called with:', cards);
         // Если cards уже массив, используем его напрямую
         this.cardsData = Array.isArray(cards) ? cards : Object.values(cards);
         this.currentCardIndex = 0;
 
-        // console.log('Cards data length:', this.cardsData.length);
         if (this.cardsData.length > 0) {
             this.displayFirstCard();
         } else {
@@ -114,28 +111,30 @@ export class MainPage {
     }
 
     async displayEmptyState(): Promise<void> {
-        const pageContainer = document.querySelector('.cards-container');
+        const pageContainer = document.querySelector('.main-page-layout');
         if (!pageContainer) return;
 
-        const emptyStateTemplateString = await fetchTemplate(EMPTY_STATE_TEMPLATE_PATH);
+        const emptyStateTemplateString = await fetchTemplate(
+            EMPTY_STATE_TEMPLATE_PATH
+        );
         const emptyStateTemplate = Handlebars.compile(emptyStateTemplateString);
 
         const emptyStateHtml = emptyStateTemplate({
-            icon: '❤️',
             title: 'Анкеты закончились',
-            message: 'Вы посмотрели все доступные анкеты. Попробуйте изменить фильтры в настройках.',
-            buttonText: 'Перейти в настройки',
-            buttonId: 'goToSettings'
+            message:
+                'Вы посмотрели все доступные анкеты. Попробуйте изменить активности.',
+            buttonText: 'Перейти на главную',
+            buttonId: 'goToMain',
         });
 
         pageContainer.innerHTML = emptyStateHtml;
 
-        const settingsButton = document.getElementById('goToSettings');
-        if (settingsButton) {
-            settingsButton.addEventListener('click', () => {
+        const goToMainButton = document.getElementById('goToMain');
+        if (goToMainButton) {
+            goToMainButton.addEventListener('click', () => {
                 dispatcher.process({
                     type: Actions.NAVIGATE_TO,
-                    payload: { path: '/settings' }
+                    payload: { path: '/' },
                 });
             });
         }
@@ -143,27 +142,22 @@ export class MainPage {
 
     async displayFirstCard(): Promise<void> {
         const pageContainer = document.querySelector('.cards-container');
-        // console.log('displayFirstCard called, pageContainer:', pageContainer);
 
         if (!pageContainer) {
-            // console.error('pageContainer not found!');
             return;
         }
 
         const firstCardData = this.cardsData[this.currentCardIndex];
-        // console.log('firstCardData:', firstCardData);
-        
+
         const cardHtml = await Card.render(firstCardData);
-        // console.log('cardHtml length:', cardHtml.length);
-        
+
         pageContainer.insertAdjacentHTML('beforeend', cardHtml);
-        // console.log('Card inserted into DOM');
-        
+
         this.initCardActions();
-        
+
         // Обновляем информационную панель справа
         await this.updateCardInfo(firstCardData);
-        
+
         this.currentCardIndex++;
     }
 
@@ -171,21 +165,20 @@ export class MainPage {
         const pageContainer = document.querySelector('.cards-container');
 
         if (!pageContainer) return;
-        // console.log(this.currentCardIndex);
         if (this.currentCardIndex < this.cardsData.length) {
             const nextCardData = this.cardsData[this.currentCardIndex];
             const cardHtml = await Card.render(nextCardData);
             pageContainer.insertAdjacentHTML('beforeend', cardHtml);
             this.initCardActions();
-            
+
             // Обновляем информационную панель справа
             await this.updateCardInfo(nextCardData);
-            
+
             this.currentCardIndex++;
         } else {
             await this.displayEmptyState();
         }
-    }
+    };
 
     private async updateCardInfo(cardData: CardData): Promise<void> {
         const infoPanelContainer = document.getElementById('cardInfoPanel');
@@ -194,20 +187,46 @@ export class MainPage {
         try {
             const templateString = await fetchTemplate(CARD_INFO_TEMPLATE_PATH);
             const template = Handlebars.compile(templateString);
-            
+
             // Преобразуем данные с активностями
             const activities = getActivitiesFromData(cardData);
             const dataWithActivities = {
                 ...cardData,
-                activities
+                activities,
             };
-            
-            // console.log('CardInfo data:', dataWithActivities);
-            
+
             infoPanelContainer.innerHTML = template(dataWithActivities);
+            this.attachReportButton(infoPanelContainer, dataWithActivities);
         } catch (error) {
-            // console.error('Error updating card info:', error);
+            // Update card info failed
         }
+    }
+
+    private attachReportButton(
+        container: HTMLElement,
+        cardData: CardData
+    ): void {
+        const trigger = container.querySelector(
+            '[data-report-open]'
+        ) as HTMLButtonElement | null;
+        if (!trigger || !cardData.id) {
+            return;
+        }
+
+        trigger.dataset.reportId = cardData.id;
+        trigger.dataset.reportName = cardData.name || '';
+        trigger.dataset.reportAge = cardData.age
+            ? String(cardData.age)
+            : '';
+
+        trigger.addEventListener('click', (event) => {
+            event.preventDefault();
+            reportPopup.show({
+                targetUserId: cardData.id,
+                targetName: cardData.name,
+                targetAge: cardData.age,
+            });
+        });
     }
 
     private initSwipe(cardElement: HTMLElement, cardId: string): void {
@@ -216,10 +235,14 @@ export class MainPage {
 
         const startSwipe = (e: MouseEvent | TouchEvent) => {
             isDragging = true;
-            
-            const pageX = e.type.includes('touch') ? (e as TouchEvent).touches[0].pageX : (e as MouseEvent).pageX;
-            const pageY = e.type.includes('touch') ? (e as TouchEvent).touches[0].pageY : (e as MouseEvent).pageY;
-            
+
+            const pageX = e.type.includes('touch')
+                ? (e as TouchEvent).touches[0].pageX
+                : (e as MouseEvent).pageX;
+            const pageY = e.type.includes('touch')
+                ? (e as TouchEvent).touches[0].pageY
+                : (e as MouseEvent).pageY;
+
             startX = pageX;
             startY = pageY;
             endX = pageX;
@@ -231,8 +254,12 @@ export class MainPage {
         const moveSwipe = (e: MouseEvent | TouchEvent) => {
             if (!isDragging) return;
 
-            const pageX = e.type.includes('touch') ? (e as TouchEvent).touches[0].pageX : (e as MouseEvent).pageX;
-            const pageY = e.type.includes('touch') ? (e as TouchEvent).touches[0].pageY : (e as MouseEvent).pageY;
+            const pageX = e.type.includes('touch')
+                ? (e as TouchEvent).touches[0].pageX
+                : (e as MouseEvent).pageX;
+            const pageY = e.type.includes('touch')
+                ? (e as TouchEvent).touches[0].pageY
+                : (e as MouseEvent).pageY;
 
             endX = pageX;
             endY = pageY;
@@ -240,7 +267,11 @@ export class MainPage {
             const deltaX = endX - startX;
             const deltaY = endY - startY;
 
-            cardElement.style.transform = `translate(${deltaX - 200}px, ${deltaY}px) rotate(${deltaX * 0.1}deg)`;
+            cardElement.style.transform = `translate(${deltaX - 175}px, ${deltaY}px) rotate(${deltaX * 0.1}deg)`;
+
+            if (Math.abs(deltaX) > 200 || Math.abs(deltaY) > 200) {
+                stopSwipe();
+            }
         };
 
         const stopSwipe = () => {
@@ -253,7 +284,10 @@ export class MainPage {
             let direction = '';
             let actionType = '';
 
-            if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > this.swipeThreshold) {
+            if (
+                Math.abs(deltaX) > Math.abs(deltaY) &&
+                Math.abs(deltaX) > this.swipeThreshold
+            ) {
                 if (deltaX > 0) {
                     direction = 'right';
                     actionType = 'like';
@@ -267,25 +301,31 @@ export class MainPage {
             }
 
             if (direction && actionType) {
-                dispatcher.process({ 
-                    type: Actions.SEND_CARD_ACTION, 
-                    payload: { cardId, actionType } 
+                dispatcher.process({
+                    type: Actions.SEND_CARD_ACTION,
+                    payload: { cardId, actionType },
                 });
 
                 animateCardOut(cardElement, direction);
             } else {
-                cardElement.style.transform = 'translate(-220px, 0) rotate(0deg)';
+                cardElement.style.transform = 'translate(-175px, 0) rotate(0deg)';
             }
         };
 
         cardElement.addEventListener('mousedown', startSwipe as EventListener);
         cardElement.addEventListener('mousemove', moveSwipe as EventListener);
         cardElement.addEventListener('mouseup', stopSwipe);
+
+        cardElement.addEventListener('touchstart', startSwipe as EventListener);
+        cardElement.addEventListener('touchmove', moveSwipe as EventListener);
+        cardElement.addEventListener('touchend', stopSwipe);
     }
 
     private initCardActions(): void {
         const pageContainer = document.querySelector('.cards-container');
-        const currentCardElement = pageContainer?.querySelector('.card:last-child') as HTMLElement | null;
+        const currentCardElement = pageContainer?.querySelector(
+            '.card:last-child'
+        ) as HTMLElement | null;
 
         if (currentCardElement) {
             const cardId = currentCardElement.getAttribute('data-id');
@@ -304,24 +344,29 @@ export class MainPage {
                 } else if (button.classList.contains('card__button-like')) {
                     direction = 'right';
                     actionType = 'like';
-                } else if (button.classList.contains('card__button-superLike')) {
+                } else if (
+                    button.classList.contains('card__button-superLike')
+                ) {
                     direction = 'up';
                     actionType = 'super_like';
                 } else {
                     return;
                 }
 
-                await dispatcher.process({ 
-                    type: Actions.SEND_CARD_ACTION, 
-                    payload: { cardId, actionType } 
+                await dispatcher.process({
+                    type: Actions.SEND_CARD_ACTION,
+                    payload: { cardId, actionType },
                 });
 
                 animateCardOut(currentCardElement, direction);
             };
 
             const actionButtons = currentCardElement.querySelectorAll('button');
-            actionButtons.forEach(button => {
-                button.removeEventListener('click', handleAction as EventListener);
+            actionButtons.forEach((button) => {
+                button.removeEventListener(
+                    'click',
+                    handleAction as EventListener
+                );
                 button.addEventListener('click', handleAction as EventListener);
             });
         }

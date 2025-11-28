@@ -1,10 +1,22 @@
-<header class="header">
-    <div class="header__content">
-        
-        <div class="header__right">
+<header class='header'>
+    <div class='header__content'>
+        <div class='header__left'>
+            <button class='header__burger' id='burgerButton' aria-label='Открыть меню'>
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+
+        <div class='header__right'>
             {{#if isAuthenticated}}
-                <span class="header__welcome-text" id="userEmailBtn">{{userName}}</span>
-                
+            <button class='header__avatar-btn' id='userEmailBtn' aria-label='Профиль пользователя'>
+                <div class='header__avatar'>
+                    <img src='{{userPhoto}}' alt='{{userName}}' />
+                </div>
+            </button>
+            {{else}}
+            <a class='header__auth-link' Link href='/login'>Войти</a>
             {{/if}}
         </div>
     </div>

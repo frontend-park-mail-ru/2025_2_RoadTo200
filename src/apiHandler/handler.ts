@@ -19,6 +19,7 @@ export interface FetchError extends Error {
 
 interface FetchOptions extends RequestInit {
     headers?: Record<string, string>;
+    isFormData?: boolean;
 }
 
 /**
@@ -34,56 +35,86 @@ export async function handleFetch<T = unknown>(
     options: FetchOptions = {}
 ): Promise<T> {
     const url = `${baseURL}${endpoint}`;
+    const isFormData =
+        options.isFormData ??
+        (typeof FormData !== 'undefined' && options.body instanceof FormData);
     const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
-        ...options.headers
+        ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
+        ...options.headers,
     };
     const fetchOptions: RequestInit = {
         ...options,
         headers,
-        credentials: 'include'
+        credentials: 'include',
     };
-  
+
     try {
         const response = await fetch(url, fetchOptions);
-    
+
         if (!response.ok) {
             // Проверка на offline режим (503 от Service Worker)
             if (response.status === 503) {
-                const data = await response.json() as OfflineResponse;
+                const data = (await response.json()) as OfflineResponse;
                 if (data.error === 'Offline') {
-                    const error = new Error(data.error || 'Данные недоступны в offline режиме') as FetchError;
+                    const error = new Error(
+                        data.error || 'Данные недоступны в offline режиме'
+                    ) as FetchError;
                     error.status = 503;
                     error.isOffline = true;
                     error.cachedData = data;
                     throw error;
                 }
             }
-            
+
             let errorDetails: ErrorResponse | null = null;
             try {
-                errorDetails = await response.json() as ErrorResponse;
+                errorDetails = (await response.json()) as ErrorResponse;
             } catch (e) {
                 // Игнорируем, если не JSON
             }
-      
+
             // Формируем понятное сообщение об ошибке
-            let errorMessage = 'Неверный email или пароль';
+            let errorMessage = 'Произошла ошибка';
+
+            // Приоритет: сообщение от сервера, затем стандартные сообщения для статусов
             if (errorDetails && errorDetails.error) {
                 errorMessage = errorDetails.error;
+            } else if (response.status === 401) {
+                errorMessage = 'Неверный email или пароль';
             } else if (response.status === 500) {
                 errorMessage = 'Ошибка сервера. Попробуйте позже';
             } else if (response.status === 404) {
                 errorMessage = 'Сервис недоступен';
             }
-      
+
             const error = new Error(errorMessage) as FetchError;
             error.status = response.status;
             error.details = errorDetails;
             throw error;
         }
-    
-        return response.json() as Promise<T>;
+
+        const contentType = response.headers.get('content-type') || '';
+        const isJson = contentType.includes('application/json');
+
+        // Многие эндпоинты (например, POST /profile) отвечают 204 или пустым телом
+        if (response.status === 204 || response.headers.get('content-length') === '0') {
+            return undefined as T;
+        }
+
+        const rawBody = await response.text();
+        if (!rawBody.trim()) {
+            return undefined as T;
+        }
+
+        if (isJson) {
+            try {
+                return JSON.parse(rawBody) as T;
+            } catch (parseError) {
+                throw new Error('Некорректный ответ сервера');
+            }
+        }
+
+        return rawBody as unknown as T;
     } catch (error) {
         const fetchError = error as FetchError;
         if (fetchError.name === 'TypeError' && !navigator.onLine) {

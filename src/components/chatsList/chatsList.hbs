@@ -1,0 +1,73 @@
+<div class="chats-sidebar">
+    <div class="chats-sidebar__header">
+        <h2>Чаты</h2>
+        {{!-- <div class="chats-sidebar__menu-icon" aria-hidden="true">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div> --}}
+    </div>
+
+    <label class="chats-sidebar__search" aria-label="Поиск по чатам">
+        <input
+            type="text"
+            class="chats-sidebar__search-input"
+            placeholder="Поиск по имени"
+            value="{{searchQuery}}"
+        />
+    </label>
+
+    <div class="chats-sidebar__list">
+        {{#if isLoading}}
+            <div class="chat-skeleton" aria-hidden="true">
+                <div class="chat-skeleton__avatar"></div>
+                <div class="chat-skeleton__content">
+                    <div class="chat-skeleton__line chat-skeleton__line--short"></div>
+                    <div class="chat-skeleton__line"></div>
+                </div>
+            </div>
+            <div class="chat-skeleton" aria-hidden="true">
+                <div class="chat-skeleton__avatar"></div>
+                <div class="chat-skeleton__content">
+                    <div class="chat-skeleton__line chat-skeleton__line--short"></div>
+                    <div class="chat-skeleton__line"></div>
+                </div>
+            </div>
+        {{else if hasChats}}
+            {{#each chats}}
+                <div
+                    class="chat-item {{#if isSelected}}chat-item--selected{{/if}}"
+                    data-chat-id="{{id}}"
+                    data-user-name="{{userName}}"
+                    data-user-photo="{{userAvatar}}"
+                >
+                    <div class="chat-item__avatar {{#unless userAvatar}}chat-item__avatar--fallback{{/unless}}">
+                        {{#if userAvatar}}
+                            <img src="{{userAvatar}}" alt="{{userName}}" class="chat-item__avatar-img" />
+                        {{else}}
+                            <span class="chat-item__initials">{{initials}}</span>
+                        {{/if}}
+                    </div>
+                    <div class="chat-item__content">
+                        <div class="chat-item__header">
+                            <h3 class="chat-item__name">{{userName}}</h3>
+                            <span class="chat-item__time">{{timestamp}}</span>
+                        </div>
+                        <p class="chat-item__message">{{lastMessage}}</p>
+                    </div>
+                    {{#if unreadCount}}
+                        <span class="chat-item__badge">{{unreadCount}}</span>
+                    {{/if}}
+                </div>
+            {{/each}}
+        {{else}}
+            <div class="chats-list__empty">
+                <div class="chats-list__empty-text">
+                    <h3>{{emptyState.title}}</h3>
+                    <p>{{emptyState.subtitle}}</p>
+                </div>
+                <button type="button" data-action="go-home">Вернуться на главную</button>
+            </div>
+        {{/if}}
+    </div>
+</div>

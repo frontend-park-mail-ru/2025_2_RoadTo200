@@ -3,6 +3,7 @@ import { dispatcher } from '@/Dispatcher';
 import { Actions } from '@/actions';
 import MatchCard from '@/components/MatchCard/matchCard';
 
+const EMPTY_STATE_TEMPLATE_PATH = '/src/components/EmptyState/emptyState.hbs';
 const TEMPLATE_PATH = '/src/pages/matchesPage/matches.hbs';
 
 interface MatchData {
@@ -36,53 +37,91 @@ export class MatchesPage {
 
     async render(): Promise<void> {
         if (!this.parent) {
-            // console.warn('MatchesPage: parent not assigned');
             return;
         }
 
         const pageTemplateString = await fetchTemplate(TEMPLATE_PATH);
         const pageTemplate = Handlebars.compile(pageTemplateString);
 
+        if (this.matchesData.length === 0) {
+            this.displayEmptyState();
+            return;
+        }
+
         const matchCardsHtml = await Promise.all(
-            this.matchesData.map(match => MatchCard.render(match))
+            this.matchesData.map((match) => MatchCard.render(match))
         );
 
         const matchesHtmlString = matchCardsHtml.join('');
 
         const renderedHtml = pageTemplate({
             matchesHtml: matchesHtmlString,
-            noMatches: this.matchesData.length === 0
+            noMatches: this.matchesData.length === 0,
         });
 
         this.parent.innerHTML = renderedHtml;
         this.addEventListeners();
     }
 
+    async displayEmptyState(): Promise<void> {
+        if (!this.parent) return;
+
+        const emptyStateTemplateString = await fetchTemplate(
+            EMPTY_STATE_TEMPLATE_PATH
+        );
+        const emptyStateTemplate = Handlebars.compile(emptyStateTemplateString);
+
+        const emptyStateHtml = emptyStateTemplate({
+            title: 'У Вас пока нет мэтчей',
+            message: 'Возможно Вам стоит еще поискать подходящих людей',
+            buttonText: 'Вернуться на главную',
+            buttonId: 'goToHome',
+        });
+
+        this.parent.innerHTML = emptyStateHtml;
+
+        const homeButton = document.getElementById('goToHome');
+        if (homeButton) {
+            homeButton.addEventListener('click', () => {
+                dispatcher.process({
+                    type: Actions.NAVIGATE_TO,
+                    payload: { path: '/' },
+                });
+            });
+        }
+    }
+
     private addEventListeners(): void {
         if (!this.parent) return;
 
         const matchCards = this.parent.querySelectorAll('.match-card');
-        matchCards.forEach(card => {
+        matchCards.forEach((card) => {
             card.addEventListener('click', (e) => {
                 e.preventDefault();
                 const matchId = (card as HTMLElement).dataset.matchId;
                 if (!matchId) return;
-                
-                const matchData = this.matchesData.find(m => m.matchId === matchId || m.id === matchId);
-                
+
+                const matchData = this.matchesData.find(
+                    (m) => m.matchId === matchId || m.id === matchId
+                );
+
                 dispatcher.process({
                     type: Actions.MATCH_CARD_CLICK,
-                    payload: { 
+                    payload: {
                         matchId,
-                        userData: matchData ? matchData.userData : null
-                    }
+                        userData: matchData ? matchData.userData : null,
+                    },
                 });
             });
         });
     }
 
-    async setMatches(matchesArr: MatchData[] | Record<string, MatchData>): Promise<void> {
-        this.matchesData = Array.isArray(matchesArr) ? matchesArr : Object.values(matchesArr || {});
+    async setMatches(
+        matchesArr: MatchData[] | Record<string, MatchData>
+    ): Promise<void> {
+        this.matchesData = Array.isArray(matchesArr)
+            ? matchesArr
+            : Object.values(matchesArr || {});
         await this.render();
     }
 }

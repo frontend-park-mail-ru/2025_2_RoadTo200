@@ -33,7 +33,11 @@
         margin: 0 0 0.5rem 0;
         font-weight: 400;
         font-size: 0.875rem;
-        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        font-family:
+            'Inter',
+            system-ui,
+            -apple-system,
+            sans-serif;
         min-height: 1.25rem;
     }
 
@@ -105,7 +109,10 @@
         background-color: #f3f4f6;
         border: 2px solid #e5e7eb;
         border-radius: var(--border-radius-large);
-        transition: border-color 0.3s, box-shadow 0.3s, background-color 0.3s;
+        transition:
+            border-color 0.3s,
+            box-shadow 0.3s,
+            background-color 0.3s;
         outline: none;
         box-sizing: border-box;
 
@@ -126,13 +133,15 @@
             font-size: 1.125rem;
             font-weight: 600;
             line-height: 1.5;
-            color: var(--color-text-light);
+            color: white;
             cursor: pointer;
             border: none;
             outline: none;
             margin-top: 0.5rem;
             transition: all 0.3s ease;
-            background: linear-gradient(to right, var(--color-primary-dark) 0%, var(--color-primary-light) 100%);
+            background: linear-gradient(to right,
+                    var(--color-primary-dark) 0%,
+                    var(--color-primary-light) 100%);
             border-radius: var(--border-radius-large);
             box-shadow: 0 8px 15px rgba(253, 41, 123, 0.4);
 
