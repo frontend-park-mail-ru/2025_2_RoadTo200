@@ -158,6 +158,14 @@
     margin-top: 24px;
 }
 
+.settings-shell__title {
+    display: none;
+}
+
+.settings-shell__back{
+    display: none;
+}
+
 .divider {
     height: 1px;
     background: #f0e2ea;
@@ -187,6 +195,15 @@
         }
     }
 
+    .settings-shell__back {
+        display: block;
+    }
+
+    .settings-shell__title {
+        font-size: 24px;
+        display: block;
+    }
+
     .settings-shell--show-menu .settings-shell__content {
         display: none;
     }
@@ -203,6 +220,7 @@
 
     .settings-shell__title {
         font-size: 24px;
+        display: block;
     }
 }
 
