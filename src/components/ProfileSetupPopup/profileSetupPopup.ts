@@ -42,10 +42,11 @@ export class ProfileSetupPopup {
 
             const hasName = ProfileSetupPopup.hasMeaningfulName(profile);
             const hasGender = ProfileSetupPopup.hasValidGender(profile);
-            const hasPhoto = ProfileSetupPopup.hasApprovedPhoto(response) || true; 
+            const hasPhoto = ProfileSetupPopup.hasApprovedPhoto(response);
 
             return hasName && hasGender && hasPhoto;
         } catch (error) {
+            // console.error('Error checking profile completeness:', error);
             return false;
         }
     }
@@ -354,25 +355,24 @@ export class ProfileSetupPopup {
 
     private static hasMeaningfulName(profile: ProfileUser): boolean {
         const normalizedName = (profile.name || '').trim();
-
         if (normalizedName.length < 2) {
             return false;
         }
 
         const lowerName = normalizedName.toLowerCase();
-
         const invalidNames = new Set(['naaaaaane', 'name', 'username']);
         if (invalidNames.has(lowerName)) {
             return false;
         }
 
-        // if (/^user[\d_-]*$/i.test(normalizedName)) {
-        //     return false;
-        // }
+        if (/^user[\d_-]*$/i.test(normalizedName)) {
+            return false;
+        }
 
         const emailLower = (profile.email || '').trim().toLowerCase();
         if (emailLower.length > 0) {
-            if (lowerName === emailLower) {
+            const emailLocal = emailLower.split('@')[0] || '';
+            if (lowerName === emailLower || lowerName === emailLocal) {
                 return false;
             }
         }
