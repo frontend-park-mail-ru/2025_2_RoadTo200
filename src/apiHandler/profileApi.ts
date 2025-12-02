@@ -43,15 +43,10 @@ export interface ProfilePreferences {
     show_gender?: string;
 }
 
-export interface InterestPayload {
-    theme: string;
-}
-
 export interface ProfileResponse {
     user: ProfileUser;
     photos: UserPhoto[];
     preferences?: ProfilePreferences | null;
-    interests?: InterestPayload[];
 }
 
 export type ProfileUpdateData = Partial<{
@@ -71,6 +66,10 @@ export type PreferencesUpdateData = ProfilePreferences;
 export interface SuccessResponse {
     message?: string;
 }
+
+type InterestPayload = {
+    theme: string;
+};
 
 class ProfileApi {
     private baseURL: string;
@@ -125,7 +124,7 @@ class ProfileApi {
     }
 
     updateInterests(interests: InterestPayload[]): Promise<SuccessResponse> {
-        return handleFetch<SuccessResponse>(this.baseURL, '/interest', {
+        return handleFetch<SuccessResponse>(this.baseURL, '/interests', {
             method: 'PUT',
             body: JSON.stringify(interests),
         });
