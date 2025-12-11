@@ -124,7 +124,7 @@ class ProfileApi {
     }
 
     updateInterests(interests: InterestPayload[]): Promise<SuccessResponse> {
-        return handleFetch<SuccessResponse>(this.baseURL, '/interests', {
+        return handleFetch<SuccessResponse>(this.baseURL, '/interest', {
             method: 'PUT',
             body: JSON.stringify(interests),
         });
