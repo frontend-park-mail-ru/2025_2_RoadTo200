@@ -99,6 +99,11 @@ export const Actions = {
     SEND_MESSAGE: 'SEND_MESSAGE',
     LOAD_CHAT_MESSAGES: 'LOAD_CHAT_MESSAGES',
 
+    // notifications
+    TOGGLE_NOTIFICATION_POPUP: 'TOGGLE_NOTIFICATION_POPUP',
+    ADD_NOTIFICATION: 'ADD_NOTIFICATION',
+    MARK_NOTIFICATION_READ: 'MARK_NOTIFICATION_READ',
+
 } as const;
 
 export type { ChatSocketEvent, ChatSocketStatus, SelectChatPayload } from './types/chat';
