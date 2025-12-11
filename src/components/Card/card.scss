@@ -12,6 +12,7 @@
     left: 50%;
     transform: translateX(-50%);
     will-change: transform, opacity;
+    z-index: 100;
 
     * {
         font-family: 'Semantic', system-ui;

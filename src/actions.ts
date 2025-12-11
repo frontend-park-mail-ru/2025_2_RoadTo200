@@ -99,6 +99,14 @@ export const Actions = {
     SEND_MESSAGE: 'SEND_MESSAGE',
     LOAD_CHAT_MESSAGES: 'LOAD_CHAT_MESSAGES',
 
+    // premium
+    RENDER_PREMIUM: 'RENDER_PREMIUM',
+    SELECT_TARIFF: 'SELECT_TARIFF',
+    REQUEST_PREMIUM_PAYMENT: 'REQUEST_PREMIUM_PAYMENT',
+    PAYMENT_STATUS_UPDATED: 'PAYMENT_STATUS_UPDATED',
+    PAYMENT_ERROR: 'PAYMENT_ERROR',
+
+
 } as const;
 
 export type { ChatSocketEvent, ChatSocketStatus, SelectChatPayload } from './types/chat';
@@ -185,6 +193,20 @@ export interface ConnectivityPayload {
 export interface UpdateActivityPayload {
     [key: string]: boolean;
 }
+
+export interface PremiumPlanPayload { 
+    planId: 'week' | 'month' | 'quarter'; 
+    amount: number; 
+}
+export interface PaymentStatusPayload { 
+    status: 'pending' | 'succeeded' | 'canceled'; 
+    redirectUrl?: string; 
+    message?: string; 
+    paymentId?: string; 
+}
+export type PremiumAction = Action<PremiumPlanPayload>;
+export type PaymentAction = Action<PaymentStatusPayload>;
+
 
 // Typed action creators
 export type LoginAction = Action<LoginPayload>;

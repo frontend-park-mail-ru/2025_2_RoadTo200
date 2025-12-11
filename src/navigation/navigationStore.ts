@@ -265,9 +265,6 @@ class NavigationStore implements Store {
         const { path } = action.payload!;
         const currentPath = path || window.location.pathname;
 
-        // Удалили проверку this.currentPath === currentPath чтобы разрешить
-        // повторный рендер при навигации назад через кнопку браузера
-
         if (
             this.currentPath &&
             this.currentPath.startsWith('/matches') &&
@@ -434,6 +431,10 @@ class NavigationStore implements Store {
             case '/chats':
                 actionPayload.route = 'chats';
                 return { type: Actions.RENDER_CHATS, payload: actionPayload };
+            case '/premium':
+                actionPayload.route = 'premium';
+                return { type: Actions.RENDER_PREMIUM, payload: actionPayload };
+
             default:
                 return null;
         }
