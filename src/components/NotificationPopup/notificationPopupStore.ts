@@ -81,13 +81,6 @@ class NotificationPopupStore implements Store {
                 isMatch: false,
             },
             {
-                id: '3',
-                message: 'Ваш профиль был просмотрен',
-                time: '3 часа назад',
-                isRead: true,
-                isMatch: false,
-            },
-            {
                 id: '1',
                 message: 'У вас новый мэтч!',
                 time: '5 мин назад',
@@ -102,12 +95,20 @@ class NotificationPopupStore implements Store {
                 isMatch: false,
             },
             {
-                id: '3',
-                message: 'Ваш профиль был просмотрен',
-                time: '3 часа назад',
+                id: '2',
+                message: 'Новое сообщение от Анны',
+                time: '1 час назад',
                 isRead: true,
                 isMatch: false,
             },
+            {
+                id: '2',
+                message: 'Новое сообщение от Анны',
+                time: '1 час назад',
+                isRead: true,
+                isMatch: false,
+            },
+            
         ];
     }
 }
