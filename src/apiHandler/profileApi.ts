@@ -24,6 +24,13 @@ export interface ProfileUser {
     gender?: string;
     artist?: string;
     phone?: string;
+    city?: string;
+    is_verified?: boolean;
+    is_premium?: boolean;
+    super_likes_count?: number;
+    last_active?: string;
+    created_at?: string;
+    updated_at?: string;
     [key: string]: unknown;
 }
 
@@ -47,6 +54,7 @@ export interface ProfileResponse {
     user: ProfileUser;
     photos: UserPhoto[];
     preferences?: ProfilePreferences | null;
+    interests?: InterestPayload[];
 }
 
 export type ProfileUpdateData = Partial<{
@@ -59,6 +67,7 @@ export type ProfileUpdateData = Partial<{
     name: string;
     phone: string;
     quote: string;
+    city: string;
 }>;
 
 export type PreferencesUpdateData = ProfilePreferences;
@@ -117,7 +126,7 @@ class ProfileApi {
     updatePreferences(
         preferences: PreferencesUpdateData
     ): Promise<SuccessResponse> {
-        return handleFetch<SuccessResponse>(this.baseURL, '/preferences', {
+        return handleFetch<SuccessResponse>(this.baseURL, '/preference', {
             method: 'PUT',
             body: JSON.stringify(preferences),
         });
@@ -130,12 +139,12 @@ class ProfileApi {
         });
     }
 
-    uploadPhoto(file: File | File[]): Promise<UserPhoto> {
+    uploadPhoto(file: File | File[]): Promise<UserPhoto[]> {
         const formData = new FormData();
         const files = Array.isArray(file) ? file : [file];
         files.forEach((item) => formData.append('photos', item));
 
-        return handleFetch<UserPhoto>(this.baseURL, '/photo', {
+        return handleFetch<UserPhoto[]>(this.baseURL, '/photo', {
             method: 'POST',
             body: formData,
             isFormData: true,

@@ -1,7 +1,13 @@
-import { Actions, type Action, type PremiumAction, type PaymentAction } from '@/actions';
+import {
+    Actions,
+    type Action,
+    type PremiumAction,
+    type PaymentAction,
+} from '@/actions';
 import { dispatcher, type Store } from '@/Dispatcher';
 import { premium } from './premium';
 import PaymentsApi from '@/apiHandler/paymentsApi';
+import ProfileApi from '@/apiHandler/profileApi';
 
 type PlanId = 'week' | 'month' | 'quarter';
 
@@ -10,6 +16,7 @@ class PremiumStore implements Store {
         planId: 'month',
         amount: 2000,
     };
+    private hasActivePremium = false;
 
     constructor() {
         dispatcher.register(this);
@@ -19,7 +26,8 @@ class PremiumStore implements Store {
         switch (action.type) {
             case Actions.RENDER_PREMIUM:
                 await premium.render();
-                this.readPaymentStatusFromQuery();
+                await this.fetchPremiumStatus();
+                await this.readPaymentStatusFromQuery();
                 break;
 
             case Actions.SELECT_TARIFF:
@@ -50,25 +58,76 @@ class PremiumStore implements Store {
         }
     }
 
+    private async fetchPremiumStatus(): Promise<void> {
+        try {
+            const profile = await ProfileApi.getProfile();
+            const isPremium = Boolean(profile.user?.is_premium);
+            this.hasActivePremium = isPremium;
+
+            if (isPremium) {
+                premium.showError('');
+                premium.showStatus('У вас уже активный Premium');
+                this.toggleSubmitDisabled(true);
+            } else {
+                this.hasActivePremium = false;
+                premium.showStatus('');
+                this.toggleSubmitDisabled(false);
+            }
+        } catch (error) {
+            // Не блокируем покупку, если статус не удалось получить
+            this.toggleSubmitDisabled(false);
+            this.hasActivePremium = false;
+        }
+    }
+
+    private toggleSubmitDisabled(disabled: boolean): void {
+        const submit = document.getElementById(
+            'premiumSubmit'
+        ) as HTMLButtonElement | null;
+        if (submit) {
+            submit.disabled = disabled;
+        }
+    }
+
     private async createPayment(): Promise<void> {
         try {
             premium.showError('');
             premium.showStatus('Создаём платёж...');
             premium.setLoading(true);
 
-            const returnUrl = `${window.location.origin}/premium`;
+            if (this.hasActivePremium) {
+                premium.showStatus('У вас уже активный Premium');
+                this.toggleSubmitDisabled(true);
+                return;
+            }
+
             const response = await PaymentsApi.createPremiumPayment({
                 planId: this.selectedPlan.planId,
                 amount: this.selectedPlan.amount,
-                returnUrl,
             });
 
-            if (response.confirmationUrl) {
-                window.location.href = response.confirmationUrl;
+            const paymentUrl =
+                response.payment_url ||
+                (response as unknown as { paymentUrl?: string }).paymentUrl;
+
+            if (paymentUrl) {
+                window.location.href = paymentUrl;
             } else {
                 throw new Error('Не получили ссылку на оплату');
             }
         } catch (error) {
+            const err = error as { status?: number; message?: string };
+            if (err.status === 409) {
+                dispatcher.process({
+                    type: Actions.PAYMENT_ERROR,
+                    payload: {
+                        message: 'У вас уже есть активная подписка',
+                    },
+                });
+                await this.fetchPremiumStatus();
+                return;
+            }
+
             dispatcher.process({
                 type: Actions.PAYMENT_ERROR,
                 payload: {
@@ -83,31 +142,13 @@ class PremiumStore implements Store {
     }
 
     private async readPaymentStatusFromQuery(): Promise<void> {
+        // Поддерживаем старый параметр, но проверяем факт наличия премиума по профилю
         const params = new URLSearchParams(window.location.search);
-        const paymentId = params.get('paymentId');
-        if (!paymentId) return;
-
-        try {
-            premium.showStatus('Проверяем статус платежа...');
-            const status = await PaymentsApi.getPaymentStatus(paymentId);
-
-            dispatcher.process({
-                type: Actions.PAYMENT_STATUS_UPDATED,
-                payload: {
-                    status: status.status,
-                    message:
-                        status.status === 'succeeded'
-                            ? 'Оплата прошла успешно'
-                            : status.message || 'Статус платежа обновлён',
-                    paymentId,
-                },
-            });
-        } catch (_err) {
-            dispatcher.process({
-                type: Actions.PAYMENT_ERROR,
-                payload: { message: 'Не удалось получить статус платежа' },
-            });
+        if (!params.toString()) {
+            return;
         }
+
+        await this.fetchPremiumStatus();
     }
 }
 

@@ -4,6 +4,7 @@ import { login } from './login';
 import type { Store } from '../../Dispatcher';
 
 import AuthApi from '../../apiHandler/authApi';
+import { clearUserCaches } from '@/utils/cacheControl';
 
 class LoginStore implements Store {
     constructor() {
@@ -28,6 +29,7 @@ class LoginStore implements Store {
 
         try {
             await AuthApi.login(email, password);
+            await clearUserCaches();
 
             dispatcher.process({
                 type: Actions.NAVIGATE_TO,

@@ -15,16 +15,28 @@ export interface LoginRequest {
 }
 
 export interface AuthResponse {
-    success: boolean;
     message?: string;
+}
+
+export interface RegisterResponse {
+    id: string;
+    email: string;
+}
+
+export interface LoginResponse {
+    id: string;
+    email: string;
+}
+
+export interface SessionUser {
+    id: string;
+    email: string;
+    name?: string;
 }
 
 export interface CheckAuthResponse {
     authenticated: boolean;
-    user?: {
-        id: string;
-        email: string;
-    };
+    user?: SessionUser;
 }
 
 class AuthApi {
@@ -45,12 +57,12 @@ class AuthApi {
         email: string,
         password: string,
         passwordConfirm: string
-    ): Promise<AuthResponse> {
+    ): Promise<RegisterResponse> {
         const options = {
             method: 'POST',
             body: JSON.stringify({ email, password, passwordConfirm }),
         };
-        return handleFetch<AuthResponse>(this.baseURL, '/register', options);
+        return handleFetch<RegisterResponse>(this.baseURL, '/register', options);
     }
 
     /**
@@ -59,12 +71,12 @@ class AuthApi {
      * @param password Пароль
      * @returns Promise с ответом сервера
      */
-    async login(email: string, password: string): Promise<AuthResponse> {
+    async login(email: string, password: string): Promise<LoginResponse> {
         const options = {
             method: 'POST',
             body: JSON.stringify({ email, password }),
         };
-        return handleFetch<AuthResponse>(this.baseURL, '/login', options);
+        return handleFetch<LoginResponse>(this.baseURL, '/login', options);
     }
 
     /**
@@ -75,8 +87,6 @@ class AuthApi {
         return handleFetch<CheckAuthResponse>(this.baseURL, '/session', {
             method: 'GET',
         });
-        
-        
     }
 
     /**

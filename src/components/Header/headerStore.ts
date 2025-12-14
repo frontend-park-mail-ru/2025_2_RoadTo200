@@ -4,6 +4,7 @@ import { header } from './header';
 import AuthApi from '../../apiHandler/authApi';
 import ProfileApi from '../../apiHandler/profileApi';
 import type { Store } from '../../Dispatcher';
+import { clearUserCaches } from '@/utils/cacheControl';
 
 interface User {
     email?: string;
@@ -59,6 +60,10 @@ class HeaderStore implements Store {
     private async processLogout(): Promise<void> {
         try {
             await AuthApi.logout();
+        } catch (error) {
+            // ignore logout API errors, we still need to clear state locally
+        } finally {
+            await clearUserCaches();
 
             this.user = null;
             this.isAuthenticated = false;
@@ -69,12 +74,6 @@ class HeaderStore implements Store {
                 payload: { user: this.user },
             });
 
-            dispatcher.process({
-                type: Actions.NAVIGATE_TO,
-                payload: { path: '/login' },
-            });
-        } catch (error) {
-            // console.error("Logout error:", error);
             dispatcher.process({
                 type: Actions.NAVIGATE_TO,
                 payload: { path: '/login' },

@@ -18,6 +18,9 @@ export interface MatchDTO {
         bio?: string;
         quote?: string;
         birth_date?: string;
+        is_premium?: boolean;
+        super_likes_count?: number;
+        is_verified?: boolean;
         [key: string]: unknown;
     };
     photos: string[];
@@ -61,10 +64,10 @@ class MatchesApi {
     }
 
     /**
-     * DELETE /api/match/unmatch - удалить мэтч
+     * DELETE /api/match - удалить мэтч
      */
     async unmatch(targetUserId: string): Promise<void> {
-        await handleFetch(this.baseURL, '/match/unmatch', {
+        await handleFetch(this.baseURL, '/match', {
             method: 'DELETE',
             body: JSON.stringify({ target_user_id: targetUserId } satisfies UnmatchRequest),
         });

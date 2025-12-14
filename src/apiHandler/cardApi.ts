@@ -14,6 +14,8 @@ export interface FeedUser {
     artist?: string;
     quote?: string;
     interests?: Array<{ theme: string; user_id: string }>;
+    is_premium?: boolean;
+    super_likes_count?: number;
     [key: string]: unknown;
 }
 
@@ -24,12 +26,11 @@ export interface FeedResponse {
     offset: number;
 }
 
-export type CardAction = 'like' | 'dislike' | 'superlike';
+export type CardAction = 'like' | 'dislike' | 'super_like';
 
 export interface CardInteractionRequest {
     card_id: string | number;
     action: CardAction;
-    timestamp: string;
 }
 
 export interface CardInteractionResponse {
@@ -72,14 +73,11 @@ class CardApi {
         cardId: string | number,
         action: CardAction
     ): Promise<CardInteractionResponse> {
-        const timestamp = new Date().toISOString();
-
         const options = {
             method: 'POST',
             body: JSON.stringify({
                 card_id: cardId,
                 action,
-                timestamp,
             } as CardInteractionRequest),
         };
 
