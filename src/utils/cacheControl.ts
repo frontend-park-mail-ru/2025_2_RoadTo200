@@ -1,4 +1,5 @@
 const USER_CACHE_MARKERS = ['terabithia-api', 'terabithia-images'];
+const LOCAL_STORAGE_KEYS = ['selectedActivities'];
 
 const postMessageToSW = (message: unknown): void => {
     if (
@@ -35,4 +36,14 @@ export const clearUserCaches = async (): Promise<void> => {
     }
 
     postMessageToSW({ type: 'CLEAR_USER_CACHE' });
+
+    if (typeof localStorage !== 'undefined') {
+        try {
+            LOCAL_STORAGE_KEYS.forEach((key) => {
+                localStorage.removeItem(key);
+            });
+        } catch {
+            // ignore localStorage cleanup errors
+        }
+    }
 };
