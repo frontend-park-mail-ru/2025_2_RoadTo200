@@ -2,7 +2,7 @@ import Handlebars from 'handlebars';
 import { dispatcher } from '@/Dispatcher';
 import { Actions } from '@/actions';
 import { reportPopup } from '@/components/ReportPopup/reportPopup';
-
+import cardApi from '@/apiHandler/cardApi';
 const TEMPLATE_PATH = '/src/pages/matchProfilePage/matchProfile.hbs';
 
 interface MatchProfileData {
@@ -70,6 +70,45 @@ export class MatchProfilePage {
                         userPhoto: this.currentData.heroPhoto,
                     },
                 });
+            });
+        }
+
+        const likeBackButton = this.parent.querySelector(
+            '[data-action="like-back"]'
+        ) as HTMLButtonElement | null;
+        if (likeBackButton && this.currentData?.userId) {
+            likeBackButton.addEventListener('click', async (event) => {
+                event.preventDefault();
+                const userId = this.currentData?.userId;
+                if (!userId) return;
+
+                likeBackButton.disabled = true;
+                likeBackButton.textContent = 'Отправка...';
+
+                try {
+                    const response = await cardApi.postCardInteraction(userId, 'like');
+                    
+                    if (response.is_match) {
+                        likeBackButton.textContent = 'Это мэтч!';
+                        setTimeout(() => {
+                            dispatcher.process({
+                                type: Actions.NAVIGATE_TO,
+                                payload: { path: '/matches' },
+                            });
+                        }, 1500);
+                    } else {
+                        likeBackButton.textContent = 'Лайк отправлен!';
+                        setTimeout(() => {
+                            dispatcher.process({
+                                type: Actions.NAVIGATE_TO,
+                                payload: { path: '/matches' },
+                            });
+                        }, 1500);
+                    }
+                } catch (error) {
+                    likeBackButton.disabled = false;
+                    likeBackButton.textContent = 'Лайкнуть в ответ';
+                }
             });
         }
 
