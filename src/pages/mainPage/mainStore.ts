@@ -154,13 +154,12 @@ class MainStore implements Store {
             if (actionType === 'super_like') {
                 const state = headerStore.getSuperLikesState();
                 if (state.remaining <= 0) {
+                    main.setSuperLikeState(0, state.isPremium);
                     if (!state.isPremium) {
                         dispatcher.process({
                             type: Actions.NAVIGATE_TO,
                             payload: { path: '/premium' },
                         });
-                    } else {
-                        main.setSuperLikeState(0, true);
                     }
                     return;
                 }

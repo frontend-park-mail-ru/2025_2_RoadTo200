@@ -312,6 +312,17 @@ export class MainPage {
             }
 
             if (direction && actionType) {
+                if (actionType === 'super_like' && !this.superLikeAvailable) {
+                    if (!this.superLikePremium) {
+                        dispatcher.process({
+                            type: Actions.NAVIGATE_TO,
+                            payload: { path: '/premium' },
+                        });
+                    }
+                    cardElement.style.transform =
+                        'translate(-175px, 0) rotate(0deg)';
+                    return;
+                }
                 dispatcher.process({
                     type: Actions.SEND_CARD_ACTION,
                     payload: { cardId, actionType },
@@ -358,11 +369,17 @@ export class MainPage {
                 } else if (
                     button.classList.contains('card__button-superLike')
                 ) {
-                    direction = 'up';
-                    actionType = 'super_like';
-                    if (!this.superLikeAvailable && this.superLikePremium) {
+                    if (!this.superLikeAvailable) {
+                        if (!this.superLikePremium) {
+                            dispatcher.process({
+                                type: Actions.NAVIGATE_TO,
+                                payload: { path: '/premium' },
+                            });
+                        }
                         return;
                     }
+                    direction = 'up';
+                    actionType = 'super_like';
                 } else {
                     return;
                 }
@@ -391,9 +408,10 @@ export class MainPage {
             '.card__button-superLike'
         ) as NodeListOf<HTMLButtonElement>;
         buttons.forEach((btn) => {
-            if (!this.superLikeAvailable && this.superLikePremium) {
+            const shouldDisable = !this.superLikeAvailable;
+            if (shouldDisable) {
                 btn.classList.add('card__button-superLike--disabled');
-                btn.disabled = true;
+                btn.disabled = this.superLikePremium;
             } else {
                 btn.classList.remove('card__button-superLike--disabled');
                 btn.disabled = false;

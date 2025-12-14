@@ -172,11 +172,20 @@ class HeaderStore implements Store {
     private async refreshProfileData(): Promise<void> {
         try {
             const profile = await ProfileApi.getProfile();
-            this.user = { ...(this.user || {}), ...profile };
-            this.superLikesRemaining =
-                typeof profile.user?.super_likes_count === 'number'
-                    ? profile.user.super_likes_count
-                    : this.superLikesRemaining;
+            const profileUser = profile.user || {};
+
+            this.user = {
+                ...(this.user || {}),
+                ...profileUser,
+                photos: profile.photos ?? (this.user as User | null)?.photos,
+            };
+
+            if (typeof profileUser.super_likes_count === 'number') {
+                this.superLikesRemaining = profileUser.super_likes_count;
+            }
+            if (typeof profileUser.is_premium === 'boolean') {
+                (this.user as User).is_premium = profileUser.is_premium;
+            }
             this.superLikesTotal = null;
         } catch {
             // ignore profile refresh errors

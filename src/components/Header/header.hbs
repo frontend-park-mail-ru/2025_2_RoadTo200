@@ -11,7 +11,7 @@
         <div class='header__right'>
             {{#if isAuthenticated}}
             <div class="header__superlikes" aria-label="Суперлайки">
-                <img src="/src/assets/premium/star.svg" alt="Superlike" class="header__superlikes-icon" />
+                <span class="header__superlikes-icon" aria-hidden="true"></span>
                 <span class="header__superlikes-count">{{superLikesRemaining}}/{{superLikesTotal}}</span>
             </div>
             <button class='header__avatar-btn' id='userEmailBtn' aria-label='Профиль пользователя'>

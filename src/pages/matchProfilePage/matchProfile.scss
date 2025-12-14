@@ -23,7 +23,15 @@
     }
 
     &--premium .profile-page__title {
-        color: #ffaf2f;
+        display: inline-block;
+        padding: 6px 14px;
+        border-radius: 14px;
+        background: linear-gradient(
+            to right,
+            var(--color-primary-dark) 0%,
+            var(--color-primary-light) 100%
+        );
+        color: #fff;
     }
 }
 
@@ -43,9 +51,15 @@
     }
 
     &__card--premium {
-        border: 2px solid #ffaf2f;
+        border: 2px solid transparent;
+        border-image: linear-gradient(
+                to right,
+                var(--color-primary-dark) 0%,
+                var(--color-primary-light) 100%
+            )
+            1;
         box-shadow:
-            0 0 0 3px rgba(255, 175, 47, 0.18),
+            0 0 0 3px rgba(255, 75, 114, 0.18),
             0 10px 20px rgba(0, 0, 0, 0.08);
     }
 

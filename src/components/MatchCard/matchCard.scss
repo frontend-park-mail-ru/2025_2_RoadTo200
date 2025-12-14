@@ -20,9 +20,15 @@
 
     &--premium {
         box-shadow:
-            0 0 0 3px rgba(255, 175, 47, 0.35),
+            0 0 0 3px rgba(255, 75, 114, 0.25),
             0 8px 18px rgba(0, 0, 0, 0.12);
-        border: 2px solid #ffaf2f;
+        border: 2px solid transparent;
+        border-image: linear-gradient(
+                to right,
+                var(--color-primary-dark) 0%,
+                var(--color-primary-light) 100%
+            )
+            1;
     }
 
     &-expired {

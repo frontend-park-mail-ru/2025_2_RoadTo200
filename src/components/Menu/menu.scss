@@ -168,7 +168,7 @@
 }
 
 .sidebar__cta {
-  margin: 20px 16px 8px;
+  margin: 20px 0px 8px;
   padding: 18px 16px;
   border-radius: 18px;
   background: linear-gradient(135deg, #ff5d8a, #ff2f73);
@@ -179,4 +179,13 @@
   width: 100%; margin-top: 12px; border: none;
   border-radius: 999px; padding: 12px 0; font-weight: 700;
   background: #fff; color: #ff2f73; cursor: pointer;
+  
+  transition:
+    transform 0.12s ease,
+    box-shadow 0.12s ease,
+    background 0.2s ease,
+    color 0.2s ease;
+  &:hover {
+            background: #ffe6ee;
+        }
 }

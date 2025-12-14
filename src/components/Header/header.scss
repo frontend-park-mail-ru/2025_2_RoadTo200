@@ -74,21 +74,51 @@
         gap: 6px;
         padding: 6px 10px;
         border-radius: 999px;
-        background: #fff6ed;
-        border: 1px solid #ffd9a0;
-        color: #ff9a1f;
+        background: #fff;
+        border: 1px solid transparent;
+        background-image:
+            linear-gradient(#fff, #fff),
+            linear-gradient(
+                to right,
+                var(--color-primary-dark) 0%,
+                var(--color-primary-light) 100%
+            );
+        background-origin: border-box;
+        background-clip: padding-box, border-box;
+        color: var(--color-primary-dark);
         font-weight: 700;
         font-size: 14px;
         line-height: 1;
 
         &-icon {
+            display: inline-block;
             width: 16px;
             height: 16px;
+            background: linear-gradient(
+                to right,
+                var(--color-primary-dark) 0%,
+                var(--color-primary-light) 100%
+            );
+            mask-image: url('/src/assets/premium/star.svg');
+            -webkit-mask-image: url('/src/assets/premium/star.svg');
+            mask-repeat: no-repeat;
+            -webkit-mask-repeat: no-repeat;
+            mask-size: contain;
+            -webkit-mask-size: contain;
+            mask-position: center;
+            -webkit-mask-position: center;
         }
 
         &-count {
             min-width: 48px;
             text-align: center;
+            background: linear-gradient(
+                to right,
+                var(--color-primary-dark) 0%,
+                var(--color-primary-light) 100%
+            );
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
     }
 
@@ -129,8 +159,9 @@
         height: 40px;
         border-radius: 50%;
         overflow: hidden;
-        border: 2px solid #ff4b72;
+        border: 0;
         background-color: #f0f0f0;
+        box-sizing: border-box;
 
         img {
             width: 100%;
@@ -142,9 +173,18 @@
     }
 
     &__avatar--premium {
-        border-width: 3px;
-        border-color: #ffaf2f;
-        box-shadow: 0 0 0 3px rgba(255, 175, 47, 0.2);
+        padding: 2px;
+        background: linear-gradient(
+            to right,
+            var(--color-primary-dark) 0%,
+            var(--color-primary-light) 100%
+        );
+        box-shadow: 0 0 0 2px rgba(255, 75, 114, 0.2);
+
+        img {
+            border-radius: 50%;
+            background: #fff;
+        }
     }
 }
 
