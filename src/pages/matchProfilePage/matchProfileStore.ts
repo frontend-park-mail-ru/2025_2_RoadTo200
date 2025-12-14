@@ -2,6 +2,7 @@ import { Actions, type Action } from '@/actions';
 import { dispatcher, type Store } from '@/Dispatcher';
 import { matchProfile } from './matchProfile';
 import { ACTIVITY_ICONS } from '@/utils/activityIcons';
+import profileApi from '@/apiHandler/profileApi';
 
 interface PhotoCard {
     id: string;
@@ -23,6 +24,8 @@ interface MatchProfileData {
     photoCards: PhotoCard[];
     heroPhoto?: string;
     activities: Array<{ name: string; icon: string }>;
+    isMatched?: boolean;
+    isLiked?: boolean;
 }
 
 class MatchProfileStore implements Store {
@@ -62,17 +65,17 @@ class MatchProfileStore implements Store {
         const { matchId, userData } = payload;
         if (!matchId) return;
 
+        const userId = userData?.id || userData?.user_id || userData?.userId || matchId;
+
         if (userData) {
-            this.matchesCache.set(matchId, userData);
+            this.matchesCache.set(userId, userData);
         }
 
-        // Update URL without triggering navigation cycle
-        window.history.pushState(null, '', `/matches/${matchId}`);
+        window.history.pushState(null, '', `/profile/${userId}`);
 
-        // Directly render match profile
         await dispatcher.process({
             type: Actions.RENDER_MATCH_PROFILE,
-            payload: { matchId },
+            payload: { matchId: userId },
         });
     }
 
@@ -82,7 +85,6 @@ class MatchProfileStore implements Store {
         try {
             const { matchId } = payload;
             if (!matchId) {
-                // console.error('No matchId provided');
                 return;
             }
 
@@ -94,21 +96,31 @@ class MatchProfileStore implements Store {
                 matchProfile.parent = contentContainer;
             }
 
-            const userData = this.matchesCache.get(matchId);
+            let userData = this.matchesCache.get(matchId);
 
             if (!userData) {
-                // Данных нет в кэше (например, обновили страницу) - редирект на список мэтчей
-                await dispatcher.process({
-                    type: Actions.NAVIGATE_TO,
-                    payload: { path: '/matches' },
-                });
-                return;
+                try {
+                    const profileResponse = await profileApi.getProfileById(matchId);
+                    userData = {
+                        id: profileResponse.user.id,
+                        user_id: profileResponse.user.id,
+                        name: profileResponse.user.name,
+                        bio: profileResponse.user.bio,
+                        quote: profileResponse.user.quote,
+                        birth_date: profileResponse.user.birth_date,
+                        favorite_artist: profileResponse.user.artist,
+                        images: profileResponse.photos.map(photo => photo.photo_url),
+                        interests: profileResponse.user.interests || [],
+                        is_matched: profileResponse.is_matched,
+                        is_liked: profileResponse.is_liked,
+                    };
+                } catch (error) {
+                    return;
+                }
             }
 
-            // Parse user interests to get selected activities
             const userInterests = new Set<string>();
 
-            // Check for interests array in userData
             if (Array.isArray(userData.interests)) {
                 userData.interests.forEach((interest: any) => {
                     if (interest?.theme) {
@@ -117,14 +129,12 @@ class MatchProfileStore implements Store {
                 });
             }
 
-            // Check for boolean flags (fallback/legacy)
             Object.keys(ACTIVITY_ICONS).forEach((key) => {
                 if (userData[key] === true) {
                     userInterests.add(key.toLowerCase());
                 }
             });
 
-            // Filter activities to only show selected ones
             const activities = Object.entries(ACTIVITY_ICONS)
                 .filter(([key]) => userInterests.has(key.toLowerCase()))
                 .map(([, data]) => ({
@@ -155,11 +165,12 @@ class MatchProfileStore implements Store {
                 heroPhoto: photoCards[0]?.image,
                 photoCards: photoCards.slice(1),
                 activities,
+                isMatched: userData.is_matched,
+                isLiked: userData.is_liked,
             };
 
             await matchProfile.render(this.matchData);
         } catch (error) {
-            // console.error('Error loading match profile:', error);
         }
     }
 
@@ -179,12 +190,11 @@ class MatchProfileStore implements Store {
     }
 
     private transformImagesToCards(images: string[]): PhotoCard[] {
-        // Если нет фотографий вообще, показываем одну заглушку
         if (!images || images.length === 0) {
             return [{
                 id: 'placeholder-0',
                 image: '/src/assets/image.png',
-                isUserPhoto: true, // Изменили на true, чтобы отображалась
+                isUserPhoto: true,
                 isPrimary: true,
             }];
         }
@@ -196,7 +206,6 @@ class MatchProfileStore implements Store {
             isPrimary: index === 0,
         }));
 
-        // Добавляем пустые плейсхолдеры только если есть хотя бы одна фотка
         while (photoCards.length < 4) {
             photoCards.push({
                 id: `placeholder-${photoCards.length}`,

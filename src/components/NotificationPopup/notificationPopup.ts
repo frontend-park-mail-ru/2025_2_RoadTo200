@@ -13,8 +13,10 @@ export interface Notification {
     message: string;
     time: string;
     isRead: boolean;
-    type?: 'like' | 'super_like' | 'message';
+    type?: 'like' | 'super_like' | 'message' | 'match';
     isMatch?: boolean;
+    user_name?: string;
+    from_user_id?: string;
 }
 
 interface NotificationPopupData {
@@ -83,16 +85,26 @@ export class NotificationPopup {
             e.stopPropagation();
         });
 
-        const markReadButtons = this.parent.querySelectorAll('.notification-mark-read-btn');
-        markReadButtons.forEach(button => {
-            button.addEventListener('click', (e: Event) => {
-                e.stopPropagation();
+        const notificationItems = this.parent.querySelectorAll('.notification-item');
+        notificationItems.forEach(item => {
+            item.addEventListener('click', (e: Event) => {
                 const target = e.currentTarget as HTMLElement;
-                const notificationId = target.dataset.notificationId;
-                if (notificationId) {
+                const userId = target.dataset.userId;
+                const notificationId = target.dataset.id;
+                if (userId) {
+                    if (notificationId) {
+                        dispatcher.process({
+                            type: Actions.MARK_NOTIFICATION_READ,
+                            payload: { id: notificationId },
+                        });
+                    }
                     dispatcher.process({
-                        type: Actions.MARK_NOTIFICATION_READ,
-                        payload: { id: notificationId },
+                        type: Actions.TOGGLE_NOTIFICATION_POPUP,
+                        payload: { isVisible: false },
+                    });
+                    dispatcher.process({
+                        type: Actions.NAVIGATE_TO,
+                        payload: { path: `/profile/${userId}` },
                     });
                 }
             });

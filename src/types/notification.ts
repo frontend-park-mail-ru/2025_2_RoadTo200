@@ -5,7 +5,7 @@ export interface NotificationDTO {
     user_id: string;
     from_user_id: string;
     match_id: string;
-    type: 'like' | 'super_like' | 'message';
+    type: 'like' | 'super_like' | 'message' | 'match';
     created_at: string;
     is_read: boolean;
 }
@@ -19,13 +19,11 @@ export interface NotificationsResponse {
 
 export interface NotificationSocketEvent {
     type: 'notification' | 'read' | 'error' | string;
-    // WebSocket sends flat structure
     id?: string;
-    notif_type?: 'like' | 'super_like' | 'message';
+    notif_type?: 'like' | 'super_like' | 'message' | 'match';
     from_user_id?: string;
     created_at?: string;
     is_read?: boolean;
-    // For nested structure (if API changes later)
     notification?: NotificationDTO;
     notification_id?: string;
     error?: string;

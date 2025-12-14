@@ -6,27 +6,23 @@
         {{#if notifications.length}}
         <ul class="notification-menu-list">
             {{#each notifications}}
-            <li class="notification-menu-item {{#if this.isRead}}notification-menu-item--read{{/if}}" data-id="{{this.id}}">
+            <li class="notification-menu-item notification-item {{#if this.isRead}}notification-menu-item--read{{/if}}" data-id="{{this.id}}" data-user-id="{{this.from_user_id}}">
                 <div class="notification-menu-icon">
                     {{#if (eq this.type "super_like")}}
                         <img src="/src/assets/menu/matches.svg" alt="Match" />
                     {{else if (eq this.type "like")}}
                         <img src="/src/assets/menu/matches.svg" alt="Like" />
-                    {{else}}
-                        <img src="/src/assets/menu/chats.svg" alt="Message" />
+                    {{else if (eq this.type "match")}}
+                        <img src="/src/assets/menu/matches.svg" alt="Match" />
+                    {{else }}
+                        <img src="/src/assets/menu/cahts.svg" alt="Message" />
                     {{/if}}
                 </div>
 
                 <div class="notification-menu-content">
-                    <p class="notification-menu-message">{{this.message}}</p>
+                    <p class="notification-menu-message">{{{this.message}}}</p>
                     <span class="notification-menu-time">{{this.time}}</span>
                 </div>
-
-                {{#unless this.isRead}}
-                <button class="notification-mark-read-btn" data-notification-id="{{this.id}}" aria-label="Отметить как прочитанное">
-                    <img src="/src/assets/eye.svg" alt="eye" />
-                </button> 
-                {{/unless}}
             </li>
             {{/each}}
         </ul>

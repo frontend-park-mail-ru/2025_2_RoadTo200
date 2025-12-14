@@ -5,6 +5,7 @@ import type { Store } from '../../Dispatcher';
 import notificationApi from '../../apiHandler/notificationApi';
 import notificationSocketService from '../../services/notificationSocket';
 import type { NotificationSocketEvent, NotificationDTO } from '../../types/notification';
+import profileApi from '../../apiHandler/profileApi';
 
 class NotificationPopupStore implements Store {
     private isVisible = false;
@@ -84,11 +85,15 @@ class NotificationPopupStore implements Store {
 
     private async loadNotifications(source: string): Promise<void> {
         try {
+            console.log('Loading notifications from:', source);
             const response = await notificationApi.getNotifications();
-            this.notifications = this.convertDTOsToNotifications(response.notifications || []);
+            console.log('Got notifications response:', response);
+            this.notifications = await this.convertDTOsToNotifications(response.notifications || []);
+            console.log('Converted notifications:', this.notifications);
             this.hasLoadedOnce = true;
             this.scheduleRender();
         } catch (error) {
+            console.error('Error loading notifications:', error);
             this.notifications = [];
             this.scheduleRender();
         }
@@ -105,28 +110,35 @@ class NotificationPopupStore implements Store {
     }
 
     private async handleSocketMessage(event: NotificationSocketEvent): Promise<void> {
+        console.log('Received socket message:', event);
         switch (event.type) {
             case 'notification':
                 if (event.id && event.notif_type && event.created_at) {
+                    const userName = event.from_user_id ? await this.fetchUserName(event.from_user_id) : undefined;
                     const newNotification: Notification = {
                         id: event.id,
-                        message: this.generateMessageByType(event.notif_type),
+                        message: this.generateMessageByType(event.notif_type, userName),
                         time: this.formatTime(event.created_at),
                         isRead: event.is_read || false,
-                        isMatch: event.notif_type === 'like' || event.notif_type === 'super_like',
+                        isMatch: event.notif_type === 'like' || event.notif_type === 'super_like' || event.notif_type === 'match',
                         type: event.notif_type,
+                        user_name: userName,
+                        from_user_id: event.from_user_id,
                     };
                     await this.addNotification(newNotification);
                 }
                 else if (event.notification) {
                     const dto = event.notification;
+                    const userName = dto.from_user_id ? await this.fetchUserName(dto.from_user_id) : undefined;
                     const newNotification: Notification = {
                         id: dto.id,
-                        message: this.generateMessage(dto),
+                        message: this.generateMessage(dto, userName),
                         time: this.formatTime(dto.created_at),
                         isRead: dto.is_read,
-                        isMatch: dto.type === 'like' || dto.type === 'super_like',
+                        isMatch: dto.type === 'like' || dto.type === 'super_like' || dto.type === 'match',
                         type: dto.type,
+                        user_name: userName,
+                        from_user_id: dto.from_user_id,
                     };
                     await this.addNotification(newNotification);
                 }
@@ -146,29 +158,50 @@ class NotificationPopupStore implements Store {
         }
     }
 
-    private convertDTOsToNotifications(dtos: NotificationDTO[]): Notification[] {
-        return dtos.map(dto => ({
-            id: dto.id,
-            message: this.generateMessage(dto),
-            time: this.formatTime(dto.created_at),
-            isRead: dto.is_read,
-            isMatch: dto.type === 'like' || dto.type === 'super_like',
-            type: dto.type,
+    private async convertDTOsToNotifications(dtos: NotificationDTO[]): Promise<Notification[]> {
+        const notifications = await Promise.all(dtos.map(async (dto) => {
+            const userName = dto.from_user_id ? await this.fetchUserName(dto.from_user_id) : undefined;
+            return {
+                id: dto.id,
+                message: this.generateMessage(dto, userName),
+                time: this.formatTime(dto.created_at),
+                isRead: dto.is_read,
+                isMatch: dto.type === 'like' || dto.type === 'super_like' || dto.type === 'match',
+                type: dto.type,
+                user_name: userName,
+                from_user_id: dto.from_user_id,
+            };
         }));
+        return notifications;
     }
 
-    private generateMessage(dto: NotificationDTO): string {
-        return this.generateMessageByType(dto.type);
+    private async fetchUserName(userId: string): Promise<string | undefined> {
+        try {
+            const profile = await profileApi.getProfileById(userId);
+            console.log('Fetched profile for user:', userId, profile.user.name);
+            return profile.user.name;
+        } catch (error) {
+            console.log('Failed to fetch profile for user:', userId, error);
+            return undefined;
+        }
     }
 
-    private generateMessageByType(type: 'like' | 'super_like' | 'message'): string {
+    private generateMessage(dto: NotificationDTO, userName?: string): string {
+        return this.generateMessageByType(dto.type, userName);
+    }
+
+    private generateMessageByType(type: 'like' | 'super_like' | 'message' | 'match', userName?: string): string {
+        const name = userName || 'Пользователь';
+        const styledName = `<span class="notification-user-name">${name}</span>`;
         switch (type) {
             case 'like':
-                return 'Вам поставили лайк!';
+                return `${styledName} поставил лайк!`;
             case 'message':
-                return 'Новое сообщение';
+                return `Новое сообщение от ${styledName}`;
             case 'super_like':
-                return 'Вам поставили супер-лайк!';
+                return `${styledName} поставил супер-лайк!`;
+            case 'match':
+                return `У вас новый мэтч с ${styledName}!`;
             default:
                 return 'Новое уведомление';
         }
@@ -211,6 +244,7 @@ class NotificationPopupStore implements Store {
             isVisible: this.isVisible,
             notifications: this.notifications,
         };
+        console.log('Rendering notifications:', data);
 
         await this.notificationComponent.render(data);
     }
