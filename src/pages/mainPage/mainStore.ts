@@ -146,9 +146,7 @@ class MainStore implements Store {
         try {
             // Map 'super_like' to 'superlike' for the API
             const mappedAction: CardAction =
-                actionType === 'super_like'
-                    ? 'superlike'
-                    : (actionType as CardAction);
+                (actionType as CardAction);
             await CardApi.postCardInteraction(cardId, mappedAction);
         } catch (error) {
             // Card action failed

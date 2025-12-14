@@ -1,3 +1,7 @@
+import Handlebars from 'handlebars';
+
+Handlebars.registerHelper('eq', (a: unknown, b: unknown) => a === b);
+
 import { dispatcher } from '../../Dispatcher';
 import { Actions } from '../../actions';
 import './notificationPopup.scss';
@@ -9,6 +13,7 @@ export interface Notification {
     message: string;
     time: string;
     isRead: boolean;
+    type?: 'like' | 'super_like' | 'message';
     isMatch?: boolean;
 }
 
@@ -38,13 +43,18 @@ export class NotificationPopup {
     }
 
     async render(data: NotificationPopupData): Promise<void> {
-        if (!this.parent) return;
+        if (!this.parent || !document.body.contains(this.parent)) {
+            const parent = document.querySelector<HTMLElement>('#notificationPopup-root');
+            if (!parent) {
+                return;
+            }
+            this.parent = parent;
+        }
 
         const templateString = await fetchTemplate(TEMPLATE_PATH);
         const template = Handlebars.compile(templateString);
 
         const renderedHtml = template(data);
-
         this.parent.innerHTML = renderedHtml;
 
         if (data.isVisible) {
@@ -53,25 +63,40 @@ export class NotificationPopup {
     }
 
     private initEventListeners(): void {
-        if (typeof window !== 'undefined' && this.parent) {
-            const overlay = this.parent.querySelector('#notificationMenuOverlay');
-            const popup = this.parent.querySelector('.notification-menu-popup');
+        if (typeof window === 'undefined' || !this.parent) return;
 
-            if (overlay && popup) {
-                overlay.addEventListener('click', (e: Event) => {
-                    if (e.target === overlay) {
-                        dispatcher.process({
-                            type: Actions.TOGGLE_NOTIFICATION_POPUP,
-                            payload: { isVisible: false },
-                        });
-                    }
-                });
+        const overlay = this.parent.querySelector('#notificationMenuOverlay');
+        const popup = this.parent.querySelector('.notification-menu-popup');
 
-                popup.addEventListener('click', (e: Event) => {
-                    e.stopPropagation();
+        if (!overlay || !popup) return;
+
+        overlay.addEventListener('click', (e: Event) => {
+            if (e.target === overlay) {
+                dispatcher.process({
+                    type: Actions.TOGGLE_NOTIFICATION_POPUP,
+                    payload: { isVisible: false },
                 });
             }
-        }
+        });
+
+        popup.addEventListener('click', (e: Event) => {
+            e.stopPropagation();
+        });
+
+        const markReadButtons = this.parent.querySelectorAll('.notification-mark-read-btn');
+        markReadButtons.forEach(button => {
+            button.addEventListener('click', (e: Event) => {
+                e.stopPropagation();
+                const target = e.currentTarget as HTMLElement;
+                const notificationId = target.dataset.notificationId;
+                if (notificationId) {
+                    dispatcher.process({
+                        type: Actions.MARK_NOTIFICATION_READ,
+                        payload: { id: notificationId },
+                    });
+                }
+            });
+        });
     }
 }
 
