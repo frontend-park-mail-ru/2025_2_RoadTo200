@@ -30,6 +30,7 @@ interface CardData {
     friendship?: boolean;
     culture?: boolean;
     cinema?: boolean;
+    isPremium?: boolean;
 }
 
 const fetchTemplate = async (path: string): Promise<string> => {
@@ -66,6 +67,8 @@ export class MainPage {
     currentCardIndex: number;
     cardsData: CardData[];
     swipeThreshold: number;
+    private superLikeAvailable = true;
+    private superLikePremium = false;
 
     constructor(parent: HTMLElement) {
         this.parent = parent;
@@ -108,6 +111,12 @@ export class MainPage {
         } else {
             this.displayEmptyState();
         }
+    }
+
+    setSuperLikeState(remaining: number, isPremium: boolean): void {
+        this.superLikeAvailable = remaining > 0;
+        this.superLikePremium = isPremium;
+        this.updateSuperLikeButtons();
     }
 
     async displayEmptyState(): Promise<void> {
@@ -159,6 +168,7 @@ export class MainPage {
         await this.updateCardInfo(firstCardData);
 
         this.currentCardIndex++;
+        this.updateSuperLikeButtons();
     }
 
     renderNextCard = async (): Promise<void> => {
@@ -178,6 +188,7 @@ export class MainPage {
         } else {
             await this.displayEmptyState();
         }
+        this.updateSuperLikeButtons();
     };
 
     private async updateCardInfo(cardData: CardData): Promise<void> {
@@ -349,6 +360,9 @@ export class MainPage {
                 ) {
                     direction = 'up';
                     actionType = 'super_like';
+                    if (!this.superLikeAvailable && this.superLikePremium) {
+                        return;
+                    }
                 } else {
                     return;
                 }
@@ -370,6 +384,21 @@ export class MainPage {
                 button.addEventListener('click', handleAction as EventListener);
             });
         }
+    }
+
+    private updateSuperLikeButtons(): void {
+        const buttons = document.querySelectorAll(
+            '.card__button-superLike'
+        ) as NodeListOf<HTMLButtonElement>;
+        buttons.forEach((btn) => {
+            if (!this.superLikeAvailable && this.superLikePremium) {
+                btn.classList.add('card__button-superLike--disabled');
+                btn.disabled = true;
+            } else {
+                btn.classList.remove('card__button-superLike--disabled');
+                btn.disabled = false;
+            }
+        });
     }
 }
 

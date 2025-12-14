@@ -19,6 +19,7 @@ interface ProcessedMatch {
     timer?: string;
     isExpired?: boolean;
     userData?: any;
+    isPremium?: boolean;
 }
 
 class MatchesStore implements Store {
@@ -72,6 +73,9 @@ class MatchesStore implements Store {
 
                 const userId =
                     (user as { id?: string }).id || `user-${matchIdentifier}`;
+                const isPremium = Boolean(
+                    (user as { is_premium?: boolean }).is_premium
+                );
 
                 const matchedAtRaw =
                     (match as { matched_at?: string }).matched_at;
@@ -101,6 +105,7 @@ class MatchesStore implements Store {
                     isNew: this.isMatchNew(matchedAt),
                     isActive:
                         (match as { is_active?: boolean }).is_active !== false,
+                    isPremium,
                     userData: {
                         ...user,
                         id: userId,
@@ -110,6 +115,7 @@ class MatchesStore implements Store {
                             (user as { bio?: string }).bio ||
                             item.description ||
                             '',
+                        is_premium: isPremium,
                     },
                 };
             });

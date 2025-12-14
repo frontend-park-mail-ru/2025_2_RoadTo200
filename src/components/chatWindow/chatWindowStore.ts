@@ -31,6 +31,7 @@ class ChatWindowStore implements Store {
     private readonly messagesByChat = new Map<string, MessageView[]>();
     private readonly chatMeta = new Map<string, ChatMeta>();
     private readonly chatWindowComponent = chatWindow;
+    private readonly drafts = new Map<string, string>();
     private currentUserId: string | null = null;
     private isLoading = false;
     private isSending = false;
@@ -72,6 +73,15 @@ class ChatWindowStore implements Store {
 
             case Actions.AUTH_STATE_UPDATED:
                 await this.handleAuthUpdate(action.payload as { user?: { id?: string } | null });
+                break;
+
+            case Actions.CHAT_UPDATE_DRAFT:
+                this.updateDraft(
+                    (action.payload as { chatId?: string })?.chatId ||
+                        this.currentChatId ||
+                        '',
+                    (action.payload as { text?: string })?.text || ''
+                );
                 break;
 
             default:
@@ -196,6 +206,7 @@ class ChatWindowStore implements Store {
             // Message send failed
         } finally {
             this.isSending = false;
+            this.drafts.set(this.currentChatId, '');
             await this.renderChatWindow();
         }
     }
@@ -264,6 +275,11 @@ class ChatWindowStore implements Store {
         }, 400);
     }
 
+    private updateDraft(chatId: string, text: string): void {
+        if (!chatId) return;
+        this.drafts.set(chatId, text);
+    }
+
     private async markAsRead(chatId: string): Promise<void> {
         if (!chatId) return;
         try {
@@ -282,6 +298,9 @@ class ChatWindowStore implements Store {
         const meta = this.currentChatId
             ? this.chatMeta.get(this.currentChatId)
             : null;
+        const draft = this.currentChatId
+            ? this.drafts.get(this.currentChatId) || ''
+            : '';
 
         const placeholder = !this.currentChatId
             ? {
@@ -301,6 +320,8 @@ class ChatWindowStore implements Store {
             isInputDisabled: !this.currentChatId || this.isLoading || this.isSending,
             placeholder,
             socketStatus: this.formatSocketStatus(),
+            draft,
+            draftLength: draft.length,
         });
     }
 

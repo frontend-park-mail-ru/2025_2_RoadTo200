@@ -21,6 +21,10 @@
         align-items: flex-start;
         flex-wrap: wrap;
     }
+
+    &--premium .profile-page__title {
+        color: #ffaf2f;
+    }
 }
 
 .photo-grid {
@@ -36,6 +40,13 @@
         background: #fff7fa;
         border: 1px solid rgba(255, 75, 114, 0.15);
         aspect-ratio: 3 / 4;
+    }
+
+    &__card--premium {
+        border: 2px solid #ffaf2f;
+        box-shadow:
+            0 0 0 3px rgba(255, 175, 47, 0.18),
+            0 10px 20px rgba(0, 0, 0, 0.08);
     }
 
     &__image {

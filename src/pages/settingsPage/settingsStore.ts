@@ -9,6 +9,8 @@ interface ProfileData {
     name: string;
     birthdate: string;
     email: string;
+    isPremium?: boolean;
+    premiumUntil?: string;
 }
 
 class SettingsStore implements Store {
@@ -100,9 +102,19 @@ class SettingsStore implements Store {
                     ? this.formatDate(user.birth_date)
                     : '',
                 email: user.email || '',
+                isPremium: Boolean(user.is_premium),
+                premiumUntil: user.premium_until
+                    ? this.formatDate(user.premium_until)
+                    : '',
             };
         } catch (error) {
-            this.profileData = { name: '', birthdate: '', email: '' };
+            this.profileData = {
+                name: '',
+                birthdate: '',
+                email: '',
+                isPremium: false,
+                premiumUntil: '',
+            };
         }
 
         if (payload && payload.tab) {
@@ -209,7 +221,12 @@ class SettingsStore implements Store {
                 birth_date: birthDateISO,
             });
 
-            this.profileData = { name, birthdate, email };
+            this.profileData = {
+                ...this.profileData,
+                name,
+                birthdate,
+                email,
+            };
             this.updateView();
             settings.showSuccess('profileSuccessMessage', 'Данные успешно обновлены');
         } catch (err) {

@@ -68,6 +68,30 @@
         gap: 16px;
     }
 
+    &__superlikes {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: #fff6ed;
+        border: 1px solid #ffd9a0;
+        color: #ff9a1f;
+        font-weight: 700;
+        font-size: 14px;
+        line-height: 1;
+
+        &-icon {
+            width: 16px;
+            height: 16px;
+        }
+
+        &-count {
+            min-width: 48px;
+            text-align: center;
+        }
+    }
+
     &__welcome-text {
         font-weight: 600;
         font-size: 18px;
@@ -97,15 +121,7 @@
         border: none;
         padding: 0;
         cursor: pointer;
-        transition: transform 0.2s ease;
-
-        &:hover {
-            transform: scale(1.05);
-        }
-
-        &:active {
-            transform: scale(0.95);
-        }
+        transition: none;
     }
 
     &__avatar {
@@ -120,7 +136,15 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
+            object-position: center;
+            display: block;
         }
+    }
+
+    &__avatar--premium {
+        border-width: 3px;
+        border-color: #ffaf2f;
+        box-shadow: 0 0 0 3px rgba(255, 175, 47, 0.2);
     }
 }
 

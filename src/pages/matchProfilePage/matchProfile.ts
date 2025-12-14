@@ -17,6 +17,7 @@ interface MatchProfileData {
     interests: any[];
     photoCards: any[];
     heroPhoto?: string;
+    isPremium?: boolean;
 }
 
 const fetchTemplate = async (path: string): Promise<string> => {

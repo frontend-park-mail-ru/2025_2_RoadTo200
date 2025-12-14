@@ -3,6 +3,7 @@ import { Actions, Action, NavigateAction, LoadRouteAction } from '../actions';
 import { AuthUtils } from '../utils/auth';
 import type { Store } from '../Dispatcher';
 import matchesStore from '../pages/matchesPage/matchesStore';
+import ProfileApi from '@/apiHandler/profileApi';
 
 export interface PageComponent {
     parent: HTMLElement | null;
@@ -318,6 +319,21 @@ class NavigationStore implements Store {
         const isAuthPage =
             normalizedPath === '/login' || normalizedPath === '/register';
         const isSupportPage = normalizedPath === '/support';
+
+        if (normalizedPath === '/premium') {
+            try {
+                const profile = await ProfileApi.getProfile();
+                if (profile.user?.is_premium) {
+                    await this.navigateTo({
+                        type: Actions.NAVIGATE_TO,
+                        payload: { path: '/' },
+                    });
+                    return;
+                }
+            } catch (_err) {
+                // fall through if не удалось проверить премиум
+            }
+        }
 
         if (typeof document !== 'undefined' && document.body) {
             document.body.classList.toggle('support-route', isSupportPage);

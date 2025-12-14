@@ -28,6 +28,7 @@ export interface ProfileUser {
     is_verified?: boolean;
     is_premium?: boolean;
     super_likes_count?: number;
+    premium_until?: string;
     last_active?: string;
     created_at?: string;
     updated_at?: string;

@@ -20,6 +20,7 @@ interface MenuItemWithPath extends MenuItem {
 
 interface MenuData {
     currentRoute?: string;
+    hidePremiumCta?: boolean;
 }
 
 const MENU_ITEMS_DATA: MenuItem[] = [
@@ -85,7 +86,7 @@ export class Menu implements PageComponent {
     async render(menuData: MenuData = {}): Promise<void> {
         if (!this.parent) return;
 
-        const { currentRoute = 'main' } = menuData;
+        const { currentRoute = 'main', hidePremiumCta = false } = menuData;
 
         const menuItems: MenuItemWithPath[] = MENU_ITEMS_DATA.map((item) => {
             const path = item.route === 'main' ? '/' : `/${item.route}`;
@@ -105,6 +106,7 @@ export class Menu implements PageComponent {
             menuItems,
             smallHeartHtml,
             SVG_PATH_BASE,
+            hidePremiumCta,
         });
 
         this.parent.innerHTML = renderedHtml;

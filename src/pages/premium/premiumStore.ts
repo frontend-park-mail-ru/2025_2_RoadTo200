@@ -68,15 +68,26 @@ class PremiumStore implements Store {
                 premium.showError('');
                 premium.showStatus('У вас уже активный Premium');
                 this.toggleSubmitDisabled(true);
+                premium.setPremiumActive(true);
+                dispatcher.process({
+                    type: Actions.AUTH_STATE_UPDATED,
+                    payload: { user: profile.user },
+                });
+                dispatcher.process({
+                    type: Actions.RENDER_MENU,
+                    payload: { route: 'premium' },
+                });
             } else {
                 this.hasActivePremium = false;
                 premium.showStatus('');
                 this.toggleSubmitDisabled(false);
+                premium.setPremiumActive(false);
             }
         } catch (error) {
             // Не блокируем покупку, если статус не удалось получить
             this.toggleSubmitDisabled(false);
             this.hasActivePremium = false;
+            premium.setPremiumActive(false);
         }
     }
 
@@ -142,13 +153,38 @@ class PremiumStore implements Store {
     }
 
     private async readPaymentStatusFromQuery(): Promise<void> {
-        // Поддерживаем старый параметр, но проверяем факт наличия премиума по профилю
         const params = new URLSearchParams(window.location.search);
         if (!params.toString()) {
             return;
         }
 
+        const status =
+            params.get('status') ||
+            params.get('paymentStatus') ||
+            params.get('payment_status');
+        const message = params.get('message');
+
         await this.fetchPremiumStatus();
+
+        if (this.hasActivePremium) {
+            premium.showStatus('Оплата прошла успешно, Premium активирован');
+            return;
+        }
+
+        if (status === 'canceled') {
+            premium.showError('Оплата отменена');
+            return;
+        }
+
+        if (status === 'failed') {
+            premium.showError(message || 'Оплата не прошла');
+            return;
+        }
+
+        // Если не получили премиум после возврата с оплаты
+        premium.showError(
+            message || 'Оплата не подтверждена. Попробуйте ещё раз'
+        );
     }
 }
 

@@ -141,6 +141,53 @@ export class ProfileSetupPopup {
             form.addEventListener('submit', this.handleSubmit.bind(this));
         }
 
+        const birthInput = this.containerElement.querySelector(
+            '#setupBirthDate'
+        ) as HTMLInputElement | null;
+        if (birthInput) {
+            const today = new Date();
+            const maxDate = new Date(
+                today.getFullYear() - 18,
+                today.getMonth(),
+                today.getDate()
+            );
+            const minDate = new Date(
+                today.getFullYear() - 100,
+                today.getMonth(),
+                today.getDate()
+            );
+            birthInput.max = ProfileSetupPopup.formatDateInput(maxDate);
+            birthInput.min = ProfileSetupPopup.formatDateInput(minDate);
+
+            birthInput.addEventListener('input', () => {
+                const normalized = ProfileSetupPopup.normalizeDateInput(
+                    birthInput.value
+                );
+                if (birthInput.value !== normalized) {
+                    birthInput.value = normalized;
+                }
+            });
+        }
+
+        const bioInput = this.containerElement.querySelector(
+            '#setupBio'
+        ) as HTMLTextAreaElement | null;
+        const counter = this.containerElement.querySelector(
+            '#setupBioCounter'
+        ) as HTMLElement | null;
+        const updateCounter = (): void => {
+            if (!bioInput || !counter) return;
+            const maxLength = 250;
+            if (bioInput.value.length > maxLength) {
+                bioInput.value = bioInput.value.slice(0, maxLength);
+            }
+            counter.textContent = `${bioInput.value.length}/${maxLength}`;
+        };
+        if (bioInput) {
+            bioInput.addEventListener('input', updateCounter);
+            updateCounter();
+        }
+
         // Overlay не закрывает попап - пользователь должен заполнить профиль
         // const overlay = this.containerElement.querySelector('.profile-setup-popup__overlay');
         // if (overlay) {
@@ -165,8 +212,17 @@ export class ProfileSetupPopup {
         const bio = formData.get('bio') as string;
 
         // Валидация обязательных полей
-        if (!name || name.trim() === '') {
+        const trimmedName = (name || '').trim();
+        if (!trimmedName) {
             this.showError('Пожалуйста, введите ваше имя');
+            return;
+        }
+        if (trimmedName.length < 2) {
+            this.showError('Имя должно быть не короче 2 символов');
+            return;
+        }
+        if (trimmedName.length > 25) {
+            this.showError('Имя не должно превышать 25 символов');
             return;
         }
 
@@ -175,28 +231,35 @@ export class ProfileSetupPopup {
             return;
         }
         
-        // Проверка возраста только если дата заполнена
-        if (birthDate) {
-            const birthDateObj = new Date(birthDate);
-            const today = new Date();
-            const age = today.getFullYear() - birthDateObj.getFullYear();
-            const monthDiff = today.getMonth() - birthDateObj.getMonth();
-            const dayDiff = today.getDate() - birthDateObj.getDate();
+        if (!birthDate) {
+            this.showError('Укажите дату рождения');
+            return;
+        }
 
-            const actualAge =
-                monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)
-                    ? age - 1
-                    : age;
+        const birthDateObj = new Date(birthDate);
+        const today = new Date();
+        const age = today.getFullYear() - birthDateObj.getFullYear();
+        const monthDiff = today.getMonth() - birthDateObj.getMonth();
+        const dayDiff = today.getDate() - birthDateObj.getDate();
 
-            if (actualAge < 18) {
-                this.showError('Вам должно быть не менее 18 лет');
-                return;
-            }
+        const actualAge =
+            monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)
+                ? age - 1
+                : age;
 
-            if (actualAge > 100) {
-                this.showError('Пожалуйста, проверьте дату рождения');
-                return;
-            }
+        if (actualAge < 18) {
+            this.showError('Вам должно быть не менее 18 лет');
+            return;
+        }
+
+        if (actualAge > 100) {
+            this.showError('Пожалуйста, проверьте дату рождения');
+            return;
+        }
+
+        if (bio && bio.length > 250) {
+            this.showError('О себе: максимум 250 символов');
+            return;
         }
 
         // Отключаем кнопку на время отправки
@@ -211,15 +274,13 @@ export class ProfileSetupPopup {
         try {
             // Формируем данные для отправки
             const updateData: any = {
-                name: name.trim(),
+                name: trimmedName,
                 gender,
                 bio: bio ? bio.trim() : undefined,
             };
 
             // Добавляем дату рождения только если она заполнена
-            if (birthDate) {
-                updateData.birth_date = birthDate;
-            }
+            updateData.birth_date = birthDate;
 
             // Отправляем данные на сервер
             await ProfileApi.updateProfileInfo(updateData);
@@ -440,6 +501,23 @@ export class ProfileSetupPopup {
         }
 
         return '';
+    }
+
+    private static normalizeDateInput(value: string): string {
+        const sanitized = value.replace(/[^\d-]/g, '');
+        const parts = sanitized.split('-');
+        const year = (parts[0] || '').slice(0, 4);
+        const month = (parts[1] || '').slice(0, 2);
+        const day = (parts[2] || '').slice(0, 2);
+
+        return [year, month, day].filter(Boolean).join('-');
+    }
+
+    private static formatDateInput(date: Date): string {
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, '0');
+        const d = String(date.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
     }
 }
 

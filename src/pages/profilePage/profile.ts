@@ -104,7 +104,7 @@ export class ProfilePage {
         let maxLength = 0;
 
         if (fieldName === 'description') {
-            maxLength = 254;
+            maxLength = 250;
         } else if (fieldName === 'musician' || fieldName === 'quote') {
             minLength = 1;
             maxLength = 50;

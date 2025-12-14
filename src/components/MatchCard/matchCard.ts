@@ -10,6 +10,7 @@ export interface MatchData {
     timer?: string;
     isNew?: boolean;
     isExpired?: boolean;
+    isPremium?: boolean;
 }
 
 const fetchTemplate = async (path: string): Promise<string> => {
@@ -38,6 +39,7 @@ class MatchCardComponent {
             timer: matchData.timer || '00:00',
             isNew: matchData.isNew || false,
             isExpired: matchData.isExpired || false,
+            isPremium: matchData.isPremium || false,
         };
 
         return template(data);

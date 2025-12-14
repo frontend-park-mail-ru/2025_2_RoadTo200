@@ -19,10 +19,12 @@
             {{/each}}
         </ul>
 
-        <div class="sidebar__cta" data-route="premium">
-            <div class="sidebar__cta-title">Хотите увидеть кто вас лайкнул?</div>
-            <p class="sidebar__cta-text">Переходите на Premium.</p>
-            <button class="sidebar__cta-btn" type="button">Переходите на Premium</button>
-        </div>
+        {{#unless hidePremiumCta}}
+            <div class="sidebar__cta" data-route="premium">
+                <div class="sidebar__cta-title">Хотите увидеть кто вас лайкнул?</div>
+                <p class="sidebar__cta-text">Переходите на Premium.</p>
+                <button class="sidebar__cta-btn" type="button">Переходите на Premium</button>
+            </div>
+        {{/unless}}
     </div>
 </nav>

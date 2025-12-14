@@ -28,6 +28,8 @@ interface ChatWindowData {
     isInputDisabled?: boolean;
     placeholder?: PlaceholderState;
     socketStatus?: string;
+    draft?: string;
+    draftLength?: number;
 }
 
 const fetchTemplate = async (path: string): Promise<string> => {
@@ -72,6 +74,10 @@ export class ChatWindow implements PageComponent {
             isInputDisabled: data.isInputDisabled,
             placeholder: data.placeholder,
             socketStatus: data.socketStatus,
+            draft: data.draft || '',
+            draftLength: typeof data.draftLength === 'number'
+                ? data.draftLength
+                : (data.draft || '').length,
         });
 
         this.parent.innerHTML = renderedHtml;
@@ -100,6 +106,10 @@ export class ChatWindow implements PageComponent {
                 if (counter) {
                     counter.textContent = '0 / 250';
                 }
+                dispatcher.process({
+                    type: Actions.CHAT_UPDATE_DRAFT,
+                    payload: { chatId: form.dataset.chatId || '', text: '' },
+                });
             }
         };
 
@@ -124,6 +134,10 @@ export class ChatWindow implements PageComponent {
 
                     counter.textContent = `${currentLength} / ${maxLength}`;
                 }
+                dispatcher.process({
+                    type: Actions.CHAT_UPDATE_DRAFT,
+                    payload: { chatId: form.dataset.chatId || '', text: input.value },
+                });
             });
         }
 

@@ -172,6 +172,32 @@
     margin: 40px 0;
 }
 
+.settings-premium {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    border-radius: 14px;
+    background: #fff6ed;
+    border: 1px solid #ffd7a0;
+    color: #ff9a1f;
+    font-weight: 600;
+    margin-bottom: 18px;
+
+    &__status {
+        font-size: 14px;
+    }
+
+    &__until {
+        font-size: 13px;
+        color: #c26b00;
+    }
+
+    &--active {
+        box-shadow: 0 8px 18px rgba(255, 175, 47, 0.12);
+    }
+}
+
 @media (max-width: 1023px) {
     .settings-page {
         padding: 20px 16px 48px;

@@ -22,6 +22,7 @@ const ICON_BASE = '/src/assets/premium/';
 export class PremiumPage {
     parent: HTMLElement | null = null;
     private plans: Plan[] = [];
+    private isActive = false;
 
     async render(): Promise<void> {
         if (!this.parent) return;
@@ -33,11 +34,7 @@ export class PremiumPage {
         ];
 
         const features: Feature[] = [
-            {
-                title: 'Больше фото в профиле',
-                description: 'Выразите свою индивидуальность',
-                icon: `${ICON_BASE}photo.svg`,
-            },
+            
             {
                 title: 'Вы видите тех кому вы понравились',
                 description: 'Не сковывайте себя в выборе',
@@ -108,6 +105,20 @@ export class PremiumPage {
             el.textContent = message;
             el.style.display = message ? 'block' : 'none';
         }
+    }
+
+    toggleCtaBlock(show: boolean): void {
+        const cta = this.parent?.querySelector(
+            '.premium-page__cta-block'
+        ) as HTMLElement | null;
+        if (cta) {
+            cta.style.display = show ? 'flex' : 'none';
+        }
+    }
+
+    setPremiumActive(active: boolean): void {
+        this.isActive = active;
+        this.toggleCtaBlock(!active);
     }
 
     private attachEvents(): void {

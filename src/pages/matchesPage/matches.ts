@@ -19,6 +19,7 @@ interface MatchData {
     timer?: string;
     isExpired?: boolean;
     userData?: any;
+    isPremium?: boolean;
 }
 
 const fetchTemplate = async (path: string): Promise<string> => {

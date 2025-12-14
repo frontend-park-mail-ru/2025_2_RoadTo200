@@ -10,6 +10,8 @@ interface User {
     email?: string;
     name?: string;
     photos?: any[];
+    is_premium?: boolean;
+    super_likes_count?: number;
     [key: string]: unknown;
 }
 
@@ -18,6 +20,8 @@ class HeaderStore implements Store {
     private isAuthenticated = false;
     private headerComponent = header;
     private isHeaderRendered = false;
+    private superLikesRemaining: number | null = null;
+    private superLikesTotal: number | null = null;
 
     constructor() {
         dispatcher.register(this);
@@ -51,9 +55,16 @@ class HeaderStore implements Store {
 
             this.user = user as User | null;
             this.isAuthenticated = !!user;
+            this.superLikesRemaining =
+                typeof (user as User | null)?.super_likes_count === 'number'
+                    ? ((user as User).super_likes_count as number)
+                    : null;
+            this.superLikesTotal = null;
         } catch (error) {
             this.user = null;
             this.isAuthenticated = false;
+            this.superLikesRemaining = null;
+            this.superLikesTotal = null;
         }
     }
 
@@ -68,6 +79,8 @@ class HeaderStore implements Store {
             this.user = null;
             this.isAuthenticated = false;
             this.isHeaderRendered = false;
+            this.superLikesRemaining = null;
+            this.superLikesTotal = null;
 
             dispatcher.process({
                 type: Actions.AUTH_STATE_UPDATED,
@@ -87,6 +100,12 @@ class HeaderStore implements Store {
         try {
             this.user = payload.user;
             this.isAuthenticated = !!this.user;
+            this.superLikesRemaining =
+                typeof (this.user as User | null)?.super_likes_count ===
+                'number'
+                    ? ((this.user as User).super_likes_count as number)
+                    : null;
+            this.superLikesTotal = null;
             await this.renderHeader();
         } catch (error) {
             // console.error("Error updating user state:", error);
@@ -99,40 +118,91 @@ class HeaderStore implements Store {
         }
 
         if (this.user === null) {
-            try {
-                const response = await AuthApi.checkAuth();
-                this.user = (response.user as User | null) || null;
-                this.isAuthenticated = !!this.user;
-
-                // Загружаем профиль с фотками если пользователь авторизован
-                if (this.isAuthenticated && this.user) {
-                    try {
-                        const profile = await ProfileApi.getProfile();
-                        this.user = { ...this.user, ...profile };
-                    } catch (error) {
-                        // Профиль не загрузился, используем данные из checkAuth
-                    }
-                }
-            } catch (error) {
-                this.user = null;
-                this.isAuthenticated = false;
-            }
+            await this.refreshUser();
+        } else if (this.isAuthenticated) {
+            await this.refreshProfileData();
         }
 
         // Извлекаем URL первой фотографии из массива photos или используем дефолтный аватар
         const userPhoto = (this.user?.photos as Array<{ photo_url: string }> | undefined)?.[0]?.photo_url || '/src/assets/default-avatar.svg';
         const userName = (this.user?.name as string | undefined) || (this.user?.email as string | undefined) || '';
+        const { remaining: superLikesRemaining, total: superLikesTotal, isPremium } =
+            this.getSuperLikesState();
+        this.superLikesRemaining = superLikesRemaining;
+        this.superLikesTotal = superLikesTotal;
 
         const headerData = {
             user: this.user,
             isAuthenticated: this.isAuthenticated,
             userPhoto,
             userName,
+            isPremium,
+            superLikesRemaining,
+            superLikesTotal,
         };
 
         // Всегда рендерим header заново, чтобы обработчики событий были актуальными
         await this.headerComponent.render(headerData);
         this.isHeaderRendered = true;
+    }
+
+    private async refreshUser(): Promise<void> {
+        try {
+            const response = await AuthApi.checkAuth();
+            this.user = (response.user as User | null) || null;
+            this.isAuthenticated = !!this.user;
+            this.superLikesRemaining =
+                typeof (this.user as User | null)?.super_likes_count ===
+                'number'
+                    ? ((this.user as User).super_likes_count as number)
+                    : null;
+            this.superLikesTotal = null;
+
+            if (this.isAuthenticated) {
+                await this.refreshProfileData();
+            }
+        } catch {
+            this.user = null;
+            this.isAuthenticated = false;
+            this.superLikesRemaining = null;
+            this.superLikesTotal = null;
+        }
+    }
+
+    private async refreshProfileData(): Promise<void> {
+        try {
+            const profile = await ProfileApi.getProfile();
+            this.user = { ...(this.user || {}), ...profile };
+            this.superLikesRemaining =
+                typeof profile.user?.super_likes_count === 'number'
+                    ? profile.user.super_likes_count
+                    : this.superLikesRemaining;
+            this.superLikesTotal = null;
+        } catch {
+            // ignore profile refresh errors
+        }
+    }
+
+    getSuperLikesState(): { remaining: number; total: number; isPremium: boolean } {
+        const isPremium = Boolean((this.user as User | null)?.is_premium);
+        const baseTotal = isPremium ? 15 : 5;
+        const remaining =
+            this.superLikesRemaining === null
+                ? baseTotal
+                : Math.max(0, this.superLikesRemaining);
+        return { remaining, total: baseTotal, isPremium };
+    }
+
+    consumeSuperLike(): number {
+        const state = this.getSuperLikesState();
+        if (state.remaining > 0) {
+            this.superLikesRemaining = state.remaining - 1;
+            if (this.user) {
+                (this.user as User).super_likes_count = this.superLikesRemaining;
+            }
+            this.renderHeader();
+        }
+        return this.superLikesRemaining ?? state.total;
     }
 }
 
