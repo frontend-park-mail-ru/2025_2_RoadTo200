@@ -283,7 +283,8 @@ class NavigationStore implements Store {
         }
 
         const matchProfileMatch = currentPath.match(/^\/matches\/([^/]+)$/);
-        const normalizedPath = matchProfileMatch ? '/matches' : currentPath;
+        const profileMatch = currentPath.match(/^\/profile\/([^/]+)$/);
+        const normalizedPath = matchProfileMatch ? '/matches' : (profileMatch ? '/profile' : currentPath);
 
         let route = this.routes.find((r) => r.path === normalizedPath);
         if (!route && this.fallbackRoute) {
@@ -349,7 +350,8 @@ class NavigationStore implements Store {
 
         const renderAction = NavigationStore.getRouteRenderAction(
             normalizedPath,
-            matchProfileMatch
+            matchProfileMatch,
+            profileMatch
         );
 
         if (renderAction) {
@@ -388,7 +390,8 @@ class NavigationStore implements Store {
 
     private static getRouteRenderAction(
         normalizedPath: string,
-        matchProfileMatch: RegExpMatchArray | null
+        matchProfileMatch: RegExpMatchArray | null,
+        profileMatch: RegExpMatchArray | null = null
     ): Action | null {
         const actionPayload: Record<string, string> = {};
 
@@ -431,6 +434,17 @@ class NavigationStore implements Store {
                     };
                 }
                 return { type: Actions.RENDER_MATCHES, payload: actionPayload };
+            case '/profile':
+                actionPayload.route = 'profile';
+                if (profileMatch) {
+                    const [, userId] = profileMatch;
+                    actionPayload.matchId = userId;
+                    return {
+                        type: Actions.RENDER_MATCH_PROFILE,
+                        payload: actionPayload,
+                    };
+                }
+                return null;
             case '/chats':
                 actionPayload.route = 'chats';
                 return { type: Actions.RENDER_CHATS, payload: actionPayload };

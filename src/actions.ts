@@ -99,9 +99,18 @@ export const Actions = {
     SEND_MESSAGE: 'SEND_MESSAGE',
     LOAD_CHAT_MESSAGES: 'LOAD_CHAT_MESSAGES',
 
+    // notifications
+    TOGGLE_NOTIFICATION_POPUP: 'TOGGLE_NOTIFICATION_POPUP',
+    ADD_NOTIFICATION: 'ADD_NOTIFICATION',
+    MARK_NOTIFICATION_READ: 'MARK_NOTIFICATION_READ',
+    LOAD_NOTIFICATIONS: 'LOAD_NOTIFICATIONS',
+    NOTIFICATION_SOCKET_MESSAGE: 'NOTIFICATION_SOCKET_MESSAGE',
+    NOTIFICATION_SOCKET_STATUS: 'NOTIFICATION_SOCKET_STATUS',
+
 } as const;
 
 export type { ChatSocketEvent, ChatSocketStatus, SelectChatPayload } from './types/chat';
+export type { NotificationSocketEvent, NotificationSocketStatus } from './types/notification';
 
 export type ActionType = (typeof Actions)[keyof typeof Actions];
 

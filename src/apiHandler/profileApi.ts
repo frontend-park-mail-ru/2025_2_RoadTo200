@@ -24,6 +24,7 @@ export interface ProfileUser {
     gender?: string;
     artist?: string;
     phone?: string;
+    interests?: Array<{ theme: string; user_id: string }>;
     [key: string]: unknown;
 }
 
@@ -47,6 +48,8 @@ export interface ProfileResponse {
     user: ProfileUser;
     photos: UserPhoto[];
     preferences?: ProfilePreferences | null;
+    is_matched?: boolean;
+    is_liked?: boolean;
 }
 
 export type ProfileUpdateData = Partial<{
@@ -80,6 +83,12 @@ class ProfileApi {
 
     getProfile(): Promise<ProfileResponse> {
         return handleFetch<ProfileResponse>(this.baseURL, '', {
+            method: 'GET',
+        });
+    }
+
+    getProfileById(id: string): Promise<ProfileResponse> {
+        return handleFetch<ProfileResponse>(this.baseURL, `/${id}`, {
             method: 'GET',
         });
     }

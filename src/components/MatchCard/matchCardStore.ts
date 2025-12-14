@@ -44,11 +44,6 @@ class MatchCardStore implements Store {
         }
 
         this.selectedMatchId = matchId;
-
-        dispatcher.process({
-            type: Actions.NAVIGATE_TO,
-            payload: { path: `/matches/${matchId}` },
-        });
     }
 }
 
