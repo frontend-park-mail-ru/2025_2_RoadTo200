@@ -6,7 +6,7 @@
         {{#if notifications.length}}
         <ul class="notification-menu-list">
             {{#each notifications}}
-            <li class="notification-menu-item notification-item {{#if this.isRead}}notification-menu-item--read{{/if}}" data-id="{{this.id}}" data-user-id="{{this.from_user_id}}">
+            <li class="notification-menu-item notification-item {{#if this.isRead}}notification-menu-item--read{{/if}}" data-id="{{this.id}}" data-user-id="{{this.from_user_id}}" data-type="{{this.type}}">
                 <div class="notification-menu-icon">
                     {{#if (eq this.type "super_like")}}
                         <img src="/src/assets/menu/matches.svg" alt="Match" />

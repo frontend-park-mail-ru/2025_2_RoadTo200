@@ -11,6 +11,7 @@ interface HeaderData {
     isPremium?: boolean;
     superLikesRemaining?: number;
     superLikesTotal?: number;
+    unreadCount?: number;
 }
 
 /**
@@ -81,6 +82,7 @@ export class Header {
             isPremium,
             superLikesRemaining,
             superLikesTotal,
+            unreadCount: headerData.unreadCount || 0,
         });
 
         this.parent.innerHTML = renderedHtml;

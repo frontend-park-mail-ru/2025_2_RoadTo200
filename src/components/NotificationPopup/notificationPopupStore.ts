@@ -73,12 +73,13 @@ class NotificationPopupStore implements Store {
     private async markAsRead(payload: { id: string }): Promise<void> {
         const notification = this.notifications.find(n => n.id === payload.id);
         if (notification && !notification.isRead) {
+            notification.isRead = true;
+            await this.doRender();
             try {
                 await notificationApi.markAsRead(payload.id);
-                notification.isRead = true;
-                this.scheduleRender();
             } catch (error) {
-                // Silent error handling
+                notification.isRead = false;
+                await this.doRender();
             }
         }
     }

@@ -18,6 +18,11 @@ import './src/components/NotificationPopup/notificationPopupStore';
 import './src/pages/support/supportStore';
 import './src/pages/premium/premiumStore';
 
+import Handlebars from 'handlebars';
+
+Handlebars.registerHelper('eq', (a: unknown, b: unknown) => a === b);
+
+
 import './src/pages/chatsPage/chatsStore';
 import './src/components/chatsList/chatsListStore';
 import './src/components/chatWindow/chatWindowStore';

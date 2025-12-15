@@ -3,7 +3,7 @@
         <h1 class='profile-page__title'>{{name}}{{#if age}}, {{age}}{{/if}}</h1>
     </div>
     <div class='profile-page__content'>
-        <div class='photo-grid'>
+        <div class='photo-grid {{#if hasOnlyOnePhoto}}photo-grid--single{{/if}}'>
             {{#if heroPhoto}}
             <div class='photo-grid__card {{#if ../isPremium}}photo-grid__card--premium{{/if}}'>
                 <div class='photo-grid__image' style="background-image: url('{{heroPhoto}}');"></div>

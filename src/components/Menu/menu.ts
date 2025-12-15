@@ -16,11 +16,14 @@ interface MenuItem {
 interface MenuItemWithPath extends MenuItem {
     isActive: boolean;
     path: string;
+    badge?: number;
 }
 
 interface MenuData {
     currentRoute?: string;
     hidePremiumCta?: boolean;
+    chatsBadge?: number;
+    matchesBadge?: number;
 }
 
 const MENU_ITEMS_DATA: MenuItem[] = [
@@ -86,14 +89,23 @@ export class Menu implements PageComponent {
     async render(menuData: MenuData = {}): Promise<void> {
         if (!this.parent) return;
 
-        const { currentRoute = 'main', hidePremiumCta = false } = menuData;
+        const { currentRoute = 'main', hidePremiumCta = false, chatsBadge, matchesBadge } = menuData;
 
         const menuItems: MenuItemWithPath[] = MENU_ITEMS_DATA.map((item) => {
             const path = item.route === 'main' ? '/' : `/${item.route}`;
+            let badge: number | undefined;
+            
+            if (item.route === 'chats' && chatsBadge) {
+                badge = chatsBadge;
+            } else if (item.route === 'matches' && matchesBadge) {
+                badge = matchesBadge;
+            }
+            
             return {
                 ...item,
                 isActive: item.route === currentRoute,
                 path,
+                badge,
             };
         });
 
@@ -124,6 +136,13 @@ export class Menu implements PageComponent {
                     document.body.classList.remove('menu-open');
                 }
             };
+
+            const closeButton = sidebar.querySelector('#menuCloseButton');
+            if (closeButton) {
+                closeButton.addEventListener('click', () => {
+                    closeSidebar();
+                });
+            }
 
             sidebar.addEventListener('click', (event) => {
                 const target = event.target as HTMLElement;
@@ -167,14 +186,6 @@ export class Menu implements PageComponent {
                     }
                 }
             });
-
-            const closeButton = this.parent.querySelector('#menuCloseButton');
-            if (closeButton) {
-                closeButton.addEventListener('click', (event) => {
-                    event.preventDefault();
-                    closeSidebar();
-                });
-            }
         }
     }
 }

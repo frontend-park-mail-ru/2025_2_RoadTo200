@@ -91,11 +91,12 @@ export class NotificationPopup {
                 const target = e.currentTarget as HTMLElement;
                 const userId = target.dataset.userId;
                 const notificationId = target.dataset.id;
+                const notificationType = target.dataset.type;
                 if (userId) {
                     if (notificationId) {
                         dispatcher.process({
                             type: Actions.MARK_NOTIFICATION_READ,
-                            payload: { id: notificationId },
+                            payload: { id: notificationId, type: notificationType },
                         });
                     }
                     dispatcher.process({

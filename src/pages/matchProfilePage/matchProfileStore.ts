@@ -3,6 +3,7 @@ import { dispatcher, type Store } from '@/Dispatcher';
 import { matchProfile } from './matchProfile';
 import { ACTIVITY_ICONS } from '@/utils/activityIcons';
 import profileApi from '@/apiHandler/profileApi';
+import notificationApi from '@/apiHandler/notificationApi';
 
 interface PhotoCard {
     id: string;
@@ -26,6 +27,7 @@ interface MatchProfileData {
     activities: Array<{ name: string; icon: string }>;
     isMatched?: boolean;
     isLiked?: boolean;
+    hasOnlyOnePhoto?: boolean;
 }
 
 class MatchProfileStore implements Store {
@@ -90,6 +92,9 @@ class MatchProfileStore implements Store {
 
             this.currentMatchId = matchId;
 
+            // Mark all notifications from this user as read
+            await this.markUserNotificationsAsRead(matchId);
+
             const contentContainer =
                 document.getElementById('content-container');
             if (contentContainer) {
@@ -152,6 +157,8 @@ class MatchProfileStore implements Store {
                 userData.other_user_id ||
                 matchId;
 
+            const totalUserPhotos = photoCards.filter(card => card.isUserPhoto).length;
+            
             this.matchData = {
                 id: userId,
                 matchId,
@@ -168,6 +175,7 @@ class MatchProfileStore implements Store {
                 isPremium: Boolean(userData.is_premium),
                 isMatched: userData.is_matched,
                 isLiked: userData.is_liked,
+                hasOnlyOnePhoto: totalUserPhotos === 1,
             };
 
             await matchProfile.render(this.matchData);
@@ -207,15 +215,37 @@ class MatchProfileStore implements Store {
             isPrimary: index === 0,
         }));
 
-        while (photoCards.length < 4) {
-            photoCards.push({
-                id: `placeholder-${photoCards.length}`,
-                image: '',
-                isUserPhoto: false,
-            });
+        // Only add placeholders if there's more than one photo
+        if (photoCards.length > 1) {
+            while (photoCards.length < 4) {
+                photoCards.push({
+                    id: `placeholder-${photoCards.length}`,
+                    image: '',
+                    isUserPhoto: false,
+                });
+            }
         }
 
         return photoCards;
+    }
+
+    private async markUserNotificationsAsRead(userId: string): Promise<void> {
+        try {
+            const response = await notificationApi.getNotifications();
+            const unreadUserNotifications = response.notifications.filter(
+                n => !n.is_read && n.from_user_id === userId
+            );
+
+            for (const notification of unreadUserNotifications) {
+                await notificationApi.markAsRead(notification.id);
+                dispatcher.process({
+                    type: Actions.MARK_NOTIFICATION_READ,
+                    payload: { id: notification.id, type: notification.type },
+                });
+            }
+        } catch (error) {
+            console.error('Error marking user notifications as read:', error);
+        }
     }
 }
 

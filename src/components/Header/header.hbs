@@ -16,8 +16,8 @@
             </div>
             <button class='header__bell-btn' id='notificationBellBtn' aria-label='Уведомления'>
                 <img src='/src/assets/bell.svg' alt='Уведомления' class='header__bell-icon' />
-                {{#if hasUnreadNotifications}}
-                <span class='header__bell-badge'></span>
+                {{#if unreadCount}}
+                <span class='header__bell-badge'>{{unreadCount}}</span>
                 {{/if}}
             </button>
             <button class='header__avatar-btn' id='userEmailBtn' aria-label='Профиль пользователя'>

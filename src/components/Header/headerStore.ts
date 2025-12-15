@@ -5,6 +5,7 @@ import AuthApi from '../../apiHandler/authApi';
 import ProfileApi from '../../apiHandler/profileApi';
 import type { Store } from '../../Dispatcher';
 import { clearUserCaches } from '@/utils/cacheControl';
+import notificationApi from '@/apiHandler/notificationApi';
 
 interface User {
     email?: string;
@@ -22,6 +23,7 @@ class HeaderStore implements Store {
     private isHeaderRendered = false;
     private superLikesRemaining: number | null = null;
     private superLikesTotal: number | null = null;
+    private unreadCount: number = 0;
 
     constructor() {
         dispatcher.register(this);
@@ -41,6 +43,19 @@ class HeaderStore implements Store {
 
             case Actions.REQUEST_LOGOUT:
                 await this.processLogout();
+                break;
+
+            case Actions.LOAD_NOTIFICATIONS:
+            case Actions.NOTIFICATION_SOCKET_MESSAGE:
+                await this.updateUnreadCount();
+                await this.renderHeader();
+                break;
+
+            case Actions.MARK_NOTIFICATION_READ:
+                if (this.unreadCount > 0) {
+                    this.unreadCount--;
+                    await this.renderHeader();
+                }
                 break;
 
             default:
@@ -139,6 +154,7 @@ class HeaderStore implements Store {
             isPremium,
             superLikesRemaining,
             superLikesTotal,
+            unreadCount: this.unreadCount || 0,
         };
 
         // Всегда рендерим header заново, чтобы обработчики событий были актуальными
@@ -189,6 +205,18 @@ class HeaderStore implements Store {
             this.superLikesTotal = null;
         } catch {
             // ignore profile refresh errors
+        }
+    }
+
+    async updateUnreadCount(): Promise<void> {
+        try {
+            const response = await notificationApi.getNotifications();
+            const newCount = response.notifications.filter(n => !n.is_read).length;
+            if (this.unreadCount !== newCount) {
+                this.unreadCount = newCount;
+            }
+        } catch (error) {
+            console.error('Error updating unread count:', error);
         }
     }
 

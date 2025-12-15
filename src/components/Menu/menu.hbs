@@ -12,7 +12,12 @@
             {{#each menuItems}}
                 <li class="sidebar__item {{#if isActive}}sidebar__item--active{{/if}}" data-route="{{route}}">
                     <a href="#" class="sidebar__link {{#if isActive}}sidebar__link--active{{/if}}">
-                        <img src="{{../SVG_PATH_BASE}}{{icon}}" alt="{{name}}" class="sidebar__icon {{#if isActive}}sidebar__icon--active{{/if}}">
+                        <span class="sidebar__icon-wrapper">
+                            <img src="{{../SVG_PATH_BASE}}{{icon}}" alt="{{name}}" class="sidebar__icon {{#if isActive}}sidebar__icon--active{{/if}}">
+                            {{#if badge}}
+                                <span class="sidebar__badge">{{badge}}</span>
+                            {{/if}}
+                        </span>
                         {{name}}
                     </a>
                 </li>
