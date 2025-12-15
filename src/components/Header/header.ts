@@ -122,6 +122,17 @@ export class Header {
                     }
                 });
             }
+
+            const notificationBellBtn = this.parent.querySelector('#notificationBellBtn');
+            if (notificationBellBtn) {
+                notificationBellBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    dispatcher.process({
+                        type: Actions.TOGGLE_NOTIFICATION_POPUP,
+                        payload: { isVisible: true },
+                    });
+                });
+            }
         }
     }
 

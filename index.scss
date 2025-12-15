@@ -51,10 +51,11 @@ body {
     padding: 16px 0;
     background: #fff;
     flex-shrink: 0;
-    position: relative;
+    position: sticky;
+    top: 0;
     z-index: 30;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
-    min-height: 100vh;
+    height: 100vh;
     overflow-y: auto;
 }
 
@@ -66,6 +67,13 @@ body {
     background: transparent;
     position: relative;
     z-index: 1;
+    overflow-y: visible;
+    height: auto;
+}
+
+#header-container-internal {
+    position: relative;
+   
 }
 
 #content-container {
@@ -121,8 +129,30 @@ body.menu-open .menu-overlay {
 }
 
 @media (max-width: 1023px) {
+    body {
+        overflow: hidden;
+    }
+
     .page-layout {
         flex-direction: column;
+        height: 100vh;
+        overflow: hidden;
+    }
+
+    .main-column {
+        overflow-y: auto;
+        overflow-x: hidden;
+        height: 100vh;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    #header-container-internal {
+        position: sticky;
+        top: 0;
+        z-index: 4000;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     }
 
     #menu-container-internal {

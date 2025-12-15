@@ -14,6 +14,7 @@ import './src/components/MatchCard/matchCardStore';
 import './src/components/ProfileMenu/profileMenuStore';
 import './src/components/OfflineBanner/offlineBannerStore';
 import './src/components/ProfileSetupPopup/profileSetupPopupStore';
+import './src/components/NotificationPopup/notificationPopupStore';
 import './src/pages/support/supportStore';
 import './src/pages/premium/premiumStore';
 

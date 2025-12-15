@@ -105,7 +105,6 @@ export class MatchesPage {
                 const matchData = this.matchesData.find(
                     (m) => m.matchId === matchId || m.id === matchId
                 );
-
                 dispatcher.process({
                     type: Actions.MATCH_CARD_CLICK,
                     payload: {

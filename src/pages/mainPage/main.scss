@@ -10,6 +10,7 @@
 }
 
 .cards-container {
+    z-index: 100;
     position: relative;
     min-height: 560px;
     width: min(420px, 100%);

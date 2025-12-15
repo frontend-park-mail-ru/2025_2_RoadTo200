@@ -62,6 +62,7 @@
     }
 
     &__right {
+        position: relative;
         margin-left: auto;
         display: flex;
         align-items: center;
@@ -144,6 +145,41 @@
             transform: translateY(-1px);
             box-shadow: 0 12px 24px rgba(255, 75, 114, 0.35);
         }
+    }
+
+    &__bell-btn {
+        position: relative;
+        background: none;
+        border: none;
+        padding: 8px;
+        cursor: pointer;
+        color: #ff4b72;
+        transition: all 0.2s ease;
+        border-radius: 12px;
+
+        &:hover {
+            background: #fff5f8;
+            transform: scale(1.05);
+        }
+
+        &:active {
+            transform: scale(0.95);
+        }
+
+        svg {
+            display: block;
+        }
+    }
+
+    &__bell-badge {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        width: 8px;
+        height: 8px;
+        background: #ff4b72;
+        border-radius: 50%;
+        border: 2px solid #fff;
     }
 
     &__avatar-btn {
