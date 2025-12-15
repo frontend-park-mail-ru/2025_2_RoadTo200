@@ -116,6 +116,7 @@ class MatchesStore implements Store {
                             item.description ||
                             '',
                         is_premium: isPremium,
+                        is_matched: true,
                     },
                 };
             });
