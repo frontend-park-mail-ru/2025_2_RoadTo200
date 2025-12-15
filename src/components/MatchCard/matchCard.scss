@@ -18,6 +18,26 @@
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
 
+    &--premium {
+        box-shadow:
+            0 0 0 5px rgba(255, 75, 114, 1),
+            0 8px 18px rgba(0, 0, 0, 0.12);
+        
+        border-image: linear-gradient(
+                to right,
+                var(--color-primary-dark) 0%,
+                var(--color-primary-light) 100%
+            )
+            1;
+
+        &:hover {
+        transform: translateY(-4px);
+        box-shadow:
+            0 0 0 9px rgba(255, 75, 114, 1),
+            0 8px 18px rgba(0, 0, 0, 0.12);
+    }
+    }
+
     &-expired {
         filter: blur(6px);
         opacity: 0.6;

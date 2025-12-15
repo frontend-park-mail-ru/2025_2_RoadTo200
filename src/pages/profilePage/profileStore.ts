@@ -225,8 +225,15 @@ class ProfileStore implements Store {
                 return;
             }
 
+            const hadUserPhoto = this.profileData.photoCards.some(
+                (p) => p.isUserPhoto && p.image
+            );
+
             await ProfileApi.deletePhoto(String(photoId));
             await this.renderProfile();
+            if (hadUserPhoto) {
+                dispatcher.process({ type: Actions.RENDER_HEADER });
+            }
         } catch (error) {
             // console.error('Error deleting photo:', error);
         }
@@ -239,6 +246,10 @@ class ProfileStore implements Store {
             fileInput.accept = 'image/*';
             fileInput.multiple = true;
 
+            const hadUserPhoto = this.profileData.photoCards.some(
+                (p) => p.isUserPhoto && p.image
+            );
+
             fileInput.onchange = async (e) => {
                 const target = e.target as HTMLInputElement;
                 const files = Array.from(target.files || []);
@@ -247,6 +258,7 @@ class ProfileStore implements Store {
                 try {
                     await ProfileApi.uploadPhoto(files);
                     await this.renderProfile();
+                    dispatcher.process({ type: Actions.RENDER_HEADER });
                 } catch (error: any) {
                     // Handle error
                 }

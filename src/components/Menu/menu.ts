@@ -20,6 +20,7 @@ interface MenuItemWithPath extends MenuItem {
 
 interface MenuData {
     currentRoute?: string;
+    hidePremiumCta?: boolean;
 }
 
 const MENU_ITEMS_DATA: MenuItem[] = [
@@ -53,6 +54,7 @@ const MENU_ITEMS_DATA: MenuItem[] = [
         route: 'me',
         actionType: Actions.RENDER_MYCARD,
     },
+
     // {
     //     name: 'Статистика Обращений',
     //     icon: 'statistics-circle.svg',
@@ -84,7 +86,7 @@ export class Menu implements PageComponent {
     async render(menuData: MenuData = {}): Promise<void> {
         if (!this.parent) return;
 
-        const { currentRoute = 'main' } = menuData;
+        const { currentRoute = 'main', hidePremiumCta = false } = menuData;
 
         const menuItems: MenuItemWithPath[] = MENU_ITEMS_DATA.map((item) => {
             const path = item.route === 'main' ? '/' : `/${item.route}`;
@@ -104,6 +106,7 @@ export class Menu implements PageComponent {
             menuItems,
             smallHeartHtml,
             SVG_PATH_BASE,
+            hidePremiumCta,
         });
 
         this.parent.innerHTML = renderedHtml;
@@ -127,6 +130,18 @@ export class Menu implements PageComponent {
                 const menuItem = target.closest(
                     '.sidebar__item'
                 ) as HTMLElement | null;
+                const ctaItem = target.closest(
+                    '.sidebar__cta'
+                ) as HTMLElement | null;
+                if (ctaItem) {
+                    event.preventDefault();
+                    dispatcher.process({
+                        type: Actions.NAVIGATE_TO,
+                        payload: { path: '/premium' },
+                    });
+                    closeSidebar();
+                } else
+
                 if (menuItem) {
                     event.preventDefault();
 

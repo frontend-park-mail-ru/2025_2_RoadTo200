@@ -165,6 +165,7 @@ class MatchProfileStore implements Store {
                 heroPhoto: photoCards[0]?.image,
                 photoCards: photoCards.slice(1),
                 activities,
+                isPremium: Boolean(userData.is_premium),
                 isMatched: userData.is_matched,
                 isLiked: userData.is_liked,
             };

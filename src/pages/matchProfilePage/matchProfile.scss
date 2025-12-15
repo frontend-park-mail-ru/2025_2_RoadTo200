@@ -21,6 +21,18 @@
         align-items: flex-start;
         flex-wrap: wrap;
     }
+
+    &--premium .profile-page__title {
+        display: inline-block;
+        padding: 6px 14px;
+        border-radius: 14px;
+        background: linear-gradient(
+            to right,
+            var(--color-primary-dark) 0%,
+            var(--color-primary-light) 100%
+        );
+        color: #fff;
+    }
 }
 
 .photo-grid {
@@ -36,6 +48,19 @@
         background: #fff7fa;
         border: 1px solid rgba(255, 75, 114, 0.15);
         aspect-ratio: 3 / 4;
+    }
+
+    &__card--premium {
+        border: 2px solid transparent;
+        border-image: linear-gradient(
+                to right,
+                var(--color-primary-dark) 0%,
+                var(--color-primary-light) 100%
+            )
+            1;
+        box-shadow:
+            0 0 0 3px rgba(255, 75, 114, 0.18),
+            0 10px 20px rgba(0, 0, 0, 0.08);
     }
 
     &__image {

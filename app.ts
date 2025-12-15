@@ -16,10 +16,13 @@ import './src/components/OfflineBanner/offlineBannerStore';
 import './src/components/ProfileSetupPopup/profileSetupPopupStore';
 import './src/components/NotificationPopup/notificationPopupStore';
 import './src/pages/support/supportStore';
+import './src/pages/premium/premiumStore';
+
 import './src/pages/chatsPage/chatsStore';
 import './src/components/chatsList/chatsListStore';
 import './src/components/chatWindow/chatWindowStore';
 import navigationStore, { Route } from './src/navigation/navigationStore';
+
 
 import { Router } from './router';
 import { home } from './src/pages/homePage/home';
@@ -32,6 +35,7 @@ import { settings } from './src/pages/settingsPage/settings';
 import { support } from './src/pages/support/support';
 import { statistics } from './src/pages/statisticsPage/statistics';
 import { chats } from './src/pages/chatsPage/chats';
+import { premium } from './src/pages/premium/premium';
 import type { PageComponent } from './src/navigation/navigationStore';
 
 
@@ -61,6 +65,7 @@ const routes: Route[] = [
     new Route('/statistics', statistics, true),
     new Route('/chats', chats, true),
     new Route('*', notFoundComponent, false),
+    new Route('/premium', premium, true),
 ];
 
 // Инициализируем роутер с navigationStore

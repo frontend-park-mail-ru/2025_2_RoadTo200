@@ -30,6 +30,7 @@ interface CardData {
     friendship?: boolean;
     culture?: boolean;
     cinema?: boolean;
+    isPremium?: boolean;
 }
 
 const fetchTemplate = async (path: string): Promise<string> => {
@@ -66,6 +67,8 @@ export class MainPage {
     currentCardIndex: number;
     cardsData: CardData[];
     swipeThreshold: number;
+    private superLikeAvailable = true;
+    private superLikePremium = false;
 
     constructor(parent: HTMLElement) {
         this.parent = parent;
@@ -108,6 +111,12 @@ export class MainPage {
         } else {
             this.displayEmptyState();
         }
+    }
+
+    setSuperLikeState(remaining: number, isPremium: boolean): void {
+        this.superLikeAvailable = remaining > 0;
+        this.superLikePremium = isPremium;
+        this.updateSuperLikeButtons();
     }
 
     async displayEmptyState(): Promise<void> {
@@ -159,6 +168,7 @@ export class MainPage {
         await this.updateCardInfo(firstCardData);
 
         this.currentCardIndex++;
+        this.updateSuperLikeButtons();
     }
 
     renderNextCard = async (): Promise<void> => {
@@ -178,6 +188,7 @@ export class MainPage {
         } else {
             await this.displayEmptyState();
         }
+        this.updateSuperLikeButtons();
     };
 
     private async updateCardInfo(cardData: CardData): Promise<void> {
@@ -301,6 +312,17 @@ export class MainPage {
             }
 
             if (direction && actionType) {
+                if (actionType === 'super_like' && !this.superLikeAvailable) {
+                    if (!this.superLikePremium) {
+                        dispatcher.process({
+                            type: Actions.NAVIGATE_TO,
+                            payload: { path: '/premium' },
+                        });
+                    }
+                    cardElement.style.transform =
+                        'translate(-175px, 0) rotate(0deg)';
+                    return;
+                }
                 dispatcher.process({
                     type: Actions.SEND_CARD_ACTION,
                     payload: { cardId, actionType },
@@ -347,6 +369,15 @@ export class MainPage {
                 } else if (
                     button.classList.contains('card__button-superLike')
                 ) {
+                    if (!this.superLikeAvailable) {
+                        if (!this.superLikePremium) {
+                            dispatcher.process({
+                                type: Actions.NAVIGATE_TO,
+                                payload: { path: '/premium' },
+                            });
+                        }
+                        return;
+                    }
                     direction = 'up';
                     actionType = 'super_like';
                 } else {
@@ -370,6 +401,22 @@ export class MainPage {
                 button.addEventListener('click', handleAction as EventListener);
             });
         }
+    }
+
+    private updateSuperLikeButtons(): void {
+        const buttons = document.querySelectorAll(
+            '.card__button-superLike'
+        ) as NodeListOf<HTMLButtonElement>;
+        buttons.forEach((btn) => {
+            const shouldDisable = !this.superLikeAvailable;
+            if (shouldDisable) {
+                btn.classList.add('card__button-superLike--disabled');
+                btn.disabled = this.superLikePremium;
+            } else {
+                btn.classList.remove('card__button-superLike--disabled');
+                btn.disabled = false;
+            }
+        });
     }
 }
 

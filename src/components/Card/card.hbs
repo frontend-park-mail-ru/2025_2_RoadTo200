@@ -1,4 +1,4 @@
-<div class='card' id='cards' data-id='{{id}}' data-images-json='{{{imagesJson}}}'>
+<div class='card {{#if isPremium}}card--premium{{/if}}' id='cards' data-id='{{id}}' data-images-json='{{{imagesJson}}}'>
     <div class='card__wrapper'>
         <img class='card__image' src='{{images.[0].imageUrl}}' alt='{{name}}' data-index='0' />
         <div class='card__info'>

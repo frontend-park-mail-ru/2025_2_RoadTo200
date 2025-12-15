@@ -2,6 +2,7 @@ import { dispatcher, type Store } from '@/Dispatcher';
 import { Actions, type Action, type RegisterPayload } from '@/actions';
 import { register } from './register';
 import AuthApi from '@/apiHandler/authApi';
+import { clearUserCaches } from '@/utils/cacheControl';
 
 class RegisterStore implements Store {
     constructor() {
@@ -28,6 +29,7 @@ class RegisterStore implements Store {
 
         try {
             await AuthApi.register(email, password, passwordConfirm);
+            await clearUserCaches();
 
             await dispatcher.process({
                 type: Actions.NAVIGATE_TO,

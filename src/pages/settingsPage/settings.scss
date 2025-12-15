@@ -172,6 +172,54 @@
     margin: 40px 0;
 }
 
+.settings-premium {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    border-radius: 32px;
+    background: #fff;
+    border: 1px solid transparent;
+    background-image:
+        linear-gradient(#fff, #fff),
+        linear-gradient(
+            to right,
+            var(--color-primary-dark) 0%,
+            var(--color-primary-light) 100%
+        );
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+    color: var(--color-primary-dark);
+    font-weight: 600;
+    margin-bottom: 18px;
+
+    &__status {
+        font-size: 14px;
+        background: linear-gradient(
+            to right,
+            var(--color-primary-dark) 0%,
+            var(--color-primary-light) 100%
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    &__until {
+        font-size: 13px;
+        background: linear-gradient(
+            to right,
+            var(--color-primary-dark) 0%,
+            var(--color-primary-light) 100%
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    &--active {
+        box-shadow: 0 8px 18px rgba(255, 75, 114, 0.18);
+    }
+}
+
 @media (max-width: 1023px) {
     .settings-page {
         padding: 20px 16px 48px;

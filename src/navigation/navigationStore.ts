@@ -3,6 +3,7 @@ import { Actions, Action, NavigateAction, LoadRouteAction } from '../actions';
 import { AuthUtils } from '../utils/auth';
 import type { Store } from '../Dispatcher';
 import matchesStore from '../pages/matchesPage/matchesStore';
+import ProfileApi from '@/apiHandler/profileApi';
 
 export interface PageComponent {
     parent: HTMLElement | null;
@@ -265,9 +266,6 @@ class NavigationStore implements Store {
         const { path } = action.payload!;
         const currentPath = path || window.location.pathname;
 
-        // Удалили проверку this.currentPath === currentPath чтобы разрешить
-        // повторный рендер при навигации назад через кнопку браузера
-
         if (
             this.currentPath &&
             this.currentPath.startsWith('/matches') &&
@@ -322,6 +320,21 @@ class NavigationStore implements Store {
         const isAuthPage =
             normalizedPath === '/login' || normalizedPath === '/register';
         const isSupportPage = normalizedPath === '/support';
+
+        if (normalizedPath === '/premium') {
+            try {
+                const profile = await ProfileApi.getProfile();
+                if (profile.user?.is_premium) {
+                    await this.navigateTo({
+                        type: Actions.NAVIGATE_TO,
+                        payload: { path: '/' },
+                    });
+                    return;
+                }
+            } catch (_err) {
+                // fall through if не удалось проверить премиум
+            }
+        }
 
         if (typeof document !== 'undefined' && document.body) {
             document.body.classList.toggle('support-route', isSupportPage);
@@ -448,6 +461,10 @@ class NavigationStore implements Store {
             case '/chats':
                 actionPayload.route = 'chats';
                 return { type: Actions.RENDER_CHATS, payload: actionPayload };
+            case '/premium':
+                actionPayload.route = 'premium';
+                return { type: Actions.RENDER_PREMIUM, payload: actionPayload };
+
             default:
                 return null;
         }

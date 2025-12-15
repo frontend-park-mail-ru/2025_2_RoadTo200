@@ -5,7 +5,7 @@
             <h2 class="profile-setup-popup__title">Давайте знакомиться! 👋</h2>
         </div>
         
-        <form class="profile-setup-popup__form" id="profileSetupForm">
+        <form class="profile-setup-popup__form" id="profileSetupForm" novalidate>
             <div class="profile-setup-popup__error-message" id="profileSetupError" style="display: none;"></div>
             
             <div class="profile-setup-popup__field">
@@ -18,14 +18,14 @@
                     name="name"
                     class="profile-setup-popup__input" 
                     placeholder="Введите ваше имя"
-                    {{!-- value="{{name}}" --}}
-                    required
+                    maxlength="25"
+                    autocomplete="off"
                 />
             </div>
             
             <div class="profile-setup-popup__field">
                 <label for="setupBirthDate" class="profile-setup-popup__label">
-                    Дата рождения <span class="profile-setup-popup__optional">(необязательно)</span>
+                    Дата рождения <span class="profile-setup-popup__required">*</span>
                 </label>
                 <input 
                     type="date" 
@@ -33,6 +33,7 @@
                     name="birthDate"
                     class="profile-setup-popup__input" 
                     value="{{birthDate}}"
+                    autocomplete="off"
                 />
             </div>
             
@@ -44,7 +45,7 @@
                     id="setupGender" 
                     name="gender"
                     class="profile-setup-popup__input profile-setup-popup__select"
-                    required
+                    autocomplete="off"
                 >
                     <option value="">Выберите пол</option>
                     <option value="male" {{#if (eq gender "male")}}selected{{/if}}>Мужской</option>
@@ -54,7 +55,7 @@
             
             <div class="profile-setup-popup__field">
                 <label for="setupBio" class="profile-setup-popup__label">
-                    О себе <span class="profile-setup-popup__optional">(необязательно)</span>
+                    О себе <span class="profile-setup-popup__optional">(до 250 символов)</span>
                 </label>
                 <textarea 
                     id="setupBio" 
@@ -62,7 +63,11 @@
                     class="profile-setup-popup__input profile-setup-popup__textarea" 
                     placeholder="Расскажите немного о себе"
                     rows="3"
+                    maxlength="254"
                 >{{bio}}</textarea>
+                <div class="profile-setup-popup__counter">
+                    <span id="setupBioCounter">0/254</span>
+                </div>
             </div>
             
             <button type="submit" class="profile-setup-popup__submit">

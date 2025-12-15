@@ -3,6 +3,7 @@ import { dispatcher, type Store } from '@/Dispatcher';
 import { main } from './main';
 import CardApi, { type FeedUser, type CardAction } from '@/apiHandler/cardApi';
 import { ProfileSetupPopup } from '@/components/ProfileSetupPopup/profileSetupPopup';
+import headerStore from '@/components/Header/headerStore';
 
 interface TransformedCard {
     id: string;
@@ -125,6 +126,7 @@ class MainStore implements Store {
                         interests,
                         musician: (card as { artist?: string }).artist || '',
                         quote: card.quote || '',
+                        isPremium: Boolean((card as any).is_premium),
                         // Set boolean flags from interests array
                         ...activityFlags,
                     };
@@ -133,6 +135,11 @@ class MainStore implements Store {
 
             this.cards = transformedCards;
             main.setCards(transformedCards);
+            const superLikeState = headerStore.getSuperLikesState();
+            main.setSuperLikeState(
+                superLikeState.remaining,
+                superLikeState.isPremium
+            );
         } catch (error) {
             this.cards = [];
             main.setCards([]);
@@ -144,10 +151,33 @@ class MainStore implements Store {
         actionType: string
     ): Promise<void> {
         try {
-            // Map 'super_like' to 'superlike' for the API
-            const mappedAction: CardAction =
-                (actionType as CardAction);
+            if (actionType === 'super_like') {
+                const state = headerStore.getSuperLikesState();
+                if (state.remaining <= 0) {
+                    main.setSuperLikeState(0, state.isPremium);
+                    if (!state.isPremium) {
+                        dispatcher.process({
+                            type: Actions.NAVIGATE_TO,
+                            payload: { path: '/premium' },
+                        });
+                    }
+                    return;
+                }
+            }
+
+            const mappedAction = actionType as CardAction;
             await CardApi.postCardInteraction(cardId, mappedAction);
+
+            if (actionType === 'super_like') {
+                const remaining = headerStore.consumeSuperLike();
+                if (remaining <= 0) {
+                    const state = headerStore.getSuperLikesState();
+                    main.setSuperLikeState(
+                        state.isPremium ? 0 : remaining,
+                        state.isPremium
+                    );
+                }
+            }
         } catch (error) {
             // Card action failed
         }

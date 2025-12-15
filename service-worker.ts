@@ -2,10 +2,10 @@
 
 const sw = self as unknown as ServiceWorkerGlobalScope;
 
-const VERSION = '19';
+const VERSION = '20';
 const CACHE_STATIC = `terabithia-static-v${VERSION}`;
-const CACHE_API = `terabithia-api-v${VERSION}`;
 const CACHE_IMAGES = `terabithia-images-v${VERSION}`;
+const CACHE_USER_PREFIXES = ['terabithia-api', 'terabithia-images'];
 
 /**
  * Определяем dev-режим
@@ -120,6 +120,21 @@ const staleWhileRevalidate = async (
     return cached || fetchPromise;
 };
 
+const clearUserCaches = async (): Promise<void> => {
+    try {
+        const keys = await caches.keys();
+        await Promise.all(
+            keys
+                .filter((key) =>
+                    CACHE_USER_PREFIXES.some((prefix) => key.includes(prefix))
+                )
+                .map((key) => caches.delete(key))
+        );
+    } catch {
+        // ignore cleanup errors
+    }
+};
+
 /**
  * Событие install - устанавливается новый Service Worker
  * skipWaiting() - немедленно активируем новую версию, не ждём закрытия всех вкладок
@@ -171,6 +186,17 @@ sw.addEventListener('activate', (event: ExtendableEvent) => {
     );
 });
 
+sw.addEventListener('message', (event: ExtendableMessageEvent) => {
+    const data = event.data as { type?: string } | null;
+    if (!data || typeof data !== 'object') {
+        return;
+    }
+
+    if (data.type === 'CLEAR_USER_CACHE') {
+        event.waitUntil(clearUserCaches());
+    }
+});
+
 /**
  * Событие fetch - перехватываем все сетевые запросы
  * Применяем разные стратегии кэширования в зависимости от типа запроса
@@ -196,7 +222,21 @@ sw.addEventListener('fetch', (event: FetchEvent) => {
         if (IS_DEV) {
             return;
         }
-        event.respondWith(networkFirst(request, CACHE_API));
+        event.respondWith(
+            (async () => {
+                try {
+                    return await fetch(request);
+                } catch {
+                    return new Response(
+                        JSON.stringify({ error: 'Offline' }),
+                        {
+                            status: 503,
+                            headers: { 'Content-Type': 'application/json' },
+                        }
+                    );
+                }
+            })()
+        );
         return;
     }
 

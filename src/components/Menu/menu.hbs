@@ -18,5 +18,12 @@
                 </li>
             {{/each}}
         </ul>
+
+        {{#unless hidePremiumCta}}
+            <div class="sidebar__cta" data-route="premium">
+                <div class="sidebar__cta-title">Хотите увидеть кто вас лайкнул?</div>
+                <button class="sidebar__cta-btn" type="button">Переходите на Premium</button>
+            </div>
+        {{/unless}}
     </div>
 </nav>

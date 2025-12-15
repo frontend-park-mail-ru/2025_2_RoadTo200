@@ -8,6 +8,8 @@ interface ProfileData {
     name?: string;
     birthdate?: string;
     email?: string;
+    isPremium?: boolean;
+    premiumUntil?: string;
     preferences?: {
         show_gender?: string;
         age_min?: number;
@@ -102,8 +104,21 @@ export class SettingsPage {
     private createProfileTab(profileData: ProfileData): HTMLDivElement {
         const section = document.createElement('div');
         section.className = 'settings-section';
+        const premiumBadge = profileData.isPremium
+            ? `<div class="settings-premium settings-premium--active">
+                    <span class="settings-premium__status">Premium активен</span>
+                    ${
+                        profileData.premiumUntil
+                            ? `<span class="settings-premium__until">до ${profileData.premiumUntil}</span>`
+                            : ''
+                    }
+               </div>`
+            : `<div class="settings-premium">
+                    <span class="settings-premium__status">Premium не оформлен</span>
+               </div>`;
         section.innerHTML = `
             <h1 class="settings-section-title">Профиль</h1>
+            ${premiumBadge}
             <p class="form__success-message" id="profileSuccessMessage"></p>
             ${SettingsPage.createFormGroupHTML('Имя:', 'text', 'settingsName', profileData.name, 'settingsNameError')}
             ${SettingsPage.createFormGroupHTML('Дата рождения:', 'text', 'settingsBirthdate', profileData.birthdate, 'birthdateError', 'ДД.ММ.ГГГГ')}

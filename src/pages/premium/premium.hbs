@@ -1,0 +1,39 @@
+<section class="premium-page">
+    <header class="premium-page__header">
+        <h1 class="premium-page__title">Не сдерживай себя лимитами</h1>
+        <p class="premium-page__subtitle">
+            Откройте дополнительные возможности и повышайте конверсию в мэтчи
+        </p>
+    </header>
+
+    <div class="premium-page__features">
+        {{#each features}}
+            <article class="premium-page__feature-card">
+                <div class="premium-page__feature-icon">
+                    <img src="{{icon}}" alt="{{title}}">
+                </div>
+                <h3 class="premium-page__feature-title">{{title}}</h3>
+                <p class="premium-page__feature-desc">{{description}}</p>
+            </article>
+        {{/each}}
+    </div>
+
+    <div class="premium-page__plans" id="premiumPlans">
+        {{#each plans}}
+            <button
+                class="premium-page__plan {{#if isActive}}premium-page__plan--active{{/if}}"
+                data-plan="{{id}}"
+                data-amount="{{amount}}"
+            >
+                <span class="premium-page__plan-label">{{label}}</span>
+                <span class="premium-page__plan-price">{{price}} ₽</span>
+            </button>
+        {{/each}}
+    </div>
+
+    <div class="premium-page__cta-block">
+        <button class="premium-page__cta" id="premiumSubmit">Оформить Premium</button>
+        <p class="premium-page__error" id="premiumError"></p>
+        <p class="premium-page__status" id="premiumStatus"></p>
+    </div>
+</section>

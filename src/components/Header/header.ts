@@ -8,6 +8,9 @@ interface HeaderData {
     isAuthenticated: boolean;
     userPhoto?: string | null;
     userName?: string;
+    isPremium?: boolean;
+    superLikesRemaining?: number;
+    superLikesTotal?: number;
 }
 
 /**
@@ -47,7 +50,14 @@ export class Header {
     ): Promise<void> {
         if (!this.parent) return;
 
-        const { user, isAuthenticated, userPhoto } = headerData;
+        const {
+            user,
+            isAuthenticated,
+            userPhoto,
+            isPremium = false,
+            superLikesRemaining = 0,
+            superLikesTotal = 0,
+        } = headerData;
 
         const templateString = await fetchTemplate(TEMPLATE_PATH);
         const template = Handlebars.compile(templateString);
@@ -64,7 +74,14 @@ export class Header {
 
         // console.log('[Header.render] Passing to template - userPhoto:', userPhoto, 'userName:', userName);
 
-        const renderedHtml = template({ isAuthenticated, userName, userPhoto });
+        const renderedHtml = template({
+            isAuthenticated,
+            userName,
+            userPhoto,
+            isPremium,
+            superLikesRemaining,
+            superLikesTotal,
+        });
 
         this.parent.innerHTML = renderedHtml;
         this.initEventListeners();

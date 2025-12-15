@@ -12,9 +12,23 @@
     left: 50%;
     transform: translateX(-50%);
     will-change: transform, opacity;
+    z-index: 100;
 
     * {
         font-family: 'Semantic', system-ui;
+    }
+
+    &--premium {
+        border: 2px solid transparent;
+        border-image: linear-gradient(
+                to right,
+                var(--color-primary-dark) 0%,
+                var(--color-primary-light) 100%
+            )
+            1;
+        box-shadow:
+            0 10px 28px rgba(255, 75, 114, 0.15),
+            0 0 0 3px rgba(255, 75, 114, 0.12);
     }
 
     &__wrapper {
@@ -110,6 +124,16 @@
         &-superLike {
             color: #00bfff;
             border-color: #00bfff;
+
+            &--disabled {
+                opacity: 0.4;
+                cursor: not-allowed;
+                border-style: dashed;
+
+                &[disabled] {
+                    pointer-events: none;
+                }
+            }
         }
 
         &-like {

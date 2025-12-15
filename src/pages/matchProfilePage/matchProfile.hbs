@@ -1,17 +1,17 @@
-<div class='profile-page'>
+<div class='profile-page {{#if isPremium}}profile-page--premium{{/if}}'>
     <div class='profile-page__heading'>
         <h1 class='profile-page__title'>{{name}}{{#if age}}, {{age}}{{/if}}</h1>
     </div>
     <div class='profile-page__content'>
         <div class='photo-grid'>
             {{#if heroPhoto}}
-            <div class='photo-grid__card'>
+            <div class='photo-grid__card {{#if ../isPremium}}photo-grid__card--premium{{/if}}'>
                 <div class='photo-grid__image' style="background-image: url('{{heroPhoto}}');"></div>
             </div>
             {{/if}}
             {{#each photoCards}}
             {{#if this.isUserPhoto}}
-            <div class='photo-grid__card'>
+            <div class='photo-grid__card {{#if ../../isPremium}}photo-grid__card--premium{{/if}}'>
                 <div class='photo-grid__image' style="background-image: url('{{this.image}}');"></div>
             </div>
             {{/if}}

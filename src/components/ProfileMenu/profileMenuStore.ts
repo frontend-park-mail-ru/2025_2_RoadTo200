@@ -14,6 +14,7 @@ class ProfileMenuStore implements Store {
     private user: User | null = null;
     private isVisible = false;
     private profileMenuComponent = profileMenu;
+    private isRendered = false;
 
     constructor() {
         dispatcher.register(this);
@@ -36,6 +37,9 @@ class ProfileMenuStore implements Store {
                 this.user =
                     (action.payload as { user?: User | null } | undefined)
                         ?.user || null;
+                if (!this.user) {
+                    this.isRendered = false;
+                }
                 if (this.isVisible) {
                     await this.renderProfileMenu();
                 }
@@ -62,16 +66,19 @@ class ProfileMenuStore implements Store {
         };
 
         await this.profileMenuComponent.render(menuData);
+        this.isRendered = true;
     }
 
     private async toggleMenu(visible?: boolean): Promise<void> {
         const shouldBeVisible =
             visible !== undefined ? visible : !this.isVisible;
 
-        if (shouldBeVisible && !this.user) {
+        if (shouldBeVisible && (!this.user || !this.isRendered)) {
             try {
-                const response = await AuthApi.checkAuth();
-                this.user = (response.user as User | null) || null;
+                if (!this.user) {
+                    const response = await AuthApi.checkAuth();
+                    this.user = (response.user as User | null) || null;
+                }
             } catch (error) {
                 this.user = null;
             }
