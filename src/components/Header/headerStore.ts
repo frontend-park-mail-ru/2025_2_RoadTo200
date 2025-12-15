@@ -211,7 +211,7 @@ class HeaderStore implements Store {
     async updateUnreadCount(): Promise<void> {
         try {
             const response = await notificationApi.getNotifications();
-            const newCount = response.notifications.filter(n => !n.is_read).length;
+            const newCount = response.notifications.filter(n => !n.is_read && n.type !== 'message').length;
             if (this.unreadCount !== newCount) {
                 this.unreadCount = newCount;
             }

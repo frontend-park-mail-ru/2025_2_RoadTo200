@@ -84,6 +84,13 @@ class ChatWindowStore implements Store {
                 );
                 break;
 
+            case Actions.NAVIGATE_TO:
+                const path = (action.payload as { path?: string })?.path || '';
+                if (!path.startsWith('/chats')) {
+                    this.currentChatId = null;
+                }
+                break;
+
             default:
                 break;
         }
@@ -217,8 +224,7 @@ class ChatWindowStore implements Store {
         this.messagesByChat.set(chatId, list);
         this.sortMessages(chatId);
         if (chatId === this.currentChatId) {
-            void this.renderChatWindow();
-            this.scrollToBottom();
+            void this.renderChatWindow(true);
         }
     }
 
@@ -226,7 +232,6 @@ class ChatWindowStore implements Store {
         const messages = this.messagesByChat.get(chatId);
         if (!messages) return;
 
-        // Sort by createdAt timestamp in descending order (newest last)
         messages.sort((a, b) => {
             const timeA = new Date(a.createdAt).getTime();
             const timeB = new Date(b.createdAt).getTime();
@@ -293,7 +298,16 @@ class ChatWindowStore implements Store {
         }
     }
 
-    private async renderChatWindow(): Promise<void> {
+    private async renderChatWindow(preserveInput = false): Promise<void> {
+        // Store current input value if preserving
+        let currentInputValue = '';
+        let currentInputElement: HTMLTextAreaElement | null = null;
+        if (preserveInput && typeof document !== 'undefined') {
+            currentInputElement = document.querySelector('.chat-window__input');
+            if (currentInputElement) {
+                currentInputValue = currentInputElement.value;
+            }
+        }
         const messages = this.getMessages(this.currentChatId);
         const meta = this.currentChatId
             ? this.chatMeta.get(this.currentChatId)
@@ -302,12 +316,18 @@ class ChatWindowStore implements Store {
             ? this.drafts.get(this.currentChatId) || ''
             : '';
 
+        const hasChats = this.chatMeta.size > 0;
         const placeholder = !this.currentChatId
-            ? {
-                title: 'У Вас пока нет чатов',
-                subtitle: 'Возможно, Вам стоит еще поискать подходящих людей',
-                action: 'home' as const,
-            }
+            ? hasChats
+                ? {
+                    title: 'Выберите чат',
+                    subtitle: 'Выберите чат из списка слева, чтобы начать общение',
+                }
+                : {
+                    title: 'У Вас пока нет чатов',
+                    subtitle: 'Возможно, Вам стоит еще поискать подходящих людей',
+                    action: 'home' as const,
+                }
             : undefined;
 
         await this.chatWindowComponent.render({
@@ -323,6 +343,29 @@ class ChatWindowStore implements Store {
             draft,
             draftLength: draft.length,
         });
+        
+        // Restore input value if it was preserved
+        if (preserveInput && currentInputValue && typeof document !== 'undefined') {
+            const newInputElement = document.querySelector('.chat-window__input') as HTMLTextAreaElement;
+            if (newInputElement) {
+                newInputElement.value = currentInputValue;
+                // Update counter
+                const counter = document.querySelector('.chat-window__counter');
+                if (counter) {
+                    counter.textContent = `${currentInputValue.length} / 250`;
+                }
+                // Restore cursor position at the end
+                setTimeout(() => {
+                    newInputElement.focus();
+                    newInputElement.setSelectionRange(currentInputValue.length, currentInputValue.length);
+                    // Scroll to bottom after restoration
+                    this.scrollToBottom();
+                }, 0);
+            }
+        } else if (!preserveInput) {
+            // Scroll to bottom on normal render
+            this.scrollToBottom();
+        }
     }
 
     private formatSocketStatus(): string {
@@ -351,12 +394,12 @@ class ChatWindowStore implements Store {
         setTimeout(() => {
             if (typeof document === 'undefined') return;
             const container = document.querySelector(
-                '.chat-window__messages'
+                '.chat-window__body'
             ) as HTMLElement | null;
             if (container) {
                 container.scrollTop = container.scrollHeight;
             }
-        }, 100);
+        }, 150);
     }
 }
 

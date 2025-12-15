@@ -83,6 +83,14 @@ export class ChatWindow implements PageComponent {
         this.parent.innerHTML = renderedHtml;
         this.scrollToBottom();
         this.initEventListeners();
+        
+        // Auto-focus input when chat is selected
+        if (data.chatId && !data.isInputDisabled) {
+            const input = this.parent.querySelector('.chat-window__input') as HTMLTextAreaElement;
+            if (input) {
+                setTimeout(() => input.focus(), 0);
+            }
+        }
     }
 
     private initEventListeners(): void {

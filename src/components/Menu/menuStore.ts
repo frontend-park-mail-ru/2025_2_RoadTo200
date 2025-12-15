@@ -4,6 +4,7 @@ import { menu } from './menu';
 import type { Store } from '../../Dispatcher';
 import ProfileApi from '@/apiHandler/profileApi';
 import notificationApi from '@/apiHandler/notificationApi';
+import chatApi from '@/apiHandler/chatApi';
 
 class MenuStore implements Store {
     private currentRoute = 'main';
@@ -33,6 +34,7 @@ class MenuStore implements Store {
                             ? 'main'
                             : path.replace(/^\//, '').split('/')[0];
                 }
+                await this.updateBadgeCounts();
                 await this.renderMenu();
                 break;
             case Actions.AUTH_STATE_UPDATED:
@@ -43,16 +45,32 @@ class MenuStore implements Store {
                 await this.renderMenu();
                 break;
             case Actions.LOAD_NOTIFICATIONS:
-            case Actions.NOTIFICATION_SOCKET_MESSAGE:
+            case Actions.CHAT_SOCKET_MESSAGE:
+            case Actions.CHAT_MARKED_AS_READ:
+            case Actions.LOAD_CHATS:
+            case Actions.SELECT_CHAT:
+            case Actions.NAVIGATE_TO:
                 await this.updateBadgeCounts();
                 await this.renderMenu();
                 break;
 
+            case Actions.NOTIFICATION_SOCKET_MESSAGE:
+                const socketPayload = action.payload as { type?: string; notif_type?: string; notification?: { type?: string } };
+                const notifType = socketPayload?.notif_type || socketPayload?.notification?.type;
+                
+                if (notifType === 'message') {
+                    this.chatsBadge++;
+                    await this.renderMenu();
+                    this.updateBadgeCounts();
+                } else {
+                    await this.updateBadgeCounts();
+                    await this.renderMenu();
+                }
+                break;
+
             case Actions.MARK_NOTIFICATION_READ:
                 const payload = action.payload as { id: string; type?: string };
-                if (payload.type === 'message' && this.chatsBadge > 0) {
-                    this.chatsBadge--;
-                } else if (payload.type === 'match' && this.matchesBadge > 0) {
+                if (payload.type === 'match' && this.matchesBadge > 0) {
                     this.matchesBadge--;
                 }
                 await this.renderMenu();
@@ -65,10 +83,16 @@ class MenuStore implements Store {
 
     private async updateBadgeCounts(): Promise<void> {
         try {
-            const response = await notificationApi.getNotifications();
-            const unreadNotifications = response.notifications.filter(n => !n.is_read);
+            // Get total unread messages from all conversations
+            const conversationsResponse = await chatApi.getConversations();
+            this.chatsBadge = conversationsResponse.conversations.reduce(
+                (sum, conv) => sum + conv.unread_count, 
+                0
+            );
             
-            this.chatsBadge = unreadNotifications.filter(n => n.type === 'message').length;
+            // Get unread match notifications
+            const notificationsResponse = await notificationApi.getNotifications();
+            const unreadNotifications = notificationsResponse.notifications.filter(n => !n.is_read);
             this.matchesBadge = unreadNotifications.filter(n => n.type === 'match').length;
         } catch (error) {
             console.error('Error updating badge counts:', error);
@@ -88,8 +112,8 @@ class MenuStore implements Store {
         const menuData = {
             currentRoute: this.currentRoute,
             hidePremiumCta: this.isPremiumUser === true,
-            chatsBadge: this.chatsBadge || undefined,
-            matchesBadge: this.matchesBadge || undefined,
+            chatsBadge: this.chatsBadge > 0 ? this.chatsBadge : undefined,
+            matchesBadge: this.matchesBadge > 0 ? this.matchesBadge : undefined,
         };
 
         await this.menuComponent.render(menuData);

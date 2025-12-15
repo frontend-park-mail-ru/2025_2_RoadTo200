@@ -181,15 +181,21 @@
     &__badge {
         position: absolute;
         right: 16px;
-        top: 14px;
-        min-width: 26px;
-        padding: 2px 8px;
-        border-radius: 999px;
-        font-size: 12px;
-        font-weight: 600;
-        text-align: center;
-        background: rgba(255, 255, 255, 0.2);
-        color: var(--color-primary-light);
+        top: 50%;
+        transform: translateY(-50%);
+        min-width: 22px;
+        height: 22px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 6px;
+        border-radius: 50%;
+        border: 2px solid #fff;
+        font-size: 11px;
+        font-weight: 700;
+        background: linear-gradient(135deg, #ff4b72, #ff2f73);
+        color: #fff;
+        box-shadow: 0 2px 8px rgba(255, 75, 114, 0.4);
     }
 }
 

@@ -89,7 +89,8 @@ class NotificationPopupStore implements Store {
             console.log('Loading notifications from:', source);
             const response = await notificationApi.getNotifications();
             console.log('Got notifications response:', response);
-            this.notifications = await this.convertDTOsToNotifications(response.notifications || []);
+            const filteredNotifications = (response.notifications || []).filter(n => n.type !== 'message');
+            this.notifications = await this.convertDTOsToNotifications(filteredNotifications);
             console.log('Converted notifications:', this.notifications);
             this.hasLoadedOnce = true;
             this.scheduleRender();
@@ -115,6 +116,7 @@ class NotificationPopupStore implements Store {
         switch (event.type) {
             case 'notification':
                 if (event.id && event.notif_type && event.created_at) {
+                    if (event.notif_type === 'message') return;
                     const userName = event.from_user_id ? await this.fetchUserName(event.from_user_id) : undefined;
                     const newNotification: Notification = {
                         id: event.id,
@@ -130,6 +132,7 @@ class NotificationPopupStore implements Store {
                 }
                 else if (event.notification) {
                     const dto = event.notification;
+                    if (dto.type === 'message') return;
                     const userName = dto.from_user_id ? await this.fetchUserName(dto.from_user_id) : undefined;
                     const newNotification: Notification = {
                         id: dto.id,
