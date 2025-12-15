@@ -222,7 +222,7 @@ class HeaderStore implements Store {
 
     getSuperLikesState(): { remaining: number; total: number; isPremium: boolean } {
         const isPremium = Boolean((this.user as User | null)?.is_premium);
-        const baseTotal = isPremium ? 15 : 5;
+        const baseTotal = isPremium ? 9 : 3;
         const remaining =
             this.superLikesRemaining === null
                 ? baseTotal
