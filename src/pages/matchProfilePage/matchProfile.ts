@@ -63,14 +63,16 @@ export class MatchProfilePage {
                     payload: { path: '/chats' },
                 });
 
-                dispatcher.process({
-                    type: Actions.SELECT_CHAT,
-                    payload: {
-                        chatId: this.currentData.matchId,
-                        userName: this.currentData.name,
-                        userPhoto: this.currentData.heroPhoto,
-                    },
-                });
+                setTimeout(() => {
+                    dispatcher.process({
+                        type: Actions.SELECT_CHAT,
+                        payload: {
+                            chatId: this.currentData!.matchId,
+                            userName: this.currentData!.name,
+                            userPhoto: this.currentData!.heroPhoto,
+                        },
+                    });
+                }, 300);
             });
         }
 

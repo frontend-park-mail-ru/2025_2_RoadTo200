@@ -244,7 +244,7 @@ class MatchProfileStore implements Store {
                 });
             }
         } catch (error) {
-            console.error('Error marking user notifications as read:', error);
+
         }
     }
 }

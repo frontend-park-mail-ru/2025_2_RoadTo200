@@ -45,7 +45,7 @@ class ChatsListStore implements Store {
                 break;
 
             case Actions.SELECT_CHAT:
-                this.handleSelection(action.payload as SelectChatPayload);
+                await this.handleSelection(action.payload as SelectChatPayload);
                 break;
 
             case Actions.LOAD_CHATS:
@@ -96,10 +96,18 @@ class ChatsListStore implements Store {
         }
     }
 
-    private handleSelection(payload?: SelectChatPayload): void {
+    private async handleSelection(payload?: SelectChatPayload): Promise<void> {
         if (!payload?.chatId) return;
         this.selectedChatId = payload.chatId;
-        void this.renderChatsList();
+        
+        // Ensure chats are loaded before selecting
+        if (!this.isInitialized) {
+            await this.ensureUser();
+            await this.fetchChats();
+            this.isInitialized = true;
+        }
+        
+        await this.renderChatsList();
     }
 
     private async fetchChats(): Promise<void> {

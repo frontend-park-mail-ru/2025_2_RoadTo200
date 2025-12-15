@@ -15,6 +15,7 @@ class MenuStore implements Store {
 
     constructor() {
         dispatcher.register(this);
+        this.updateBadgeCounts();
     }
 
     async handleAction(action: Action): Promise<void> {
@@ -34,7 +35,6 @@ class MenuStore implements Store {
                             ? 'main'
                             : path.replace(/^\//, '').split('/')[0];
                 }
-                await this.updateBadgeCounts();
                 await this.renderMenu();
                 break;
             case Actions.AUTH_STATE_UPDATED:
@@ -95,7 +95,7 @@ class MenuStore implements Store {
             const unreadNotifications = notificationsResponse.notifications.filter(n => !n.is_read);
             this.matchesBadge = unreadNotifications.filter(n => n.type === 'match').length;
         } catch (error) {
-            console.error('Error updating badge counts:', error);
+
         }
     }
 
@@ -112,8 +112,8 @@ class MenuStore implements Store {
         const menuData = {
             currentRoute: this.currentRoute,
             hidePremiumCta: this.isPremiumUser === true,
-            chatsBadge: this.chatsBadge > 0 ? this.chatsBadge : undefined,
-            matchesBadge: this.matchesBadge > 0 ? this.matchesBadge : undefined,
+            chatsBadge: this.chatsBadge || undefined,
+            matchesBadge: this.matchesBadge || undefined,
         };
 
         await this.menuComponent.render(menuData);

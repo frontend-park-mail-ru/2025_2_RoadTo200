@@ -86,16 +86,12 @@ class NotificationPopupStore implements Store {
 
     private async loadNotifications(source: string): Promise<void> {
         try {
-            console.log('Loading notifications from:', source);
             const response = await notificationApi.getNotifications();
-            console.log('Got notifications response:', response);
             const filteredNotifications = (response.notifications || []).filter(n => n.type !== 'message');
             this.notifications = await this.convertDTOsToNotifications(filteredNotifications);
-            console.log('Converted notifications:', this.notifications);
             this.hasLoadedOnce = true;
             this.scheduleRender();
         } catch (error) {
-            console.error('Error loading notifications:', error);
             this.notifications = [];
             this.scheduleRender();
         }
@@ -112,7 +108,7 @@ class NotificationPopupStore implements Store {
     }
 
     private async handleSocketMessage(event: NotificationSocketEvent): Promise<void> {
-        console.log('Received socket message:', event);
+
         switch (event.type) {
             case 'notification':
                 if (event.id && event.notif_type && event.created_at) {
@@ -182,10 +178,10 @@ class NotificationPopupStore implements Store {
     private async fetchUserName(userId: string): Promise<string | undefined> {
         try {
             const profile = await profileApi.getProfileById(userId);
-            console.log('Fetched profile for user:', userId, profile.user.name);
+
             return profile.user.name;
         } catch (error) {
-            console.log('Failed to fetch profile for user:', userId, error);
+
             return undefined;
         }
     }
@@ -248,7 +244,7 @@ class NotificationPopupStore implements Store {
             isVisible: this.isVisible,
             notifications: this.notifications,
         };
-        console.log('Rendering notifications:', data);
+
 
         await this.notificationComponent.render(data);
     }

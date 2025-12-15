@@ -35,7 +35,7 @@ export interface CardData {
 const fetchCardTemplate = async (): Promise<string> => {
     const response = await fetch(CARD_TEMPLATE_PATH);
     if (!response.ok) {
-        // console.error('Ошибка: Не удалось загрузить шаблон');
+        throw new Error('Failed to load template');
     }
     return response.text();
 };
@@ -87,6 +87,16 @@ const Card = {
                 'data-current-image-index',
                 String(newIndex)
             );
+            
+            // Update indicators
+            const indicators = cardElement.querySelectorAll('.card__indicator');
+            indicators.forEach((indicator, index) => {
+                if (index === newIndex) {
+                    indicator.classList.add('card__indicator--active');
+                } else {
+                    indicator.classList.remove('card__indicator--active');
+                }
+            });
         }
     },
 
@@ -126,7 +136,6 @@ const Card = {
      * @param {HTMLElement} cardElement
      */
     init: (cardElement: HTMLElement): void => {
-        // console.log('Initializing card:', cardElement);
         cardElement.addEventListener('click', Card.handleImageNavigation);
     },
 };

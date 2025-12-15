@@ -133,6 +133,12 @@ class ChatWindowStore implements Store {
                 ?.classList.add('chats-page--conversation-open');
         }
 
+        // Ensure chat window has parent before loading messages
+        if (!this.chatWindowComponent.parent) {
+            // Wait for page to render and retry
+            await new Promise(resolve => setTimeout(resolve, 100));
+        }
+
         await this.loadMessages(payload.chatId);
     }
 

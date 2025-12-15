@@ -158,7 +158,7 @@ sw.addEventListener('install', (event: ExtendableEvent) => {
             .open(CACHE_STATIC)
             .then((cache) => cache.addAll(precacheResources))
             .catch((err) => {
-                console.warn('Precache failed:', err);
+
             })
     );
 });

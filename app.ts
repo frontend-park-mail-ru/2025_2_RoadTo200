@@ -19,9 +19,7 @@ import './src/pages/support/supportStore';
 import './src/pages/premium/premiumStore';
 
 import Handlebars from 'handlebars';
-
 Handlebars.registerHelper('eq', (a: unknown, b: unknown) => a === b);
-
 
 import './src/pages/chatsPage/chatsStore';
 import './src/components/chatsList/chatsListStore';
@@ -120,7 +118,7 @@ if ('serviceWorker' in navigator) {
                 window.location.reload();
             });
         } catch (error) {
-            console.error('Service Worker registration failed:', error);
+
         }
     });
 }

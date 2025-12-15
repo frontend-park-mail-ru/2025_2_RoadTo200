@@ -216,7 +216,7 @@ class HeaderStore implements Store {
                 this.unreadCount = newCount;
             }
         } catch (error) {
-            console.error('Error updating unread count:', error);
+
         }
     }
 

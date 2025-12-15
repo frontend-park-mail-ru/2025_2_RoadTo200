@@ -1,5 +1,12 @@
 <div class='card {{#if isPremium}}card--premium{{/if}}' id='cards' data-id='{{id}}' data-images-json='{{{imagesJson}}}'>
     <div class='card__wrapper'>
+        {{#if images}}
+        <div class='card__indicators'>
+            {{#each images}}
+            <div class='card__indicator {{#if @first}}card__indicator--active{{/if}}'></div>
+            {{/each}}
+        </div>
+        {{/if}}
         <img class='card__image' src='{{images.[0].imageUrl}}' alt='{{name}}' data-index='0' />
         <div class='card__info'>
             <h2 class='card__name'>{{name}}, {{age}}</h2>
