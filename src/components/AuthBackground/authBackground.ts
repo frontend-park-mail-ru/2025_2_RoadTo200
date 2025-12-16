@@ -45,8 +45,8 @@ export class AuthBackground {
         
         const rows = 8;
         const cols = 11;
-        const circleSpacing = 270;
-        const verticalSpacing = 270;
+        const circleSpacing = 370;
+        const verticalSpacing = 370;
         const circleSize = 250;
 
         let iconIndex = 0;
@@ -56,7 +56,7 @@ export class AuthBackground {
                 const circle = new CircleActivity({
                     svgPath: this.svgIcons[iconIndex % this.svgIcons.length],
                     size: circleSize,
-                    opacity: 0.4,
+                    opacity: 0.2,
                     className: 'auth-background__background-variant',
                 });
 
