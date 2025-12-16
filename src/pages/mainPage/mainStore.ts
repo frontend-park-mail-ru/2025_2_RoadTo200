@@ -43,6 +43,18 @@ class MainStore implements Store {
                 await main.render();
                 await this.checkProfileCompleteness();
                 break;
+            case Actions.REPORT_SUCCESS:
+                if (
+                    action.payload &&
+                    (action.payload as any).context === 'feed'
+                ) {
+                    const { targetUserId } = action.payload as {
+                        targetUserId: string;
+                        context: string;
+                    };
+                    await this.handleReportFromFeed(targetUserId);
+                }
+                break;
 
             case Actions.GET_CARDS:
                 await this.getCards();
@@ -180,6 +192,16 @@ class MainStore implements Store {
             }
         } catch (error) {
             // Card action failed
+        }
+    }
+
+    private async handleReportFromFeed(targetUserId: string): Promise<void> {
+        try {
+            await CardApi.postCardInteraction(targetUserId, 'dislike');
+        } catch {
+            // ignore interaction errors on report
+        } finally {
+            main.handleReportedCard(targetUserId);
         }
     }
 }

@@ -236,8 +236,21 @@ export class MainPage {
                 targetUserId: cardData.id,
                 targetName: cardData.name,
                 targetAge: cardData.age,
+                context: 'feed',
             });
         });
+    }
+
+    handleReportedCard(cardId: string): void {
+        const currentCardElement = document.querySelector(
+            `.card[data-id="${cardId}"]`
+        ) as HTMLElement | null;
+
+        if (currentCardElement) {
+            animateCardOut(currentCardElement, 'left');
+        } else {
+            this.renderNextCard();
+        }
     }
 
     private initSwipe(cardElement: HTMLElement, cardId: string): void {

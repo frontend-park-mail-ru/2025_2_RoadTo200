@@ -3,6 +3,7 @@ import { dispatcher, type Store } from '@/Dispatcher';
 import { matchProfile } from './matchProfile';
 import { ACTIVITY_ICONS } from '@/utils/activityIcons';
 import profileApi from '@/apiHandler/profileApi';
+import MatchesApi from '@/apiHandler/matchesApi';
 import notificationApi from '@/apiHandler/notificationApi';
 
 interface PhotoCard {
@@ -53,6 +54,18 @@ class MatchProfileStore implements Store {
                     await this.handleMatchCardClick(
                         action.payload as { matchId: string; userData: any }
                     );
+                }
+                break;
+            case Actions.REPORT_SUCCESS:
+                if (
+                    action.payload &&
+                    (action.payload as any).context === 'match'
+                ) {
+                    const { targetUserId } = action.payload as {
+                        targetUserId: string;
+                        context: string;
+                    };
+                    await this.handleReportOnMatch(targetUserId);
                 }
                 break;
             default:
@@ -245,6 +258,19 @@ class MatchProfileStore implements Store {
             }
         } catch (error) {
 
+        }
+    }
+
+    private async handleReportOnMatch(targetUserId: string): Promise<void> {
+        try {
+            await MatchesApi.unmatch(targetUserId);
+        } catch {
+            // ignore unmatch errors
+        } finally {
+            dispatcher.process({
+                type: Actions.NAVIGATE_TO,
+                payload: { path: '/matches' },
+            });
         }
     }
 }

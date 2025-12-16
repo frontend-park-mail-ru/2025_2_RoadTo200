@@ -4,6 +4,8 @@ import StrikesApi, {
     type StrikeCreateRequest,
     type StrikeType,
 } from '@/apiHandler/strikesApi';
+import { dispatcher } from '@/Dispatcher';
+import { Actions } from '@/actions';
 
 const TEMPLATE_PATH = '/src/components/ReportPopup/reportPopup.hbs';
 
@@ -18,6 +20,7 @@ export interface ReportPopupContext {
     targetUserId: string;
     targetName?: string;
     targetAge?: number | string;
+    context?: 'feed' | 'match';
 }
 
 const fetchTemplate = async (): Promise<HandlebarsTemplateDelegate> => {
@@ -124,6 +127,13 @@ export class ReportPopup {
 
         try {
             await StrikesApi.createStrike(payload);
+            dispatcher.process({
+                type: Actions.REPORT_SUCCESS,
+                payload: {
+                    targetUserId: this.context.targetUserId,
+                    context: this.context.context || 'feed',
+                },
+            });
             this.showSuccess('Жалоба отправлена. Спасибо!');
             form.reset();
             setTimeout(() => this.hide(), 900);

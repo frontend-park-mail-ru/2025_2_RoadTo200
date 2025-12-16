@@ -115,6 +115,9 @@ export const Actions = {
     NOTIFICATION_SOCKET_MESSAGE: 'NOTIFICATION_SOCKET_MESSAGE',
     NOTIFICATION_SOCKET_STATUS: 'NOTIFICATION_SOCKET_STATUS',
 
+    // reports
+    REPORT_SUCCESS: 'REPORT_SUCCESS',
+
 } as const;
 
 export type { ChatSocketEvent, ChatSocketStatus, SelectChatPayload } from './types/chat';

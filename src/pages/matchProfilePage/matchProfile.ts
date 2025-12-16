@@ -125,6 +125,7 @@ export class MatchProfilePage {
                     targetUserId: this.currentData?.userId || '',
                     targetName: this.currentData?.name,
                     targetAge: this.currentData?.age || undefined,
+                    context: 'match',
                 });
             });
         }
