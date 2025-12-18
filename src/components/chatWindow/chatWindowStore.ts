@@ -38,6 +38,7 @@ class ChatWindowStore implements Store {
     private socketStatus: ChatSocketStatus = 'disconnected';
     private markAsReadTimer: number | null = null;
     private readonly loadedChats = new Set<string>(); // Track which chats have been loaded
+    private hasAnyChats = false; // Track if user has any chats at all
 
     constructor() {
         dispatcher.register(this);
@@ -53,6 +54,11 @@ class ChatWindowStore implements Store {
 
             case Actions.SELECT_CHAT:
                 await this.handleChatSelection(action.payload as SelectChatPayload);
+                break;
+
+            case Actions.CHATS_LIST_UPDATED:
+                this.hasAnyChats = (action.payload as { hasChats?: boolean })?.hasChats || false;
+                await this.renderChatWindow();
                 break;
 
             case Actions.SEND_MESSAGE:
@@ -356,10 +362,8 @@ class ChatWindowStore implements Store {
             ? this.drafts.get(this.currentChatId) || ''
             : '';
 
-        // Чаты есть если загружен хоть один чат (значит список чатов не пустой)
-        const hasChats = this.loadedChats.size > 0;
         const placeholder = !this.currentChatId
-            ? hasChats
+            ? this.hasAnyChats
                 ? {
                     title: 'Чат не выбран',
                     subtitle: 'Выберите чат из списка слева, чтобы начать общение',

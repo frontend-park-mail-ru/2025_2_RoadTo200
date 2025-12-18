@@ -121,6 +121,12 @@ class ChatsListStore implements Store {
                 : [];
 
             // Не выбираем чат автоматически - пользователь сам выберет нужный
+            
+            // Уведомляем chatWindow о наличии чатов
+            dispatcher.process({
+                type: Actions.CHATS_LIST_UPDATED,
+                payload: { hasChats: this.chats.length > 0 },
+            });
         } catch (error) {
             this.error =
                 error instanceof Error
