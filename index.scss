@@ -180,3 +180,11 @@ body.menu-open .menu-overlay {
         padding: 0;
     }
 }
+
+body.auth-route {
+    overflow: hidden;
+}
+
+body.auth-route #content-container {
+    padding: 0;
+}

@@ -338,6 +338,7 @@ class NavigationStore implements Store {
 
         if (typeof document !== 'undefined' && document.body) {
             document.body.classList.toggle('support-route', isSupportPage);
+            document.body.classList.toggle('auth-route', isAuthPage);
         }
 
         if (this.headerContainer) {
