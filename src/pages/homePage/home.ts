@@ -11,6 +11,7 @@ interface Activity {
 export class Home {
     parent: HTMLElement | null = null;
     selectedActivities: string[] = [];
+    private submitButton: HTMLButtonElement | null = null;
 
     async getTemplate(): Promise<string> {
         const response = await fetch('./src/pages/homePage/home.hbs');
@@ -76,6 +77,7 @@ export class Home {
         if (this.parent) {
             this.parent.innerHTML = html;
             this.attachEventListeners();
+            this.updateSubmitButtonState();
         }
     }
 
@@ -111,6 +113,8 @@ export class Home {
                 }
             }
         });
+
+        this.updateSubmitButtonState();
     }
 
     private updateActivityOnServer(
@@ -147,17 +151,21 @@ export class Home {
                     this.updateActivityOnServer(activityId, false);
                 } else {
                     item.classList.add('home-page__activity-item--selected');
-                    this.selectedActivities.push(activityId);
+                    if (!this.selectedActivities.includes(activityId)) {
+                        this.selectedActivities.push(activityId);
+                    }
                     this.updateActivityOnServer(activityId, true);
                 }
+
+                this.updateSubmitButtonState();
             });
         });
 
-        const submitButton = this.parent.querySelector(
+        this.submitButton = this.parent.querySelector(
             '#submit-activities'
         ) as HTMLButtonElement | null;
-        if (submitButton) {
-            submitButton.addEventListener('click', () => {
+        if (this.submitButton) {
+            this.submitButton.addEventListener('click', () => {
                 // console.log('Selected activities:', this.selectedActivities);
                 localStorage.setItem(
                     'selectedActivities',
@@ -169,6 +177,22 @@ export class Home {
                 });
             });
         }
+    }
+
+    private updateSubmitButtonState(): void {
+        const submitButton =
+            this.submitButton ||
+            (this.parent?.querySelector(
+                '#submit-activities'
+            ) as HTMLButtonElement | null);
+        if (!submitButton) return;
+
+        const hasSelection = this.selectedActivities.length > 0;
+        submitButton.classList.toggle(
+            'home-page__submit-button--hidden',
+            !hasSelection
+        );
+        submitButton.disabled = !hasSelection;
     }
 }
 

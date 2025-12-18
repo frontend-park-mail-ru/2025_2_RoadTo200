@@ -109,8 +109,6 @@ class HomeStore implements Store {
             await ProfileApi.updateInterests(interestsPayload);
             // console.log('HomeStore: Interests updated:', interestsPayload);
 
-            // Reload to ensure sync (optional, but good for consistency)
-            await this.loadUserActivities();
         } catch (error) {
             // console.error('HomeStore: Failed to update activity:', error);
         }
