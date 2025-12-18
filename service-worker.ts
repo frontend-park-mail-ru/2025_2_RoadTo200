@@ -2,7 +2,7 @@
 
 const sw = self as unknown as ServiceWorkerGlobalScope;
 
-const VERSION = '20';
+const VERSION = '21';
 const CACHE_STATIC = `terabithia-static-v${VERSION}`;
 const CACHE_IMAGES = `terabithia-images-v${VERSION}`;
 const CACHE_USER_PREFIXES = ['terabithia-api', 'terabithia-images'];
@@ -209,7 +209,15 @@ sw.addEventListener('fetch', (event: FetchEvent) => {
 
     // Только GET-запросы кэшируем
     if (request.method !== 'GET') {
-        event.respondWith(fetch(request));
+        event.respondWith(
+            (async () => {
+                try {
+                    return await fetch(request);
+                } catch {
+                    return new Response('Network error', { status: 503 });
+                }
+            })()
+        );
         return;
     }
 
@@ -275,49 +283,49 @@ sw.addEventListener('fetch', (event: FetchEvent) => {
                     // Если и его нет - возвращаем offline-страницу
                     return new Response(
                         `<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Офлайн - Terabithia</title>
-    <style>
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            height: 100vh; 
-            margin: 0;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            text-align: center;
-        }
-        .offline-container { max-width: 400px; padding: 2rem; }
-        h1 { font-size: 3rem; margin: 0 0 1rem 0; }
-        p { font-size: 1.2rem; opacity: 0.9; }
-        button {
-            margin-top: 2rem;
-            padding: 0.8rem 2rem;
-            font-size: 1rem;
-            background: white;
-            color: #667eea;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-        }
-        button:hover { transform: scale(1.05); }
-    </style>
-</head>
-<body>
-    <div class="offline-container">
-        <h1>📡</h1>
-        <h2>Вы офлайн</h2>
-        <p>Проверьте подключение к интернету и попробуйте снова</p>
-        <button onclick="location.reload()">Обновить страницу</button>
-    </div>
-</body>
-</html>`,
+                        <html lang="ru">
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                            <title>Офлайн - Terabithia</title>
+                            <style>
+                                body { 
+                                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                                    display: flex; 
+                                    align-items: center; 
+                                    justify-content: center; 
+                                    height: 100vh; 
+                                    margin: 0;
+                                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                                    color: white;
+                                    text-align: center;
+                                }
+                                .offline-container { max-width: 400px; padding: 2rem; }
+                                h1 { font-size: 3rem; margin: 0 0 1rem 0; }
+                                p { font-size: 1.2rem; opacity: 0.9; }
+                                button {
+                                    margin-top: 2rem;
+                                    padding: 0.8rem 2rem;
+                                    font-size: 1rem;
+                                    background: white;
+                                    color: #667eea;
+                                    border: none;
+                                    border-radius: 8px;
+                                    cursor: pointer;
+                                    font-weight: 600;
+                                }
+                                button:hover { transform: scale(1.05); }
+                            </style>
+                        </head>
+                        <body>
+                            <div class="offline-container">
+                                <h1>📡</h1>
+                                <h2>Вы офлайн</h2>
+                                <p>Проверьте подключение к интернету и попробуйте снова</p>
+                                <button onclick="location.reload()">Обновить страницу</button>
+                            </div>
+                        </body>
+                        </html>`,
                         {
                             status: 503,
                             headers: { 'Content-Type': 'text/html; charset=utf-8' }

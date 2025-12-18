@@ -25,16 +25,19 @@ interface ProcessedMatch {
 class MatchesStore implements Store {
     timerId: NodeJS.Timeout | null;
     matches: ProcessedMatch[];
+    private isActive: boolean;
 
     constructor() {
         this.matches = [];
         dispatcher.register(this);
         this.timerId = null;
+        this.isActive = false;
     }
 
     async handleAction(action: Action): Promise<void> {
         switch (action.type) {
             case Actions.RENDER_MATCHES:
+                this.isActive = true;
                 await this.renderMatches();
                 break;
 
@@ -162,9 +165,12 @@ class MatchesStore implements Store {
             clearInterval(this.timerId);
             this.timerId = null;
         }
+        this.isActive = false;
     }
 
     private updateDerivedFields(): void {
+        if (!this.isActive) return;
+
         const now = Date.now();
 
         this.matches = this.matches.map((m) => {
