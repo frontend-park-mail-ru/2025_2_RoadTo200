@@ -4,6 +4,7 @@ import { AuthUtils } from '../utils/auth';
 import type { Store } from '../Dispatcher';
 import matchesStore from '../pages/matchesPage/matchesStore';
 import ProfileApi from '@/apiHandler/profileApi';
+import { ProfileSetupPopup } from '@/components/ProfileSetupPopup/profileSetupPopup';
 
 export interface PageComponent {
     parent: HTMLElement | null;
@@ -320,6 +321,9 @@ class NavigationStore implements Store {
         const isAuthPage =
             normalizedPath === '/login' || normalizedPath === '/register';
         const isSupportPage = normalizedPath === '/support';
+        const shouldCheckProfilePopup = ['/me', '/chats', '/matches'].includes(
+            normalizedPath
+        );
 
         if (normalizedPath === '/premium') {
             try {
@@ -367,6 +371,18 @@ class NavigationStore implements Store {
             matchProfileMatch,
             profileMatch
         );
+
+        if (shouldCheckProfilePopup) {
+            try {
+                const isComplete =
+                    await ProfileSetupPopup.isProfileComplete();
+                if (!isComplete) {
+                    dispatcher.process({ type: Actions.SHOW_PROFILE_SETUP_POPUP });
+                }
+            } catch {
+                // ignore completeness check errors
+            }
+        }
 
         if (renderAction) {
             dispatcher.process(renderAction);

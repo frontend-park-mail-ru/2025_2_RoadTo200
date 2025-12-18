@@ -77,6 +77,7 @@ export class Home {
         if (this.parent) {
             this.parent.innerHTML = html;
             this.attachEventListeners();
+            this.restoreCachedSelection();
             this.updateSubmitButtonState();
         }
     }
@@ -114,6 +115,7 @@ export class Home {
             }
         });
 
+        this.persistSelection();
         this.updateSubmitButtonState();
     }
 
@@ -157,6 +159,7 @@ export class Home {
                     this.updateActivityOnServer(activityId, true);
                 }
 
+                this.persistSelection();
                 this.updateSubmitButtonState();
             });
         });
@@ -176,6 +179,30 @@ export class Home {
                     payload: { path: '/cards' },
                 });
             });
+        }
+    }
+
+    private persistSelection(): void {
+        try {
+            localStorage.setItem(
+                'selectedActivities',
+                JSON.stringify(this.selectedActivities)
+            );
+        } catch {
+            // ignore cache errors
+        }
+    }
+
+    private restoreCachedSelection(): void {
+        try {
+            const cached = localStorage.getItem('selectedActivities');
+            if (!cached) return;
+            const parsed = JSON.parse(cached);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+                this.setActiveActivities(parsed.filter(Boolean));
+            }
+        } catch {
+            // ignore cache errors
         }
     }
 
