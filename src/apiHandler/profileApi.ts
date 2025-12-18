@@ -65,6 +65,7 @@ export type ProfileUpdateData = Partial<{
     artist: string;
     bio: string;
     birth_date: string;
+    email: string;
     gender: string;
     latitude: number;
     longitude: number;
@@ -106,7 +107,8 @@ class ProfileApi {
     updateProfileInfo(profileData: ProfileUpdateData): Promise<SuccessResponse> {
         const sanitizedPayload = Object.entries(profileData).reduce(
             (acc, [key, value]) => {
-                if (value === undefined || value === null || value === '') {
+                // Пропускаем только undefined и null
+                if (value === undefined || value === null) {
                     return acc;
                 }
 
@@ -121,7 +123,8 @@ class ProfileApi {
                     return acc;
                 }
 
-                acc[key] = value;
+                // Если пустая строка, отправляем пробел
+                acc[key] = value === '' ? ' ' : value;
                 return acc;
             },
             {} as Record<string, unknown>
@@ -136,9 +139,26 @@ class ProfileApi {
     updatePreferences(
         preferences: PreferencesUpdateData
     ): Promise<SuccessResponse> {
-        return handleFetch<SuccessResponse>(this.baseURL, '/preference', {
+        return handleFetch<SuccessResponse>(this.baseURL, '/preferences', {
             method: 'PUT',
             body: JSON.stringify(preferences),
+        });
+    }
+
+    updatePassword(passwordData: {
+        old_password: string;
+        new_password: string;
+        new_password_confirm: string;
+    }): Promise<SuccessResponse> {
+        return handleFetch<SuccessResponse>(this.baseURL, '/password', {
+            method: 'PUT',
+            body: JSON.stringify(passwordData),
+        });
+    }
+
+    deleteProfile(): Promise<SuccessResponse> {
+        return handleFetch<SuccessResponse>(this.baseURL, '', {
+            method: 'DELETE',
         });
     }
 

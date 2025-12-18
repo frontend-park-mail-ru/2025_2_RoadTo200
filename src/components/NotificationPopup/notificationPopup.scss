@@ -33,6 +33,9 @@
     &-header {
         padding: 24px 24px 20px 24px;
         border-bottom: 1px solid #f0f0f0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
     }
 
     &-title {
@@ -40,6 +43,49 @@
         font-weight: 700;
         margin: 0;
         color: #1f1f1f;
+    }
+
+    &-close {
+        border: none;
+        background: rgba(255, 75, 114, 0.08);
+        color: #ff4b72;
+        font-size: 20px;
+        border-radius: 12px;
+        width: 40px;
+        height: 40px;
+        cursor: pointer;
+        transition: opacity 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        line-height: 1;
+
+        &:hover {
+            opacity: 0.85;
+        }
+    }
+
+    &-actions {
+        padding: 12px 24px;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    &-mark-all {
+        background: transparent;
+        border: 1px solid #ff4b72;
+        color: #ff4b72;
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        width: 100%;
+
+        &:hover {
+            background: #ff4b72;
+            color: white;
+        }
     }
 
     &-list {

@@ -1,8 +1,18 @@
 <div class="profile-menu-overlay {{#unless isVisible}}hidden{{/unless}}" id="profileMenuOverlay">
     <div class="profile-menu-popup">
         <div class="profile-menu-header">
-            <h2 class="profile-menu-name">{{userName}}</h2>
-            <p class="profile-menu-email">{{userEmail}}</p>
+            <div class="profile-menu-header-info">
+                <h2 class="profile-menu-name">{{userName}}</h2>
+                <p class="profile-menu-email">{{userEmail}}</p>
+            </div>
+            <button
+                class="profile-menu-close"
+                type="button"
+                aria-label="Закрыть"
+                id="profileMenuClose"
+            >
+                ×
+            </button>
         </div>
         <ul class="profile-menu-list">
             {{#each menuItems}}

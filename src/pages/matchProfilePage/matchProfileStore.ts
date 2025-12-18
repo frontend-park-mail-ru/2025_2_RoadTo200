@@ -94,6 +94,21 @@ class MatchProfileStore implements Store {
         });
     }
 
+    private async getRealMatchId(userId: string): Promise<string | null> {
+        try {
+            // Try to get match_id from matches list
+            const response = await MatchesApi.getAllMatches();
+            const match = response.matches.find(
+                m => m.user.id === userId || 
+                     m.match.user1_id === userId || 
+                     m.match.user2_id === userId
+            );
+            return match?.match.id || null;
+        } catch (error) {
+            return null;
+        }
+    }
+
     private async renderMatchProfile(payload: {
         matchId: string;
     }): Promise<void> {
@@ -170,11 +185,26 @@ class MatchProfileStore implements Store {
                 userData.other_user_id ||
                 matchId;
 
+            // Get real match_id from userData or fetch from API
+            let realMatchId = userData.matchId || matchId;
+            
+            // If we don't have a proper match_id, fetch it from API
+            // This is important when navigating directly to profile without going through matches page
+            if (!userData.matchId || userData.matchId === userId) {
+                const apiMatchId = await this.getRealMatchId(userId);
+                if (apiMatchId) {
+                    realMatchId = apiMatchId;
+                    // Update cache with correct matchId for future use
+                    userData.matchId = apiMatchId;
+                    this.matchesCache.set(matchId, userData);
+                }
+            }
+
             const totalUserPhotos = photoCards.filter(card => card.isUserPhoto).length;
             
             this.matchData = {
                 id: userId,
-                matchId,
+                matchId: realMatchId, // Use real match_id here
                 userId,
                 name: userData.name || '',
                 age: this.calculateAge(userData.birth_date),

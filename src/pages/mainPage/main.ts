@@ -256,9 +256,11 @@ export class MainPage {
     private initSwipe(cardElement: HTMLElement, cardId: string): void {
         let startX: number, startY: number, endX: number, endY: number;
         let isDragging = false;
+        let hasSwiped = false;
 
         const startSwipe = (e: MouseEvent | TouchEvent) => {
             isDragging = true;
+            hasSwiped = false;
 
             const pageX = e.type.includes('touch')
                 ? (e as TouchEvent).touches[0].pageX
@@ -272,7 +274,11 @@ export class MainPage {
             endX = pageX;
             endY = pageY;
 
-            e.preventDefault();
+            // Don't prevent default on touch to allow image navigation
+            // Only prevent if it's a mouse event
+            if (e.type === 'mousedown') {
+                e.preventDefault();
+            }
         };
 
         const moveSwipe = (e: MouseEvent | TouchEvent) => {
@@ -290,6 +296,12 @@ export class MainPage {
 
             const deltaX = endX - startX;
             const deltaY = endY - startY;
+
+            // Prevent scroll if user is swiping
+            if (Math.abs(deltaX) > 10 || Math.abs(deltaY) > 10) {
+                hasSwiped = true;
+                e.preventDefault();
+            }
 
             cardElement.style.transform = `translate(${deltaX - 175}px, ${deltaY}px) rotate(${deltaX * 0.1}deg)`;
 
@@ -344,6 +356,14 @@ export class MainPage {
                 animateCardOut(cardElement, direction);
             } else {
                 cardElement.style.transform = 'translate(-175px, 0) rotate(0deg)';
+                
+                // Если был свайп, блокируем клик на 300мс
+                if (hasSwiped) {
+                    cardElement.dataset.blockClick = 'true';
+                    setTimeout(() => {
+                        delete cardElement.dataset.blockClick;
+                    }, 300);
+                }
             }
         };
 

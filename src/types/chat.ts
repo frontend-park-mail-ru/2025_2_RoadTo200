@@ -14,4 +14,5 @@ export interface SelectChatPayload {
     chatId: string;
     userName: string;
     userPhoto?: string;
+    userId?: string;
 }

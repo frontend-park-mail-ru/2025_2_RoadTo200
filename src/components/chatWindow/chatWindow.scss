@@ -31,6 +31,38 @@
         display: flex;
         align-items: center;
         gap: 16px;
+        cursor: pointer;
+        transition: opacity 0.2s ease;
+        flex: 1;
+
+        &:hover {
+            opacity: 0.8;
+        }
+    }
+
+    &__close {
+        border: none;
+        background: rgba(255, 75, 114, 0.08);
+        color: #ff4b72;
+        font-size: 24px;
+        border-radius: 12px;
+        width: 40px;
+        height: 40px;
+        cursor: pointer;
+        transition: opacity 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        line-height: 1;
+        flex-shrink: 0;
+
+        &:hover {
+            opacity: 0.85;
+        }
+
+        @media (max-width: 768px) {
+            display: none;
+        }
     }
 
     &__avatar {
@@ -68,7 +100,8 @@
     &__body {
         flex: 1;
         padding: 24px 24px 24px;
-        overflow-y: scroll;
+        overflow-y: auto;
+        overflow-x: hidden;
         display: flex;
         flex-direction: column;
 
@@ -91,7 +124,8 @@
         flex-direction: column;
         gap: 12px;
         padding-bottom: 16px;
-        flex: 0 0 auto;
+        margin-top: auto;
+        min-height: min-content;
     }
 
     &__loader,

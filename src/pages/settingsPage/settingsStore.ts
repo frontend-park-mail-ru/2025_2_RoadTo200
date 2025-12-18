@@ -11,6 +11,13 @@ interface ProfileData {
     email: string;
     isPremium?: boolean;
     premiumUntil?: string;
+    preferences?: {
+        show_gender?: string;
+        age_min?: number;
+        age_max?: number;
+        max_distance?: number;
+        global_search?: boolean;
+    };
 }
 
 class SettingsStore implements Store {
@@ -96,6 +103,7 @@ class SettingsStore implements Store {
             const response = (await ProfileApi.getProfile()) as any;
 
             const user = response.user || {};
+            const preferences = response.preferences || {};
             this.profileData = {
                 name: user.name || '',
                 birthdate: user.birth_date
@@ -106,6 +114,13 @@ class SettingsStore implements Store {
                 premiumUntil: user.premium_until
                     ? this.formatDate(user.premium_until)
                     : '',
+                preferences: {
+                    show_gender: preferences.show_gender || 'both',
+                    age_min: preferences.age_min || 18,
+                    age_max: preferences.age_max || 50,
+                    max_distance: preferences.max_distance || 100,
+                    global_search: Boolean(preferences.global_search),
+                },
             };
         } catch (error) {
             this.profileData = {
@@ -114,6 +129,13 @@ class SettingsStore implements Store {
                 email: '',
                 isPremium: false,
                 premiumUntil: '',
+                preferences: {
+                    show_gender: 'both',
+                    age_min: 18,
+                    age_max: 50,
+                    max_distance: 100,
+                    global_search: false,
+                },
             };
         }
 
@@ -219,6 +241,7 @@ class SettingsStore implements Store {
             await ProfileApi.updateProfileInfo({
                 name,
                 birth_date: birthDateISO,
+                email,
             });
 
             this.profileData = {
@@ -241,13 +264,19 @@ class SettingsStore implements Store {
     ): Promise<void> {
         settings.clearErrors();
 
-        const {
-            age_min,
-            age_max,
-            max_distance,
-            show_gender,
-            global_search,
-        } = payload;
+        const age_min = payload.age_min ?? 18;
+        const age_max = payload.age_max ?? 50;
+        const max_distance = payload.max_distance ?? 100;
+        const show_gender = payload.show_gender ?? 'both';
+        const global_search = payload.global_search ?? false;
+
+        // Валидация возраста
+        if (age_min > age_max) {
+            settings.showErrors({
+                filtersError: 'Минимальный возраст не может быть больше максимального',
+            });
+            return;
+        }
 
         try {
             await ProfileApi.updatePreferences({
@@ -274,21 +303,13 @@ class SettingsStore implements Store {
         newPassword: string;
         confirmPassword: string;
     }): Promise<void> {
-        const errors: Record<string, string> = {};
         settings.clearErrors();
 
-        if (!oldPassword) {
-            errors.oldPasswordError = 'Введите старый пароль';
-        }
-        if (!newPassword) {
-            errors.newPasswordError = 'Введите новый пароль';
-        }
-        if (!confirmPassword) {
-            errors.confirmPasswordError = 'Подтвердите пароль';
-        }
-
-        if (Object.keys(errors).length) {
-            settings.showErrors(errors);
+        // Валидация
+        if (!oldPassword || !newPassword || !confirmPassword) {
+            settings.showErrors({
+                oldPasswordError: 'Заполните все поля',
+            });
             return;
         }
 
@@ -313,15 +334,46 @@ class SettingsStore implements Store {
             return;
         }
 
-        settings.showErrors({
-            oldPasswordError: 'Смена пароля появится в следующем релизе',
-        });
+        try {
+            await ProfileApi.updatePassword({
+                old_password: oldPassword,
+                new_password: newPassword,
+                new_password_confirm: confirmPassword,
+            });
+            
+            settings.showSuccess('passwordSuccessMessage', 'Пароль успешно изменен');
+            
+            // Очищаем поля
+            const oldPasswordInput = document.getElementById('oldPassword') as HTMLInputElement;
+            const newPasswordInput = document.getElementById('newPassword') as HTMLInputElement;
+            const confirmPasswordInput = document.getElementById('confirmPassword') as HTMLInputElement;
+            
+            if (oldPasswordInput) oldPasswordInput.value = '';
+            if (newPasswordInput) newPasswordInput.value = '';
+            if (confirmPasswordInput) confirmPasswordInput.value = '';
+        } catch (error) {
+            settings.showErrors({
+                oldPasswordError: 'Неверный старый пароль',
+            });
+        }
     }
 
     private async deleteAccount(): Promise<void> {
-        settings.showErrors({
-            generalError: 'Удаление аккаунта временно недоступно',
-        });
+        settings.clearErrors();
+        
+        try {
+            await ProfileApi.deleteProfile();
+            
+            // После успешного удаления перенаправляем на страницу логина
+            dispatcher.process({
+                type: Actions.NAVIGATE_TO,
+                payload: { path: '/login' },
+            });
+        } catch (error) {
+            settings.showErrors({
+                deleteAccountError: 'Не удалось удалить аккаунт',
+            });
+        }
     }
 }
 

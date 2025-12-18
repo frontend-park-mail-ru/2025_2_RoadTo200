@@ -45,13 +45,18 @@ const fetchCardTemplate = async (): Promise<string> => {
  */
 const Card = {
     /**
-     * Обработка клика по изображению для навигации
-     * @param {MouseEvent} event
+     * Обработка клика/тача по изображению для навигации
+     * @param {MouseEvent | TouchEvent} event
      */
-    handleImageNavigation(event: MouseEvent): void {
+    handleImageNavigation(event: MouseEvent | TouchEvent): void {
         const target = event.target as HTMLElement;
         const cardElement = target.closest('.card') as HTMLElement;
         if (!cardElement) return;
+
+        // Проверяем, заблокирован ли клик после свайпа
+        if (cardElement.dataset.blockClick === 'true') {
+            return;
+        }
 
         const imagesJson = cardElement.getAttribute('data-images-json');
         if (!imagesJson) return;
@@ -70,7 +75,11 @@ const Card = {
         );
 
         const rect = target.getBoundingClientRect();
-        const clickX = event.clientX - rect.left;
+        // Support both mouse and touch events
+        const clientX = event instanceof MouseEvent 
+            ? event.clientX 
+            : event.changedTouches[0].clientX;
+        const clickX = clientX - rect.left;
         const width = rect.width;
 
         let newIndex = currentIndex;
@@ -136,7 +145,8 @@ const Card = {
      * @param {HTMLElement} cardElement
      */
     init: (cardElement: HTMLElement): void => {
-        cardElement.addEventListener('click', Card.handleImageNavigation);
+        cardElement.addEventListener('click', Card.handleImageNavigation as EventListener);
+        cardElement.addEventListener('touchend', Card.handleImageNavigation as EventListener);
     },
 };
 

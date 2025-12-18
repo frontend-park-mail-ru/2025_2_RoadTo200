@@ -24,12 +24,14 @@ interface ChatWindowData {
     otherUserName?: string;
     otherUserPhoto?: string;
     otherUserInitials?: string;
+    otherUserId?: string;
     isLoading?: boolean;
     isInputDisabled?: boolean;
     placeholder?: PlaceholderState;
     socketStatus?: string;
     draft?: string;
     draftLength?: number;
+    isInitialLoad?: boolean;
 }
 
 const fetchTemplate = async (path: string): Promise<string> => {
@@ -60,6 +62,14 @@ export class ChatWindow implements PageComponent {
             return;
         }
 
+        // Save current scroll position before re-render
+        const bodyContainer = this.parent.querySelector('.chat-window__body') as HTMLElement;
+        const savedScrollTop = bodyContainer?.scrollTop || 0;
+        const savedScrollHeight = bodyContainer?.scrollHeight || 0;
+        const wasAtBottom = bodyContainer 
+            ? (savedScrollHeight - savedScrollTop - bodyContainer.clientHeight) < 100
+            : true;
+
         const templateString = await fetchTemplate(TEMPLATE_PATH);
         const template = Handlebars.compile(templateString);
 
@@ -70,6 +80,7 @@ export class ChatWindow implements PageComponent {
             otherUserName: data.otherUserName,
             otherUserPhoto: data.otherUserPhoto,
             otherUserInitials: data.otherUserInitials,
+            otherUserId: data.otherUserId,
             isLoading: data.isLoading,
             isInputDisabled: data.isInputDisabled,
             placeholder: data.placeholder,
@@ -81,8 +92,22 @@ export class ChatWindow implements PageComponent {
         });
 
         this.parent.innerHTML = renderedHtml;
-        this.scrollToBottom();
         this.initEventListeners();
+        
+        // Restore scroll position after re-render
+        const newBodyContainer = this.parent.querySelector('.chat-window__body') as HTMLElement;
+        if (newBodyContainer) {
+            if (data.isInitialLoad) {
+                // On initial load, show latest messages at bottom
+                newBodyContainer.scrollTop = newBodyContainer.scrollHeight;
+            } else if (wasAtBottom) {
+                // If user was at bottom, stay at bottom (for new messages)
+                newBodyContainer.scrollTop = newBodyContainer.scrollHeight;
+            } else {
+                // Otherwise restore the exact position (user reading history)
+                newBodyContainer.scrollTop = savedScrollTop;
+            }
+        }
         
         // Auto-focus input when chat is selected
         if (data.chatId && !data.isInputDisabled) {
@@ -92,6 +117,24 @@ export class ChatWindow implements PageComponent {
             }
         }
     }
+
+    private handleCloseChat = (event: Event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        // Сбрасываем текущий выбранный чат через store
+        if (typeof document !== 'undefined') {
+            const chatsPage = document.querySelector('.chats-page');
+            if (chatsPage) {
+                chatsPage.classList.remove('chats-page--conversation-open');
+            }
+        }
+        
+        // Рендерим пустое окно чата
+        dispatcher.process({
+            type: Actions.RENDER_CHAT_WINDOW,
+        });
+    };
 
     private initEventListeners(): void {
         if (!this.parent) return;
@@ -171,18 +214,41 @@ export class ChatWindow implements PageComponent {
                 });
             });
         }
-    }
 
-    private scrollToBottom(): void {
-        if (!this.parent) return;
-        
-        const messagesContainer = this.parent.querySelector('.chat-window__messages');
-        if (messagesContainer) {
-            setTimeout(() => {
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
-            }, 100);
+        const profileButton = this.parent.querySelector(
+            '[data-action="open-profile"]'
+        ) as HTMLElement | null;
+
+        if (profileButton) {
+            profileButton.addEventListener('click', (event) => {
+                // Не переходим на профиль если кликнули на кнопку закрытия
+                const target = event.target as HTMLElement;
+                if (target.closest('[data-action="close-chat"]')) {
+                    return;
+                }
+                
+                const userId = profileButton.dataset.userId;
+                if (userId) {
+                    dispatcher.process({
+                        type: Actions.NAVIGATE_TO,
+                        payload: { path: `/profile/${userId}` },
+                    });
+                }
+            });
+        }
+
+        const closeButton = this.parent.querySelector(
+            '[data-action="close-chat"]'
+        ) as HTMLButtonElement | null;
+
+        if (closeButton) {
+            // Удаляем старый обработчик если есть
+            closeButton.removeEventListener('click', this.handleCloseChat);
+            // Добавляем новый
+            closeButton.addEventListener('click', this.handleCloseChat);
         }
     }
+
 }
 
 export const chatWindow = new ChatWindow(document.createElement('div'));

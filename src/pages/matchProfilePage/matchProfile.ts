@@ -56,13 +56,18 @@ export class MatchProfilePage {
         if (chatButton) {
             chatButton.addEventListener('click', (event) => {
                 event.preventDefault();
-                if (!this.currentData?.matchId) return;
+                if (!this.currentData?.matchId) {
+                    return;
+                }
 
+                // Navigate to chats page first
                 dispatcher.process({
                     type: Actions.NAVIGATE_TO,
                     payload: { path: '/chats' },
                 });
 
+                // Wait for page to render, then select chat
+                // Increased timeout for mobile devices
                 setTimeout(() => {
                     dispatcher.process({
                         type: Actions.SELECT_CHAT,
@@ -72,7 +77,7 @@ export class MatchProfilePage {
                             userPhoto: this.currentData!.heroPhoto,
                         },
                     });
-                }, 300);
+                }, 200);
             });
         }
 
