@@ -111,6 +111,13 @@ class ChatsListStore implements Store {
     private async fetchChats(): Promise<void> {
         this.isLoading = true;
         this.error = null;
+        
+        // Уведомляем chatWindow что началась загрузка
+        dispatcher.process({
+            type: Actions.CHATS_LIST_UPDATED,
+            payload: { hasChats: false, isLoading: true },
+        });
+        
         await this.renderChatsList();
 
         try {
@@ -125,13 +132,17 @@ class ChatsListStore implements Store {
             // Уведомляем chatWindow о наличии чатов
             dispatcher.process({
                 type: Actions.CHATS_LIST_UPDATED,
-                payload: { hasChats: this.chats.length > 0 },
+                payload: { hasChats: this.chats.length > 0, isLoading: false },
             });
         } catch (error) {
             this.error =
                 error instanceof Error
                     ? error.message
                     : 'Не удалось загрузить чаты';
+            dispatcher.process({
+                type: Actions.CHATS_LIST_UPDATED,
+                payload: { hasChats: false, isLoading: false },
+            });
         } finally {
             this.isLoading = false;
             this.hasLoadedOnce = true;

@@ -24,6 +24,7 @@ interface ChatMeta {
     userName: string;
     userPhoto?: string;
     initials: string;
+    userId?: string;
 }
 
 class ChatWindowStore implements Store {
@@ -39,6 +40,7 @@ class ChatWindowStore implements Store {
     private markAsReadTimer: number | null = null;
     private readonly loadedChats = new Set<string>(); // Track which chats have been loaded
     private hasAnyChats = false; // Track if user has any chats at all
+    private isLoadingChats = true; // Track if chats list is loading - начинаем с true
 
     constructor() {
         dispatcher.register(this);
@@ -49,6 +51,10 @@ class ChatWindowStore implements Store {
     async handleAction(action: Action): Promise<void> {
         switch (action.type) {
             case Actions.RENDER_CHAT_WINDOW:
+                // Если нет payload, это закрытие чата
+                if (!action.payload) {
+                    this.currentChatId = null;
+                }
                 await this.renderChatWindow();
                 break;
 
@@ -58,6 +64,7 @@ class ChatWindowStore implements Store {
 
             case Actions.CHATS_LIST_UPDATED:
                 this.hasAnyChats = (action.payload as { hasChats?: boolean })?.hasChats || false;
+                this.isLoadingChats = (action.payload as { isLoading?: boolean })?.isLoading || false;
                 await this.renderChatWindow();
                 break;
 
@@ -136,6 +143,7 @@ class ChatWindowStore implements Store {
             userName: payload.userName,
             userPhoto: payload.userPhoto,
             initials: this.getInitials(payload.userName),
+            userId: payload.userId,
         });
 
         // Ensure page is rendered before adding class
@@ -363,16 +371,21 @@ class ChatWindowStore implements Store {
             : '';
 
         const placeholder = !this.currentChatId
-            ? this.hasAnyChats
+            ? this.isLoadingChats
                 ? {
-                    title: 'Чат не выбран',
-                    subtitle: 'Выберите чат из списка слева, чтобы начать общение',
+                    title: 'Загрузка чатов',
+                    subtitle: 'Пожалуйста, подождите...',
                 }
-                : {
-                    title: 'У Вас пока нет чатов',
-                    subtitle: 'Возможно, Вам стоит еще поискать подходящих людей',
-                    action: 'home' as const,
-                }
+                : this.hasAnyChats
+                    ? {
+                        title: 'Чат не выбран',
+                        subtitle: 'Выберите чат из списка слева, чтобы начать общение',
+                    }
+                    : {
+                        title: 'У Вас пока нет чатов',
+                        subtitle: 'Возможно, Вам стоит еще поискать подходящих людей',
+                        action: 'home' as const,
+                    }
             : undefined;
 
         await this.chatWindowComponent.render({
@@ -381,6 +394,7 @@ class ChatWindowStore implements Store {
             otherUserName: meta?.userName,
             otherUserPhoto: meta?.userPhoto,
             otherUserInitials: meta?.initials,
+            otherUserId: meta?.userId,
             isLoading: this.isLoading,
             isInputDisabled: !this.currentChatId || this.isLoading || this.isSending,
             placeholder,
@@ -408,11 +422,15 @@ class ChatWindowStore implements Store {
                 if (counter) {
                     counter.textContent = `${currentInputValue.length} / 250`;
                 }
-                // Restore cursor position at the end
-                setTimeout(() => {
-                    newInputElement.focus();
-                    newInputElement.setSelectionRange(currentInputValue.length, currentInputValue.length);
-                }, 0);
+                // Восстанавливаем фокус только если не работаем с полем поиска
+                const activeElement = document.activeElement;
+                const isSearchActive = activeElement?.classList.contains('chats-list__search-input');
+                if (!isSearchActive) {
+                    setTimeout(() => {
+                        newInputElement.focus();
+                        newInputElement.setSelectionRange(currentInputValue.length, currentInputValue.length);
+                    }, 0);
+                }
             }
         }
     }

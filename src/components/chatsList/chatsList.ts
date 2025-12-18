@@ -113,11 +113,12 @@ export class ChatsList implements PageComponent {
                 const chatId = (item as HTMLElement).dataset.chatId;
                 const userName = (item as HTMLElement).dataset.userName || '';
                 const userPhoto = (item as HTMLElement).dataset.userPhoto || '';
+                const userId = (item as HTMLElement).dataset.userId || '';
 
                 if (chatId) {
                     dispatcher.process({
                         type: Actions.SELECT_CHAT,
-                        payload: { chatId, userName, userPhoto },
+                        payload: { chatId, userName, userPhoto, userId },
                     });
                     if (typeof document !== 'undefined') {
                         document

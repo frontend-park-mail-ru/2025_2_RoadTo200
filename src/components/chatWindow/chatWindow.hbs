@@ -6,7 +6,7 @@
         
         <div class="chat-window__header">
             
-            <div class="chat-window__person">
+            <div class="chat-window__person" data-action="open-profile" data-user-id="{{otherUserId}}">
                 <div class="chat-window__avatar">
                     {{#if otherUserPhoto}}
                         <img src="{{otherUserPhoto}}" alt="{{otherUserName}}" />
@@ -19,6 +19,7 @@
                     <p class="chat-window__status">{{#if socketStatus}}{{socketStatus}}{{else}}Готовы к диалогу{{/if}}</p>
                 </div>
             </div>
+            <button class="chat-window__close" data-action="close-chat" type="button" aria-label="Закрыть чат">×</button>
         </div>
 
         <div class="chat-window__body">

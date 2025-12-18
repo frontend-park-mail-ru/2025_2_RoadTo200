@@ -24,6 +24,7 @@ interface ChatWindowData {
     otherUserName?: string;
     otherUserPhoto?: string;
     otherUserInitials?: string;
+    otherUserId?: string;
     isLoading?: boolean;
     isInputDisabled?: boolean;
     placeholder?: PlaceholderState;
@@ -79,6 +80,7 @@ export class ChatWindow implements PageComponent {
             otherUserName: data.otherUserName,
             otherUserPhoto: data.otherUserPhoto,
             otherUserInitials: data.otherUserInitials,
+            otherUserId: data.otherUserId,
             isLoading: data.isLoading,
             isInputDisabled: data.isInputDisabled,
             placeholder: data.placeholder,
@@ -115,6 +117,24 @@ export class ChatWindow implements PageComponent {
             }
         }
     }
+
+    private handleCloseChat = (event: Event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        // Сбрасываем текущий выбранный чат через store
+        if (typeof document !== 'undefined') {
+            const chatsPage = document.querySelector('.chats-page');
+            if (chatsPage) {
+                chatsPage.classList.remove('chats-page--conversation-open');
+            }
+        }
+        
+        // Рендерим пустое окно чата
+        dispatcher.process({
+            type: Actions.RENDER_CHAT_WINDOW,
+        });
+    };
 
     private initEventListeners(): void {
         if (!this.parent) return;
@@ -193,6 +213,39 @@ export class ChatWindow implements PageComponent {
                     payload: { path: '/' },
                 });
             });
+        }
+
+        const profileButton = this.parent.querySelector(
+            '[data-action="open-profile"]'
+        ) as HTMLElement | null;
+
+        if (profileButton) {
+            profileButton.addEventListener('click', (event) => {
+                // Не переходим на профиль если кликнули на кнопку закрытия
+                const target = event.target as HTMLElement;
+                if (target.closest('[data-action="close-chat"]')) {
+                    return;
+                }
+                
+                const userId = profileButton.dataset.userId;
+                if (userId) {
+                    dispatcher.process({
+                        type: Actions.NAVIGATE_TO,
+                        payload: { path: `/profile/${userId}` },
+                    });
+                }
+            });
+        }
+
+        const closeButton = this.parent.querySelector(
+            '[data-action="close-chat"]'
+        ) as HTMLButtonElement | null;
+
+        if (closeButton) {
+            // Удаляем старый обработчик если есть
+            closeButton.removeEventListener('click', this.handleCloseChat);
+            // Добавляем новый
+            closeButton.addEventListener('click', this.handleCloseChat);
         }
     }
 
