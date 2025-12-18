@@ -1,6 +1,11 @@
+import Handlebars from 'handlebars';
 import { Actions } from '../../actions';
 import { dispatcher } from '../../Dispatcher';
 import type { PageComponent } from '../../navigation/navigationStore';
+
+Handlebars.registerHelper('and', function(...args) {
+    return args.slice(0, -1).every(Boolean);
+});
 
 const TEMPLATE_PATH = '/src/components/chatsList/chatsList.hbs';
 
@@ -21,9 +26,11 @@ interface ChatsListData {
     selectedChatId?: string;
     searchQuery?: string;
     isLoading?: boolean;
+    hasLoadedOnce?: boolean;
     emptyState?: {
         title: string;
         subtitle: string;
+        isSearchResult?: boolean;
     };
 }
 
@@ -71,20 +78,27 @@ export class ChatsList implements PageComponent {
             hasChats: chats.length > 0,
             searchQuery,
             isLoading,
+            hasLoadedOnce: data.hasLoadedOnce,
             emptyState,
         });
 
         this.parent.innerHTML = renderedHtml;
         this.initEventListeners();
 
-        if (hadFocus) {
-            const newSearchInput = this.parent.querySelector(
-                '.chats-sidebar__search-input'
-            ) as HTMLInputElement | null;
-            if (newSearchInput) {
-                newSearchInput.focus();
-                newSearchInput.setSelectionRange(cursorPosition, cursorPosition);
-            }
+        if (hadFocus && searchQuery) {
+            requestAnimationFrame(() => {
+                const newSearchInput = this.parent?.querySelector(
+                    '.chats-sidebar__search-input'
+                ) as HTMLInputElement | null;
+                if (newSearchInput && newSearchInput.value) {
+                    newSearchInput.focus();
+                    requestAnimationFrame(() => {
+                        if (newSearchInput) {
+                            newSearchInput.setSelectionRange(cursorPosition, cursorPosition);
+                        }
+                    });
+                }
+            });
         }
     }
 
@@ -131,6 +145,23 @@ export class ChatsList implements PageComponent {
                         payload: { query: value },
                     });
                 }, 300);
+            });
+        }
+
+        const clearButton = this.parent.querySelector(
+            '.chats-sidebar__search-clear'
+        ) as HTMLButtonElement | null;
+
+        if (clearButton) {
+            clearButton.addEventListener('click', () => {
+                if (searchInput) {
+                    searchInput.value = '';
+                    dispatcher.process({
+                        type: Actions.UPDATE_CHAT_SEARCH,
+                        payload: { query: '' },
+                    });
+                    searchInput.focus();
+                }
             });
         }
 

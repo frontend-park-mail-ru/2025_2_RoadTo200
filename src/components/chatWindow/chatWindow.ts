@@ -30,6 +30,7 @@ interface ChatWindowData {
     socketStatus?: string;
     draft?: string;
     draftLength?: number;
+    isInitialLoad?: boolean;
 }
 
 const fetchTemplate = async (path: string): Promise<string> => {
@@ -60,6 +61,14 @@ export class ChatWindow implements PageComponent {
             return;
         }
 
+        // Save current scroll position before re-render
+        const bodyContainer = this.parent.querySelector('.chat-window__body') as HTMLElement;
+        const savedScrollTop = bodyContainer?.scrollTop || 0;
+        const savedScrollHeight = bodyContainer?.scrollHeight || 0;
+        const wasAtBottom = bodyContainer 
+            ? (savedScrollHeight - savedScrollTop - bodyContainer.clientHeight) < 100
+            : true;
+
         const templateString = await fetchTemplate(TEMPLATE_PATH);
         const template = Handlebars.compile(templateString);
 
@@ -81,8 +90,22 @@ export class ChatWindow implements PageComponent {
         });
 
         this.parent.innerHTML = renderedHtml;
-        this.scrollToBottom();
         this.initEventListeners();
+        
+        // Restore scroll position after re-render
+        const newBodyContainer = this.parent.querySelector('.chat-window__body') as HTMLElement;
+        if (newBodyContainer) {
+            if (data.isInitialLoad) {
+                // On initial load, show latest messages at bottom
+                newBodyContainer.scrollTop = newBodyContainer.scrollHeight;
+            } else if (wasAtBottom) {
+                // If user was at bottom, stay at bottom (for new messages)
+                newBodyContainer.scrollTop = newBodyContainer.scrollHeight;
+            } else {
+                // Otherwise restore the exact position (user reading history)
+                newBodyContainer.scrollTop = savedScrollTop;
+            }
+        }
         
         // Auto-focus input when chat is selected
         if (data.chatId && !data.isInputDisabled) {
@@ -173,16 +196,6 @@ export class ChatWindow implements PageComponent {
         }
     }
 
-    private scrollToBottom(): void {
-        if (!this.parent) return;
-        
-        const messagesContainer = this.parent.querySelector('.chat-window__messages');
-        if (messagesContainer) {
-            setTimeout(() => {
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
-            }, 100);
-        }
-    }
 }
 
 export const chatWindow = new ChatWindow(document.createElement('div'));

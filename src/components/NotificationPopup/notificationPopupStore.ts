@@ -35,6 +35,10 @@ class NotificationPopupStore implements Store {
                 await this.markAsRead(action.payload as { id: string });
                 break;
 
+            case Actions.MARK_ALL_NOTIFICATIONS_READ:
+                await this.markAllAsRead();
+                break;
+
             case Actions.LOAD_NOTIFICATIONS:
                 await this.loadNotifications('dispatcher');
                 break;
@@ -81,6 +85,26 @@ class NotificationPopupStore implements Store {
                 notification.isRead = false;
                 await this.doRender();
             }
+        }
+    }
+
+    private async markAllAsRead(): Promise<void> {
+        const unreadNotifications = this.notifications.filter(n => !n.isRead);
+        if (unreadNotifications.length === 0) return;
+
+        // Оптимистичное обновление UI
+        unreadNotifications.forEach(n => n.isRead = true);
+        await this.doRender();
+
+        // Отмечаем каждое уведомление прочитанным через существующий API
+        try {
+            await Promise.all(
+                unreadNotifications.map(n => notificationApi.markAsRead(n.id))
+            );
+        } catch (error) {
+            // Откатываем изменения при ошибке
+            unreadNotifications.forEach(n => n.isRead = false);
+            await this.doRender();
         }
     }
 
@@ -240,9 +264,11 @@ class NotificationPopupStore implements Store {
     }
 
     private async doRender(): Promise<void> {
+        const hasUnread = this.notifications.some(n => !n.isRead);
         const data = {
             isVisible: this.isVisible,
             notifications: this.notifications,
+            hasUnread,
         };
 
 

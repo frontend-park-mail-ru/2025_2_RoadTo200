@@ -27,6 +27,7 @@ class ChatsListStore implements Store {
     private error: string | null = null;
     private isInitialized = false;
     private currentUserId: string | null = null;
+    private hasLoadedOnce = false;
 
     constructor() {
         dispatcher.register(this);
@@ -36,12 +37,9 @@ class ChatsListStore implements Store {
         switch (action.type) {
             case Actions.RENDER_CHATS_LIST:
                 await this.ensureUser();
-                if (!this.isInitialized) {
-                    await this.fetchChats();
-                    this.isInitialized = true;
-                } else {
-                    await this.renderChatsList();
-                }
+                // Always fetch chats on render to keep list updated
+                await this.fetchChats();
+                this.isInitialized = true;
                 break;
 
             case Actions.SELECT_CHAT:
@@ -118,9 +116,9 @@ class ChatsListStore implements Store {
         try {
             // Use server-side search via backend API
             const { conversations } = await ChatApi.getConversations(this.searchQuery);
-            this.chats = conversations.map((conversation) =>
-                this.mapConversation(conversation)
-            );
+            this.chats = (conversations && Array.isArray(conversations))
+                ? conversations.map((conversation) => this.mapConversation(conversation))
+                : [];
 
             if (!this.selectedChatId && this.chats.length > 0) {
                 const firstChat = this.chats[0];
@@ -141,6 +139,7 @@ class ChatsListStore implements Store {
                     : 'Не удалось загрузить чаты';
         } finally {
             this.isLoading = false;
+            this.hasLoadedOnce = true;
             await this.renderChatsList();
         }
     }
@@ -183,6 +182,9 @@ class ChatsListStore implements Store {
         if (!dateString) return '';
         const date = new Date(dateString);
         if (Number.isNaN(date.getTime())) return '';
+        
+        // Check for invalid dates like 01.01.0001 (year < 1900)
+        if (date.getFullYear() < 1900) return '';
 
         const now = new Date();
         const sameDay = date.toDateString() === now.toDateString();
@@ -209,17 +211,25 @@ class ChatsListStore implements Store {
     }
 
     private async renderChatsList(): Promise<void> {
-        const emptyState =
-        {
-            title: 'У Вас пока нет чатов',
-            subtitle: 'Возможно Вам стоит еще поискать подходящих людей',
-        };
+        const isSearchResult = this.searchQuery.length > 0;
+        const emptyState = isSearchResult
+            ? {
+                title: 'Ничего не найдено',
+                subtitle: 'Попробуйте изменить запрос',
+                isSearchResult: true,
+            }
+            : {
+                title: 'У Вас пока нет чатов',
+                subtitle: 'Возможно Вам стоит еще поискать подходящих людей',
+                isSearchResult: false,
+            };
 
         await this.chatsListComponent.render({
             chats: this.chats,
             selectedChatId: this.selectedChatId ?? undefined,
             searchQuery: this.searchQuery,
             isLoading: this.isLoading,
+            hasLoadedOnce: this.hasLoadedOnce,
             emptyState,
         });
     }

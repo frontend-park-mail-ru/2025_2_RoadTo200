@@ -2,7 +2,22 @@
     <div class="notification-menu-popup">
         <div class="notification-menu-header">
             <h2 class="notification-menu-title">Уведомления</h2>
+            <button
+                class="notification-menu-close"
+                type="button"
+                aria-label="Закрыть"
+                id="notificationMenuClose"
+            >
+                ×
+            </button>
         </div>
+        {{#if hasUnread}}
+        <div class="notification-menu-actions">
+            <button class="notification-menu-mark-all" id="notificationMarkAllRead">
+                Отметить все прочитанными
+            </button>
+        </div>
+        {{/if}}
         {{#if notifications.length}}
         <ul class="notification-menu-list">
             {{#each notifications}}

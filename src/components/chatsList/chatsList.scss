@@ -34,12 +34,40 @@
         }
     }
 
+    &__search-wrapper {
+        position: relative;
+        margin-bottom: 20px;
+    }
+
     &__search {
         display: block;
         padding: 2px;
         border-radius: 999px;
         background-image: var(--primary-gradient);
-        margin-bottom: 20px;
+    }
+
+    &__search-clear {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 28px;
+        height: 28px;
+        border: none;
+        background: rgba(255, 75, 114, 0.08);
+        color: #ff4b72;
+        border-radius: 50%;
+        font-size: 20px;
+        line-height: 1;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: opacity 0.2s ease;
+
+        &:hover {
+            opacity: 0.85;
+        }
     }
 
     &__search-input {
@@ -242,8 +270,6 @@
     flex-direction: column;
     gap: 16px;
     align-items: center;
-
-    display: none;
 
     h3 {
         margin: 0;

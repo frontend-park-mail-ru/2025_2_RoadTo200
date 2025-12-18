@@ -119,7 +119,7 @@ export class SettingsPage {
         section.innerHTML = `
             <h1 class="settings-section-title">Профиль</h1>
             ${premiumBadge}
-            <p class="form__success-message" id="profileSuccessMessage"></p>
+            <div class="form__error-message" id="profileSuccessMessage" style="display: none; color: green;"></div>
             ${SettingsPage.createFormGroupHTML('Имя:', 'text', 'settingsName', profileData.name, 'settingsNameError')}
             ${SettingsPage.createFormGroupHTML('Дата рождения:', 'text', 'settingsBirthdate', profileData.birthdate, 'birthdateError', 'ДД.ММ.ГГГГ')}
             ${SettingsPage.createFormGroupHTML('Email:', 'email', 'settingsEmail', profileData.email, 'emailError')}
@@ -135,6 +135,8 @@ export class SettingsPage {
             <h1 class="settings-section-title">Безопасность</h1>
             
             <h2 class="settings-section-subsection-title">Смена пароля</h2>
+            <div class="form__error-message" id="passwordSuccessMessage" style="display: none; color: green;"></div>
+            <div class="form__error-message" id="passwordErrorMessage" style="display: none;"></div>
             ${SettingsPage.createFormGroupHTML('Введите старый пароль:', 'password', 'oldPassword', '', 'oldPasswordError')}
             ${SettingsPage.createFormGroupHTML('Введите новый пароль:', 'password', 'newPassword', '', 'newPasswordError')}
             ${SettingsPage.createFormGroupHTML('Введите новый пароль повторно:', 'password', 'confirmPassword', '', 'confirmPasswordError')}
@@ -144,6 +146,7 @@ export class SettingsPage {
             
             <h2 class="settings-section-subsection-title">Удаление аккаунта</h2>
             <p style="color: #666; font-size: 14px; margin-bottom: 16px;">Это действие необратимо. Все ваши данные будут удалены.</p>
+            <div class="form__error-message" id="deleteAccountError" style="display: none;"></div>
             <button class="btn-danger" id="deleteAccountBtn">Удалить аккаунт</button>
         `;
         return section;
@@ -155,7 +158,7 @@ export class SettingsPage {
         section.className = 'settings-section';
         section.innerHTML = `
             <h1 class="settings-section-title">Фильтры поиска</h1>
-            <p class="form__success-message" id="filtersSuccessMessage"></p>
+            <div class="form__error-message" id="filtersSuccessMessage" style="display: none; color: green;"></div>
             
             <div class="form__input-wrapper">
                 <label class="settings-label">Показывать мне:</label>
@@ -361,13 +364,13 @@ export class SettingsPage {
                     dispatcher.process({
                         type: Actions.UPDATE_FILTER_SETTINGS,
                         payload: {
-                            show_gender: showGenderInput?.value,
-                            age_min: normalizedMin,
-                            age_max: normalizedMax,
+                            show_gender: showGenderInput?.value || 'both',
+                            age_min: normalizedMin || 18,
+                            age_max: normalizedMax || 50,
                             max_distance: maxDistanceInput
                                 ? parseInt(maxDistanceInput.value, 10)
-                                : undefined,
-                            global_search: globalSearchInput?.checked,
+                                : 100,
+                            global_search: globalSearchInput?.checked || false,
                         },
                     });
                 });
@@ -416,12 +419,35 @@ export class SettingsPage {
         if (!this.parent) return;
 
         Object.entries(errors).forEach(([key, message]) => {
-            const errorElement = this.parent?.querySelector(`#${key}`);
-            if (errorElement) errorElement.textContent = message;
-            const inputElement = this.parent?.querySelector(
-                `#${key.replace('Error', '')}`
-            ) as HTMLElement | null;
-            if (inputElement) inputElement.classList.add('error-input');
+            // Для ошибок пароля - показываем в общем блоке как на странице логина
+            if (key.includes('Password')) {
+                const errorBlock = this.parent?.querySelector('#passwordErrorMessage') as HTMLElement;
+                if (errorBlock) {
+                    errorBlock.textContent = message;
+                    errorBlock.style.display = 'block';
+                }
+                const inputElement = this.parent?.querySelector(
+                    `#${key.replace('Error', '')}`
+                ) as HTMLElement | null;
+                if (inputElement) inputElement.classList.add('form__error-input');
+            } 
+            // Для ошибки удаления аккаунта
+            else if (key === 'deleteAccountError') {
+                const errorBlock = this.parent?.querySelector('#deleteAccountError') as HTMLElement;
+                if (errorBlock) {
+                    errorBlock.textContent = message;
+                    errorBlock.style.display = 'block';
+                }
+            }
+            // Для остальных ошибок - старый способ
+            else {
+                const errorElement = this.parent?.querySelector(`#${key}`);
+                if (errorElement) errorElement.textContent = message;
+                const inputElement = this.parent?.querySelector(
+                    `#${key.replace('Error', '')}`
+                ) as HTMLElement | null;
+                if (inputElement) inputElement.classList.add('form__error-input');
+            }
         });
     }
 
@@ -429,23 +455,29 @@ export class SettingsPage {
         if (!this.parent) return;
 
         this.parent
-            .querySelectorAll('.form__error-message, .form__success-message')
+            .querySelectorAll('.form__error-message')
             .forEach((el) => {
                 el.textContent = '';
+                if (el instanceof HTMLElement) {
+                    el.style.display = 'none';
+                }
             });
         this.parent.querySelectorAll('.form__input').forEach((input) => {
             input.classList.remove('error-input');
+            input.classList.remove('form__error-input');
         });
     }
 
     showSuccess(messageId: string, message: string): void {
         if (!this.parent) return;
 
-        const successElement = this.parent.querySelector(`#${messageId}`);
+        const successElement = this.parent.querySelector(`#${messageId}`) as HTMLElement | null;
         if (successElement) {
             successElement.textContent = message;
+            successElement.style.display = 'block';
             setTimeout(() => {
                 successElement.textContent = '';
+                successElement.style.display = 'none';
             }, 5000); // Clear after 5 seconds
         }
     }

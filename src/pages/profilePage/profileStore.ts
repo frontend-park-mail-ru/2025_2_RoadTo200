@@ -199,7 +199,9 @@ class ProfileStore implements Store {
         try {
             const { field, value } = payload;
 
-            if (!field || value === undefined) return;
+            if (!field || value === undefined || value === null) {
+                return;
+            }
 
             const fieldMapping: Record<string, string> = {
                 description: 'bio',
@@ -212,9 +214,10 @@ class ProfileStore implements Store {
             const updateData = { [backendField]: value };
 
             await ProfileApi.updateProfileInfo(updateData);
+            
             await this.renderProfile();
         } catch (error) {
-            // Profile update failed
+            console.error('[ProfileStore] Profile update failed:', error);
         }
     }
 

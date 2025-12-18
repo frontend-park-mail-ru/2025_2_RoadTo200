@@ -100,13 +100,11 @@ export class ProfilePage {
 
         if (!wrapper) return;
 
-        let minLength = 0;
         let maxLength = 0;
 
         if (fieldName === 'description') {
             maxLength = 250;
         } else if (fieldName === 'musician' || fieldName === 'quote') {
-            minLength = 1;
             maxLength = 50;
         }
 
@@ -145,22 +143,17 @@ export class ProfilePage {
 
 
         const updateCounter = (value: string) => {
-            if (!counterElement) return;
-            const length = value.trim().length;
+            if (!counterElement) return true;
+            const length = value.length;
 
             let counterText = `${length}`;
             let isValid = true;
 
             if (maxLength > 0) {
                 counterText += ` / ${maxLength}`;
-            }
-
-            if (minLength > 0 && length < minLength) {
-                counterText += ` (Минимум ${minLength})`;
-                isValid = false;
-            } else if (maxLength > 0 && length > maxLength) {
-                counterText += ` (Максимум ${maxLength})`;
-                isValid = false;
+                if (length > maxLength) {
+                    isValid = false;
+                }
             }
 
             counterElement.textContent = counterText;
@@ -198,19 +191,10 @@ export class ProfilePage {
             if (!isSaveEvent) return;
             if (e.type === 'keypress') e.preventDefault();
 
-            const newValue = inputElement.value.trim();
-            const isValid = updateCounter(newValue);
+            const rawValue = inputElement.value;
+            updateCounter(rawValue);
 
-            if (!isValid && e.type === 'blur') {
-                return;
-            }
-
-            if (!isValid) {
-                if (e.type !== 'blur') {
-                    alert(`Поле "${fieldName}" не соответствует требованиям к длине.`);
-                }
-                return;
-            }
+            const newValue = rawValue.trim();
 
             inputElement.removeEventListener('blur', saveEdit);
             inputElement.removeEventListener('keypress', saveEdit);

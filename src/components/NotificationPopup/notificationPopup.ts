@@ -22,6 +22,7 @@ export interface Notification {
 interface NotificationPopupData {
     isVisible: boolean;
     notifications: Notification[];
+    hasUnread?: boolean;
 }
 
 const fetchTemplate = async (path: string): Promise<string> => {
@@ -84,6 +85,28 @@ export class NotificationPopup {
         popup.addEventListener('click', (e: Event) => {
             e.stopPropagation();
         });
+
+        // Обработчик крестика закрытия
+        const closeButton = this.parent.querySelector('#notificationMenuClose');
+        if (closeButton) {
+            closeButton.addEventListener('click', () => {
+                dispatcher.process({
+                    type: Actions.TOGGLE_NOTIFICATION_POPUP,
+                    payload: { isVisible: false },
+                });
+            });
+        }
+
+        // Обработчик кнопки "Отметить все прочитанными"
+        const markAllButton = this.parent.querySelector('#notificationMarkAllRead');
+        if (markAllButton) {
+            markAllButton.addEventListener('click', (e: Event) => {
+                e.stopPropagation();
+                dispatcher.process({
+                    type: Actions.MARK_ALL_NOTIFICATIONS_READ,
+                });
+            });
+        }
 
         const notificationItems = this.parent.querySelectorAll('.notification-item');
         notificationItems.forEach(item => {

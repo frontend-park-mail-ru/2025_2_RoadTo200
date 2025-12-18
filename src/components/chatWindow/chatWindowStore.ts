@@ -37,6 +37,7 @@ class ChatWindowStore implements Store {
     private isSending = false;
     private socketStatus: ChatSocketStatus = 'disconnected';
     private markAsReadTimer: number | null = null;
+    private readonly loadedChats = new Set<string>(); // Track which chats have been loaded
 
     constructor() {
         dispatcher.register(this);
@@ -111,6 +112,7 @@ class ChatWindowStore implements Store {
             this.currentChatId = null;
             this.messagesByChat.clear();
             this.chatMeta.clear();
+            this.loadedChats.clear();
             chatSocket.disconnect();
             await this.renderChatWindow();
         } else {
@@ -119,7 +121,10 @@ class ChatWindowStore implements Store {
     }
 
     private async handleChatSelection(payload?: SelectChatPayload): Promise<void> {
-        if (!payload?.chatId) return;
+        if (!payload?.chatId) {
+            return;
+        }
+        
         this.currentChatId = payload.chatId;
         this.chatMeta.set(payload.chatId, {
             userName: payload.userName,
@@ -127,15 +132,30 @@ class ChatWindowStore implements Store {
             initials: this.getInitials(payload.userName),
         });
 
+        // Ensure page is rendered before adding class
+        await new Promise(resolve => setTimeout(resolve, 50));
+        
+        // Add class for mobile devices with retry logic
         if (typeof document !== 'undefined') {
-            document
-                .querySelector('.chats-page')
-                ?.classList.add('chats-page--conversation-open');
+            const addMobileClass = () => {
+                const chatsPage = document.querySelector('.chats-page');
+                if (chatsPage) {
+                    chatsPage.classList.add('chats-page--conversation-open');
+                    return true;
+                }
+                return false;
+            };
+            
+            // Try immediately
+            if (!addMobileClass()) {
+                // If failed, retry after delay
+                await new Promise(resolve => setTimeout(resolve, 100));
+                addMobileClass();
+            }
         }
 
         // Ensure chat window has parent before loading messages
         if (!this.chatWindowComponent.parent) {
-            // Wait for page to render and retry
             await new Promise(resolve => setTimeout(resolve, 100));
         }
 
@@ -151,18 +171,20 @@ class ChatWindowStore implements Store {
         this.isLoading = true;
         await this.renderChatWindow();
 
+        const isInitialLoad = !this.loadedChats.has(chatId);
+        
         try {
             const { messages } = await ChatApi.getMessages(chatId, { limit: 100 });
             const mapped = messages.map((message) => this.mapMessage(message));
             this.messagesByChat.set(chatId, mapped);
             this.sortMessages(chatId);
-            this.scrollToBottom();
             this.scheduleMarkAsRead(chatId);
+            this.loadedChats.add(chatId); // Mark as loaded
         } catch (error) {
             // Failed to load messages
         } finally {
             this.isLoading = false;
-            await this.renderChatWindow();
+            await this.renderChatWindow(false, isInitialLoad);
         }
     }
 
@@ -195,15 +217,18 @@ class ChatWindowStore implements Store {
         const trimmed = text.trim();
         if (!trimmed) return;
 
+        const chatId = this.currentChatId;
         this.isSending = true;
-        await this.renderChatWindow();
-
+        
         try {
             if (chatSocket.isConnected()) {
-                chatSocket.sendMessage(this.currentChatId, trimmed);
+                chatSocket.sendMessage(chatId, trimmed);
+                // Clear draft immediately for WebSocket
+                this.drafts.set(chatId, '');
+                await this.renderChatWindow(false);
             } else {
-                const response = await ChatApi.sendMessage(this.currentChatId, trimmed);
-                this.appendMessage(this.currentChatId, {
+                const response = await ChatApi.sendMessage(chatId, trimmed);
+                this.appendMessage(chatId, {
                     id: response.message_id,
                     text: trimmed,
                     senderId: this.currentUserId || '',
@@ -214,22 +239,28 @@ class ChatWindowStore implements Store {
                     createdAt: response.created_at,
                     isMine: true,
                 });
+                this.drafts.set(chatId, '');
             }
         } catch (error) {
             // Message send failed
+            await this.renderChatWindow();
         } finally {
             this.isSending = false;
-            this.drafts.set(this.currentChatId, '');
-            await this.renderChatWindow();
         }
     }
 
     private appendMessage(chatId: string, message: MessageView): void {
         const list = this.messagesByChat.get(chatId) || [];
+        
+        // Check if message already exists to avoid duplicates
+        const exists = list.some(m => m.id === message.id);
+        if (exists) return;
+        
         list.push(message);
         this.messagesByChat.set(chatId, list);
         this.sortMessages(chatId);
         if (chatId === this.currentChatId) {
+            // Just update UI without scrolling
             void this.renderChatWindow(true);
         }
     }
@@ -263,6 +294,7 @@ class ChatWindowStore implements Store {
                 isMine: event.sender_id === this.currentUserId,
             };
 
+            // Just append without scrolling
             this.appendMessage(event.match_id, mapped);
 
             if (
@@ -304,16 +336,18 @@ class ChatWindowStore implements Store {
         }
     }
 
-    private async renderChatWindow(preserveInput = false): Promise<void> {
+    private async renderChatWindow(preserveInput = false, isInitialLoad = false): Promise<void> {
         // Store current input value if preserving
         let currentInputValue = '';
         let currentInputElement: HTMLTextAreaElement | null = null;
+        
         if (preserveInput && typeof document !== 'undefined') {
             currentInputElement = document.querySelector('.chat-window__input');
             if (currentInputElement) {
                 currentInputValue = currentInputElement.value;
             }
         }
+        
         const messages = this.getMessages(this.currentChatId);
         const meta = this.currentChatId
             ? this.chatMeta.get(this.currentChatId)
@@ -348,7 +382,16 @@ class ChatWindowStore implements Store {
             socketStatus: this.formatSocketStatus(),
             draft,
             draftLength: draft.length,
+            isInitialLoad,
         });
+        
+        // Ensure mobile class is present after render if chat is selected
+        if (this.currentChatId && typeof document !== 'undefined') {
+            const chatsPage = document.querySelector('.chats-page');
+            if (chatsPage && !chatsPage.classList.contains('chats-page--conversation-open')) {
+                chatsPage.classList.add('chats-page--conversation-open');
+            }
+        }
         
         // Restore input value if it was preserved
         if (preserveInput && currentInputValue && typeof document !== 'undefined') {
@@ -364,13 +407,8 @@ class ChatWindowStore implements Store {
                 setTimeout(() => {
                     newInputElement.focus();
                     newInputElement.setSelectionRange(currentInputValue.length, currentInputValue.length);
-                    // Scroll to bottom after restoration
-                    this.scrollToBottom();
                 }, 0);
             }
-        } else if (!preserveInput) {
-            // Scroll to bottom on normal render
-            this.scrollToBottom();
         }
     }
 
@@ -393,19 +431,6 @@ class ChatWindowStore implements Store {
             .slice(0, 2)
             .map((part) => part[0]?.toUpperCase() || '')
             .join('') || 'T';
-    }
-
-    private scrollToBottom(): void {
-        if (typeof window === 'undefined') return;
-        setTimeout(() => {
-            if (typeof document === 'undefined') return;
-            const container = document.querySelector(
-                '.chat-window__body'
-            ) as HTMLElement | null;
-            if (container) {
-                container.scrollTop = container.scrollHeight;
-            }
-        }, 150);
     }
 }
 
