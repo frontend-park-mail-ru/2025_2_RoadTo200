@@ -112,6 +112,16 @@ export class ProfileMenu implements PageComponent {
                 }
             });
 
+            const closeButton = this.parent.querySelector('#profileMenuClose');
+            if (closeButton) {
+                closeButton.addEventListener('click', () => {
+                    dispatcher.process({
+                        type: Actions.TOGGLE_PROFILE_MENU,
+                        payload: { isVisible: false },
+                    });
+                });
+            }
+
             const menuItems =
                 this.parent.querySelectorAll('.profile-menu-item');
             menuItems.forEach((item) => {

@@ -356,11 +356,12 @@ class ChatWindowStore implements Store {
             ? this.drafts.get(this.currentChatId) || ''
             : '';
 
-        const hasChats = this.chatMeta.size > 0;
+        // Чаты есть если загружен хоть один чат (значит список чатов не пустой)
+        const hasChats = this.loadedChats.size > 0;
         const placeholder = !this.currentChatId
             ? hasChats
                 ? {
-                    title: 'Выберите чат',
+                    title: 'Чат не выбран',
                     subtitle: 'Выберите чат из списка слева, чтобы начать общение',
                 }
                 : {
