@@ -120,18 +120,7 @@ class ChatsListStore implements Store {
                 ? conversations.map((conversation) => this.mapConversation(conversation))
                 : [];
 
-            if (!this.selectedChatId && this.chats.length > 0) {
-                const firstChat = this.chats[0];
-                this.selectedChatId = firstChat.id;
-                dispatcher.process({
-                    type: Actions.SELECT_CHAT,
-                    payload: {
-                        chatId: firstChat.id,
-                        userName: firstChat.userName,
-                        userPhoto: firstChat.userAvatar,
-                    },
-                });
-            }
+            // Не выбираем чат автоматически - пользователь сам выберет нужный
         } catch (error) {
             this.error =
                 error instanceof Error
