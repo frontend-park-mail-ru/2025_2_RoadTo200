@@ -67,17 +67,26 @@ export class MatchProfilePage {
                 });
 
                 // Wait for page to render, then select chat
-                // Increased timeout for mobile devices
-                setTimeout(() => {
-                    dispatcher.process({
-                        type: Actions.SELECT_CHAT,
-                        payload: {
-                            chatId: this.currentData!.matchId,
-                            userName: this.currentData!.name,
-                            userPhoto: this.currentData!.heroPhoto,
-                        },
-                    });
-                }, 200);
+                const waitForChatsPage = () => {
+                    const checkPage = (attempts = 0): void => {
+                        const chatsPage = document.querySelector('.chats-page');
+                        if (chatsPage && attempts < 10) {
+                            dispatcher.process({
+                                type: Actions.SELECT_CHAT,
+                                payload: {
+                                    chatId: this.currentData!.matchId,
+                                    userName: this.currentData!.name,
+                                    userPhoto: this.currentData!.heroPhoto,
+                                    userId: this.currentData!.userId,
+                                },
+                            });
+                        } else if (attempts < 10) {
+                            setTimeout(() => checkPage(attempts + 1), 100);
+                        }
+                    };
+                    checkPage();
+                };
+                setTimeout(waitForChatsPage, 100);
             });
         }
 
