@@ -35,44 +35,43 @@
     }
 }
 
-.profile-page .photo-grid {
+.photo-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(180px, 1fr));
     gap: 20px;
     flex: 0 0 820px;
 
-    &.photo-grid--single {
+    &--single {
         display: block;
-        width: 420px;
-        flex: 0 0 420px;
-        
+        width: min(420px, 100%);
+        flex: 0 0 auto;
+
         .photo-grid__card {
-            width: 420px;
+            width: 100%;
             margin: 0;
         }
     }
-}
 
-.profile-page .photo-grid__card {
+    &__card {
         border-radius: 28px;
         overflow: hidden;
         position: relative;
         background: #fff7fa;
         border: 1px solid rgba(255, 75, 114, 0.15);
         aspect-ratio: 3 / 4;
-    
 
-    &__card--premium {
-        border: 2px solid transparent;
-        border-image: linear-gradient(
-                to right,
-                var(--color-primary-dark) 0%,
-                var(--color-primary-light) 100%
-            )
-            1;
-        box-shadow:
-            0 0 0 3px rgba(255, 75, 114, 0.18),
-            0 10px 20px rgba(0, 0, 0, 0.08);
+        &--premium {
+            border: 2px solid transparent;
+            border-image: linear-gradient(
+                    to right,
+                    var(--color-primary-dark) 0%,
+                    var(--color-primary-light) 100%
+                )
+                1;
+            box-shadow:
+                0 0 0 3px rgba(255, 75, 114, 0.18),
+                0 10px 20px rgba(0, 0, 0, 0.08);
+        }
     }
 
     &__image {

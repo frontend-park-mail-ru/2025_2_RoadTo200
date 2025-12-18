@@ -10,7 +10,7 @@
 
         <div class='header__right'>
             {{#if isAuthenticated}}
-            <div class="header__superlikes" aria-label="Суперлайки">
+            <div class="header__superlikes" aria-label="Суперлайки" title="Суперлайки: {{superLikesRemaining}} из {{superLikesTotal}}">
                 <span class="header__superlikes-icon" aria-hidden="true"></span>
                 <span class="header__superlikes-count">{{superLikesRemaining}}/{{superLikesTotal}}</span>
             </div>

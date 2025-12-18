@@ -81,6 +81,19 @@
         overflow: hidden;
         text-overflow: ellipsis;
         max-width: 100%;
+
+        .card--premium & {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 14px;
+            background: linear-gradient(
+                to right,
+                var(--color-primary-dark) 0%,
+                var(--color-primary-light) 100%
+            );
+            color: #fff;
+            text-shadow: none;
+        }
     }
 
     &__interests {

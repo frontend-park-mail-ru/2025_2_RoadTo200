@@ -41,6 +41,18 @@
         word-wrap: break-word;
         overflow-wrap: break-word;
         word-break: break-word;
+
+        &--premium {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 14px;
+            background: linear-gradient(
+                to right,
+                var(--color-primary-dark) 0%,
+                var(--color-primary-light) 100%
+            );
+            color: #fff;
+        }
     }
 
     .details__section-title {

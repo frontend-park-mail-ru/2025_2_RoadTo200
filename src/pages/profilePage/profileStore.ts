@@ -28,6 +28,7 @@ interface ProfileData {
     activities: ActivityItem[];
     interests: any[];
     userId?: string;
+    isPremium?: boolean;
 }
 
 class ProfileStore implements Store {
@@ -129,6 +130,7 @@ class ProfileStore implements Store {
                 activities: activities,
                 interests: [],
                 userId: user.id || '',
+                isPremium: Boolean((user as { is_premium?: boolean }).is_premium),
             };
 
             const contentContainer =
