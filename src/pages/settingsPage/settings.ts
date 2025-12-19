@@ -356,6 +356,13 @@ export class SettingsPage {
                         if (isNaN(parsedMax)) {
                             errorMessages.push('Максимальный возраст: введите корректное число');
                         }
+                        if (parsedMin !== undefined && parsedMax < parsedMin) {
+                            errorMessages.push('Максимальный возраст не может быть меньше минимального');
+                        }
+
+                        if (parsedMax < 18 || parsedMax > 100) {
+                            errorMessages.push('Максимальный возраст должен быть между 18 и 100');
+                        }
                     }
 
                     // Если есть ошибки парсинга, показываем их и прерываем
