@@ -264,16 +264,52 @@ class SettingsStore implements Store {
     ): Promise<void> {
         settings.clearErrors();
 
+        const errorMessages: string[] = [];
+        
         const age_min = payload.age_min ?? 18;
         const age_max = payload.age_max ?? 50;
         const max_distance = payload.max_distance ?? 100;
         const show_gender = payload.show_gender ?? 'both';
         const global_search = payload.global_search ?? false;
 
-        // Валидация возраста
-        if (age_min > age_max) {
+        // Валидация минимального возраста
+        if (age_min < 18) {
+            errorMessages.push('Минимальный возраст должен быть не менее 18 лет');
+        } else if (age_min > 100) {
+            errorMessages.push('Минимальный возраст не может быть больше 100 лет');
+        } else if (isNaN(age_min) || !Number.isInteger(age_min)) {
+            errorMessages.push('Минимальный возраст: введите корректное целое число');
+        }
+
+        // Валидация максимального возраста
+        if (age_max < 18) {
+            errorMessages.push('Максимальный возраст должен быть не менее 18 лет');
+        } else if (age_max > 100) {
+            errorMessages.push('Максимальный возраст не может быть больше 100 лет');
+        } else if (isNaN(age_max) || !Number.isInteger(age_max)) {
+            errorMessages.push('Максимальный возраст: введите корректное целое число');
+        }
+
+        // Проверка соотношения возрастов
+        if (errorMessages.length === 0 && age_min > age_max) {
+            errorMessages.push('Минимальный возраст не может быть больше максимального');
+        }
+
+        // Валидация максимального расстояния
+        if (!global_search) {
+            if (max_distance < 1) {
+                errorMessages.push('Расстояние должно быть не менее 1 км');
+            } else if (max_distance > 10000) {
+                errorMessages.push('Расстояние не может быть больше 10000 км');
+            } else if (isNaN(max_distance) || !Number.isInteger(max_distance)) {
+                errorMessages.push('Расстояние: введите корректное целое число');
+            }
+        }
+
+        // Если есть ошибки валидации, отображаем их и прерываем выполнение
+        if (errorMessages.length > 0) {
             settings.showErrors({
-                filtersError: 'Минимальный возраст не может быть больше максимального',
+                filtersError: errorMessages.join('. '),
             });
             return;
         }
@@ -287,9 +323,10 @@ class SettingsStore implements Store {
                 global_search,
             });
             settings.showSuccess('filtersSuccessMessage', 'Фильтры успешно сохранены');
-        } catch (error) {
+        } catch (error: any) {
+            const errorMessage = error?.message || 'Не удалось сохранить фильтры';
             settings.showErrors({
-                filtersError: 'Не удалось сохранить фильтры',
+                filtersError: errorMessage,
             });
         }
     }

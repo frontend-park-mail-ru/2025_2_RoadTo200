@@ -179,17 +179,6 @@ export class SettingsPage {
                 <input type="number" class="form__input" id="ageMax" value="${preferences.age_max || 50}" min="18" max="100" />
             </div>
 
-            <div class="form__input-wrapper">
-                <label class="settings-label">Максимальное расстояние (км):</label>
-                <input type="number" class="form__input" id="maxDistance" value="${preferences.max_distance || 100}" min="1" max="10000" />
-            </div>
-
-            <div class="form__input-wrapper">
-                <label class="settings-label">
-                    <input type="checkbox" id="globalSearch" ${preferences.global_search ? 'checked' : ''} />
-                    Глобальный поиск (игнорировать расстояние)
-                </label>
-            </div>
 
             <p class="form__error-message" id="filtersError"></p>
             <button class="form__btn-primary" id="updateFiltersBtn">Сохранить фильтры</button>
@@ -325,6 +314,8 @@ export class SettingsPage {
             if (updateFiltersBtn) {
                 updateFiltersBtn.addEventListener('click', (e) => {
                     e.preventDefault();
+                    this.clearErrors();
+                    
                     const showGenderInput = this.parent?.querySelector(
                         '#showGender'
                     ) as HTMLSelectElement | null;
@@ -341,35 +332,57 @@ export class SettingsPage {
                         '#globalSearch'
                     ) as HTMLInputElement | null;
 
-                    const parsedMin = ageMinInput?.value
-                        ? parseInt(ageMinInput.value, 10)
-                        : undefined;
-                    const parsedMax = ageMaxInput?.value
-                        ? parseInt(ageMaxInput.value, 10)
-                        : undefined;
+                    // Проверка на пустые значения и парсинг
+                    const errorMessages: string[] = [];
+                    
+                    let parsedMin: number | undefined;
+                    let parsedMax: number | undefined;
 
-                    let normalizedMin = parsedMin;
-                    let normalizedMax = parsedMax;
-
-                    if (
-                        typeof normalizedMin === 'number' &&
-                        typeof normalizedMax === 'number' &&
-                        normalizedMin > normalizedMax
-                    ) {
-                        normalizedMin = normalizedMax;
-                        if (ageMinInput) {
-                            ageMinInput.value = String(normalizedMin);
+                    // Валидация минимального возраста
+                    if (!ageMinInput?.value || ageMinInput.value.trim() === '') {
+                        errorMessages.push('Укажите минимальный возраст');
+                    } else {
+                        parsedMin = parseInt(ageMinInput.value, 10);
+                        if (isNaN(parsedMin)) {
+                            errorMessages.push('Минимальный возраст: введите корректное число');
                         }
                     }
+
+                    // Валидация максимального возраста
+                    if (!ageMaxInput?.value || ageMaxInput.value.trim() === '') {
+                        errorMessages.push('Укажите максимальный возраст');
+                    } else {
+                        parsedMax = parseInt(ageMaxInput.value, 10);
+                        if (isNaN(parsedMax)) {
+                            errorMessages.push('Максимальный возраст: введите корректное число');
+                        }
+                    }
+
+                    // Если есть ошибки парсинга, показываем их и прерываем
+                    if (errorMessages.length > 0) {
+                        const errorBlock = this.parent?.querySelector('#filtersError') as HTMLElement;
+                        if (errorBlock) {
+                            errorBlock.textContent = errorMessages.join('. ');
+                            errorBlock.style.display = 'block';
+                            errorBlock.style.color = '#ff4b72';
+                        }
+                        return;
+                    }
+
+                    // Используем значения по умолчанию, если что-то не определено
+                    const normalizedMin = parsedMin ?? 18;
+                    const normalizedMax = parsedMax ?? 50;
+                    const normalizedDistance = maxDistanceInput?.value 
+                        ? parseInt(maxDistanceInput.value, 10) 
+                        : 100;
+
                     dispatcher.process({
                         type: Actions.UPDATE_FILTER_SETTINGS,
                         payload: {
                             show_gender: showGenderInput?.value || 'both',
-                            age_min: normalizedMin || 18,
-                            age_max: normalizedMax || 50,
-                            max_distance: maxDistanceInput
-                                ? parseInt(maxDistanceInput.value, 10)
-                                : 100,
+                            age_min: normalizedMin,
+                            age_max: normalizedMax,
+                            max_distance: normalizedDistance,
                             global_search: globalSearchInput?.checked || false,
                         },
                     });
@@ -439,10 +452,22 @@ export class SettingsPage {
                     errorBlock.style.display = 'block';
                 }
             }
+            // Для ошибок фильтров
+            else if (key === 'filtersError') {
+                const errorBlock = this.parent?.querySelector('#filtersError') as HTMLElement;
+                if (errorBlock) {
+                    errorBlock.textContent = message;
+                    errorBlock.style.display = 'block';
+                    errorBlock.style.color = '#ff4b72';
+                }
+            }
             // Для остальных ошибок - старый способ
             else {
-                const errorElement = this.parent?.querySelector(`#${key}`);
-                if (errorElement) errorElement.textContent = message;
+                const errorElement = this.parent?.querySelector(`#${key}`) as HTMLElement;
+                if (errorElement) {
+                    errorElement.textContent = message;
+                    errorElement.style.display = 'block';
+                }
                 const inputElement = this.parent?.querySelector(
                     `#${key.replace('Error', '')}`
                 ) as HTMLElement | null;
