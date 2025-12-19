@@ -249,7 +249,7 @@
     }
 }
 
-@media (max-width: 1023px) {
+@media (max-width: 1024px) {
     .header {
         &__burger {
             display: flex;
@@ -261,7 +261,7 @@
     }
 }
 
-@media (max-width: 599px) {
+@media (max-width: 768px) {
     .header {
         position: fixed;
         top: 0;

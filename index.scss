@@ -142,7 +142,7 @@ body.menu-open .menu-overlay {
     }
 }
 
-@media (max-width: 1023px) {
+@media (max-width: 1024px) {
     body {
         overflow: hidden;
     }
@@ -218,7 +218,7 @@ body.auth-route #content-container {
 
 /* Дополнительная защита для мобильных браузеров */
 @supports (height: 100dvh) {
-    @media (max-width: 1023px) {
+    @media (max-width: 1024px) {
         .page-layout,
         .main-column {
             height: 100dvh;
@@ -227,7 +227,7 @@ body.auth-route #content-container {
 }
 
 /* Фиксированные элементы с safe-area */
-@media (max-width: 599px) {
+@media (max-width: 768px) {
     button[type="submit"],
     .chat-window__send-btn,
     .home-page__submit-button {

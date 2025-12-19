@@ -60,7 +60,7 @@
             opacity: 0.85;
         }
 
-        @media (max-width: 768px) {
+        @media (max-width: 1024px) {
             display: none;
         }
     }
@@ -278,7 +278,7 @@
     }
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
     .chat-window {
         padding: 0;
         /* Используем dvh для корректного отображения с панелями браузера */

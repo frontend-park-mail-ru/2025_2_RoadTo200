@@ -44,7 +44,10 @@
     &--single {
         display: block;
         width: min(420px, 100%);
-        flex: 0 0 auto;
+        
+        grid-template-columns: repeat(1, minmax(180px, 1fr)) !important;
+        flex: 1 !important;
+       
 
         .photo-grid__card {
             width: 100%;
@@ -85,7 +88,6 @@
         background-size: cover;
         background-position: center;
         border-radius: 28px;
-        max-width: 420px;
         cursor: pointer;
         transition: transform 0.2s ease;
 
@@ -205,7 +207,7 @@
     }
 }
 
-@media (max-width: 1023px) {
+@media (max-width: 1024px) {
     .profile-page {
         &__content {
             flex-direction: column;
@@ -218,7 +220,7 @@
     }
 }
 
-@media (max-width: 599px) {
+@media (max-width: 768px) {
     .profile-page {
         padding: 0 12px 32px;
 

@@ -151,7 +151,7 @@
     }
 }
 
-@media (max-width: 1023px) {
+@media (max-width: 1024px) {
     .main-page-layout {
         flex-direction: column;
         align-items: center;
@@ -168,7 +168,7 @@
     }
 }
 
-@media (max-width: 599px) {
+@media (max-width: 768px) {
     .main-page-layout {
         padding: 16px 12px calc(48px + var(--safe-area-inset-bottom));
     }
