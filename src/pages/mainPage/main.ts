@@ -4,6 +4,7 @@ import { dispatcher } from '@/Dispatcher';
 import { Actions } from '@/actions';
 import { getActivitiesFromData } from '@/utils/activityIcons';
 import { reportPopup } from '@/components/ReportPopup/reportPopup';
+import mainStore from './mainStore';
 
 const TEMPLATE_PATH = '/src/pages/mainPage/main.hbs';
 const EMPTY_STATE_TEMPLATE_PATH = '/src/components/EmptyState/emptyState.hbs';
@@ -127,6 +128,11 @@ export class MainPage {
         }
     }
 
+    appendCards(cards: CardData[]): void {
+        const newCards: CardData[] = Array.isArray(cards) ? cards : Object.values(cards) as CardData[];
+        this.cardsData = [...this.cardsData, ...newCards];
+    }
+
     setSuperLikeState(remaining: number, isPremium: boolean): void {
         this.superLikeAvailable = remaining > 0;
         this.superLikePremium = isPremium;
@@ -189,6 +195,7 @@ export class MainPage {
         const pageContainer = document.querySelector('.cards-container');
 
         if (!pageContainer) return;
+        
         if (this.currentCardIndex < this.cardsData.length) {
             const nextCardData = this.cardsData[this.currentCardIndex];
             const cardHtml = await Card.render(nextCardData);
@@ -200,7 +207,18 @@ export class MainPage {
 
             this.currentCardIndex++;
         } else {
-            await this.displayEmptyState();
+            // Карточки закончились - пытаемся загрузить новые
+            if (mainStore.hasMoreCards() && !mainStore.isLoading()) {
+                await mainStore.getMoreCards();
+                // Если после загрузки появились новые карточки, рендерим первую
+                if (this.currentCardIndex < this.cardsData.length) {
+                    await this.renderNextCard();
+                } else {
+                    await this.displayEmptyState();
+                }
+            } else {
+                await this.displayEmptyState();
+            }
         }
         this.updateSuperLikeButtons();
     };

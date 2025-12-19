@@ -29,11 +29,21 @@ interface TransformedCard {
     isPremium?: boolean;
 }
 
+interface PaginationState {
+    hasMore: boolean;
+    isLoading: boolean;
+}
+
 class MainStore implements Store {
     cards: TransformedCard[];
+    private pagination: PaginationState;
 
     constructor() {
         this.cards = [];
+        this.pagination = {
+            hasMore: true,
+            isLoading: false,
+        };
         dispatcher.register(this);
     }
 
@@ -90,10 +100,38 @@ class MainStore implements Store {
         }
     }
 
+    private resetPagination(): void {
+        this.pagination = {
+            hasMore: true,
+            isLoading: false,
+        };
+    }
+
     private async getCards(): Promise<void> {
+        this.resetPagination();
+        await this.fetchCards(false);
+    }
+
+    async getMoreCards(): Promise<void> {
+        if (!this.pagination.hasMore || this.pagination.isLoading) {
+            return;
+        }
+        await this.fetchCards(true);
+    }
+
+    private async fetchCards(append: boolean): Promise<void> {
+        if (this.pagination.isLoading) return;
+        
+        this.pagination.isLoading = true;
+        
         try {
+            // Бекенд сам исключает пользователей, на которых уже свайпнули
+            // Поэтому просто повторно вызываем feed без offset
             const response = await CardApi.getAllCards();
             const cards = response.users || [];
+
+            // Если вернулось 0 карточек — больше нет анкет
+            this.pagination.hasMore = cards.length > 0;
 
             const mockPhotoUrl = '/src/assets/image.png';
 
@@ -149,17 +187,45 @@ class MainStore implements Store {
                 }
             );
 
-            this.cards = transformedCards;
-            main.setCards(transformedCards);
+            if (append) {
+                // Дедупликация: исключаем карточки, которые уже есть
+                const existingIds = new Set(this.cards.map(c => c.id));
+                const newCards = transformedCards.filter(c => !existingIds.has(c.id));
+                
+                if (newCards.length > 0) {
+                    this.cards = [...this.cards, ...newCards];
+                    main.appendCards(newCards);
+                } else {
+                    // Если новых уникальных карточек нет - больше загружать нечего
+                    this.pagination.hasMore = false;
+                }
+            } else {
+                this.cards = transformedCards;
+                main.setCards(transformedCards);
+            }
+
             const superLikeState = headerStore.getSuperLikesState();
             main.setSuperLikeState(
                 superLikeState.remaining,
                 superLikeState.isPremium
             );
         } catch (error) {
-            this.cards = [];
-            main.setCards([]);
+            if (!append) {
+                this.cards = [];
+                main.setCards([]);
+            }
+            this.pagination.hasMore = false;
+        } finally {
+            this.pagination.isLoading = false;
         }
+    }
+
+    hasMoreCards(): boolean {
+        return this.pagination.hasMore;
+    }
+
+    isLoading(): boolean {
+        return this.pagination.isLoading;
     }
 
     private async sendCardInteraction(
