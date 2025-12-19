@@ -17,14 +17,14 @@ interface MenuData {
 
 const MENU_ITEMS_DATA: MenuItem[] = [
     {
-        name: 'Профиль',
-        tab: 'profile',
-        icon: './src/assets/settings__profile.svg',
-    },
-    {
         name: 'Фильтры',
         tab: 'filters',
         icon: './src/assets/settings__filter.svg',
+    },
+    {
+        name: 'Профиль',
+        tab: 'profile',
+        icon: './src/assets/settings__profile.svg',
     },
     {
         name: 'Безопасность',

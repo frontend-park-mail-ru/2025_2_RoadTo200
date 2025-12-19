@@ -288,6 +288,8 @@ export class SettingsPage {
             if (updateBtn) {
                 updateBtn.addEventListener('click', (e) => {
                     e.preventDefault();
+                    this.clearErrors();
+
                     const nameInput = this.parent?.querySelector(
                         '#settingsName'
                     ) as HTMLInputElement | null;
@@ -297,6 +299,42 @@ export class SettingsPage {
                     const emailInput = this.parent?.querySelector(
                         '#settingsEmail'
                     ) as HTMLInputElement | null;
+
+                    const errors: Record<string, string> = {};
+
+                    const rawBirth = birthdateInput?.value.trim() || '';
+                    if (!rawBirth) {
+                        errors.birthdateError = 'Укажите дату рождения';
+                    } else {
+                        const parsed = SettingsPage.parseBirthDate(rawBirth);
+                        if (!parsed) {
+                            errors.birthdateError =
+                                'Введите дату в формате ДД.ММ.ГГГГ';
+                        } else {
+                            const today = new Date();
+                            const ageYears = today.getFullYear() - parsed.getFullYear();
+                            const hasHadBirthdayThisYear =
+                                today.getMonth() > parsed.getMonth() ||
+                                (today.getMonth() === parsed.getMonth() &&
+                                    today.getDate() >= parsed.getDate());
+                            const actualAge = hasHadBirthdayThisYear
+                                ? ageYears
+                                : ageYears - 1;
+
+                            if (actualAge < 18) {
+                                errors.birthdateError =
+                                    'Вам должно быть не менее 18 лет';
+                            } else if (actualAge > 99) {
+                                errors.birthdateError =
+                                    'Пожалуйста, проверьте дату рождения';
+                            }
+                        }
+                    }
+
+                    if (Object.keys(errors).length > 0) {
+                        this.showErrors(errors);
+                        return;
+                    }
 
                     dispatcher.process({
                         type: Actions.UPDATE_PROFILE_SETTINGS,
@@ -500,6 +538,40 @@ export class SettingsPage {
             input.classList.remove('error-input');
             input.classList.remove('form__error-input');
         });
+    }
+
+    private static parseBirthDate(value: string): Date | null {
+        const sanitized = value.trim();
+        const parts = sanitized.includes('.')
+            ? sanitized.split('.')
+            : sanitized.split('-');
+
+        if (parts.length !== 3) return null;
+
+        const [dayStr, monthStr, yearStr] = parts;
+        const day = parseInt(dayStr, 10);
+        const month = parseInt(monthStr, 10);
+        const year = parseInt(yearStr, 10);
+
+        if (
+            Number.isNaN(day) ||
+            Number.isNaN(month) ||
+            Number.isNaN(year) ||
+            yearStr.length !== 4
+        ) {
+            return null;
+        }
+
+        const date = new Date(year, month - 1, day);
+        if (
+            date.getFullYear() !== year ||
+            date.getMonth() !== month - 1 ||
+            date.getDate() !== day
+        ) {
+            return null;
+        }
+
+        return date;
     }
 
     showSuccess(messageId: string, message: string): void {

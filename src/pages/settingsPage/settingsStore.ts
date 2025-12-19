@@ -244,6 +244,18 @@ class SettingsStore implements Store {
                 email,
             });
 
+            // Обновляем кэшированный профиль и уведомляем остальные части UI
+            try {
+                const refreshed = await ProfileApi.getProfile();
+                dispatcher.process({
+                    type: Actions.AUTH_STATE_UPDATED,
+                    payload: { user: refreshed.user },
+                });
+                dispatcher.process({ type: Actions.RENDER_PROFILE_MENU });
+            } catch (_err) {
+                // если не смогли обновить, всё равно продолжаем
+            }
+
             this.profileData = {
                 ...this.profileData,
                 name,

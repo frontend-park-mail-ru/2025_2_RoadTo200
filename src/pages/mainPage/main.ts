@@ -99,6 +99,18 @@ export class MainPage {
         document.removeEventListener('click', this.handleCardImageClick);
         document.addEventListener('click', this.handleCardImageClick);
 
+        const filterButton = newDiv.querySelector(
+            '[data-action="open-filter"]'
+        ) as HTMLButtonElement | null;
+        if (filterButton) {
+            filterButton.addEventListener('click', () => {
+                dispatcher.process({
+                    type: Actions.NAVIGATE_TO,
+                    payload: { path: '/settings' },
+                });
+            });
+        }
+
         // Удалено: await dispatcher.process({ type: Actions.GET_CARDS });
         // Карточки будут загружены после проверки профиля в mainStore
     }
