@@ -137,6 +137,12 @@ class MatchesStore implements Store {
                 };
             });
 
+            this.matches.sort((a, b) => {
+                const dateA = new Date(a.matchedAt).getTime();
+                const dateB = new Date(b.matchedAt).getTime();
+                return dateB - dateA;
+            });
+
             this.updateDerivedFields();
 
             await matches.setMatches(this.matches);
