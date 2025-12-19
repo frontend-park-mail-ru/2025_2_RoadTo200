@@ -69,6 +69,12 @@ export class MainPage {
     swipeThreshold: number;
     private superLikeAvailable = true;
     private superLikePremium = false;
+    private readonly handleCardImageClick = (event: Event): void => {
+        const target = event.target as HTMLElement;
+        if (target.classList.contains('card__image')) {
+            Card.handleImageNavigation(event as MouseEvent);
+        }
+    };
 
     constructor(parent: HTMLElement) {
         this.parent = parent;
@@ -90,12 +96,8 @@ export class MainPage {
         newDiv.innerHTML = renderedHtml;
         this.parent.appendChild(newDiv);
 
-        document.addEventListener('click', (event: Event) => {
-            const target = event.target as HTMLElement;
-            if (target.classList.contains('card__image')) {
-                Card.handleImageNavigation(event as MouseEvent);
-            }
-        });
+        document.removeEventListener('click', this.handleCardImageClick);
+        document.addEventListener('click', this.handleCardImageClick);
 
         // Удалено: await dispatcher.process({ type: Actions.GET_CARDS });
         // Карточки будут загружены после проверки профиля в mainStore
@@ -262,6 +264,8 @@ export class MainPage {
             isDragging = true;
             hasSwiped = false;
 
+            cardElement.style.transition = 'none';
+
             const pageX = e.type.includes('touch')
                 ? (e as TouchEvent).touches[0].pageX
                 : (e as MouseEvent).pageX;
@@ -279,6 +283,16 @@ export class MainPage {
             if (e.type === 'mousedown') {
                 e.preventDefault();
             }
+
+            window.addEventListener('mouseup', stopSwipe as EventListener, {
+                once: true,
+            });
+            window.addEventListener('touchend', stopSwipe as EventListener, {
+                once: true,
+            });
+            window.addEventListener('touchcancel', stopSwipe as EventListener, {
+                once: true,
+            });
         };
 
         const moveSwipe = (e: MouseEvent | TouchEvent) => {
@@ -313,6 +327,8 @@ export class MainPage {
         const stopSwipe = () => {
             if (!isDragging) return;
             isDragging = false;
+
+            cardElement.style.transition = 'transform 200ms ease-out';
 
             const deltaX = endX - startX;
             const deltaY = endY - startY;
@@ -355,9 +371,8 @@ export class MainPage {
 
                 animateCardOut(cardElement, direction);
             } else {
-                cardElement.style.transform = 'translate(-175px, 0) rotate(0deg)';
+                cardElement.style.transform = 'translate(-170px, 0) rotate(0deg)';
                 
-                // Если был свайп, блокируем клик на 300мс
                 if (hasSwiped) {
                     cardElement.dataset.blockClick = 'true';
                     setTimeout(() => {
@@ -370,10 +385,12 @@ export class MainPage {
         cardElement.addEventListener('mousedown', startSwipe as EventListener);
         cardElement.addEventListener('mousemove', moveSwipe as EventListener);
         cardElement.addEventListener('mouseup', stopSwipe);
+        cardElement.addEventListener('mouseleave', stopSwipe);
 
         cardElement.addEventListener('touchstart', startSwipe as EventListener);
         cardElement.addEventListener('touchmove', moveSwipe as EventListener);
         cardElement.addEventListener('touchend', stopSwipe);
+        cardElement.addEventListener('touchcancel', stopSwipe);
     }
 
     private initCardActions(): void {
