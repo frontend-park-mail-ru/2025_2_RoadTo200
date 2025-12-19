@@ -1,6 +1,6 @@
 <div class="match-card match-card{{#if isExpired}}-expired{{else}}-active{{/if}} {{#if isPremium}}match-card--premium{{/if}}" data-match-id="{{id}}" role="article" aria-label="{{name}}, {{age}}">
   <div class="match-card__image" style="background-image: url('{{image}}')">
-      <span class="match-card__timer match-card__popups" title="{{#if isExpired}}Время мэтча истекло{{else}}Истекает через {{timer}}{{/if}}">{{timer}}</span>
+      <span class="match-card__timer match-card__popups" title="{{#if isExpired}}Время мэтча истекло{{else}}{{timer}}{{/if}}">{{timer}}</span>
       
 
 

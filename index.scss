@@ -147,20 +147,16 @@ body.menu-open .menu-overlay {
 
     .page-layout {
         flex-direction: column;
-        /* Используем dvh для корректной высоты с панелями браузера */
-        height: 100dvh;
-        height: 100vh; /* Fallback */
-        height: 100dvh;
+        /* iOS/Yandex: фикс высоты под динамические панели браузера */
+        height: var(--app-height, 100dvh);
         overflow: hidden;
     }
 
     .main-column {
         overflow-y: auto;
         overflow-x: hidden;
-        /* Используем dvh для корректной высоты с панелями браузера */
-        height: 100dvh;
-        height: 100vh; /* Fallback */
-        height: 100dvh;
+        /* iOS/Yandex: фикс высоты под динамические панели браузера */
+        height: var(--app-height, 100dvh);
         -webkit-overflow-scrolling: touch;
     }
 
@@ -185,13 +181,19 @@ body.menu-open .menu-overlay {
     }
 
     #content-container {
-        padding: 92px 20px calc(80px + var(--safe-area-inset-bottom));
+        padding:
+            calc(var(--header-height) + var(--safe-area-inset-top) + 16px)
+            20px
+            calc(80px + var(--safe-area-inset-bottom));
     }
 }
 
 @media (max-width: 900px) {
     #content-container {
-        padding: 76px 0 calc(var(--safe-area-inset-bottom));
+        padding:
+            calc(var(--header-height) + var(--safe-area-inset-top))
+            0
+            calc(80px + var(--safe-area-inset-bottom));
     }
 }
 

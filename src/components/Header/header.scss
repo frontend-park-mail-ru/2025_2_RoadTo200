@@ -6,13 +6,14 @@
     width: 100%;
     z-index: 40;
     background: #fff;
+    padding-top: var(--safe-area-inset-top);
     
     /* Защита от ухода за пределы экрана */
     transform: translateZ(0);
     -webkit-transform: translateZ(0);
     will-change: transform;
 
-    min-height: 76px;
+    min-height: calc(var(--header-height) + var(--safe-area-inset-top));
     display: flex;
     align-items: center;
 

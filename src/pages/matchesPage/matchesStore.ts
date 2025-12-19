@@ -198,13 +198,27 @@ class MatchesStore implements Store {
 
             const isExpired = timeLeft <= 0;
 
-            let timer = '00:00';
+            const formatHoursLeft = (hours: number): string => {
+                const abs = Math.abs(hours);
+                const mod10 = abs % 10;
+                const mod100 = abs % 100;
+                const word =
+                    mod10 === 1 && mod100 !== 11
+                        ? 'час'
+                        : mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)
+                          ? 'часа'
+                          : 'часов';
+                const prefix = hours === 1 ? 'Остался' : 'Осталось';
+                return `${prefix} ${hours} ${word}`;
+            };
+
+            let timer = 'Время истекло';
             if (!isExpired) {
-                const hours = Math.floor(timeLeft / (1000 * 60 * 60));
-                const minutes = Math.floor(
-                    (timeLeft % (1000 * 60 * 60)) / (1000 * 60)
+                const hoursLeft = Math.max(
+                    1,
+                    Math.floor(timeLeft / (1000 * 60 * 60))
                 );
-                timer = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+                timer = formatHoursLeft(hoursLeft);
             }
 
             return {

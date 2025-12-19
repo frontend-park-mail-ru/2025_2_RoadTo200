@@ -42,6 +42,19 @@ import { chats } from './src/pages/chatsPage/chats';
 import { premium } from './src/pages/premium/premium';
 import type { PageComponent } from './src/navigation/navigationStore';
 
+const updateAppHeight = (): void => {
+    if (typeof window === 'undefined') return;
+    document.documentElement.style.setProperty(
+        '--app-height',
+        `${window.innerHeight}px`
+    );
+};
+
+updateAppHeight();
+window.addEventListener('resize', updateAppHeight);
+window.addEventListener('orientationchange', updateAppHeight);
+window.visualViewport?.addEventListener('resize', updateAppHeight);
+
 
 const notFoundComponent: PageComponent = {
     parent: null,
