@@ -45,8 +45,12 @@ class RegisterStore implements Store {
                     error.message.includes('уже существует')
                 ) {
                     errorMessage = 'Пользователь с таким email уже существует';
-                } else if (error.message.includes('invalid email')) {
-                    errorMessage = 'Некорректный email';
+                } else if (
+                    error.message.includes('invalid email') ||
+                    error.message.includes('user_email_check') ||
+                    error.message.includes('SQLSTATE 23514')
+                ) {
+                    errorMessage = 'Email должен быть написан латиницей';
                 } else if (error.message.includes('password')) {
                     errorMessage = 'Проблема с паролем';
                 } else {
