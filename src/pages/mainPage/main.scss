@@ -4,7 +4,7 @@
     max-width: 1280px;
     width: 100%;
     margin: 0 auto;
-    padding: 32px 32px 72px;
+    padding: 32px 32px calc(72px + var(--safe-area-inset-bottom));
     min-height: calc(100vh - 76px - 100px);
     box-sizing: border-box;
 }
@@ -170,7 +170,7 @@
 
 @media (max-width: 599px) {
     .main-page-layout {
-        padding: 16px 12px 48px;
+        padding: 16px 12px calc(48px + var(--safe-area-inset-bottom));
     }
 
     .cards-container {

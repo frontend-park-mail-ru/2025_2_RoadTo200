@@ -1,5 +1,8 @@
 .chats-page {
     display: flex;
+    /* Используем dvh для корректного отображения */
+    height: calc(100dvh - 76px);
+    /* Fallback для старых браузеров */
     height: calc(100vh - 76px);
     width: 100%;
     overflow: hidden;

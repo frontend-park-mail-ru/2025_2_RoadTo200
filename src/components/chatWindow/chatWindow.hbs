@@ -1,7 +1,5 @@
 <div class="chat-window">
-    <button class="chat-window__back" data-action="back-to-list">
-                ← Назад
-    </button>
+    
     {{#if chatId}}
         
         <div class="chat-window__header">
@@ -19,6 +17,9 @@
                     <p class="chat-window__status">{{#if socketStatus}}{{socketStatus}}{{else}}Готовы к диалогу{{/if}}</p>
                 </div>
             </div>
+            <button class="chat-window__back" data-action="back-to-list">
+                ← Назад
+            </button>
             <button class="chat-window__close" data-action="close-chat" type="button" aria-label="Закрыть чат">×</button>
         </div>
 

@@ -92,12 +92,13 @@
     }
 
     @media (max-width: 640px) {
-        padding: 24px 16px 120px;
+        padding: 24px 16px calc(120px + var(--safe-area-inset-bottom));
 
         &__submit-button {
             position: fixed;
             left: 16px;
             right: 16px;
+            bottom: calc(16px + var(--safe-area-inset-bottom));
             bottom: calc(16px + env(safe-area-inset-bottom));
             width: auto;
             max-width: none;

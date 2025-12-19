@@ -9,6 +9,11 @@ body {
     min-height: 100vh;
     margin: 0;
     color: #1f1f1f;
+    /* Предотвращаем bounce эффект на iOS */
+    overscroll-behavior-y: none;
+    /* Убираем отступы для safe-area */
+    padding: 0;
+    padding-bottom: var(--safe-area-inset-bottom);
 }
 
 .details__report-btn {
@@ -40,6 +45,12 @@ body {
         var(--color-primary-dark) 0%,
         var(--color-primary-light) 100%
     );
+    
+    /* Безопасные отступы для мобильных устройств */
+    --safe-area-inset-top: env(safe-area-inset-top, 0px);
+    --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
+    --safe-area-inset-left: env(safe-area-inset-left, 0px);
+    --safe-area-inset-right: env(safe-area-inset-right, 0px);
 }
 
 .page-layout {
@@ -136,14 +147,20 @@ body.menu-open .menu-overlay {
 
     .page-layout {
         flex-direction: column;
-        height: 100vh;
+        /* Используем dvh для корректной высоты с панелями браузера */
+        height: 100dvh;
+        height: 100vh; /* Fallback */
+        height: 100dvh;
         overflow: hidden;
     }
 
     .main-column {
         overflow-y: auto;
         overflow-x: hidden;
-        height: 100vh;
+        /* Используем dvh для корректной высоты с панелями браузера */
+        height: 100dvh;
+        height: 100vh; /* Fallback */
+        height: 100dvh;
         -webkit-overflow-scrolling: touch;
     }
 
@@ -168,13 +185,13 @@ body.menu-open .menu-overlay {
     }
 
     #content-container {
-        padding: 92px 20px 80px;
+        padding: 92px 20px calc(80px + var(--safe-area-inset-bottom));
     }
 }
 
 @media (max-width: 900px) {
     #content-container {
-        padding: 76px 0 0;
+        padding: 76px 0 calc(var(--safe-area-inset-bottom));
     }
 }
 
@@ -192,4 +209,23 @@ body.auth-route .main-column {
 
 body.auth-route #content-container {
     padding: 0;
+}
+
+/* Дополнительная защита для мобильных браузеров */
+@supports (height: 100dvh) {
+    @media (max-width: 1023px) {
+        .page-layout,
+        .main-column {
+            height: 100dvh;
+        }
+    }
+}
+
+/* Фиксированные элементы с safe-area */
+@media (max-width: 599px) {
+    button[type="submit"],
+    .chat-window__send-btn,
+    .home-page__submit-button {
+        margin-bottom: var(--safe-area-inset-bottom);
+    }
 }

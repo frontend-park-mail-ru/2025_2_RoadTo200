@@ -158,7 +158,7 @@
     }
 
     &__input-form {
-        padding: 16px 24px 32px;
+        padding: 16px 24px calc(32px + var(--safe-area-inset-bottom));
         flex-shrink: 0;
     }
 
@@ -281,17 +281,21 @@
 @media (max-width: 900px) {
     .chat-window {
         padding: 0;
-        max-height: 90vh;
-        min-height: 90vh;
+        /* Используем dvh для корректного отображения с панелями браузера */
+        max-height: calc(100dvh - 76px);
+        min-height: calc(100dvh - 76px);
+        /* Fallback для старых браузеров */
+        max-height: calc(100vh - 76px);
+        min-height: calc(100vh - 76px);
+        /* Поддержка dvh */
+        max-height: calc(100dvh - 76px);
+        min-height: calc(100dvh - 76px);
 
         border-radius: 0;
 
         &__back {
-
             width: fit-content;
-
             margin: 12px;
-            
             display: inline-flex;
             border: none;
             background: rgba(255, 75, 114, 0.08);
@@ -301,9 +305,10 @@
             padding: 8px;
             cursor: pointer;
             transition: opacity 0.2s ease;
-        
         }
 
-        
+        &__input-form {
+            padding-bottom: calc(16px + var(--safe-area-inset-bottom));
+        }
     }
 }
