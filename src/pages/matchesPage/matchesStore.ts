@@ -13,7 +13,7 @@ interface ProcessedMatch {
     matchId: string;
     userId: string;
     matchedAt: string;
-    expiresAt: string;
+    expiresAt: string | null;
     isNew: boolean;
     isActive: boolean;
     timer?: string;
@@ -98,9 +98,19 @@ class MatchesStore implements Store {
                 const matchedAt = matchedAtRaw
                     ? new Date(matchedAtRaw)
                     : new Date();
-                const expiresAt = new Date(
-                    matchedAt.getTime() + 24 * 60 * 60 * 1000
-                );
+
+                const expiresAtRaw =
+                    (match as { expires_at?: string | null }).expires_at ??
+                    (item as { expires_at?: string | null }).expires_at ??
+                    null;
+
+                let expiresAt: string | null = null;
+                if (expiresAtRaw) {
+                    const expiresAtDate = new Date(expiresAtRaw);
+                    if (!Number.isNaN(expiresAtDate.getTime())) {
+                        expiresAt = expiresAtDate.toISOString();
+                    }
+                }
 
                 const photoUrl = photos[0] || '/src/assets/image.png';
 
@@ -117,7 +127,7 @@ class MatchesStore implements Store {
                     image: photoUrl,
                     matchId: String(matchIdentifier),
                     matchedAt: matchedAt.toISOString(),
-                    expiresAt: expiresAt.toISOString(),
+                    expiresAt,
                     isNew: this.isMatchNew(matchedAt),
                     isActive:
                         (match as { is_active?: boolean }).is_active !== false,
@@ -149,6 +159,7 @@ class MatchesStore implements Store {
 
             if (!this.timerId) {
                 this.timerId = setInterval(() => {
+                    if (!this.isActive) return;
                     this.updateDerivedFields();
                     matches.setMatches(this.matches);
                 }, UPDATE_INTERVAL);
@@ -193,6 +204,14 @@ class MatchesStore implements Store {
         const now = Date.now();
 
         this.matches = this.matches.map((m) => {
+            if (!m.expiresAt) {
+                return {
+                    ...m,
+                    timer: undefined,
+                    isExpired: false,
+                };
+            }
+
             const expiresAt = new Date(m.expiresAt).getTime();
             const timeLeft = expiresAt - now;
 
