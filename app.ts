@@ -15,6 +15,7 @@ import './src/components/ProfileMenu/profileMenuStore';
 import './src/components/OfflineBanner/offlineBannerStore';
 import './src/components/ProfileSetupPopup/profileSetupPopupStore';
 import './src/components/NotificationPopup/notificationPopupStore';
+import './src/components/PhotoViewerPopup/photoViewerPopupStore';
 import './src/pages/support/supportStore';
 import './src/pages/premium/premiumStore';
 

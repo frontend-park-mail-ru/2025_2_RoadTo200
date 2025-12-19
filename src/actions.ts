@@ -120,6 +120,10 @@ export const Actions = {
     // reports
     REPORT_SUCCESS: 'REPORT_SUCCESS',
 
+    // photo viewer
+    OPEN_PHOTO_VIEWER: 'OPEN_PHOTO_VIEWER',
+    CLOSE_PHOTO_VIEWER: 'CLOSE_PHOTO_VIEWER',
+
 } as const;
 
 export type { ChatSocketEvent, ChatSocketStatus, SelectChatPayload } from './types/chat';

@@ -47,15 +47,10 @@ class HeaderStore implements Store {
 
             case Actions.LOAD_NOTIFICATIONS:
             case Actions.NOTIFICATION_SOCKET_MESSAGE:
+            case Actions.MARK_NOTIFICATION_READ:
+            case Actions.MARK_ALL_NOTIFICATIONS_READ:
                 await this.updateUnreadCount();
                 await this.renderHeader();
-                break;
-
-            case Actions.MARK_NOTIFICATION_READ:
-                if (this.unreadCount > 0) {
-                    this.unreadCount--;
-                    await this.renderHeader();
-                }
                 break;
 
             default:

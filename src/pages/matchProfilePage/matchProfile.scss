@@ -86,6 +86,12 @@
         background-position: center;
         border-radius: 28px;
         max-width: 420px;
+        cursor: pointer;
+        transition: transform 0.2s ease;
+
+        &:hover {
+            transform: scale(1.02);
+        }
     }
 
     &__placeholder {

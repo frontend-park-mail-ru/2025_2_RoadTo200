@@ -143,6 +143,25 @@ export class MatchProfilePage {
                 });
             });
         }
+
+        // Добавляем обработчики кликов на фотографии для открытия попапа
+        this.parent
+            .querySelectorAll('.photo-grid__image')
+            .forEach((imageDiv) => {
+                imageDiv.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const bgImage = (imageDiv as HTMLElement).style.backgroundImage;
+                    // Извлекаем URL из url("...") или url('...')
+                    const urlMatch = bgImage.match(/url\(['"]?([^'"]+)['"]?\)/);
+                    const imageUrl = urlMatch ? urlMatch[1] : '';
+                    if (imageUrl && imageUrl !== '/src/assets/image.png') {
+                        dispatcher.process({
+                            type: Actions.OPEN_PHOTO_VIEWER,
+                            payload: { imageUrl },
+                        });
+                    }
+                });
+            });
     }
 }
 

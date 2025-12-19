@@ -73,6 +73,7 @@ export class ProfilePage {
             .forEach((button) => {
                 button.addEventListener('click', (e) => {
                     e.preventDefault();
+                    e.stopPropagation();
                     const photoCard = (e.currentTarget as HTMLElement).closest(
                         '.photo-grid__card'
                     ) as HTMLElement | null;
@@ -81,6 +82,25 @@ export class ProfilePage {
                         dispatcher.process({
                             type: Actions.DELETE_PHOTO,
                             payload: { photoId },
+                        });
+                    }
+                });
+            });
+
+        // Добавляем обработчики кликов на фотографии для открытия попапа
+        this.parent
+            .querySelectorAll('.photo-grid__image')
+            .forEach((imageDiv) => {
+                imageDiv.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const bgImage = (imageDiv as HTMLElement).style.backgroundImage;
+                    // Извлекаем URL из url("...") или url('...')
+                    const urlMatch = bgImage.match(/url\(['"]?([^'"]+)['"]?\)/);
+                    const imageUrl = urlMatch ? urlMatch[1] : '';
+                    if (imageUrl && imageUrl !== '/src/assets/image.png') {
+                        dispatcher.process({
+                            type: Actions.OPEN_PHOTO_VIEWER,
+                            payload: { imageUrl },
                         });
                     }
                 });

@@ -72,6 +72,12 @@ class NotificationPopupStore implements Store {
         }
         this.notifications.unshift(notification);
         await this.doRender();
+        
+        // Уведомляем хедер об обновлении счетчика
+        dispatcher.process({
+            type: Actions.NOTIFICATION_SOCKET_MESSAGE,
+            payload: { type: 'notification' },
+        });
     }
 
     private async markAsRead(payload: { id: string }): Promise<void> {
@@ -79,8 +85,13 @@ class NotificationPopupStore implements Store {
         if (notification && !notification.isRead) {
             notification.isRead = true;
             await this.doRender();
+            
             try {
                 await notificationApi.markAsRead(payload.id);
+                // Уведомляем хедер об обновлении счетчика
+                dispatcher.process({
+                    type: Actions.LOAD_NOTIFICATIONS,
+                });
             } catch (error) {
                 notification.isRead = false;
                 await this.doRender();
@@ -101,6 +112,11 @@ class NotificationPopupStore implements Store {
             await Promise.all(
                 unreadNotifications.map(n => notificationApi.markAsRead(n.id))
             );
+            
+            // Уведомляем хедер об обновлении счетчика
+            dispatcher.process({
+                type: Actions.LOAD_NOTIFICATIONS,
+            });
         } catch (error) {
             // Откатываем изменения при ошибке
             unreadNotifications.forEach(n => n.isRead = false);
