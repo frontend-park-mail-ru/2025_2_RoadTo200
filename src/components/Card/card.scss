@@ -19,6 +19,19 @@
         font-family: 'Semantic', system-ui;
     }
 
+    &--premium {
+        box-shadow:
+            0 0 0 5px rgba(255, 75, 114, 1),
+            0 8px 18px rgba(0, 0, 0, 0.12);
+
+        &:hover {
+            transform: translateY(-4px);
+            box-shadow:
+                0 0 0 9px rgba(255, 75, 114, 1),
+                0 8px 18px rgba(0, 0, 0, 0.12);
+        }
+    }
+
     &__wrapper {
         position: relative;
         width: 100%;

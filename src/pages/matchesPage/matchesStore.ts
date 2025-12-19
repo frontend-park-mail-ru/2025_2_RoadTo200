@@ -34,6 +34,14 @@ class MatchesStore implements Store {
         this.isActive = false;
     }
 
+    pause(): void {
+        if (this.timerId) {
+            clearInterval(this.timerId);
+            this.timerId = null;
+        }
+        this.isActive = false;
+    }
+
     async handleAction(action: Action): Promise<void> {
         switch (action.type) {
             case Actions.RENDER_MATCHES:

@@ -5,6 +5,7 @@ import { ACTIVITY_ICONS } from '@/utils/activityIcons';
 import profileApi from '@/apiHandler/profileApi';
 import MatchesApi from '@/apiHandler/matchesApi';
 import notificationApi from '@/apiHandler/notificationApi';
+import matchesStore from '../matchesPage/matchesStore';
 
 interface PhotoCard {
     id: string;
@@ -119,6 +120,7 @@ class MatchProfileStore implements Store {
             }
 
             this.currentMatchId = matchId;
+            matchesStore.pause();
 
             // Mark all notifications from this user as read
             await this.markUserNotificationsAsRead(matchId);
