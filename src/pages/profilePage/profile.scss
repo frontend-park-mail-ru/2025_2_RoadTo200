@@ -48,10 +48,11 @@
         background: #fff7fa;
         border: 1px solid rgba(255, 75, 114, 0.15);
         aspect-ratio: 3 / 4;
+
         transition:
             transform 0.2s ease,
             box-shadow 0.2s ease;
-
+        
         &--premium {
             border: 2px solid transparent;
             
@@ -74,12 +75,13 @@
         background-size: cover;
         background-position: center;
         border-radius: 28px;
-        cursor: pointer;
+        cursor: default;
         transition: transform 0.2s ease;
 
         &:hover {
             transform: scale(1.02);
         }
+
     }
 
     &__delete-btn {
