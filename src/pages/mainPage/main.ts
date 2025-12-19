@@ -112,6 +112,18 @@ export class MainPage {
             });
         }
 
+        const scrollButton = newDiv.querySelector(
+            '[data-action="scroll-to-info"]'
+        ) as HTMLButtonElement | null;
+        if (scrollButton) {
+            scrollButton.addEventListener('click', () => {
+                const cardInfoPanel = document.getElementById('cardInfoPanel');
+                if (cardInfoPanel) {
+                    cardInfoPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        }
+
         // Удалено: await dispatcher.process({ type: Actions.GET_CARDS });
         // Карточки будут загружены после проверки профиля в mainStore
     }

@@ -15,6 +15,50 @@
     margin: 0 auto;
     padding: 16px 32px 0;
     display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+}
+
+.main-page__scroll-btn {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 75, 114, 0.22);
+    background: #fff;
+    color: var(--color-primary-light);
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease,
+        transform 0.2s ease;
+
+    svg {
+        width: 24px;
+        height: 24px;
+        shape-rendering: geometricPrecision;
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: crisp-edges;
+    }
+
+    &:hover {
+        background: rgba(255, 75, 114, 0.08);
+        border-color: rgba(255, 75, 114, 0.36);
+        transform: translateY(-1px);
+    }
+
+    @media (max-width: 768px) {
+        display: flex;
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+
+        &:hover {
+            transform: translateX(-50%) translateY(-1px);
+        }
+    }
 }
 
 .main-page__filter-btn {
