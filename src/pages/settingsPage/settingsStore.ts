@@ -21,7 +21,7 @@ interface ProfileData {
 }
 
 class SettingsStore implements Store {
-    currentTab: string = 'profile';
+    currentTab: string = 'filters';
     profileData: ProfileData = {
         name: '',
         birthdate: '',
