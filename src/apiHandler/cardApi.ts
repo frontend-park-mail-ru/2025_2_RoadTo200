@@ -14,7 +14,7 @@ export interface FeedUser {
     artist?: string;
     quote?: string;
     interests?: Array<{ theme: string; user_id: string }>;
-    is_premium?: boolean;
+    is_premium: boolean;
     super_likes_count?: number;
     [key: string]: unknown;
 }

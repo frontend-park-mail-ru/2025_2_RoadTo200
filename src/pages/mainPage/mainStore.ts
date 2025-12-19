@@ -4,7 +4,6 @@ import { main } from './main';
 import CardApi, { type FeedUser, type CardAction } from '@/apiHandler/cardApi';
 import { ProfileSetupPopup } from '@/components/ProfileSetupPopup/profileSetupPopup';
 import headerStore from '@/components/Header/headerStore';
-import ProfileApi from '@/apiHandler/profileApi';
 
 interface TransformedCard {
     id: string;
@@ -32,7 +31,6 @@ interface TransformedCard {
 
 class MainStore implements Store {
     cards: TransformedCard[];
-    private premiumCache = new Map<string, boolean>();
 
     constructor() {
         this.cards = [];
@@ -144,24 +142,15 @@ class MainStore implements Store {
                         interests,
                         musician: (card as { artist?: string }).artist || '',
                         quote: card.quote || '',
-                        isPremium: false,
+                        isPremium: Boolean(card.is_premium),
                         // Set boolean flags from interests array
                         ...activityFlags,
                     };
                 }
             );
 
-            if (transformedCards.length > 0) {
-                const firstId = String(transformedCards[0].id);
-                if (firstId && !firstId.startsWith('card-')) {
-                    transformedCards[0].isPremium =
-                        await this.resolveUserPremium(firstId);
-                }
-            }
-
             this.cards = transformedCards;
             main.setCards(transformedCards);
-            void this.enrichPremiumFlags(transformedCards);
             const superLikeState = headerStore.getSuperLikesState();
             main.setSuperLikeState(
                 superLikeState.remaining,
@@ -171,40 +160,6 @@ class MainStore implements Store {
             this.cards = [];
             main.setCards([]);
         }
-    }
-
-    private async resolveUserPremium(userId: string): Promise<boolean> {
-        if (this.premiumCache.has(userId)) {
-            return this.premiumCache.get(userId)!;
-        }
-
-        try {
-            const profile = await ProfileApi.getProfileById(userId);
-            const isPremium = Boolean(
-                profile.user?.is_premium ??
-                    profile.user?.premium_until
-            );
-            this.premiumCache.set(userId, isPremium);
-            return isPremium;
-        } catch {
-            this.premiumCache.set(userId, false);
-            return false;
-        }
-    }
-
-    private async enrichPremiumFlags(cards: TransformedCard[]): Promise<void> {
-        const tasks = cards.map(async (card) => {
-            const id = String(card.id);
-            if (!id || id.startsWith('card-')) return;
-
-            const isPremium = await this.resolveUserPremium(id);
-            if (card.isPremium !== isPremium) {
-                card.isPremium = isPremium;
-                main.setCardPremium(id, isPremium);
-            }
-        });
-
-        await Promise.allSettled(tasks);
     }
 
     private async sendCardInteraction(
