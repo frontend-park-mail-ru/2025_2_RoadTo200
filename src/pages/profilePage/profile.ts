@@ -125,8 +125,10 @@ export class ProfilePage {
 
         if (fieldName === 'description') {
             maxLength = 250;
-        } else if (fieldName === 'musician' || fieldName === 'quote') {
+        } else if (fieldName === 'musician') {
             maxLength = 50;
+        } else if (fieldName === 'quote') {
+            maxLength = 500
         }
 
         const currentTextElement = wrapper.querySelector(
