@@ -275,8 +275,8 @@ class SettingsStore implements Store {
         // Валидация минимального возраста
         if (age_min < 18) {
             errorMessages.push('Минимальный возраст должен быть не менее 18 лет');
-        } else if (age_min > 100) {
-            errorMessages.push('Минимальный возраст не может быть больше 100 лет');
+        } else if (age_min > 99) {
+            errorMessages.push('Минимальный возраст не может быть больше 99 лет');
         } else if (isNaN(age_min) || !Number.isInteger(age_min)) {
             errorMessages.push('Минимальный возраст: введите корректное целое число');
         }
@@ -284,8 +284,8 @@ class SettingsStore implements Store {
         // Валидация максимального возраста
         if (age_max < 18) {
             errorMessages.push('Максимальный возраст должен быть не менее 18 лет');
-        } else if (age_max > 100) {
-            errorMessages.push('Максимальный возраст не может быть больше 100 лет');
+        } else if (age_max > 99) {
+            errorMessages.push('Максимальный возраст не может быть больше 99 лет');
         } else if (isNaN(age_max) || !Number.isInteger(age_max)) {
             errorMessages.push('Максимальный возраст: введите корректное целое число');
         }

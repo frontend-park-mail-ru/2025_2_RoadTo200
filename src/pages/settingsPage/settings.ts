@@ -171,12 +171,12 @@ export class SettingsPage {
 
             <div class="form__input-wrapper">
                 <label class="settings-label">Возраст от:</label>
-                <input type="number" class="form__input" id="ageMin" value="${preferences.age_min || 18}" min="18" max="100" />
+                <input type="number" class="form__input" id="ageMin" value="${preferences.age_min || 18}" min="18" max="99" />
             </div>
 
             <div class="form__input-wrapper">
                 <label class="settings-label">Возраст до:</label>
-                <input type="number" class="form__input" id="ageMax" value="${preferences.age_max || 50}" min="18" max="100" />
+                <input type="number" class="form__input" id="ageMax" value="${preferences.age_max || 50}" min="18" max="99" />
             </div>
 
 
@@ -345,6 +345,8 @@ export class SettingsPage {
                         parsedMin = parseInt(ageMinInput.value, 10);
                         if (isNaN(parsedMin)) {
                             errorMessages.push('Минимальный возраст: введите корректное число');
+                        } else if (parsedMin < 18 || parsedMin > 99) {
+                            errorMessages.push('Минимальный возраст должен быть между 18 и 99');
                         }
                     }
 
@@ -361,7 +363,7 @@ export class SettingsPage {
                         }
 
                         if (parsedMax < 18 || parsedMax > 99) {
-                            errorMessages.push('Максимальный возраст должен быть между 18 и 100');
+                            errorMessages.push('Максимальный возраст должен быть между 18 и 99');
                         }
                     }
 
