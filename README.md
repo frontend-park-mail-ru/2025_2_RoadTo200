@@ -20,7 +20,5 @@
 - Ченцова Дарья (_UX_)
 - Конопкин Евгений (_DBMS_)
 
-## Разработка
-
-# ссылка на сайт: terabithia.online
+## ссылка на сайт: [terabithia.online](https://terabithia.online)
 
