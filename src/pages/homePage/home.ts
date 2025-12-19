@@ -12,6 +12,7 @@ export class Home {
     parent: HTMLElement | null = null;
     selectedActivities: string[] = [];
     private submitButton: HTMLButtonElement | null = null;
+    private fillProfileButton: HTMLButtonElement | null = null;
 
     async getTemplate(): Promise<string> {
         const response = await fetch('./src/pages/homePage/home.hbs');
@@ -177,6 +178,18 @@ export class Home {
                 dispatcher.process({
                     type: Actions.NAVIGATE_TO,
                     payload: { path: '/cards' },
+                });
+            });
+        }
+
+        this.fillProfileButton = this.parent.querySelector(
+            '#fill-profile'
+        ) as HTMLButtonElement | null;
+        if (this.fillProfileButton) {
+            this.fillProfileButton.addEventListener('click', () => {
+                dispatcher.process({
+                    type: Actions.NAVIGATE_TO,
+                    payload: { path: '/me' },
                 });
             });
         }
