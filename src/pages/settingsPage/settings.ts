@@ -360,8 +360,8 @@ export class SettingsPage {
                             errorMessages.push('Максимальный возраст не может быть меньше минимального');
                         }
 
-                        if (parsedMax < 18 || parsedMax >= 100) {
-                            errorMessages.push('Максимальный возраст должен быть между 18 и 100');
+                        if (parsedMax < 18 || parsedMax >= 99) {
+                            errorMessages.push('Максимальный возраст должен быть между 18 и 99');
                         }
                     }
 
