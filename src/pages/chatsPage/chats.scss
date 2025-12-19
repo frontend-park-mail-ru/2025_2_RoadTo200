@@ -1,6 +1,6 @@
 .chats-page {
     display: flex;
-    height: 85vh;
+    height: calc(100vh - 76px);
     width: 100%;
     overflow: hidden;
 

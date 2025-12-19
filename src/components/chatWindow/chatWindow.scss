@@ -2,8 +2,8 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    max-height: 85vh;
-    min-height: 85vh;
+    max-height: calc(100vh - 76px);
+    min-height: calc(100vh - 76px);
   
     
     border-radius: 40px;
