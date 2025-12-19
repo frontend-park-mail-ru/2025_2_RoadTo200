@@ -30,6 +30,7 @@ interface MatchProfileData {
     isMatched?: boolean;
     isLiked?: boolean;
     hasOnlyOnePhoto?: boolean;
+    isPremium?: boolean;
 }
 
 class MatchProfileStore implements Store {
@@ -141,18 +142,19 @@ class MatchProfileStore implements Store {
                         user_id: profileResponse.user.id,
                         name: profileResponse.user.name,
                         bio: profileResponse.user.bio,
-                        quote: profileResponse.user.quote,
-                        birth_date: profileResponse.user.birth_date,
-                        favorite_artist: profileResponse.user.artist,
-                        images: profileResponse.photos.map(photo => photo.photo_url),
-                        interests: profileResponse.user.interests || [],
-                        is_matched: profileResponse.is_matched,
-                        is_liked: profileResponse.is_liked,
-                    };
-                } catch (error) {
-                    return;
-                }
+                    quote: profileResponse.user.quote,
+                    birth_date: profileResponse.user.birth_date,
+                    favorite_artist: profileResponse.user.artist,
+                    images: profileResponse.photos.map(photo => photo.photo_url),
+                    interests: profileResponse.user.interests || [],
+                    is_matched: profileResponse.is_matched,
+                    is_liked: profileResponse.is_liked,
+                    is_premium: profileResponse.user.is_premium,
+                };
+            } catch (error) {
+                return;
             }
+        }
 
             const userInterests = new Set<string>();
 
@@ -204,6 +206,15 @@ class MatchProfileStore implements Store {
 
             const totalUserPhotos = photoCards.filter(card => card.isUserPhoto).length;
             
+            const isPremium =
+                typeof userData.is_premium === 'boolean'
+                    ? userData.is_premium
+                    : Boolean(
+                          (userData as { isPremium?: boolean }).isPremium ??
+                              (userData as { premium_until?: string })
+                                  .premium_until
+                      );
+
             this.matchData = {
                 id: userId,
                 matchId: realMatchId, // Use real match_id here
@@ -217,7 +228,7 @@ class MatchProfileStore implements Store {
                 heroPhoto: photoCards[0]?.image,
                 photoCards: photoCards.slice(1),
                 activities,
-                isPremium: Boolean(userData.is_premium),
+                isPremium,
                 isMatched: userData.is_matched,
                 isLiked: userData.is_liked,
                 hasOnlyOnePhoto: totalUserPhotos === 1,

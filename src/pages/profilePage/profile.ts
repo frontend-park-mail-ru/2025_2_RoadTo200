@@ -13,6 +13,7 @@ interface ProfileData {
     interests: Array<{ id: number; name: string }>;
     photoCards: any[];
     userId?: string;
+    isPremium?: boolean;
 }
 
 const fetchTemplate = async (path: string): Promise<string> => {

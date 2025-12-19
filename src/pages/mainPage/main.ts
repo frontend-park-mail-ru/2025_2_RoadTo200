@@ -69,6 +69,7 @@ export class MainPage {
     swipeThreshold: number;
     private superLikeAvailable = true;
     private superLikePremium = false;
+    private currentInfoCardId: string | null = null;
 
     constructor(parent: HTMLElement) {
         this.parent = parent;
@@ -207,9 +208,29 @@ export class MainPage {
             };
 
             infoPanelContainer.innerHTML = template(dataWithActivities);
+            this.currentInfoCardId = cardData.id;
             this.attachReportButton(infoPanelContainer, dataWithActivities);
         } catch (error) {
             // Update card info failed
+        }
+    }
+
+    setCardPremium(cardId: string, isPremium: boolean): void {
+        this.cardsData = this.cardsData.map((card) =>
+            card.id === cardId ? { ...card, isPremium } : card
+        );
+
+        document
+            .querySelectorAll(`.card[data-id="${cardId}"]`)
+            .forEach((cardEl) => {
+                cardEl.classList.toggle('card--premium', isPremium);
+            });
+
+        if (this.currentInfoCardId === cardId) {
+            const updated = this.cardsData.find((card) => card.id === cardId);
+            if (updated) {
+                void this.updateCardInfo(updated);
+            }
         }
     }
 

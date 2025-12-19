@@ -48,18 +48,23 @@
         background: #fff7fa;
         border: 1px solid rgba(255, 75, 114, 0.15);
         aspect-ratio: 3 / 4;
+        transition:
+            transform 0.2s ease,
+            box-shadow 0.2s ease;
 
         &--premium {
             border: 2px solid transparent;
-            border-image: linear-gradient(
-                    to right,
-                    var(--color-primary-dark) 0%,
-                    var(--color-primary-light) 100%
-                )
-                1;
+            
             box-shadow:
                 0 0 0 5px rgba(255, 75, 114, 1),
                 0 8px 18px rgba(0, 0, 0, 0.12);
+
+            &:hover {
+                transform: translateY(-4px);
+                box-shadow:
+                    0 0 0 9px rgba(255, 75, 114, 1),
+                    0 8px 18px rgba(0, 0, 0, 0.12);
+            }
         }
     }
 

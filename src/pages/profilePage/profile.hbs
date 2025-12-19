@@ -5,7 +5,7 @@
     <div class='profile-page__content'>
         <div class='photo-grid'>
             {{#each photoCards}}
-            <div class='photo-grid__card {{#if ../../isPremium}}{{#if this.isUserPhoto}}photo-grid__card--premium{{/if}}{{/if}}' data-photo-id='{{this.id}}'>
+            <div class='photo-grid__card {{#if ../isPremium}}{{#if this.isUserPhoto}}photo-grid__card--premium{{/if}}{{/if}}' data-photo-id='{{this.id}}'>
                 {{#if this.isUserPhoto}}
                 <div class='photo-grid__image' style="background-image: url('{{this.image}}');">
                     <button class='photo-grid__delete-btn'><img src='./src/assets/trash.svg' alt='/'

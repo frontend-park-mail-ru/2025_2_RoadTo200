@@ -120,6 +120,11 @@ class ProfileStore implements Store {
                     isActive: true,
                 }));
 
+            const isPremium = Boolean(
+                (user as { is_premium?: boolean }).is_premium ??
+                    (user as { premium_until?: string }).premium_until
+            );
+
             this.profileData = {
                 description: user.bio || '',
                 musician: user.artist || '',
@@ -130,7 +135,7 @@ class ProfileStore implements Store {
                 activities: activities,
                 interests: [],
                 userId: user.id || '',
-                isPremium: Boolean((user as { is_premium?: boolean }).is_premium),
+                isPremium,
             };
 
             const contentContainer =

@@ -14,7 +14,8 @@
     will-change: transform, opacity;
     z-index: 100;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.32);
-
+    
+            
     * {
         font-family: 'Semantic', system-ui;
     }
@@ -24,12 +25,6 @@
             0 0 0 5px rgba(255, 75, 114, 1),
             0 8px 18px rgba(0, 0, 0, 0.12);
 
-        &:hover {
-            transform: translateY(-4px);
-            box-shadow:
-                0 0 0 9px rgba(255, 75, 114, 1),
-                0 8px 18px rgba(0, 0, 0, 0.12);
-        }
     }
 
     &__wrapper {

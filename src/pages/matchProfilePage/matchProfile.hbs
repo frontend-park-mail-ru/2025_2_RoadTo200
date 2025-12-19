@@ -5,13 +5,13 @@
     <div class='profile-page__content'>
         <div class='photo-grid {{#if hasOnlyOnePhoto}}photo-grid--single{{/if}}'>
             {{#if heroPhoto}}
-            <div class='photo-grid__card {{#if ../isPremium}}photo-grid__card--premium{{/if}}'>
+            <div class='photo-grid__card {{#if isPremium}}photo-grid__card--premium{{/if}}'>
                 <div class='photo-grid__image' style="background-image: url('{{heroPhoto}}');"></div>
             </div>
             {{/if}}
             {{#each photoCards}}
             {{#if this.isUserPhoto}}
-            <div class='photo-grid__card {{#if ../../isPremium}}photo-grid__card--premium{{/if}}'>
+            <div class='photo-grid__card {{#if ../isPremium}}photo-grid__card--premium{{/if}}'>
                 <div class='photo-grid__image' style="background-image: url('{{this.image}}');"></div>
             </div>
             {{/if}}

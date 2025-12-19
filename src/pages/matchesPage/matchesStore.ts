@@ -85,7 +85,12 @@ class MatchesStore implements Store {
                 const userId =
                     (user as { id?: string }).id || `user-${matchIdentifier}`;
                 const isPremium = Boolean(
-                    (user as { is_premium?: boolean }).is_premium
+                    (user as { is_premium?: boolean }).is_premium ??
+                        (user as { premium_until?: string }).premium_until ??
+                        (user as { isPremium?: boolean }).isPremium ??
+                        (user as { is_premium_user?: boolean }).is_premium_user ??
+                        (item as { is_premium?: boolean }).is_premium ??
+                        (match as { is_premium?: boolean }).is_premium
                 );
 
                 const matchedAtRaw =
