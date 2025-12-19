@@ -41,6 +41,8 @@ class ChatWindowStore implements Store {
     private readonly loadedChats = new Set<string>(); // Track which chats have been loaded
     private hasAnyChats = false; // Track if user has any chats at all
     private isLoadingChats = true; // Track if chats list is loading - начинаем с true
+    private isSearching = false; // Track if user is searching
+    private totalChatsCount = 0; // Track total number of chats (before search filter)
 
     constructor() {
         dispatcher.register(this);
@@ -65,6 +67,8 @@ class ChatWindowStore implements Store {
             case Actions.CHATS_LIST_UPDATED:
                 this.hasAnyChats = (action.payload as { hasChats?: boolean })?.hasChats || false;
                 this.isLoadingChats = (action.payload as { isLoading?: boolean })?.isLoading || false;
+                this.isSearching = (action.payload as { isSearching?: boolean })?.isSearching || false;
+                this.totalChatsCount = (action.payload as { totalChatsCount?: number })?.totalChatsCount || 0;
                 await this.renderChatWindow();
                 break;
 
@@ -376,16 +380,21 @@ class ChatWindowStore implements Store {
                     title: 'Загрузка чатов',
                     subtitle: 'Пожалуйста, подождите...',
                 }
-                : this.hasAnyChats
+                : this.isSearching && !this.hasAnyChats
                     ? {
-                        title: 'Чат не выбран',
-                        subtitle: 'Выберите чат из списка слева, чтобы начать общение',
+                        title: 'Ничего не найдено',
+                        subtitle: 'Попробуйте изменить запрос',
                     }
-                    : {
-                        title: 'У Вас пока нет чатов',
-                        subtitle: 'Возможно, Вам стоит еще поискать подходящих людей',
-                        action: 'home' as const,
-                    }
+                    : this.totalChatsCount === 0
+                        ? {
+                            title: 'У Вас пока нет чатов',
+                            subtitle: 'Возможно, Вам стоит еще поискать подходящих людей',
+                            action: 'home' as const,
+                        }
+                        : {
+                            title: 'Чат не выбран',
+                            subtitle: 'Выберите чат из списка слева, чтобы начать общение',
+                        }
             : undefined;
 
         await this.chatWindowComponent.render({

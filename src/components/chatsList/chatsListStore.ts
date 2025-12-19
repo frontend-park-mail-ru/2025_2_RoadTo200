@@ -121,7 +121,7 @@ class ChatsListStore implements Store {
         await this.renderChatsList();
 
         try {
-            // Use server-side search via backend API
+            // Использование серверного поиска через backend API
             const { conversations } = await ChatApi.getConversations(this.searchQuery);
             this.chats = (conversations && Array.isArray(conversations))
                 ? conversations.map((conversation) => this.mapConversation(conversation))
@@ -129,10 +129,15 @@ class ChatsListStore implements Store {
 
             // Не выбираем чат автоматически - пользователь сам выберет нужный
             
-            // Уведомляем chatWindow о наличии чатов
+            // Уведомляем chatWindow о наличии чатов и состоянии поиска
             dispatcher.process({
                 type: Actions.CHATS_LIST_UPDATED,
-                payload: { hasChats: this.chats.length > 0, isLoading: false },
+                payload: { 
+                    hasChats: this.chats.length > 0, 
+                    isLoading: false,
+                    isSearching: this.searchQuery.length > 0,
+                    totalChatsCount: conversations?.length || 0,
+                },
             });
         } catch (error) {
             this.error =

@@ -139,28 +139,23 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        width: 60px;
-        height: 60px;
+        width: 76px;
+        height: 76px;
         border-radius: 50%;
-        border: 2px solid rgba(255, 255, 255, 0.9);
-        background-color: rgba(0, 0, 0, 0.18);
-        font-size: 30px;
+        border: none;
+        background: transparent;
         cursor: pointer;
-        color: #fff;
-        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55);
-        transition:
-            transform 0.15s ease-out,
-            box-shadow 0.15s ease-out,
-            background-color 0.15s ease-out;
+        padding: 0;
+        transition: transform 0.15s ease-out;
 
-        &:hover {
-            transform: scale(1.04);
-            box-shadow: 0 8px 22px rgba(0, 0, 0, 0.65);
-            background-color: rgba(0, 0, 0, 0.26);
+        img {
+            width: 100%;
+            height: 100%;
+            display: block;
         }
 
-        &-dislike {
-            /* в оригинале обводка белая, цвет иконки задаётся самим символом */
+        &:hover {
+            transform: scale(1.08);
         }
 
         &-superLike {
@@ -173,12 +168,6 @@
                     pointer-events: none;
                 }
             }
-        }
-
-        &-like {
-        }
-
-        &-reload {
         }
     }
 }
