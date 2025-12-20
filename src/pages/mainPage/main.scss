@@ -35,6 +35,10 @@
     transition: background 0.2s ease, border-color 0.2s ease,
         transform 0.2s ease;
 
+    &.hidden {
+        display: none !important;
+    }
+
     svg {
         width: 24px;
         height: 24px;
@@ -54,6 +58,10 @@
         position: absolute;
         left: 50%;
         transform: translateX(-50%);
+
+        &.hidden {
+            display: none !important;
+        }
 
         &:hover {
             transform: translateX(-50%) translateY(-1px);

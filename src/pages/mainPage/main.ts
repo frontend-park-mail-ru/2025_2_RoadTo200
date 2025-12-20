@@ -84,13 +84,26 @@ export class MainPage {
         this.swipeThreshold = 100;
     }
 
+    updateScrollButtonVisibility(): void {
+        const scrollBtn = document.querySelector('.main-page__scroll-btn');
+        if (scrollBtn) {
+            if (this.cardsData.length > 0) {
+                scrollBtn.classList.remove('hidden');
+            } else {
+                scrollBtn.classList.add('hidden');
+            }
+        }
+    }
+
     async render(): Promise<void> {
         this.parent.innerHTML = '';
 
         const pageTemplateString = await fetchTemplate(TEMPLATE_PATH);
         const pageTemplate = Handlebars.compile(pageTemplateString);
 
-        const renderedHtml = pageTemplate({ cardsHtml: '' });
+        const renderedHtml = pageTemplate({ 
+            cardsHtml: ''
+        });
 
         const newDiv = document.createElement('div');
         newDiv.id = 'mainDiv';
@@ -135,6 +148,7 @@ export class MainPage {
 
         if (this.cardsData.length > 0) {
             this.displayFirstCard();
+            this.updateScrollButtonVisibility();
         } else {
             this.displayEmptyState();
         }
@@ -143,6 +157,7 @@ export class MainPage {
     appendCards(cards: CardData[]): void {
         const newCards: CardData[] = Array.isArray(cards) ? cards : Object.values(cards) as CardData[];
         this.cardsData = [...this.cardsData, ...newCards];
+        this.updateScrollButtonVisibility();
     }
 
     setSuperLikeState(remaining: number, isPremium: boolean): void {
@@ -152,8 +167,8 @@ export class MainPage {
     }
 
     async displayEmptyState(): Promise<void> {
-        const pageContainer = document.querySelector('.main-page-layout');
-        if (!pageContainer) return;
+        const cardsContainer = document.querySelector('.cards-container');
+        if (!cardsContainer) return;
 
         const emptyStateTemplateString = await fetchTemplate(
             EMPTY_STATE_TEMPLATE_PATH
@@ -168,7 +183,8 @@ export class MainPage {
             buttonId: 'goToMain',
         });
 
-        pageContainer.innerHTML = emptyStateHtml;
+        cardsContainer.innerHTML = emptyStateHtml;
+        this.updateScrollButtonVisibility();
 
         const goToMainButton = document.getElementById('goToMain');
         if (goToMainButton) {

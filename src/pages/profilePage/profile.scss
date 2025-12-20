@@ -148,6 +148,10 @@
         line-height: 1.6;
         color: #4c4c5d;
         margin-bottom: 12px;
+        word-wrap: break-word;
+        word-break: break-word;
+        overflow-wrap: break-word;
+        white-space: normal;
     }
 
     &__icon-edit {
