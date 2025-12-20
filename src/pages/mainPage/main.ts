@@ -170,6 +170,14 @@ export class MainPage {
         const cardsContainer = document.querySelector('.cards-container');
         if (!cardsContainer) return;
 
+        const infoPanelContainer = document.getElementById('cardInfoPanel');
+        if (infoPanelContainer) {
+            infoPanelContainer.innerHTML = '';
+        }
+
+        this.cardsData = [];
+        this.currentCardIndex = 0;
+
         const emptyStateTemplateString = await fetchTemplate(
             EMPTY_STATE_TEMPLATE_PATH
         );
