@@ -65,7 +65,7 @@
         -webkit-user-select: none;
         -moz-user-select: none;
         -ms-user-select: none;
-        pointer-events: none;
+        cursor: pointer;
     }
 
     &__gradient-overlay {

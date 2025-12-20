@@ -372,6 +372,7 @@ export class MainPage {
             // Prevent scroll if user is swiping
             if (Math.abs(deltaX) > 10 || Math.abs(deltaY) > 10) {
                 hasSwiped = true;
+                cardElement.dataset.blockClick = 'true';
                 e.preventDefault();
             }
 

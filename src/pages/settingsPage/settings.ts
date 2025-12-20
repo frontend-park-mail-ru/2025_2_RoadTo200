@@ -467,9 +467,7 @@ export class SettingsPage {
             if (deleteAccountBtn) {
                 deleteAccountBtn.addEventListener('click', (e) => {
                     e.preventDefault();
-                    if (confirm('Удалить аккаунт? Это действие необратимо.')) {
-                        dispatcher.process({ type: Actions.DELETE_ACCOUNT });
-                    }
+                    dispatcher.process({ type: Actions.DELETE_ACCOUNT });
                 });
             }
         }
