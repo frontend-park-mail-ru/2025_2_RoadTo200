@@ -12,20 +12,34 @@
         box-shadow 0.2s;
     position: relative;
     font-family: 'Inter', system-ui;
+    
 
     &:hover {
         transform: translateY(-4px);
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
 
-    &-expired {
-        filter: blur(6px);
-        opacity: 0.6;
-        cursor: not-allowed;
+    &--premium {
+        box-shadow:
+            0 0 0 5px rgba(255, 75, 114, 1),
+            0 8px 18px rgba(0, 0, 0, 0.12);
 
         &:hover {
-            transform: none;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transform: translateY(-4px);
+            box-shadow:
+                0 0 0 9px rgba(255, 75, 114, 1),
+                0 8px 18px rgba(0, 0, 0, 0.12);
+        }
+    }
+
+    &-expired {
+        // filter: blur(6px);
+        // opacity: 0.6;
+        
+
+        &:hover {
+            // transform: none;
+            // box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
     }
 

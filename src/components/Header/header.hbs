@@ -10,8 +10,18 @@
 
         <div class='header__right'>
             {{#if isAuthenticated}}
+            <div class="header__superlikes" aria-label="Суперлайки" title="Суперлайки: {{superLikesRemaining}} из {{superLikesTotal}}">
+                <span class="header__superlikes-icon" aria-hidden="true"></span>
+                <span class="header__superlikes-count">{{superLikesRemaining}}/{{superLikesTotal}}</span>
+            </div>
+            <button class='header__bell-btn' id='notificationBellBtn' aria-label='Уведомления'>
+                <img src='/src/assets/bell.svg' alt='Уведомления' class='header__bell-icon' />
+                {{#if unreadCount}}
+                <span class='header__bell-badge'>{{unreadCount}}</span>
+                {{/if}}
+            </button>
             <button class='header__avatar-btn' id='userEmailBtn' aria-label='Профиль пользователя'>
-                <div class='header__avatar'>
+                <div class='header__avatar {{#if isPremium}}header__avatar--premium{{/if}}'>
                     <img src='{{userPhoto}}' alt='{{userName}}' />
                 </div>
             </button>

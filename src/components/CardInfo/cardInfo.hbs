@@ -1,8 +1,8 @@
 <div class='details'>
     <div class='details__hero'>
-        <h2 class='details__title'>
-            {{#if name}}{{name}}{{/if}}
-            {{#if age}}{{#if name}}, {{/if}}{{age}}{{/if}}
+        <h2 class='details__title {{#if isPremium}}details__title--premium{{/if}}'>
+            {{#if name}}{{name}}{{/if}},
+            {{#if age}}{{age}}{{/if}}
         </h2>
     </div>
 

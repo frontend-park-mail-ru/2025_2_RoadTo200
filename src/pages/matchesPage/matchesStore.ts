@@ -13,27 +13,39 @@ interface ProcessedMatch {
     matchId: string;
     userId: string;
     matchedAt: string;
-    expiresAt: string;
+    expiresAt: string | null;
     isNew: boolean;
     isActive: boolean;
     timer?: string;
     isExpired?: boolean;
     userData?: any;
+    isPremium?: boolean;
 }
 
 class MatchesStore implements Store {
     timerId: NodeJS.Timeout | null;
     matches: ProcessedMatch[];
+    private isActive: boolean;
 
     constructor() {
         this.matches = [];
         dispatcher.register(this);
         this.timerId = null;
+        this.isActive = false;
+    }
+
+    pause(): void {
+        if (this.timerId) {
+            clearInterval(this.timerId);
+            this.timerId = null;
+        }
+        this.isActive = false;
     }
 
     async handleAction(action: Action): Promise<void> {
         switch (action.type) {
             case Actions.RENDER_MATCHES:
+                this.isActive = true;
                 await this.renderMatches();
                 break;
 
@@ -72,15 +84,33 @@ class MatchesStore implements Store {
 
                 const userId =
                     (user as { id?: string }).id || `user-${matchIdentifier}`;
+                const isPremium = Boolean(
+                    (user as { is_premium?: boolean }).is_premium ??
+                        (user as { premium_until?: string }).premium_until ??
+                        (user as { isPremium?: boolean }).isPremium ??
+                        (user as { is_premium_user?: boolean }).is_premium_user ??
+                        (item as { is_premium?: boolean }).is_premium ??
+                        (match as { is_premium?: boolean }).is_premium
+                );
 
                 const matchedAtRaw =
                     (match as { matched_at?: string }).matched_at;
                 const matchedAt = matchedAtRaw
                     ? new Date(matchedAtRaw)
                     : new Date();
-                const expiresAt = new Date(
-                    matchedAt.getTime() + 24 * 60 * 60 * 1000
-                );
+
+                const expiresAtRaw =
+                    (match as { expires_at?: string | null }).expires_at ??
+                    (item as { expires_at?: string | null }).expires_at ??
+                    null;
+
+                let expiresAt: string | null = null;
+                if (expiresAtRaw) {
+                    const expiresAtDate = new Date(expiresAtRaw);
+                    if (!Number.isNaN(expiresAtDate.getTime())) {
+                        expiresAt = expiresAtDate.toISOString();
+                    }
+                }
 
                 const photoUrl = photos[0] || '/src/assets/image.png';
 
@@ -97,10 +127,11 @@ class MatchesStore implements Store {
                     image: photoUrl,
                     matchId: String(matchIdentifier),
                     matchedAt: matchedAt.toISOString(),
-                    expiresAt: expiresAt.toISOString(),
+                    expiresAt,
                     isNew: this.isMatchNew(matchedAt),
                     isActive:
                         (match as { is_active?: boolean }).is_active !== false,
+                    isPremium,
                     userData: {
                         ...user,
                         id: userId,
@@ -110,8 +141,16 @@ class MatchesStore implements Store {
                             (user as { bio?: string }).bio ||
                             item.description ||
                             '',
+                        is_premium: isPremium,
+                        is_matched: true,
                     },
                 };
+            });
+
+            this.matches.sort((a, b) => {
+                const dateA = new Date(a.matchedAt).getTime();
+                const dateB = new Date(b.matchedAt).getTime();
+                return dateB - dateA;
             });
 
             this.updateDerivedFields();
@@ -120,6 +159,7 @@ class MatchesStore implements Store {
 
             if (!this.timerId) {
                 this.timerId = setInterval(() => {
+                    if (!this.isActive) return;
                     this.updateDerivedFields();
                     matches.setMatches(this.matches);
                 }, UPDATE_INTERVAL);
@@ -155,24 +195,49 @@ class MatchesStore implements Store {
             clearInterval(this.timerId);
             this.timerId = null;
         }
+        this.isActive = false;
     }
 
     private updateDerivedFields(): void {
+        if (!this.isActive) return;
+
         const now = Date.now();
 
         this.matches = this.matches.map((m) => {
+            if (!m.expiresAt) {
+                return {
+                    ...m,
+                    timer: undefined,
+                    isExpired: false,
+                };
+            }
+
             const expiresAt = new Date(m.expiresAt).getTime();
             const timeLeft = expiresAt - now;
 
             const isExpired = timeLeft <= 0;
 
-            let timer = '00:00';
+            const formatHoursLeft = (hours: number): string => {
+                const abs = Math.abs(hours);
+                const mod10 = abs % 10;
+                const mod100 = abs % 100;
+                const word =
+                    mod10 === 1 && mod100 !== 11
+                        ? 'час'
+                        : mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)
+                          ? 'часа'
+                          : 'часов';
+                const prefix = hours === 1 ? 'Остался' : 'Осталось';
+                return `${prefix} ${hours} ${word}`;
+            };
+
+            let timer = 'Время истекло';
             if (!isExpired) {
-                const hours = Math.floor(timeLeft / (1000 * 60 * 60));
-                const minutes = Math.floor(
-                    (timeLeft % (1000 * 60 * 60)) / (1000 * 60)
+                const hoursLeft = Math.max(
+                    1,
+                    Math.floor(timeLeft / (1000 * 60 * 60))
                 );
-                timer = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+                timer = formatHoursLeft(hoursLeft);
             }
 
             return {

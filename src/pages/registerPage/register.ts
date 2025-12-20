@@ -5,8 +5,8 @@ import { Actions, type Action } from '@/actions';
 const TEMPLATE_PATH = './src/pages/registerPage/register.hbs';
 
 function validateEmail(email: string): boolean {
-    const emailRegex =
-        /^[a-zA-Z0-9._%+\-\u0080-\uFFFF]+@[a-zA-Z0-9.\-\u0080-\uFFFF]+\.[a-zA-Z\u0080-\uFFFF]{2,}$/;
+    // Keep in sync with backend `user_email_check` constraint (ASCII only).
+    const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
     return emailRegex.test(email);
 }
 
@@ -155,9 +155,9 @@ export class RegisterPage {
         }
 
         // Валидация email
-        if (!validateEmail(email)) {
+        if (/[^\x00-\x7F]/.test(email) || !validateEmail(email)) {
             emailInput.classList.add('form__error-input');
-            showError('Некорректный email');
+            showError('Email должен быть написан латиницей');
             return;
         }
 

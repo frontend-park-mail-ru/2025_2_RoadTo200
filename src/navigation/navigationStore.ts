@@ -3,6 +3,8 @@ import { Actions, Action, NavigateAction, LoadRouteAction } from '../actions';
 import { AuthUtils } from '../utils/auth';
 import type { Store } from '../Dispatcher';
 import matchesStore from '../pages/matchesPage/matchesStore';
+import ProfileApi from '@/apiHandler/profileApi';
+import { ProfileSetupPopup } from '@/components/ProfileSetupPopup/profileSetupPopup';
 
 export interface PageComponent {
     parent: HTMLElement | null;
@@ -265,9 +267,6 @@ class NavigationStore implements Store {
         const { path } = action.payload!;
         const currentPath = path || window.location.pathname;
 
-        // Удалили проверку this.currentPath === currentPath чтобы разрешить
-        // повторный рендер при навигации назад через кнопку браузера
-
         if (
             this.currentPath &&
             this.currentPath.startsWith('/matches') &&
@@ -283,7 +282,8 @@ class NavigationStore implements Store {
         }
 
         const matchProfileMatch = currentPath.match(/^\/matches\/([^/]+)$/);
-        const normalizedPath = matchProfileMatch ? '/matches' : currentPath;
+        const profileMatch = currentPath.match(/^\/profile\/([^/]+)$/);
+        const normalizedPath = matchProfileMatch ? '/matches' : (profileMatch ? '/profile' : currentPath);
 
         let route = this.routes.find((r) => r.path === normalizedPath);
         if (!route && this.fallbackRoute) {
@@ -321,9 +321,28 @@ class NavigationStore implements Store {
         const isAuthPage =
             normalizedPath === '/login' || normalizedPath === '/register';
         const isSupportPage = normalizedPath === '/support';
+        const shouldCheckProfilePopup = ['/me', '/chats', '/matches'].includes(
+            normalizedPath
+        );
+
+        if (normalizedPath === '/premium') {
+            try {
+                const profile = await ProfileApi.getProfile();
+                if (profile.user?.is_premium) {
+                    await this.navigateTo({
+                        type: Actions.NAVIGATE_TO,
+                        payload: { path: '/' },
+                    });
+                    return;
+                }
+            } catch (_err) {
+                // fall through if не удалось проверить премиум
+            }
+        }
 
         if (typeof document !== 'undefined' && document.body) {
             document.body.classList.toggle('support-route', isSupportPage);
+            document.body.classList.toggle('auth-route', isAuthPage);
         }
 
         if (this.headerContainer) {
@@ -349,8 +368,21 @@ class NavigationStore implements Store {
 
         const renderAction = NavigationStore.getRouteRenderAction(
             normalizedPath,
-            matchProfileMatch
+            matchProfileMatch,
+            profileMatch
         );
+
+        if (shouldCheckProfilePopup) {
+            try {
+                const isComplete =
+                    await ProfileSetupPopup.isProfileComplete();
+                if (!isComplete) {
+                    dispatcher.process({ type: Actions.SHOW_PROFILE_SETUP_POPUP });
+                }
+            } catch {
+                // ignore completeness check errors
+            }
+        }
 
         if (renderAction) {
             dispatcher.process(renderAction);
@@ -388,7 +420,8 @@ class NavigationStore implements Store {
 
     private static getRouteRenderAction(
         normalizedPath: string,
-        matchProfileMatch: RegExpMatchArray | null
+        matchProfileMatch: RegExpMatchArray | null,
+        profileMatch: RegExpMatchArray | null = null
     ): Action | null {
         const actionPayload: Record<string, string> = {};
 
@@ -431,9 +464,24 @@ class NavigationStore implements Store {
                     };
                 }
                 return { type: Actions.RENDER_MATCHES, payload: actionPayload };
+            case '/profile':
+                actionPayload.route = 'profile';
+                if (profileMatch) {
+                    const [, userId] = profileMatch;
+                    actionPayload.matchId = userId;
+                    return {
+                        type: Actions.RENDER_MATCH_PROFILE,
+                        payload: actionPayload,
+                    };
+                }
+                return null;
             case '/chats':
                 actionPayload.route = 'chats';
                 return { type: Actions.RENDER_CHATS, payload: actionPayload };
+            case '/premium':
+                actionPayload.route = 'premium';
+                return { type: Actions.RENDER_PREMIUM, payload: actionPayload };
+
             default:
                 return null;
         }

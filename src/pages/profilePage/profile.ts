@@ -13,6 +13,7 @@ interface ProfileData {
     interests: Array<{ id: number; name: string }>;
     photoCards: any[];
     userId?: string;
+    isPremium?: boolean;
 }
 
 const fetchTemplate = async (path: string): Promise<string> => {
@@ -72,6 +73,7 @@ export class ProfilePage {
             .forEach((button) => {
                 button.addEventListener('click', (e) => {
                     e.preventDefault();
+                    e.stopPropagation();
                     const photoCard = (e.currentTarget as HTMLElement).closest(
                         '.photo-grid__card'
                     ) as HTMLElement | null;
@@ -80,6 +82,25 @@ export class ProfilePage {
                         dispatcher.process({
                             type: Actions.DELETE_PHOTO,
                             payload: { photoId },
+                        });
+                    }
+                });
+            });
+
+        // Добавляем обработчики кликов на фотографии для открытия попапа
+        this.parent
+            .querySelectorAll('.photo-grid__image')
+            .forEach((imageDiv) => {
+                imageDiv.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const bgImage = (imageDiv as HTMLElement).style.backgroundImage;
+                    // Извлекаем URL из url("...") или url('...')
+                    const urlMatch = bgImage.match(/url\(['"]?([^'"]+)['"]?\)/);
+                    const imageUrl = urlMatch ? urlMatch[1] : '';
+                    if (imageUrl && imageUrl !== '/src/assets/image.png') {
+                        dispatcher.process({
+                            type: Actions.OPEN_PHOTO_VIEWER,
+                            payload: { imageUrl },
                         });
                     }
                 });
@@ -100,14 +121,14 @@ export class ProfilePage {
 
         if (!wrapper) return;
 
-        let minLength = 0;
         let maxLength = 0;
 
         if (fieldName === 'description') {
-            maxLength = 254;
-        } else if (fieldName === 'musician' || fieldName === 'quote') {
-            minLength = 1;
+            maxLength = 250;
+        } else if (fieldName === 'musician') {
             maxLength = 50;
+        } else if (fieldName === 'quote') {
+            maxLength = 500
         }
 
         const currentTextElement = wrapper.querySelector(
@@ -145,22 +166,17 @@ export class ProfilePage {
 
 
         const updateCounter = (value: string) => {
-            if (!counterElement) return;
-            const length = value.trim().length;
+            if (!counterElement) return true;
+            const length = value.length;
 
             let counterText = `${length}`;
             let isValid = true;
 
             if (maxLength > 0) {
                 counterText += ` / ${maxLength}`;
-            }
-
-            if (minLength > 0 && length < minLength) {
-                counterText += ` (Минимум ${minLength})`;
-                isValid = false;
-            } else if (maxLength > 0 && length > maxLength) {
-                counterText += ` (Максимум ${maxLength})`;
-                isValid = false;
+                if (length > maxLength) {
+                    isValid = false;
+                }
             }
 
             counterElement.textContent = counterText;
@@ -198,19 +214,10 @@ export class ProfilePage {
             if (!isSaveEvent) return;
             if (e.type === 'keypress') e.preventDefault();
 
-            const newValue = inputElement.value.trim();
-            const isValid = updateCounter(newValue);
+            const rawValue = inputElement.value;
+            updateCounter(rawValue);
 
-            if (!isValid && e.type === 'blur') {
-                return;
-            }
-
-            if (!isValid) {
-                if (e.type !== 'blur') {
-                    alert(`Поле "${fieldName}" не соответствует требованиям к длине.`);
-                }
-                return;
-            }
+            const newValue = rawValue.trim();
 
             inputElement.removeEventListener('blur', saveEdit);
             inputElement.removeEventListener('keypress', saveEdit);

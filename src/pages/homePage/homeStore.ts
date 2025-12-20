@@ -57,7 +57,13 @@ class HomeStore implements Store {
             const interests = response.interests || [];
 
             // Extract themes from interests
-            const activeActivities = interests.map((interest) => interest.theme);
+            const activeActivities = Array.from(
+                new Set(
+                    interests
+                        .map((interest) => interest.theme)
+                        .filter((theme): theme is string => Boolean(theme))
+                )
+            );
 
             // Update store state
             this.selectedActivities = activeActivities;
@@ -88,6 +94,13 @@ class HomeStore implements Store {
                 }
             });
 
+            // Удаляем возможные дубликаты перед отправкой
+            this.selectedActivities = Array.from(
+                new Set(
+                    this.selectedActivities.filter((id) => Boolean(id))
+                )
+            );
+
             // Prepare payload for API
             const interestsPayload = this.selectedActivities.map((theme) => ({
                 theme,
@@ -96,8 +109,6 @@ class HomeStore implements Store {
             await ProfileApi.updateInterests(interestsPayload);
             // console.log('HomeStore: Interests updated:', interestsPayload);
 
-            // Reload to ensure sync (optional, but good for consistency)
-            await this.loadUserActivities();
         } catch (error) {
             // console.error('HomeStore: Failed to update activity:', error);
         }

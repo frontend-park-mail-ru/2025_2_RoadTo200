@@ -35,7 +35,7 @@ export interface CardData {
 const fetchCardTemplate = async (): Promise<string> => {
     const response = await fetch(CARD_TEMPLATE_PATH);
     if (!response.ok) {
-        // console.error('Ошибка: Не удалось загрузить шаблон');
+        throw new Error('Failed to load template');
     }
     return response.text();
 };
@@ -45,13 +45,18 @@ const fetchCardTemplate = async (): Promise<string> => {
  */
 const Card = {
     /**
-     * Обработка клика по изображению для навигации
-     * @param {MouseEvent} event
+     * Обработка клика/тача по изображению для навигации
+     * @param {MouseEvent | TouchEvent} event
      */
-    handleImageNavigation(event: MouseEvent): void {
+    handleImageNavigation(event: MouseEvent | TouchEvent): void {
         const target = event.target as HTMLElement;
         const cardElement = target.closest('.card') as HTMLElement;
         if (!cardElement) return;
+
+        // Проверяем, заблокирован ли клик после свайпа
+        if (cardElement.dataset.blockClick === 'true') {
+            return;
+        }
 
         const imagesJson = cardElement.getAttribute('data-images-json');
         if (!imagesJson) return;
@@ -70,7 +75,11 @@ const Card = {
         );
 
         const rect = target.getBoundingClientRect();
-        const clickX = event.clientX - rect.left;
+        // Support both mouse and touch events
+        const clientX = event instanceof MouseEvent 
+            ? event.clientX 
+            : event.changedTouches[0].clientX;
+        const clickX = clientX - rect.left;
         const width = rect.width;
 
         let newIndex = currentIndex;
@@ -87,6 +96,16 @@ const Card = {
                 'data-current-image-index',
                 String(newIndex)
             );
+            
+            // Update indicators
+            const indicators = cardElement.querySelectorAll('.card__indicator');
+            indicators.forEach((indicator, index) => {
+                if (index === newIndex) {
+                    indicator.classList.add('card__indicator--active');
+                } else {
+                    indicator.classList.remove('card__indicator--active');
+                }
+            });
         }
     },
 
@@ -126,8 +145,8 @@ const Card = {
      * @param {HTMLElement} cardElement
      */
     init: (cardElement: HTMLElement): void => {
-        // console.log('Initializing card:', cardElement);
-        cardElement.addEventListener('click', Card.handleImageNavigation);
+        cardElement.addEventListener('click', Card.handleImageNavigation as EventListener);
+        cardElement.addEventListener('touchend', Card.handleImageNavigation as EventListener);
     },
 };
 

@@ -2,6 +2,10 @@ import { Actions, type Action } from '@/actions';
 import { dispatcher, type Store } from '@/Dispatcher';
 import { matchProfile } from './matchProfile';
 import { ACTIVITY_ICONS } from '@/utils/activityIcons';
+import profileApi from '@/apiHandler/profileApi';
+import MatchesApi from '@/apiHandler/matchesApi';
+import notificationApi from '@/apiHandler/notificationApi';
+import matchesStore from '../matchesPage/matchesStore';
 
 interface PhotoCard {
     id: string;
@@ -23,6 +27,10 @@ interface MatchProfileData {
     photoCards: PhotoCard[];
     heroPhoto?: string;
     activities: Array<{ name: string; icon: string }>;
+    isMatched?: boolean;
+    isLiked?: boolean;
+    hasOnlyOnePhoto?: boolean;
+    isPremium?: boolean;
 }
 
 class MatchProfileStore implements Store {
@@ -50,6 +58,18 @@ class MatchProfileStore implements Store {
                     );
                 }
                 break;
+            case Actions.REPORT_SUCCESS:
+                if (
+                    action.payload &&
+                    (action.payload as any).context === 'match'
+                ) {
+                    const { targetUserId } = action.payload as {
+                        targetUserId: string;
+                        context: string;
+                    };
+                    await this.handleReportOnMatch(targetUserId);
+                }
+                break;
             default:
                 break;
         }
@@ -62,18 +82,33 @@ class MatchProfileStore implements Store {
         const { matchId, userData } = payload;
         if (!matchId) return;
 
+        const userId = userData?.id || userData?.user_id || userData?.userId || matchId;
+
         if (userData) {
-            this.matchesCache.set(matchId, userData);
+            this.matchesCache.set(userId, userData);
         }
 
-        // Update URL without triggering navigation cycle
-        window.history.pushState(null, '', `/matches/${matchId}`);
+        window.history.pushState(null, '', `/profile/${userId}`);
 
-        // Directly render match profile
         await dispatcher.process({
             type: Actions.RENDER_MATCH_PROFILE,
-            payload: { matchId },
+            payload: { matchId: userId },
         });
+    }
+
+    private async getRealMatchId(userId: string): Promise<string | null> {
+        try {
+            // Try to get match_id from matches list
+            const response = await MatchesApi.getAllMatches();
+            const match = response.matches.find(
+                m => m.user.id === userId || 
+                     m.match.user1_id === userId || 
+                     m.match.user2_id === userId
+            );
+            return match?.match.id || null;
+        } catch (error) {
+            return null;
+        }
     }
 
     private async renderMatchProfile(payload: {
@@ -82,11 +117,14 @@ class MatchProfileStore implements Store {
         try {
             const { matchId } = payload;
             if (!matchId) {
-                // console.error('No matchId provided');
                 return;
             }
 
             this.currentMatchId = matchId;
+            matchesStore.pause();
+
+            // Mark all notifications from this user as read
+            await this.markUserNotificationsAsRead(matchId);
 
             const contentContainer =
                 document.getElementById('content-container');
@@ -94,21 +132,32 @@ class MatchProfileStore implements Store {
                 matchProfile.parent = contentContainer;
             }
 
-            const userData = this.matchesCache.get(matchId);
+            let userData = this.matchesCache.get(matchId);
 
             if (!userData) {
-                // Данных нет в кэше (например, обновили страницу) - редирект на список мэтчей
-                await dispatcher.process({
-                    type: Actions.NAVIGATE_TO,
-                    payload: { path: '/matches' },
-                });
+                try {
+                    const profileResponse = await profileApi.getProfileById(matchId);
+                    userData = {
+                        id: profileResponse.user.id,
+                        user_id: profileResponse.user.id,
+                        name: profileResponse.user.name,
+                        bio: profileResponse.user.bio,
+                    quote: profileResponse.user.quote,
+                    birth_date: profileResponse.user.birth_date,
+                    favorite_artist: profileResponse.user.artist,
+                    images: profileResponse.photos.map(photo => photo.photo_url),
+                    interests: profileResponse.user.interests || [],
+                    is_matched: profileResponse.is_matched,
+                    is_liked: profileResponse.is_liked,
+                    is_premium: profileResponse.user.is_premium,
+                };
+            } catch (error) {
                 return;
             }
+        }
 
-            // Parse user interests to get selected activities
             const userInterests = new Set<string>();
 
-            // Check for interests array in userData
             if (Array.isArray(userData.interests)) {
                 userData.interests.forEach((interest: any) => {
                     if (interest?.theme) {
@@ -117,14 +166,12 @@ class MatchProfileStore implements Store {
                 });
             }
 
-            // Check for boolean flags (fallback/legacy)
             Object.keys(ACTIVITY_ICONS).forEach((key) => {
                 if (userData[key] === true) {
                     userInterests.add(key.toLowerCase());
                 }
             });
 
-            // Filter activities to only show selected ones
             const activities = Object.entries(ACTIVITY_ICONS)
                 .filter(([key]) => userInterests.has(key.toLowerCase()))
                 .map(([, data]) => ({
@@ -142,9 +189,35 @@ class MatchProfileStore implements Store {
                 userData.other_user_id ||
                 matchId;
 
+            // Get real match_id from userData or fetch from API
+            let realMatchId = userData.matchId || matchId;
+            
+            // If we don't have a proper match_id, fetch it from API
+            // This is important when navigating directly to profile without going through matches page
+            if (!userData.matchId || userData.matchId === userId) {
+                const apiMatchId = await this.getRealMatchId(userId);
+                if (apiMatchId) {
+                    realMatchId = apiMatchId;
+                    // Update cache with correct matchId for future use
+                    userData.matchId = apiMatchId;
+                    this.matchesCache.set(matchId, userData);
+                }
+            }
+
+            const totalUserPhotos = photoCards.filter(card => card.isUserPhoto).length;
+            
+            const isPremium =
+                typeof userData.is_premium === 'boolean'
+                    ? userData.is_premium
+                    : Boolean(
+                          (userData as { isPremium?: boolean }).isPremium ??
+                              (userData as { premium_until?: string })
+                                  .premium_until
+                      );
+
             this.matchData = {
                 id: userId,
-                matchId,
+                matchId: realMatchId, // Use real match_id here
                 userId,
                 name: userData.name || '',
                 age: this.calculateAge(userData.birth_date),
@@ -155,11 +228,14 @@ class MatchProfileStore implements Store {
                 heroPhoto: photoCards[0]?.image,
                 photoCards: photoCards.slice(1),
                 activities,
+                isPremium,
+                isMatched: userData.is_matched,
+                isLiked: userData.is_liked,
+                hasOnlyOnePhoto: totalUserPhotos === 1,
             };
 
             await matchProfile.render(this.matchData);
         } catch (error) {
-            // console.error('Error loading match profile:', error);
         }
     }
 
@@ -179,12 +255,11 @@ class MatchProfileStore implements Store {
     }
 
     private transformImagesToCards(images: string[]): PhotoCard[] {
-        // Если нет фотографий вообще, показываем одну заглушку
         if (!images || images.length === 0) {
             return [{
                 id: 'placeholder-0',
                 image: '/src/assets/image.png',
-                isUserPhoto: true, // Изменили на true, чтобы отображалась
+                isUserPhoto: true,
                 isPrimary: true,
             }];
         }
@@ -196,16 +271,50 @@ class MatchProfileStore implements Store {
             isPrimary: index === 0,
         }));
 
-        // Добавляем пустые плейсхолдеры только если есть хотя бы одна фотка
-        while (photoCards.length < 4) {
-            photoCards.push({
-                id: `placeholder-${photoCards.length}`,
-                image: '',
-                isUserPhoto: false,
-            });
+        // Only add placeholders if there's more than one photo
+        if (photoCards.length > 1) {
+            while (photoCards.length < 4) {
+                photoCards.push({
+                    id: `placeholder-${photoCards.length}`,
+                    image: '',
+                    isUserPhoto: false,
+                });
+            }
         }
 
         return photoCards;
+    }
+
+    private async markUserNotificationsAsRead(userId: string): Promise<void> {
+        try {
+            const response = await notificationApi.getNotifications();
+            const unreadUserNotifications = response.notifications.filter(
+                n => !n.is_read && n.from_user_id === userId
+            );
+
+            for (const notification of unreadUserNotifications) {
+                await notificationApi.markAsRead(notification.id);
+                dispatcher.process({
+                    type: Actions.MARK_NOTIFICATION_READ,
+                    payload: { id: notification.id, type: notification.type },
+                });
+            }
+        } catch (error) {
+
+        }
+    }
+
+    private async handleReportOnMatch(targetUserId: string): Promise<void> {
+        try {
+            await MatchesApi.unmatch(targetUserId);
+        } catch {
+            // ignore unmatch errors
+        } finally {
+            dispatcher.process({
+                type: Actions.NAVIGATE_TO,
+                payload: { path: '/matches' },
+            });
+        }
     }
 }
 

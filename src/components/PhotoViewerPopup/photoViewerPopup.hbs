@@ -1,0 +1,21 @@
+<div class='photo-viewer-popup' aria-hidden='true'>
+    <div class='photo-viewer-popup__overlay' data-photo-viewer-close></div>
+    <div
+        class='photo-viewer-popup__dialog'
+        role='dialog'
+        aria-modal='true'
+        aria-labelledby='photoViewerTitle'
+    >
+        <button
+            class='photo-viewer-popup__close'
+            type='button'
+            aria-label='Закрыть'
+            data-photo-viewer-close
+        >
+            ×
+        </button>
+        <div class='photo-viewer-popup__content'>
+            <img src='{{imageUrl}}' alt='Фото профиля' class='photo-viewer-popup__image' />
+        </div>
+    </div>
+</div>

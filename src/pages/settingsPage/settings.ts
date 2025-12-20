@@ -8,6 +8,8 @@ interface ProfileData {
     name?: string;
     birthdate?: string;
     email?: string;
+    isPremium?: boolean;
+    premiumUntil?: string;
     preferences?: {
         show_gender?: string;
         age_min?: number;
@@ -102,9 +104,22 @@ export class SettingsPage {
     private createProfileTab(profileData: ProfileData): HTMLDivElement {
         const section = document.createElement('div');
         section.className = 'settings-section';
+        const premiumBadge = profileData.isPremium
+            ? `<div class="settings-premium settings-premium--active">
+                    <span class="settings-premium__status">Premium активен</span>
+                    ${
+                        profileData.premiumUntil
+                            ? `<span class="settings-premium__until">до ${profileData.premiumUntil}</span>`
+                            : ''
+                    }
+               </div>`
+            : `<div class="settings-premium">
+                    <span class="settings-premium__status">Premium не оформлен</span>
+               </div>`;
         section.innerHTML = `
             <h1 class="settings-section-title">Профиль</h1>
-            <p class="form__success-message" id="profileSuccessMessage"></p>
+            ${premiumBadge}
+            <div class="form__error-message" id="profileSuccessMessage" style="display: none; color: green;"></div>
             ${SettingsPage.createFormGroupHTML('Имя:', 'text', 'settingsName', profileData.name, 'settingsNameError')}
             ${SettingsPage.createFormGroupHTML('Дата рождения:', 'text', 'settingsBirthdate', profileData.birthdate, 'birthdateError', 'ДД.ММ.ГГГГ')}
             ${SettingsPage.createFormGroupHTML('Email:', 'email', 'settingsEmail', profileData.email, 'emailError')}
@@ -120,6 +135,8 @@ export class SettingsPage {
             <h1 class="settings-section-title">Безопасность</h1>
             
             <h2 class="settings-section-subsection-title">Смена пароля</h2>
+            <div class="form__error-message" id="passwordSuccessMessage" style="display: none; color: green;"></div>
+            <div class="form__error-message" id="passwordErrorMessage" style="display: none;"></div>
             ${SettingsPage.createFormGroupHTML('Введите старый пароль:', 'password', 'oldPassword', '', 'oldPasswordError')}
             ${SettingsPage.createFormGroupHTML('Введите новый пароль:', 'password', 'newPassword', '', 'newPasswordError')}
             ${SettingsPage.createFormGroupHTML('Введите новый пароль повторно:', 'password', 'confirmPassword', '', 'confirmPasswordError')}
@@ -129,6 +146,7 @@ export class SettingsPage {
             
             <h2 class="settings-section-subsection-title">Удаление аккаунта</h2>
             <p style="color: #666; font-size: 14px; margin-bottom: 16px;">Это действие необратимо. Все ваши данные будут удалены.</p>
+            <div class="form__error-message" id="deleteAccountError" style="display: none;"></div>
             <button class="btn-danger" id="deleteAccountBtn">Удалить аккаунт</button>
         `;
         return section;
@@ -140,7 +158,7 @@ export class SettingsPage {
         section.className = 'settings-section';
         section.innerHTML = `
             <h1 class="settings-section-title">Фильтры поиска</h1>
-            <p class="form__success-message" id="filtersSuccessMessage"></p>
+            <div class="form__error-message" id="filtersSuccessMessage" style="display: none; color: green;"></div>
             
             <div class="form__input-wrapper">
                 <label class="settings-label">Показывать мне:</label>
@@ -153,25 +171,14 @@ export class SettingsPage {
 
             <div class="form__input-wrapper">
                 <label class="settings-label">Возраст от:</label>
-                <input type="number" class="form__input" id="ageMin" value="${preferences.age_min || 18}" min="18" max="100" />
+                <input type="number" class="form__input" id="ageMin" value="${preferences.age_min || 18}" min="18" max="99" />
             </div>
 
             <div class="form__input-wrapper">
                 <label class="settings-label">Возраст до:</label>
-                <input type="number" class="form__input" id="ageMax" value="${preferences.age_max || 50}" min="18" max="100" />
+                <input type="number" class="form__input" id="ageMax" value="${preferences.age_max || 50}" min="18" max="99" />
             </div>
 
-            <div class="form__input-wrapper">
-                <label class="settings-label">Максимальное расстояние (км):</label>
-                <input type="number" class="form__input" id="maxDistance" value="${preferences.max_distance || 100}" min="1" max="10000" />
-            </div>
-
-            <div class="form__input-wrapper">
-                <label class="settings-label">
-                    <input type="checkbox" id="globalSearch" ${preferences.global_search ? 'checked' : ''} />
-                    Глобальный поиск (игнорировать расстояние)
-                </label>
-            </div>
 
             <p class="form__error-message" id="filtersError"></p>
             <button class="form__btn-primary" id="updateFiltersBtn">Сохранить фильтры</button>
@@ -281,6 +288,8 @@ export class SettingsPage {
             if (updateBtn) {
                 updateBtn.addEventListener('click', (e) => {
                     e.preventDefault();
+                    this.clearErrors();
+
                     const nameInput = this.parent?.querySelector(
                         '#settingsName'
                     ) as HTMLInputElement | null;
@@ -290,6 +299,42 @@ export class SettingsPage {
                     const emailInput = this.parent?.querySelector(
                         '#settingsEmail'
                     ) as HTMLInputElement | null;
+
+                    const errors: Record<string, string> = {};
+
+                    const rawBirth = birthdateInput?.value.trim() || '';
+                    if (!rawBirth) {
+                        errors.birthdateError = 'Укажите дату рождения';
+                    } else {
+                        const parsed = SettingsPage.parseBirthDate(rawBirth);
+                        if (!parsed) {
+                            errors.birthdateError =
+                                'Введите дату в формате ДД.ММ.ГГГГ';
+                        } else {
+                            const today = new Date();
+                            const ageYears = today.getFullYear() - parsed.getFullYear();
+                            const hasHadBirthdayThisYear =
+                                today.getMonth() > parsed.getMonth() ||
+                                (today.getMonth() === parsed.getMonth() &&
+                                    today.getDate() >= parsed.getDate());
+                            const actualAge = hasHadBirthdayThisYear
+                                ? ageYears
+                                : ageYears - 1;
+
+                            if (actualAge < 18) {
+                                errors.birthdateError =
+                                    'Вам должно быть не менее 18 лет';
+                            } else if (actualAge > 99) {
+                                errors.birthdateError =
+                                    'Пожалуйста, проверьте дату рождения';
+                            }
+                        }
+                    }
+
+                    if (Object.keys(errors).length > 0) {
+                        this.showErrors(errors);
+                        return;
+                    }
 
                     dispatcher.process({
                         type: Actions.UPDATE_PROFILE_SETTINGS,
@@ -307,6 +352,8 @@ export class SettingsPage {
             if (updateFiltersBtn) {
                 updateFiltersBtn.addEventListener('click', (e) => {
                     e.preventDefault();
+                    this.clearErrors();
+                    
                     const showGenderInput = this.parent?.querySelector(
                         '#showGender'
                     ) as HTMLSelectElement | null;
@@ -323,36 +370,67 @@ export class SettingsPage {
                         '#globalSearch'
                     ) as HTMLInputElement | null;
 
-                    const parsedMin = ageMinInput?.value
-                        ? parseInt(ageMinInput.value, 10)
-                        : undefined;
-                    const parsedMax = ageMaxInput?.value
-                        ? parseInt(ageMaxInput.value, 10)
-                        : undefined;
+                    // Проверка на пустые значения и парсинг
+                    const errorMessages: string[] = [];
+                    
+                    let parsedMin: number | undefined;
+                    let parsedMax: number | undefined;
 
-                    let normalizedMin = parsedMin;
-                    let normalizedMax = parsedMax;
-
-                    if (
-                        typeof normalizedMin === 'number' &&
-                        typeof normalizedMax === 'number' &&
-                        normalizedMin > normalizedMax
-                    ) {
-                        normalizedMin = normalizedMax;
-                        if (ageMinInput) {
-                            ageMinInput.value = String(normalizedMin);
+                    // Валидация минимального возраста
+                    if (!ageMinInput?.value || ageMinInput.value.trim() === '') {
+                        errorMessages.push('Укажите минимальный возраст');
+                    } else {
+                        parsedMin = parseInt(ageMinInput.value, 10);
+                        if (isNaN(parsedMin)) {
+                            errorMessages.push('Минимальный возраст: введите корректное число');
+                        } else if (parsedMin < 18 || parsedMin > 99) {
+                            errorMessages.push('Минимальный возраст должен быть между 18 и 99');
                         }
                     }
+
+                    // Валидация максимального возраста
+                    if (!ageMaxInput?.value || ageMaxInput.value.trim() === '') {
+                        errorMessages.push('Укажите максимальный возраст');
+                    } else {
+                        parsedMax = parseInt(ageMaxInput.value, 10);
+                        if (isNaN(parsedMax)) {
+                            errorMessages.push('Максимальный возраст: введите корректное число');
+                        }
+                        if (parsedMin !== undefined && parsedMax < parsedMin) {
+                            errorMessages.push('Максимальный возраст не может быть меньше минимального');
+                        }
+
+                        if (parsedMax < 18 || parsedMax > 99) {
+                            errorMessages.push('Максимальный возраст должен быть между 18 и 99');
+                        }
+                    }
+
+                    // Если есть ошибки парсинга, показываем их и прерываем
+                    if (errorMessages.length > 0) {
+                        const errorBlock = this.parent?.querySelector('#filtersError') as HTMLElement;
+                        if (errorBlock) {
+                            errorBlock.textContent = errorMessages.join('. ');
+                            errorBlock.style.display = 'block';
+                            errorBlock.style.color = '#ff4b72';
+                        }
+                        return;
+                    }
+
+                    // Используем значения по умолчанию, если что-то не определено
+                    const normalizedMin = parsedMin ?? 18;
+                    const normalizedMax = parsedMax ?? 50;
+                    const normalizedDistance = maxDistanceInput?.value 
+                        ? parseInt(maxDistanceInput.value, 10) 
+                        : 100;
+
                     dispatcher.process({
                         type: Actions.UPDATE_FILTER_SETTINGS,
                         payload: {
-                            show_gender: showGenderInput?.value,
+                            show_gender: showGenderInput?.value || 'both',
                             age_min: normalizedMin,
                             age_max: normalizedMax,
-                            max_distance: maxDistanceInput
-                                ? parseInt(maxDistanceInput.value, 10)
-                                : undefined,
-                            global_search: globalSearchInput?.checked,
+                            max_distance: normalizedDistance,
+                            global_search: globalSearchInput?.checked || false,
                         },
                     });
                 });
@@ -389,9 +467,7 @@ export class SettingsPage {
             if (deleteAccountBtn) {
                 deleteAccountBtn.addEventListener('click', (e) => {
                     e.preventDefault();
-                    if (confirm('Удалить аккаунт? Это действие необратимо.')) {
-                        dispatcher.process({ type: Actions.DELETE_ACCOUNT });
-                    }
+                    dispatcher.process({ type: Actions.DELETE_ACCOUNT });
                 });
             }
         }
@@ -401,12 +477,47 @@ export class SettingsPage {
         if (!this.parent) return;
 
         Object.entries(errors).forEach(([key, message]) => {
-            const errorElement = this.parent?.querySelector(`#${key}`);
-            if (errorElement) errorElement.textContent = message;
-            const inputElement = this.parent?.querySelector(
-                `#${key.replace('Error', '')}`
-            ) as HTMLElement | null;
-            if (inputElement) inputElement.classList.add('error-input');
+            // Для ошибок пароля - показываем в общем блоке как на странице логина
+            if (key.includes('Password')) {
+                const errorBlock = this.parent?.querySelector('#passwordErrorMessage') as HTMLElement;
+                if (errorBlock) {
+                    errorBlock.textContent = message;
+                    errorBlock.style.display = 'block';
+                }
+                const inputElement = this.parent?.querySelector(
+                    `#${key.replace('Error', '')}`
+                ) as HTMLElement | null;
+                if (inputElement) inputElement.classList.add('form__error-input');
+            } 
+            // Для ошибки удаления аккаунта
+            else if (key === 'deleteAccountError') {
+                const errorBlock = this.parent?.querySelector('#deleteAccountError') as HTMLElement;
+                if (errorBlock) {
+                    errorBlock.textContent = message;
+                    errorBlock.style.display = 'block';
+                }
+            }
+            // Для ошибок фильтров
+            else if (key === 'filtersError') {
+                const errorBlock = this.parent?.querySelector('#filtersError') as HTMLElement;
+                if (errorBlock) {
+                    errorBlock.textContent = message;
+                    errorBlock.style.display = 'block';
+                    errorBlock.style.color = '#ff4b72';
+                }
+            }
+            // Для остальных ошибок - старый способ
+            else {
+                const errorElement = this.parent?.querySelector(`#${key}`) as HTMLElement;
+                if (errorElement) {
+                    errorElement.textContent = message;
+                    errorElement.style.display = 'block';
+                }
+                const inputElement = this.parent?.querySelector(
+                    `#${key.replace('Error', '')}`
+                ) as HTMLElement | null;
+                if (inputElement) inputElement.classList.add('form__error-input');
+            }
         });
     }
 
@@ -414,23 +525,63 @@ export class SettingsPage {
         if (!this.parent) return;
 
         this.parent
-            .querySelectorAll('.form__error-message, .form__success-message')
+            .querySelectorAll('.form__error-message')
             .forEach((el) => {
                 el.textContent = '';
+                if (el instanceof HTMLElement) {
+                    el.style.display = 'none';
+                }
             });
         this.parent.querySelectorAll('.form__input').forEach((input) => {
             input.classList.remove('error-input');
+            input.classList.remove('form__error-input');
         });
+    }
+
+    private static parseBirthDate(value: string): Date | null {
+        const sanitized = value.trim();
+        const parts = sanitized.includes('.')
+            ? sanitized.split('.')
+            : sanitized.split('-');
+
+        if (parts.length !== 3) return null;
+
+        const [dayStr, monthStr, yearStr] = parts;
+        const day = parseInt(dayStr, 10);
+        const month = parseInt(monthStr, 10);
+        const year = parseInt(yearStr, 10);
+
+        if (
+            Number.isNaN(day) ||
+            Number.isNaN(month) ||
+            Number.isNaN(year) ||
+            yearStr.length !== 4
+        ) {
+            return null;
+        }
+
+        const date = new Date(year, month - 1, day);
+        if (
+            date.getFullYear() !== year ||
+            date.getMonth() !== month - 1 ||
+            date.getDate() !== day
+        ) {
+            return null;
+        }
+
+        return date;
     }
 
     showSuccess(messageId: string, message: string): void {
         if (!this.parent) return;
 
-        const successElement = this.parent.querySelector(`#${messageId}`);
+        const successElement = this.parent.querySelector(`#${messageId}`) as HTMLElement | null;
         if (successElement) {
             successElement.textContent = message;
+            successElement.style.display = 'block';
             setTimeout(() => {
                 successElement.textContent = '';
+                successElement.style.display = 'none';
             }, 5000); // Clear after 5 seconds
         }
     }

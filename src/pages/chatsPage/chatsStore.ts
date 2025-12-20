@@ -15,9 +15,9 @@ class ChatsPageStore implements Store {
                 }
 
                 if (!chats.parent) {
-                    const rootContainer = document.getElementById('root');
-                    if (rootContainer) {
-                        chats.parent = rootContainer;
+                    const contentContainer = document.getElementById('content-container');
+                    if (contentContainer) {
+                        chats.parent = contentContainer;
                     } else {
                         return;
                     }
@@ -27,7 +27,7 @@ class ChatsPageStore implements Store {
 
 
                 dispatcher.process({ type: Actions.RENDER_CHAT_WINDOW });
-                
+
                 dispatcher.process({ type: Actions.RENDER_CHATS_LIST });
 
                 break;

@@ -2,7 +2,7 @@ import Handlebars from 'handlebars';
 import { dispatcher } from '@/Dispatcher';
 import { Actions } from '@/actions';
 import { reportPopup } from '@/components/ReportPopup/reportPopup';
-
+import cardApi from '@/apiHandler/cardApi';
 const TEMPLATE_PATH = '/src/pages/matchProfilePage/matchProfile.hbs';
 
 interface MatchProfileData {
@@ -17,6 +17,7 @@ interface MatchProfileData {
     interests: any[];
     photoCards: any[];
     heroPhoto?: string;
+    isPremium?: boolean;
 }
 
 const fetchTemplate = async (path: string): Promise<string> => {
@@ -55,21 +56,76 @@ export class MatchProfilePage {
         if (chatButton) {
             chatButton.addEventListener('click', (event) => {
                 event.preventDefault();
-                if (!this.currentData?.matchId) return;
+                if (!this.currentData?.matchId) {
+                    return;
+                }
 
+                // Navigate to chats page first
                 dispatcher.process({
                     type: Actions.NAVIGATE_TO,
                     payload: { path: '/chats' },
                 });
 
-                dispatcher.process({
-                    type: Actions.SELECT_CHAT,
-                    payload: {
-                        chatId: this.currentData.matchId,
-                        userName: this.currentData.name,
-                        userPhoto: this.currentData.heroPhoto,
-                    },
-                });
+                // Wait for page to render, then select chat
+                const waitForChatsPage = () => {
+                    const checkPage = (attempts = 0): void => {
+                        const chatsPage = document.querySelector('.chats-page');
+                        if (chatsPage && attempts < 10) {
+                            dispatcher.process({
+                                type: Actions.SELECT_CHAT,
+                                payload: {
+                                    chatId: this.currentData!.matchId,
+                                    userName: this.currentData!.name,
+                                    userPhoto: this.currentData!.heroPhoto,
+                                    userId: this.currentData!.userId,
+                                },
+                            });
+                        } else if (attempts < 10) {
+                            setTimeout(() => checkPage(attempts + 1), 100);
+                        }
+                    };
+                    checkPage();
+                };
+                setTimeout(waitForChatsPage, 100);
+            });
+        }
+
+        const likeBackButton = this.parent.querySelector(
+            '[data-action="like-back"]'
+        ) as HTMLButtonElement | null;
+        if (likeBackButton && this.currentData?.userId) {
+            likeBackButton.addEventListener('click', async (event) => {
+                event.preventDefault();
+                const userId = this.currentData?.userId;
+                if (!userId) return;
+
+                likeBackButton.disabled = true;
+                likeBackButton.textContent = 'Отправка...';
+
+                try {
+                    const response = await cardApi.postCardInteraction(userId, 'like');
+                    
+                    if (response.is_match) {
+                        likeBackButton.textContent = 'Это мэтч!';
+                        setTimeout(() => {
+                            dispatcher.process({
+                                type: Actions.NAVIGATE_TO,
+                                payload: { path: '/matches' },
+                            });
+                        }, 1500);
+                    } else {
+                        likeBackButton.textContent = 'Лайк отправлен!';
+                        setTimeout(() => {
+                            dispatcher.process({
+                                type: Actions.NAVIGATE_TO,
+                                payload: { path: '/matches' },
+                            });
+                        }, 1500);
+                    }
+                } catch (error) {
+                    likeBackButton.disabled = false;
+                    likeBackButton.textContent = 'Лайкнуть в ответ';
+                }
             });
         }
 
@@ -83,9 +139,29 @@ export class MatchProfilePage {
                     targetUserId: this.currentData?.userId || '',
                     targetName: this.currentData?.name,
                     targetAge: this.currentData?.age || undefined,
+                    context: 'match',
                 });
             });
         }
+
+        // Добавляем обработчики кликов на фотографии для открытия попапа
+        this.parent
+            .querySelectorAll('.photo-grid__image')
+            .forEach((imageDiv) => {
+                imageDiv.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const bgImage = (imageDiv as HTMLElement).style.backgroundImage;
+                    // Извлекаем URL из url("...") или url('...')
+                    const urlMatch = bgImage.match(/url\(['"]?([^'"]+)['"]?\)/);
+                    const imageUrl = urlMatch ? urlMatch[1] : '';
+                    if (imageUrl && imageUrl !== '/src/assets/image.png') {
+                        dispatcher.process({
+                            type: Actions.OPEN_PHOTO_VIEWER,
+                            payload: { imageUrl },
+                        });
+                    }
+                });
+            });
     }
 }
 

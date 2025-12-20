@@ -24,6 +24,18 @@ interface ProfileMenuData {
     isVisible?: boolean;
 }
 
+const maskEmailForDisplay = (email: string): string => {
+    const normalized = email.trim();
+    const atIndex = normalized.indexOf('@');
+    if (atIndex <= 5) return normalized;
+
+    const local = normalized.slice(0, atIndex);
+    const domain = normalized.slice(atIndex + 1);
+    if (local.length <= 2 || domain.length === 0) return normalized;
+
+    return `${local.slice(0, 2)}...@${domain}`;
+};
+
 const MENU_ITEMS_DATA: ProfileMenuItem[] = [
     {
         name: 'Моя Анкета',
@@ -80,7 +92,7 @@ export class ProfileMenu implements PageComponent {
             'Пользователь';
         const userName =
             baseName.length > 10 ? `${baseName.slice(0, 10)}...` : baseName;
-        const userEmail = user?.email || '';
+        const userEmail = user?.email ? maskEmailForDisplay(user.email) : '';
 
         const templateString = await fetchTemplate(TEMPLATE_PATH);
         const template = Handlebars.compile(templateString);
@@ -111,6 +123,16 @@ export class ProfileMenu implements PageComponent {
                     });
                 }
             });
+
+            const closeButton = this.parent.querySelector('#profileMenuClose');
+            if (closeButton) {
+                closeButton.addEventListener('click', () => {
+                    dispatcher.process({
+                        type: Actions.TOGGLE_PROFILE_MENU,
+                        payload: { isVisible: false },
+                    });
+                });
+            }
 
             const menuItems =
                 this.parent.querySelectorAll('.profile-menu-item');

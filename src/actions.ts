@@ -93,15 +93,41 @@ export const Actions = {
     CHAT_SOCKET_MESSAGE: 'CHAT_SOCKET_MESSAGE',
     CHAT_SOCKET_STATUS: 'CHAT_SOCKET_STATUS',
     CHAT_MARKED_AS_READ: 'CHAT_MARKED_AS_READ',
+    CHAT_UPDATE_DRAFT: 'CHAT_UPDATE_DRAFT',
+    CHATS_LIST_UPDATED: 'CHATS_LIST_UPDATED',
 
     // chat window
     RENDER_CHAT_WINDOW: 'RENDER_CHAT_WINDOW',
     SEND_MESSAGE: 'SEND_MESSAGE',
     LOAD_CHAT_MESSAGES: 'LOAD_CHAT_MESSAGES',
 
+    // premium
+    RENDER_PREMIUM: 'RENDER_PREMIUM',
+    SELECT_TARIFF: 'SELECT_TARIFF',
+    REQUEST_PREMIUM_PAYMENT: 'REQUEST_PREMIUM_PAYMENT',
+    PAYMENT_STATUS_UPDATED: 'PAYMENT_STATUS_UPDATED',
+    PAYMENT_ERROR: 'PAYMENT_ERROR',
+
+    // notifications
+    TOGGLE_NOTIFICATION_POPUP: 'TOGGLE_NOTIFICATION_POPUP',
+    ADD_NOTIFICATION: 'ADD_NOTIFICATION',
+    MARK_NOTIFICATION_READ: 'MARK_NOTIFICATION_READ',
+    MARK_ALL_NOTIFICATIONS_READ: 'MARK_ALL_NOTIFICATIONS_READ',
+    LOAD_NOTIFICATIONS: 'LOAD_NOTIFICATIONS',
+    NOTIFICATION_SOCKET_MESSAGE: 'NOTIFICATION_SOCKET_MESSAGE',
+    NOTIFICATION_SOCKET_STATUS: 'NOTIFICATION_SOCKET_STATUS',
+
+    // reports
+    REPORT_SUCCESS: 'REPORT_SUCCESS',
+
+    // photo viewer
+    OPEN_PHOTO_VIEWER: 'OPEN_PHOTO_VIEWER',
+    CLOSE_PHOTO_VIEWER: 'CLOSE_PHOTO_VIEWER',
+
 } as const;
 
 export type { ChatSocketEvent, ChatSocketStatus, SelectChatPayload } from './types/chat';
+export type { NotificationSocketEvent, NotificationSocketStatus } from './types/notification';
 
 export type ActionType = (typeof Actions)[keyof typeof Actions];
 
@@ -185,6 +211,20 @@ export interface ConnectivityPayload {
 export interface UpdateActivityPayload {
     [key: string]: boolean;
 }
+
+export interface PremiumPlanPayload { 
+    planId: 'week' | 'month' | 'quarter'; 
+    amount: number; 
+}
+export interface PaymentStatusPayload { 
+    status: 'pending' | 'succeeded' | 'canceled'; 
+    redirectUrl?: string; 
+    message?: string; 
+    paymentId?: string; 
+}
+export type PremiumAction = Action<PremiumPlanPayload>;
+export type PaymentAction = Action<PaymentStatusPayload>;
+
 
 // Typed action creators
 export type LoginAction = Action<LoginPayload>;

@@ -1,0 +1,50 @@
+<div class="notification-menu-overlay {{#unless isVisible}}hidden{{/unless}}" id="notificationMenuOverlay">
+    <div class="notification-menu-popup">
+        <div class="notification-menu-header">
+            <h2 class="notification-menu-title">Уведомления</h2>
+            <button
+                class="notification-menu-close"
+                type="button"
+                aria-label="Закрыть"
+                id="notificationMenuClose"
+            >
+                ×
+            </button>
+        </div>
+        {{#if hasUnread}}
+        <div class="notification-menu-actions">
+            <button class="notification-menu-mark-all" id="notificationMarkAllRead">
+                Отметить все прочитанными
+            </button>
+        </div>
+        {{/if}}
+        {{#if notifications.length}}
+        <ul class="notification-menu-list">
+            {{#each notifications}}
+            <li class="notification-menu-item notification-item {{#if this.isRead}}notification-menu-item--read{{/if}}" data-id="{{this.id}}" data-user-id="{{this.from_user_id}}" data-type="{{this.type}}">
+                <div class="notification-menu-icon">
+                    {{#if (eq this.type "super_like")}}
+                        <img src="/src/assets/menu/matches.svg" alt="Match" />
+                    {{else if (eq this.type "like")}}
+                        <img src="/src/assets/menu/matches.svg" alt="Like" />
+                    {{else if (eq this.type "match")}}
+                        <img src="/src/assets/menu/matches.svg" alt="Match" />
+                    {{else }}
+                        <img src="/src/assets/menu/cahts.svg" alt="Message" />
+                    {{/if}}
+                </div>
+
+                <div class="notification-menu-content">
+                    <p class="notification-menu-message">{{{this.message}}}</p>
+                    <span class="notification-menu-time">{{this.time}}</span>
+                </div>
+            </li>
+            {{/each}}
+        </ul>
+        {{else}}
+        <div class="notification-menu-empty">
+            <p>Нет новых уведомлений</p>
+        </div>
+        {{/if}}
+    </div>
+</div>

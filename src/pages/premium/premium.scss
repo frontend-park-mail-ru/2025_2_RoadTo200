@@ -1,0 +1,199 @@
+.premium-page {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 32px 28px calc(80px + var(--safe-area-inset-bottom));
+    color: #1f1f1f;
+    text-align: center;
+
+    &__header {
+        margin-bottom: 28px;
+    }
+
+    &__title {
+        font-size: 32px;
+        font-weight: 800;
+        color: #ff2f73;
+        letter-spacing: -0.4px;
+        margin-bottom: 10px;
+    }
+
+    &__subtitle {
+        font-size: 16px;
+        color: #8a8a99;
+    }
+
+    &__features {
+        display: flex;
+        gap: 18px;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin-bottom: 32px;
+    }
+
+    &__feature-card {
+        width: 280px;
+        min-height: 210px;
+        padding: 26px 18px 22px;
+        border-radius: 28px;
+        background: linear-gradient(
+            to right,
+            var(--color-primary-dark) 0%,
+            var(--color-primary-light) 100%
+        );
+        color: #fff;
+        box-shadow: 0 16px 30px rgba(255, 75, 114, 0.22);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+    }
+
+    &__feature-icon {
+        width: 66px;
+        height: 66px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.14);
+        display: grid;
+        place-items: center;
+
+        img {
+            width: 32px;
+            height: 32px;
+        }
+    }
+
+    &__feature-title {
+        font-size: 17px;
+        font-weight: 700;
+    }
+
+    &__feature-desc {
+        font-size: 14px;
+        opacity: 0.92;
+    }
+
+    &__plans {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 14px;
+        margin-bottom: 24px;
+    }
+
+    &__plan {
+        min-width: 280px;
+        padding: 14px 24px;
+        border-radius: 18px;
+        border: 2px solid #ff2f73;
+        background: #fff;
+        color: #ff2f73;
+        font-weight: 700;
+        font-size: 19px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: space-between;
+        cursor: pointer;
+        transition: all 0.18s ease;
+
+        &:hover {
+            box-shadow: 0 12px 22px rgba(0, 0, 0, 0.08);
+            transform: translateY(-1px);
+        }
+
+        &--active {
+            background: linear-gradient(
+                to right,
+                var(--color-primary-dark) 0%,
+                var(--color-primary-light) 100%
+            );
+            color: #fff;
+            border: 0;
+            border-color: transparent;
+            box-shadow: 0 14px 28px rgba(255, 75, 114, 0.2);
+        }
+    }
+
+    &__plan-label {
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    &__plan-price {
+        font-size: 22px;
+    }
+
+    &__cta-block {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+    }
+
+    &__cta {
+        border: none;
+        border-radius: 999px;
+        background: linear-gradient(120deg, #ff5d8a, #ff2f73);
+        color: #fff;
+        padding: 14px 38px;
+        font-size: 16px;
+        font-weight: 700;
+        cursor: pointer;
+        box-shadow: 0 16px 30px rgba(255, 75, 114, 0.18);
+        transition: transform 0.12s ease, box-shadow 0.12s ease,
+            opacity 0.12s ease;
+
+        &:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        &:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 18px 32px rgba(255, 75, 114, 0.24);
+        }
+    }
+
+    &__hint {
+        margin-top: 6px;
+        color: #8a8a99;
+        font-size: 13px;
+    }
+
+    &__error {
+        color: #d92d20;
+        font-size: 13px;
+        display: none;
+    }
+
+    &__status {
+        color: #12a454;
+        font-size: 13px;
+        display: none;
+    }
+}
+
+@media (max-width: 900px) {
+    .premium-page {
+        padding: 24px 16px 72px;
+
+        &__features {
+            gap: 14px;
+        }
+
+        &__feature-card {
+            width: 100%;
+            max-width: 360px;
+        }
+
+        &__plans {
+            gap: 10px;
+        }
+
+        &__plan {
+            width: 100%;
+            max-width: 360px;
+        }
+    }
+}

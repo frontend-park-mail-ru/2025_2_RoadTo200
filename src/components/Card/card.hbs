@@ -1,9 +1,14 @@
-<div class='card' id='cards' data-id='{{id}}' data-images-json='{{{imagesJson}}}'>
+<div class='card {{#if isPremium}}card--premium{{/if}}' id='cards' data-id='{{id}}' data-images-json='{{{imagesJson}}}'>
     <div class='card__wrapper'>
-        <img class='card__image' src='{{images.[0].imageUrl}}' alt='{{name}}' data-index='0' />
-        <div class='card__info'>
-            <h2 class='card__name'>{{name}}, {{age}}</h2>
+        {{#if images}}
+        <div class='card__indicators'>
+            {{#each images}}
+            <div class='card__indicator {{#if @first}}card__indicator--active{{/if}}'></div>
+            {{/each}}
         </div>
+        {{/if}}
+        <img class='card__image' src='{{images.[0].imageUrl}}' alt='{{name}}' data-index='0' />
+        <div class='card__gradient-overlay'></div>
     </div>
     {{#if noActions}}
     <div class='card__actions'>
@@ -11,7 +16,9 @@
     </div>
     {{else}}
     <div class='card__actions'>
-        <button class='card__button card__button-dislike'>&#10006;</button>
+        <button class='card__button card__button-dislike'>
+            <img src='/src/assets/card/cross.svg' alt='Dislike' />
+        </button>
         <button class='card__button card__button-superLike'>&#9733;</button>
         <button class='card__button card__button-like'>&#9829;</button>
     </div>

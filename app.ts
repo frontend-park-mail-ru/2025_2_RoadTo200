@@ -14,11 +14,19 @@ import './src/components/MatchCard/matchCardStore';
 import './src/components/ProfileMenu/profileMenuStore';
 import './src/components/OfflineBanner/offlineBannerStore';
 import './src/components/ProfileSetupPopup/profileSetupPopupStore';
+import './src/components/NotificationPopup/notificationPopupStore';
+import './src/components/PhotoViewerPopup/photoViewerPopupStore';
 import './src/pages/support/supportStore';
+import './src/pages/premium/premiumStore';
+
+import Handlebars from 'handlebars';
+Handlebars.registerHelper('eq', (a: unknown, b: unknown) => a === b);
+
 import './src/pages/chatsPage/chatsStore';
 import './src/components/chatsList/chatsListStore';
 import './src/components/chatWindow/chatWindowStore';
 import navigationStore, { Route } from './src/navigation/navigationStore';
+
 
 import { Router } from './router';
 import { home } from './src/pages/homePage/home';
@@ -31,7 +39,21 @@ import { settings } from './src/pages/settingsPage/settings';
 import { support } from './src/pages/support/support';
 import { statistics } from './src/pages/statisticsPage/statistics';
 import { chats } from './src/pages/chatsPage/chats';
+import { premium } from './src/pages/premium/premium';
 import type { PageComponent } from './src/navigation/navigationStore';
+
+const updateAppHeight = (): void => {
+    if (typeof window === 'undefined') return;
+    document.documentElement.style.setProperty(
+        '--app-height',
+        `${window.innerHeight}px`
+    );
+};
+
+updateAppHeight();
+window.addEventListener('resize', updateAppHeight);
+window.addEventListener('orientationchange', updateAppHeight);
+window.visualViewport?.addEventListener('resize', updateAppHeight);
 
 
 const notFoundComponent: PageComponent = {
@@ -60,6 +82,7 @@ const routes: Route[] = [
     new Route('/statistics', statistics, true),
     new Route('/chats', chats, true),
     new Route('*', notFoundComponent, false),
+    new Route('/premium', premium, true),
 ];
 
 // Инициализируем роутер с navigationStore
@@ -109,7 +132,7 @@ if ('serviceWorker' in navigator) {
                 window.location.reload();
             });
         } catch (error) {
-            console.error('Service Worker registration failed:', error);
+
         }
     });
 }

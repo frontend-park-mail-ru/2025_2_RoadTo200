@@ -91,6 +91,32 @@
         }
     }
 
+    &__icon-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    &__badge {
+        position: absolute;
+        top: -6px;
+        right: -8px;
+        min-width: 18px;
+        height: 18px;
+        background: linear-gradient(135deg, #ff4b72, #ff2f73);
+        border-radius: 50%;
+        border: 2px solid #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        font-weight: 700;
+        color: #fff;
+        padding: 0 4px;
+        box-shadow: 0 2px 8px rgba(255, 75, 114, 0.4);
+    }
+
     &__icon {
         width: 28px;
         height: 28px;
@@ -104,7 +130,50 @@
     }
 }
 
-@media (max-width: 1023px) {
+.sidebar__cta {
+    margin: 24px 18px 12px;
+    padding: 18px 20px;
+    border-radius: 22px;
+    background: linear-gradient(135deg, #ff3c7a 0%, #ff6ca2 50%, #ff2f73 100%);
+    color: #fff;
+    box-shadow: 0 12px 24px rgba(255, 83, 135, 0.22);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    line-height: 1.5;
+
+    &-title {
+        font-size: 16px;
+        font-weight: 700;
+    }
+
+    &-text {
+        font-size: 15px;
+        font-weight: 500;
+        margin: 0;
+    }
+
+    &-btn {
+        width: 100%;
+        border: none;
+        border-radius: 999px;
+        padding: 12px 0;
+        font-weight: 700;
+        font-size: 16px;
+        background: #fff;
+        color: #ff2f73;
+        cursor: pointer;
+        box-shadow: 0 10px 20px rgba(255, 75, 114, 0.18);
+        transition: transform 0.12s ease, box-shadow 0.12s ease;
+
+        &:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 12px 24px rgba(255, 75, 114, 0.24);
+        }
+    }
+}
+
+@media (max-width: 1024px) {
     .sidebar {
         &__header {
             padding: 24px;
@@ -122,4 +191,27 @@
             padding: 0 16px 24px;
         }
     }
+}
+
+.sidebar__cta {
+  margin: 20px 0px 8px;
+  padding: 18px 16px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #ff5d8a, #ff2f73);
+  color: #fff;
+  box-shadow: 0 10px 20px rgba(255, 83, 135, 0.25);
+}
+.sidebar__cta-btn {
+  width: 100%; margin-top: 12px; border: none;
+  border-radius: 999px; padding: 12px 0; font-weight: 700;
+  background: #fff; color: #ff2f73; cursor: pointer;
+  
+  transition:
+    transform 0.12s ease,
+    box-shadow 0.12s ease,
+    background 0.2s ease,
+    color 0.2s ease;
+  &:hover {
+            background: #ffe6ee;
+        }
 }

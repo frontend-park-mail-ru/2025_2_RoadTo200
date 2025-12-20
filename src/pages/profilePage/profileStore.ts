@@ -28,6 +28,7 @@ interface ProfileData {
     activities: ActivityItem[];
     interests: any[];
     userId?: string;
+    isPremium?: boolean;
 }
 
 class ProfileStore implements Store {
@@ -119,6 +120,11 @@ class ProfileStore implements Store {
                     isActive: true,
                 }));
 
+            const isPremium = Boolean(
+                (user as { is_premium?: boolean }).is_premium ??
+                    (user as { premium_until?: string }).premium_until
+            );
+
             this.profileData = {
                 description: user.bio || '',
                 musician: user.artist || '',
@@ -129,6 +135,7 @@ class ProfileStore implements Store {
                 activities: activities,
                 interests: [],
                 userId: user.id || '',
+                isPremium,
             };
 
             const contentContainer =
@@ -199,7 +206,9 @@ class ProfileStore implements Store {
         try {
             const { field, value } = payload;
 
-            if (!field || value === undefined) return;
+            if (!field || value === undefined || value === null) {
+                return;
+            }
 
             const fieldMapping: Record<string, string> = {
                 description: 'bio',
@@ -212,9 +221,10 @@ class ProfileStore implements Store {
             const updateData = { [backendField]: value };
 
             await ProfileApi.updateProfileInfo(updateData);
+            
             await this.renderProfile();
         } catch (error) {
-            // Profile update failed
+            console.error('[ProfileStore] Profile update failed:', error);
         }
     }
 
@@ -225,8 +235,15 @@ class ProfileStore implements Store {
                 return;
             }
 
+            const hadUserPhoto = this.profileData.photoCards.some(
+                (p) => p.isUserPhoto && p.image
+            );
+
             await ProfileApi.deletePhoto(String(photoId));
             await this.renderProfile();
+            if (hadUserPhoto) {
+                dispatcher.process({ type: Actions.RENDER_HEADER });
+            }
         } catch (error) {
             // console.error('Error deleting photo:', error);
         }
@@ -239,6 +256,10 @@ class ProfileStore implements Store {
             fileInput.accept = 'image/*';
             fileInput.multiple = true;
 
+            const hadUserPhoto = this.profileData.photoCards.some(
+                (p) => p.isUserPhoto && p.image
+            );
+
             fileInput.onchange = async (e) => {
                 const target = e.target as HTMLInputElement;
                 const files = Array.from(target.files || []);
@@ -247,6 +268,7 @@ class ProfileStore implements Store {
                 try {
                     await ProfileApi.uploadPhoto(files);
                     await this.renderProfile();
+                    dispatcher.process({ type: Actions.RENDER_HEADER });
                 } catch (error: any) {
                     // Handle error
                 }

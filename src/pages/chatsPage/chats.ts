@@ -9,9 +9,9 @@ export class ChatsPage {
     }
 
     async render(): Promise<void> {
-        
+
         if (!this.parent) {
-            this.parent = document.getElementById('root');
+            this.parent = document.getElementById('content-container');
             if (!this.parent) {
                 return;
             }

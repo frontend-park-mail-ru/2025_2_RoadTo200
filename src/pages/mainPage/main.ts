@@ -4,6 +4,7 @@ import { dispatcher } from '@/Dispatcher';
 import { Actions } from '@/actions';
 import { getActivitiesFromData } from '@/utils/activityIcons';
 import { reportPopup } from '@/components/ReportPopup/reportPopup';
+import mainStore from './mainStore';
 
 const TEMPLATE_PATH = '/src/pages/mainPage/main.hbs';
 const EMPTY_STATE_TEMPLATE_PATH = '/src/components/EmptyState/emptyState.hbs';
@@ -30,6 +31,7 @@ interface CardData {
     friendship?: boolean;
     culture?: boolean;
     cinema?: boolean;
+    isPremium?: boolean;
 }
 
 const fetchTemplate = async (path: string): Promise<string> => {
@@ -66,6 +68,14 @@ export class MainPage {
     currentCardIndex: number;
     cardsData: CardData[];
     swipeThreshold: number;
+    private superLikeAvailable = true;
+    private superLikePremium = false;
+    private readonly handleCardImageClick = (event: Event): void => {
+        const target = event.target as HTMLElement;
+        if (target.classList.contains('card__image')) {
+            Card.handleImageNavigation(event as MouseEvent);
+        }
+    };
 
     constructor(parent: HTMLElement) {
         this.parent = parent;
@@ -74,25 +84,58 @@ export class MainPage {
         this.swipeThreshold = 100;
     }
 
+    updateScrollButtonVisibility(): void {
+        const scrollBtn = document.querySelector('.main-page__scroll-btn');
+        if (scrollBtn) {
+            if (this.cardsData.length > 0) {
+                scrollBtn.classList.remove('hidden');
+            } else {
+                scrollBtn.classList.add('hidden');
+            }
+        }
+    }
+
     async render(): Promise<void> {
         this.parent.innerHTML = '';
 
         const pageTemplateString = await fetchTemplate(TEMPLATE_PATH);
         const pageTemplate = Handlebars.compile(pageTemplateString);
 
-        const renderedHtml = pageTemplate({ cardsHtml: '' });
+        const renderedHtml = pageTemplate({ 
+            cardsHtml: ''
+        });
 
         const newDiv = document.createElement('div');
         newDiv.id = 'mainDiv';
         newDiv.innerHTML = renderedHtml;
         this.parent.appendChild(newDiv);
 
-        document.addEventListener('click', (event: Event) => {
-            const target = event.target as HTMLElement;
-            if (target.classList.contains('card__image')) {
-                Card.handleImageNavigation(event as MouseEvent);
-            }
-        });
+        document.removeEventListener('click', this.handleCardImageClick);
+        document.addEventListener('click', this.handleCardImageClick);
+
+        const filterButton = newDiv.querySelector(
+            '[data-action="open-filter"]'
+        ) as HTMLButtonElement | null;
+        if (filterButton) {
+            filterButton.addEventListener('click', () => {
+                dispatcher.process({
+                    type: Actions.NAVIGATE_TO,
+                    payload: { path: '/settings' },
+                });
+            });
+        }
+
+        const scrollButton = newDiv.querySelector(
+            '[data-action="scroll-to-info"]'
+        ) as HTMLButtonElement | null;
+        if (scrollButton) {
+            scrollButton.addEventListener('click', () => {
+                const cardInfoPanel = document.getElementById('cardInfoPanel');
+                if (cardInfoPanel) {
+                    cardInfoPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        }
 
         // Удалено: await dispatcher.process({ type: Actions.GET_CARDS });
         // Карточки будут загружены после проверки профиля в mainStore
@@ -105,14 +148,35 @@ export class MainPage {
 
         if (this.cardsData.length > 0) {
             this.displayFirstCard();
+            this.updateScrollButtonVisibility();
         } else {
             this.displayEmptyState();
         }
     }
 
+    appendCards(cards: CardData[]): void {
+        const newCards: CardData[] = Array.isArray(cards) ? cards : Object.values(cards) as CardData[];
+        this.cardsData = [...this.cardsData, ...newCards];
+        this.updateScrollButtonVisibility();
+    }
+
+    setSuperLikeState(remaining: number, isPremium: boolean): void {
+        this.superLikeAvailable = remaining > 0;
+        this.superLikePremium = isPremium;
+        this.updateSuperLikeButtons();
+    }
+
     async displayEmptyState(): Promise<void> {
-        const pageContainer = document.querySelector('.main-page-layout');
-        if (!pageContainer) return;
+        const cardsContainer = document.querySelector('.cards-container');
+        if (!cardsContainer) return;
+
+        const infoPanelContainer = document.getElementById('cardInfoPanel');
+        if (infoPanelContainer) {
+            infoPanelContainer.innerHTML = '';
+        }
+
+        this.cardsData = [];
+        this.currentCardIndex = 0;
 
         const emptyStateTemplateString = await fetchTemplate(
             EMPTY_STATE_TEMPLATE_PATH
@@ -127,7 +191,8 @@ export class MainPage {
             buttonId: 'goToMain',
         });
 
-        pageContainer.innerHTML = emptyStateHtml;
+        cardsContainer.innerHTML = emptyStateHtml;
+        this.updateScrollButtonVisibility();
 
         const goToMainButton = document.getElementById('goToMain');
         if (goToMainButton) {
@@ -159,12 +224,14 @@ export class MainPage {
         await this.updateCardInfo(firstCardData);
 
         this.currentCardIndex++;
+        this.updateSuperLikeButtons();
     }
 
     renderNextCard = async (): Promise<void> => {
         const pageContainer = document.querySelector('.cards-container');
 
         if (!pageContainer) return;
+        
         if (this.currentCardIndex < this.cardsData.length) {
             const nextCardData = this.cardsData[this.currentCardIndex];
             const cardHtml = await Card.render(nextCardData);
@@ -176,8 +243,20 @@ export class MainPage {
 
             this.currentCardIndex++;
         } else {
-            await this.displayEmptyState();
+            // Карточки закончились - пытаемся загрузить новые
+            if (mainStore.hasMoreCards() && !mainStore.isLoading()) {
+                await mainStore.getMoreCards();
+                // Если после загрузки появились новые карточки, рендерим первую
+                if (this.currentCardIndex < this.cardsData.length) {
+                    await this.renderNextCard();
+                } else {
+                    await this.displayEmptyState();
+                }
+            } else {
+                await this.displayEmptyState();
+            }
         }
+        this.updateSuperLikeButtons();
     };
 
     private async updateCardInfo(cardData: CardData): Promise<void> {
@@ -225,16 +304,33 @@ export class MainPage {
                 targetUserId: cardData.id,
                 targetName: cardData.name,
                 targetAge: cardData.age,
+                context: 'feed',
             });
         });
+    }
+
+    handleReportedCard(cardId: string): void {
+        const currentCardElement = document.querySelector(
+            `.card[data-id="${cardId}"]`
+        ) as HTMLElement | null;
+
+        if (currentCardElement) {
+            animateCardOut(currentCardElement, 'left');
+        } else {
+            this.renderNextCard();
+        }
     }
 
     private initSwipe(cardElement: HTMLElement, cardId: string): void {
         let startX: number, startY: number, endX: number, endY: number;
         let isDragging = false;
+        let hasSwiped = false;
 
         const startSwipe = (e: MouseEvent | TouchEvent) => {
             isDragging = true;
+            hasSwiped = false;
+
+            cardElement.style.transition = 'none';
 
             const pageX = e.type.includes('touch')
                 ? (e as TouchEvent).touches[0].pageX
@@ -248,7 +344,21 @@ export class MainPage {
             endX = pageX;
             endY = pageY;
 
-            e.preventDefault();
+            // Don't prevent default on touch to allow image navigation
+            // Only prevent if it's a mouse event
+            if (e.type === 'mousedown') {
+                e.preventDefault();
+            }
+
+            window.addEventListener('mouseup', stopSwipe as EventListener, {
+                once: true,
+            });
+            window.addEventListener('touchend', stopSwipe as EventListener, {
+                once: true,
+            });
+            window.addEventListener('touchcancel', stopSwipe as EventListener, {
+                once: true,
+            });
         };
 
         const moveSwipe = (e: MouseEvent | TouchEvent) => {
@@ -267,6 +377,13 @@ export class MainPage {
             const deltaX = endX - startX;
             const deltaY = endY - startY;
 
+            // Prevent scroll if user is swiping
+            if (Math.abs(deltaX) > 10 || Math.abs(deltaY) > 10) {
+                hasSwiped = true;
+                cardElement.dataset.blockClick = 'true';
+                e.preventDefault();
+            }
+
             cardElement.style.transform = `translate(${deltaX - 175}px, ${deltaY}px) rotate(${deltaX * 0.1}deg)`;
 
             if (Math.abs(deltaX) > 200 || Math.abs(deltaY) > 200) {
@@ -277,6 +394,8 @@ export class MainPage {
         const stopSwipe = () => {
             if (!isDragging) return;
             isDragging = false;
+
+            cardElement.style.transition = 'transform 200ms ease-out';
 
             const deltaX = endX - startX;
             const deltaY = endY - startY;
@@ -301,6 +420,17 @@ export class MainPage {
             }
 
             if (direction && actionType) {
+                if (actionType === 'super_like' && !this.superLikeAvailable) {
+                    if (!this.superLikePremium) {
+                        dispatcher.process({
+                            type: Actions.NAVIGATE_TO,
+                            payload: { path: '/premium' },
+                        });
+                    }
+                    cardElement.style.transform =
+                        'translate(-175px, 0) rotate(0deg)';
+                    return;
+                }
                 dispatcher.process({
                     type: Actions.SEND_CARD_ACTION,
                     payload: { cardId, actionType },
@@ -308,17 +438,26 @@ export class MainPage {
 
                 animateCardOut(cardElement, direction);
             } else {
-                cardElement.style.transform = 'translate(-175px, 0) rotate(0deg)';
+                cardElement.style.transform = 'translate(-170px, 0) rotate(0deg)';
+                
+                if (hasSwiped) {
+                    cardElement.dataset.blockClick = 'true';
+                    setTimeout(() => {
+                        delete cardElement.dataset.blockClick;
+                    }, 300);
+                }
             }
         };
 
         cardElement.addEventListener('mousedown', startSwipe as EventListener);
         cardElement.addEventListener('mousemove', moveSwipe as EventListener);
         cardElement.addEventListener('mouseup', stopSwipe);
+        cardElement.addEventListener('mouseleave', stopSwipe);
 
         cardElement.addEventListener('touchstart', startSwipe as EventListener);
         cardElement.addEventListener('touchmove', moveSwipe as EventListener);
         cardElement.addEventListener('touchend', stopSwipe);
+        cardElement.addEventListener('touchcancel', stopSwipe);
     }
 
     private initCardActions(): void {
@@ -347,6 +486,15 @@ export class MainPage {
                 } else if (
                     button.classList.contains('card__button-superLike')
                 ) {
+                    if (!this.superLikeAvailable) {
+                        if (!this.superLikePremium) {
+                            dispatcher.process({
+                                type: Actions.NAVIGATE_TO,
+                                payload: { path: '/premium' },
+                            });
+                        }
+                        return;
+                    }
                     direction = 'up';
                     actionType = 'super_like';
                 } else {
@@ -370,6 +518,22 @@ export class MainPage {
                 button.addEventListener('click', handleAction as EventListener);
             });
         }
+    }
+
+    private updateSuperLikeButtons(): void {
+        const buttons = document.querySelectorAll(
+            '.card__button-superLike'
+        ) as NodeListOf<HTMLButtonElement>;
+        buttons.forEach((btn) => {
+            const shouldDisable = !this.superLikeAvailable;
+            if (shouldDisable) {
+                btn.classList.add('card__button-superLike--disabled');
+                btn.disabled = this.superLikePremium;
+            } else {
+                btn.classList.remove('card__button-superLike--disabled');
+                btn.disabled = false;
+            }
+        });
     }
 }
 

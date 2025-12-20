@@ -8,6 +8,10 @@ interface HeaderData {
     isAuthenticated: boolean;
     userPhoto?: string | null;
     userName?: string;
+    isPremium?: boolean;
+    superLikesRemaining?: number;
+    superLikesTotal?: number;
+    unreadCount?: number;
 }
 
 /**
@@ -47,7 +51,14 @@ export class Header {
     ): Promise<void> {
         if (!this.parent) return;
 
-        const { user, isAuthenticated, userPhoto } = headerData;
+        const {
+            user,
+            isAuthenticated,
+            userPhoto,
+            isPremium = false,
+            superLikesRemaining = 0,
+            superLikesTotal = 0,
+        } = headerData;
 
         const templateString = await fetchTemplate(TEMPLATE_PATH);
         const template = Handlebars.compile(templateString);
@@ -64,7 +75,15 @@ export class Header {
 
         // console.log('[Header.render] Passing to template - userPhoto:', userPhoto, 'userName:', userName);
 
-        const renderedHtml = template({ isAuthenticated, userName, userPhoto });
+        const renderedHtml = template({
+            isAuthenticated,
+            userName,
+            userPhoto,
+            isPremium,
+            superLikesRemaining,
+            superLikesTotal,
+            unreadCount: headerData.unreadCount || 0,
+        });
 
         this.parent.innerHTML = renderedHtml;
         this.initEventListeners();
@@ -103,6 +122,17 @@ export class Header {
                     if (typeof document !== 'undefined') {
                         document.body.classList.toggle('menu-open');
                     }
+                });
+            }
+
+            const notificationBellBtn = this.parent.querySelector('#notificationBellBtn');
+            if (notificationBellBtn) {
+                notificationBellBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    dispatcher.process({
+                        type: Actions.TOGGLE_NOTIFICATION_POPUP,
+                        payload: { isVisible: true },
+                    });
                 });
             }
         }

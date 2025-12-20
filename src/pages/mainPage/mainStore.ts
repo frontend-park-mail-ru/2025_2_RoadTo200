@@ -3,6 +3,7 @@ import { dispatcher, type Store } from '@/Dispatcher';
 import { main } from './main';
 import CardApi, { type FeedUser, type CardAction } from '@/apiHandler/cardApi';
 import { ProfileSetupPopup } from '@/components/ProfileSetupPopup/profileSetupPopup';
+import headerStore from '@/components/Header/headerStore';
 
 interface TransformedCard {
     id: string;
@@ -25,13 +26,24 @@ interface TransformedCard {
     friendship?: boolean;
     culture?: boolean;
     cinema?: boolean;
+    isPremium?: boolean;
+}
+
+interface PaginationState {
+    hasMore: boolean;
+    isLoading: boolean;
 }
 
 class MainStore implements Store {
     cards: TransformedCard[];
+    private pagination: PaginationState;
 
     constructor() {
         this.cards = [];
+        this.pagination = {
+            hasMore: true,
+            isLoading: false,
+        };
         dispatcher.register(this);
     }
 
@@ -41,6 +53,18 @@ class MainStore implements Store {
             case Actions.RENDER_CARDS:
                 await main.render();
                 await this.checkProfileCompleteness();
+                break;
+            case Actions.REPORT_SUCCESS:
+                if (
+                    action.payload &&
+                    (action.payload as any).context === 'feed'
+                ) {
+                    const { targetUserId } = action.payload as {
+                        targetUserId: string;
+                        context: string;
+                    };
+                    await this.handleReportFromFeed(targetUserId);
+                }
                 break;
 
             case Actions.GET_CARDS:
@@ -76,10 +100,38 @@ class MainStore implements Store {
         }
     }
 
+    private resetPagination(): void {
+        this.pagination = {
+            hasMore: true,
+            isLoading: false,
+        };
+    }
+
     private async getCards(): Promise<void> {
+        this.resetPagination();
+        await this.fetchCards(false);
+    }
+
+    async getMoreCards(): Promise<void> {
+        if (!this.pagination.hasMore || this.pagination.isLoading) {
+            return;
+        }
+        await this.fetchCards(true);
+    }
+
+    private async fetchCards(append: boolean): Promise<void> {
+        if (this.pagination.isLoading) return;
+        
+        this.pagination.isLoading = true;
+        
         try {
+            // Бекенд сам исключает пользователей, на которых уже свайпнули
+            // Поэтому просто повторно вызываем feed без offset
             const response = await CardApi.getAllCards();
             const cards = response.users || [];
+
+            // Если вернулось 0 карточек — больше нет анкет
+            this.pagination.hasMore = cards.length > 0;
 
             const mockPhotoUrl = '/src/assets/image.png';
 
@@ -93,19 +145,22 @@ class MainStore implements Store {
 
                     const interests = Array.isArray(card.interests)
                         ? card.interests.map((interest, interestIndex) => ({
-                            id: interestIndex,
-                            name:
-                                typeof interest === 'string'
-                                    ? interest
-                                    : interest.theme || 'Интерес',
-                        }))
+                              id: interestIndex,
+                              name:
+                                  typeof interest === 'string'
+                                      ? interest
+                                      : interest.theme || 'Интерес',
+                          }))
                         : undefined;
 
                     // Convert interests array to boolean fields for getActivitiesFromData
                     const activityFlags: Record<string, boolean> = {};
                     if (Array.isArray(card.interests)) {
                         card.interests.forEach((interest: any) => {
-                            const theme = typeof interest === 'string' ? interest : interest.theme;
+                            const theme =
+                                typeof interest === 'string'
+                                    ? interest
+                                    : interest.theme;
                             if (theme) {
                                 activityFlags[theme] = true;
                             }
@@ -125,18 +180,52 @@ class MainStore implements Store {
                         interests,
                         musician: (card as { artist?: string }).artist || '',
                         quote: card.quote || '',
+                        isPremium: Boolean(card.is_premium),
                         // Set boolean flags from interests array
                         ...activityFlags,
                     };
                 }
             );
 
-            this.cards = transformedCards;
-            main.setCards(transformedCards);
+            if (append) {
+                // Дедупликация: исключаем карточки, которые уже есть
+                const existingIds = new Set(this.cards.map(c => c.id));
+                const newCards = transformedCards.filter(c => !existingIds.has(c.id));
+                
+                if (newCards.length > 0) {
+                    this.cards = [...this.cards, ...newCards];
+                    main.appendCards(newCards);
+                } else {
+                    // Если новых уникальных карточек нет - больше загружать нечего
+                    this.pagination.hasMore = false;
+                }
+            } else {
+                this.cards = transformedCards;
+                main.setCards(transformedCards);
+            }
+
+            const superLikeState = headerStore.getSuperLikesState();
+            main.setSuperLikeState(
+                superLikeState.remaining,
+                superLikeState.isPremium
+            );
         } catch (error) {
-            this.cards = [];
-            main.setCards([]);
+            if (!append) {
+                this.cards = [];
+                main.setCards([]);
+            }
+            this.pagination.hasMore = false;
+        } finally {
+            this.pagination.isLoading = false;
         }
+    }
+
+    hasMoreCards(): boolean {
+        return this.pagination.hasMore;
+    }
+
+    isLoading(): boolean {
+        return this.pagination.isLoading;
     }
 
     private async sendCardInteraction(
@@ -144,14 +233,45 @@ class MainStore implements Store {
         actionType: string
     ): Promise<void> {
         try {
-            // Map 'super_like' to 'superlike' for the API
-            const mappedAction: CardAction =
-                actionType === 'super_like'
-                    ? 'superlike'
-                    : (actionType as CardAction);
+            if (actionType === 'super_like') {
+                const state = headerStore.getSuperLikesState();
+                if (state.remaining <= 0) {
+                    main.setSuperLikeState(0, state.isPremium);
+                    if (!state.isPremium) {
+                        dispatcher.process({
+                            type: Actions.NAVIGATE_TO,
+                            payload: { path: '/premium' },
+                        });
+                    }
+                    return;
+                }
+            }
+
+            const mappedAction = actionType as CardAction;
             await CardApi.postCardInteraction(cardId, mappedAction);
+
+            if (actionType === 'super_like') {
+                const remaining = headerStore.consumeSuperLike();
+                if (remaining <= 0) {
+                    const state = headerStore.getSuperLikesState();
+                    main.setSuperLikeState(
+                        state.isPremium ? 0 : remaining,
+                        state.isPremium
+                    );
+                }
+            }
         } catch (error) {
             // Card action failed
+        }
+    }
+
+    private async handleReportFromFeed(targetUserId: string): Promise<void> {
+        try {
+            await CardApi.postCardInteraction(targetUserId, 'dislike');
+        } catch {
+            // ignore interaction errors on report
+        } finally {
+            main.handleReportedCard(targetUserId);
         }
     }
 }

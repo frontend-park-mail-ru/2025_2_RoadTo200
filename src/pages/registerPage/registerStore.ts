@@ -2,6 +2,7 @@ import { dispatcher, type Store } from '@/Dispatcher';
 import { Actions, type Action, type RegisterPayload } from '@/actions';
 import { register } from './register';
 import AuthApi from '@/apiHandler/authApi';
+import { clearUserCaches } from '@/utils/cacheControl';
 
 class RegisterStore implements Store {
     constructor() {
@@ -28,6 +29,7 @@ class RegisterStore implements Store {
 
         try {
             await AuthApi.register(email, password, passwordConfirm);
+            await clearUserCaches();
 
             await dispatcher.process({
                 type: Actions.NAVIGATE_TO,
@@ -43,8 +45,12 @@ class RegisterStore implements Store {
                     error.message.includes('уже существует')
                 ) {
                     errorMessage = 'Пользователь с таким email уже существует';
-                } else if (error.message.includes('invalid email')) {
-                    errorMessage = 'Некорректный email';
+                } else if (
+                    error.message.includes('invalid email') ||
+                    error.message.includes('user_email_check') ||
+                    error.message.includes('SQLSTATE 23514')
+                ) {
+                    errorMessage = 'Email должен быть написан латиницей';
                 } else if (error.message.includes('password')) {
                     errorMessage = 'Проблема с паролем';
                 } else {

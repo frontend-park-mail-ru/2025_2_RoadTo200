@@ -13,6 +13,18 @@
         font-weight: 700;
         color: #ff2f73;
         margin: 0;
+
+        .profile-page--premium & {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 14px;
+            background: linear-gradient(
+                to right,
+                var(--color-primary-dark) 0%,
+                var(--color-primary-light) 100%
+            );
+            color: #fff;
+        }
     }
 
     &__content {
@@ -36,6 +48,25 @@
         background: #fff7fa;
         border: 1px solid rgba(255, 75, 114, 0.15);
         aspect-ratio: 3 / 4;
+
+        transition:
+            transform 0.2s ease,
+            box-shadow 0.2s ease;
+        
+        &--premium {
+            border: 2px solid transparent;
+            
+            box-shadow:
+                0 0 0 5px rgba(255, 75, 114, 1),
+                0 8px 18px rgba(0, 0, 0, 0.12);
+
+            &:hover {
+                transform: translateY(-4px);
+                box-shadow:
+                    0 0 0 9px rgba(255, 75, 114, 1),
+                    0 8px 18px rgba(0, 0, 0, 0.12);
+            }
+        }
     }
 
     &__image {
@@ -44,6 +75,13 @@
         background-size: cover;
         background-position: center;
         border-radius: 28px;
+        cursor: default;
+        transition: transform 0.2s ease;
+
+        &:hover {
+            transform: scale(1.02);
+        }
+
     }
 
     &__delete-btn {
@@ -110,6 +148,10 @@
         line-height: 1.6;
         color: #4c4c5d;
         margin-bottom: 12px;
+        word-wrap: break-word;
+        word-break: break-word;
+        overflow-wrap: break-word;
+        white-space: normal;
     }
 
     &__icon-edit {
@@ -246,7 +288,7 @@
     }
 }
 
-@media (max-width: 1023px) {
+@media (max-width: 1024px) {
     .profile-page {
         padding: 0 16px 32px;
 
@@ -267,7 +309,7 @@
     }
 }
 
-@media (max-width: 599px) {
+@media (max-width: 768px) {
     .profile-page {
         padding: 0 12px 32px;
 

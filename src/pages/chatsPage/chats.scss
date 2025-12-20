@@ -1,6 +1,9 @@
 .chats-page {
     display: flex;
-    height: 85vh;
+    /* Используем dvh для корректного отображения */
+    height: calc(100dvh - 76px);
+    /* Fallback для старых браузеров */
+    height: calc(100vh - 76px);
     width: 100%;
     overflow: hidden;
 
@@ -19,6 +22,7 @@
     .chats-page {
         flex-direction: column;
         height: auto;
+        position: relative;
 
         &__sidebar,
         &__main,
@@ -27,18 +31,25 @@
             min-width: 0;
         }
 
+        &__sidebar {
+            position: relative;
+            z-index: 2;
+        }
+
         &__main {
             display: none;
+            position: relative;
+            z-index: 3;
         }
     }
 
     .chats-page--conversation-open {
         .chats-page__sidebar {
-            display: none;
+            display: none !important;
         }
 
         .chats-page__main {
-            display: flex;
+            display: flex !important;
         }
     }
 }

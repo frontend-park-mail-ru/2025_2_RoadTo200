@@ -27,6 +27,7 @@ class ChatsListStore implements Store {
     private error: string | null = null;
     private isInitialized = false;
     private currentUserId: string | null = null;
+    private hasLoadedOnce = false;
 
     constructor() {
         dispatcher.register(this);
@@ -36,16 +37,13 @@ class ChatsListStore implements Store {
         switch (action.type) {
             case Actions.RENDER_CHATS_LIST:
                 await this.ensureUser();
-                if (!this.isInitialized) {
-                    await this.fetchChats();
-                    this.isInitialized = true;
-                } else {
-                    await this.renderChatsList();
-                }
+                // Always fetch chats on render to keep list updated
+                await this.fetchChats();
+                this.isInitialized = true;
                 break;
 
             case Actions.SELECT_CHAT:
-                this.handleSelection(action.payload as SelectChatPayload);
+                await this.handleSelection(action.payload as SelectChatPayload);
                 break;
 
             case Actions.LOAD_CHATS:
@@ -96,43 +94,63 @@ class ChatsListStore implements Store {
         }
     }
 
-    private handleSelection(payload?: SelectChatPayload): void {
+    private async handleSelection(payload?: SelectChatPayload): Promise<void> {
         if (!payload?.chatId) return;
         this.selectedChatId = payload.chatId;
-        void this.renderChatsList();
+        
+        // Ensure chats are loaded before selecting
+        if (!this.isInitialized) {
+            await this.ensureUser();
+            await this.fetchChats();
+            this.isInitialized = true;
+        }
+        
+        await this.renderChatsList();
     }
 
     private async fetchChats(): Promise<void> {
         this.isLoading = true;
         this.error = null;
+        
+        // Уведомляем chatWindow что началась загрузка
+        dispatcher.process({
+            type: Actions.CHATS_LIST_UPDATED,
+            payload: { hasChats: false, isLoading: true },
+        });
+        
         await this.renderChatsList();
 
         try {
-            // Use server-side search via backend API
+            // Использование серверного поиска через backend API
             const { conversations } = await ChatApi.getConversations(this.searchQuery);
-            this.chats = conversations.map((conversation) =>
-                this.mapConversation(conversation)
-            );
+            this.chats = (conversations && Array.isArray(conversations))
+                ? conversations.map((conversation) => this.mapConversation(conversation))
+                : [];
 
-            if (!this.selectedChatId && this.chats.length > 0) {
-                const firstChat = this.chats[0];
-                this.selectedChatId = firstChat.id;
-                dispatcher.process({
-                    type: Actions.SELECT_CHAT,
-                    payload: {
-                        chatId: firstChat.id,
-                        userName: firstChat.userName,
-                        userPhoto: firstChat.userAvatar,
-                    },
-                });
-            }
+            // Не выбираем чат автоматически - пользователь сам выберет нужный
+            
+            // Уведомляем chatWindow о наличии чатов и состоянии поиска
+            dispatcher.process({
+                type: Actions.CHATS_LIST_UPDATED,
+                payload: { 
+                    hasChats: this.chats.length > 0, 
+                    isLoading: false,
+                    isSearching: this.searchQuery.length > 0,
+                    totalChatsCount: conversations?.length || 0,
+                },
+            });
         } catch (error) {
             this.error =
                 error instanceof Error
                     ? error.message
                     : 'Не удалось загрузить чаты';
+            dispatcher.process({
+                type: Actions.CHATS_LIST_UPDATED,
+                payload: { hasChats: false, isLoading: false },
+            });
         } finally {
             this.isLoading = false;
+            this.hasLoadedOnce = true;
             await this.renderChatsList();
         }
     }
@@ -175,6 +193,9 @@ class ChatsListStore implements Store {
         if (!dateString) return '';
         const date = new Date(dateString);
         if (Number.isNaN(date.getTime())) return '';
+        
+        // Check for invalid dates like 01.01.0001 (year < 1900)
+        if (date.getFullYear() < 1900) return '';
 
         const now = new Date();
         const sameDay = date.toDateString() === now.toDateString();
@@ -201,17 +222,25 @@ class ChatsListStore implements Store {
     }
 
     private async renderChatsList(): Promise<void> {
-        const emptyState =
-        {
-            title: 'У Вас пока нет чатов',
-            subtitle: 'Возможно Вам стоит еще поискать подходящих людей',
-        };
+        const isSearchResult = this.searchQuery.length > 0;
+        const emptyState = isSearchResult
+            ? {
+                title: 'Ничего не найдено',
+                subtitle: 'Попробуйте изменить запрос',
+                isSearchResult: true,
+            }
+            : {
+                title: 'У Вас пока нет чатов',
+                subtitle: 'Возможно Вам стоит еще поискать подходящих людей',
+                isSearchResult: false,
+            };
 
         await this.chatsListComponent.render({
             chats: this.chats,
             selectedChatId: this.selectedChatId ?? undefined,
             searchQuery: this.searchQuery,
             isLoading: this.isLoading,
+            hasLoadedOnce: this.hasLoadedOnce,
             emptyState,
         });
     }

@@ -1,7 +1,7 @@
 .settings-page {
     width: 100%;
-    min-height: calc(100vh - 120px);
-    padding: 24px 24px 64px;
+    min-height: calc(100vh - 76px - 100px);
+    padding: 24px 24px calc(64px + var(--safe-area-inset-bottom));
 }
 
 .settings-shell {
@@ -158,13 +158,69 @@
     margin-top: 24px;
 }
 
+.settings-shell__title {
+    display: none;
+}
+
+.settings-shell__back{
+    display: none;
+}
+
 .divider {
     height: 1px;
     background: #f0e2ea;
     margin: 40px 0;
 }
 
-@media (max-width: 1023px) {
+.settings-premium {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    border-radius: 32px;
+    background: #fff;
+    border: 1px solid transparent;
+    background-image:
+        linear-gradient(#fff, #fff),
+        linear-gradient(
+            to right,
+            var(--color-primary-dark) 0%,
+            var(--color-primary-light) 100%
+        );
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+    color: var(--color-primary-dark);
+    font-weight: 600;
+    margin-bottom: 18px;
+
+    &__status {
+        font-size: 14px;
+        background: linear-gradient(
+            to right,
+            var(--color-primary-dark) 0%,
+            var(--color-primary-light) 100%
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    &__until {
+        font-size: 13px;
+        background: linear-gradient(
+            to right,
+            var(--color-primary-dark) 0%,
+            var(--color-primary-light) 100%
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    &--active {
+        box-shadow: 0 8px 18px rgba(255, 75, 114, 0.18);
+    }
+}
+
+@media (max-width: 1024px) {
     .settings-page {
         padding: 20px 16px 48px;
     }
@@ -187,6 +243,15 @@
         }
     }
 
+    .settings-shell__back {
+        display: block;
+    }
+
+    .settings-shell__title {
+        font-size: 24px;
+        display: block;
+    }
+
     .settings-shell--show-menu .settings-shell__content {
         display: none;
     }
@@ -196,13 +261,14 @@
     }
 }
 
-@media (max-width: 599px) {
+@media (max-width: 768px) {
     .settings-shell__content {
         padding: 20px 0 32px;
     }
 
     .settings-shell__title {
         font-size: 24px;
+        display: block;
     }
 }
 

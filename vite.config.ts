@@ -18,20 +18,20 @@ export default defineConfig({
         allowedHosts: ['terabithia.online'],
         proxy: {
             '/api': {
-                target: 'http://terabithia.online',
+                target: 'https://terabithia.online',
                 changeOrigin: true,
-                secure: false,
+                secure: true,
             },
             '/ws': {
-                target: 'http://terabithia.online',
+                target: 'https://terabithia.online',
                 changeOrigin: true,
-                secure: false,
+                secure: true,
                 ws: true,
             },
             '/support-api': {
-                target: 'http://terabithia.online',
+                target: 'https://terabithia.online',
                 changeOrigin: true,
-                secure: false,
+                secure: true,
                 rewrite: (path: string) => path.replace(/^\/support-api/, '')
             }
         },
@@ -42,20 +42,20 @@ export default defineConfig({
         allowedHosts: ['terabithia.online'],
         proxy: {
             '/api': {
-                target: 'http://terabithia.online',
+                target: 'https://terabithia.online',
                 changeOrigin: true,
-                secure: false,
+                secure: true,
             },
             '/ws': {
-                target: 'http://terabithia.online',
+                target: 'https://terabithia.online',
                 changeOrigin: true,
-                secure: false,
+                secure: true,
                 ws: true,
             },
             '/support-api': {
-                target: 'http://terabithia.online',
+                target: 'https://terabithia.online',
                 changeOrigin: true,
-                secure: false,
+                secure: true,
                 rewrite: (path: string) => path.replace(/^\/support-api/, '')
             },
         },

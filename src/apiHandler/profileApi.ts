@@ -24,6 +24,15 @@ export interface ProfileUser {
     gender?: string;
     artist?: string;
     phone?: string;
+    city?: string;
+    is_verified?: boolean;
+    is_premium?: boolean;
+    super_likes_count?: number;
+    premium_until?: string;
+    last_active?: string;
+    created_at?: string;
+    updated_at?: string;
+    interests?: Array<{ theme: string; user_id: string }>;
     [key: string]: unknown;
 }
 
@@ -43,27 +52,27 @@ export interface ProfilePreferences {
     show_gender?: string;
 }
 
-export interface InterestPayload {
-    theme: string;
-}
-
 export interface ProfileResponse {
     user: ProfileUser;
     photos: UserPhoto[];
     preferences?: ProfilePreferences | null;
     interests?: InterestPayload[];
+    is_matched?: boolean;
+    is_liked?: boolean;
 }
 
 export type ProfileUpdateData = Partial<{
     artist: string;
     bio: string;
     birth_date: string;
+    email: string;
     gender: string;
     latitude: number;
     longitude: number;
     name: string;
     phone: string;
     quote: string;
+    city: string;
 }>;
 
 export type PreferencesUpdateData = ProfilePreferences;
@@ -71,6 +80,10 @@ export type PreferencesUpdateData = ProfilePreferences;
 export interface SuccessResponse {
     message?: string;
 }
+
+type InterestPayload = {
+    theme: string;
+};
 
 class ProfileApi {
     private baseURL: string;
@@ -85,10 +98,17 @@ class ProfileApi {
         });
     }
 
+    getProfileById(id: string): Promise<ProfileResponse> {
+        return handleFetch<ProfileResponse>(this.baseURL, `/${id}`, {
+            method: 'GET',
+        });
+    }
+
     updateProfileInfo(profileData: ProfileUpdateData): Promise<SuccessResponse> {
         const sanitizedPayload = Object.entries(profileData).reduce(
             (acc, [key, value]) => {
-                if (value === undefined || value === null || value === '') {
+                // Пропускаем только undefined и null
+                if (value === undefined || value === null) {
                     return acc;
                 }
 
@@ -103,7 +123,8 @@ class ProfileApi {
                     return acc;
                 }
 
-                acc[key] = value;
+                // Если пустая строка, отправляем пробел
+                acc[key] = value === '' ? ' ' : value;
                 return acc;
             },
             {} as Record<string, unknown>
@@ -124,6 +145,23 @@ class ProfileApi {
         });
     }
 
+    updatePassword(passwordData: {
+        old_password: string;
+        new_password: string;
+        new_password_confirm: string;
+    }): Promise<SuccessResponse> {
+        return handleFetch<SuccessResponse>(this.baseURL, '/password', {
+            method: 'PUT',
+            body: JSON.stringify(passwordData),
+        });
+    }
+
+    deleteProfile(): Promise<SuccessResponse> {
+        return handleFetch<SuccessResponse>(this.baseURL, '', {
+            method: 'DELETE',
+        });
+    }
+
     updateInterests(interests: InterestPayload[]): Promise<SuccessResponse> {
         return handleFetch<SuccessResponse>(this.baseURL, '/interest', {
             method: 'PUT',
@@ -131,12 +169,12 @@ class ProfileApi {
         });
     }
 
-    uploadPhoto(file: File | File[]): Promise<UserPhoto> {
+    uploadPhoto(file: File | File[]): Promise<UserPhoto[]> {
         const formData = new FormData();
         const files = Array.isArray(file) ? file : [file];
         files.forEach((item) => formData.append('photos', item));
 
-        return handleFetch<UserPhoto>(this.baseURL, '/photo', {
+        return handleFetch<UserPhoto[]>(this.baseURL, '/photo', {
             method: 'POST',
             body: formData,
             isFormData: true,

@@ -9,10 +9,19 @@ interface ProfileData {
     name: string;
     birthdate: string;
     email: string;
+    isPremium?: boolean;
+    premiumUntil?: string;
+    preferences?: {
+        show_gender?: string;
+        age_min?: number;
+        age_max?: number;
+        max_distance?: number;
+        global_search?: boolean;
+    };
 }
 
 class SettingsStore implements Store {
-    currentTab: string = 'profile';
+    currentTab: string = 'filters';
     profileData: ProfileData = {
         name: '',
         birthdate: '',
@@ -94,15 +103,40 @@ class SettingsStore implements Store {
             const response = (await ProfileApi.getProfile()) as any;
 
             const user = response.user || {};
+            const preferences = response.preferences || {};
             this.profileData = {
                 name: user.name || '',
                 birthdate: user.birth_date
                     ? this.formatDate(user.birth_date)
                     : '',
                 email: user.email || '',
+                isPremium: Boolean(user.is_premium),
+                premiumUntil: user.premium_until
+                    ? this.formatDate(user.premium_until)
+                    : '',
+                preferences: {
+                    show_gender: preferences.show_gender || 'both',
+                    age_min: preferences.age_min || 18,
+                    age_max: preferences.age_max || 50,
+                    max_distance: preferences.max_distance || 100,
+                    global_search: Boolean(preferences.global_search),
+                },
             };
         } catch (error) {
-            this.profileData = { name: '', birthdate: '', email: '' };
+            this.profileData = {
+                name: '',
+                birthdate: '',
+                email: '',
+                isPremium: false,
+                premiumUntil: '',
+                preferences: {
+                    show_gender: 'both',
+                    age_min: 18,
+                    age_max: 50,
+                    max_distance: 100,
+                    global_search: false,
+                },
+            };
         }
 
         if (payload && payload.tab) {
@@ -207,9 +241,27 @@ class SettingsStore implements Store {
             await ProfileApi.updateProfileInfo({
                 name,
                 birth_date: birthDateISO,
+                email,
             });
 
-            this.profileData = { name, birthdate, email };
+            // Обновляем кэшированный профиль и уведомляем остальные части UI
+            try {
+                const refreshed = await ProfileApi.getProfile();
+                dispatcher.process({
+                    type: Actions.AUTH_STATE_UPDATED,
+                    payload: { user: refreshed.user },
+                });
+                dispatcher.process({ type: Actions.RENDER_PROFILE_MENU });
+            } catch (_err) {
+                // если не смогли обновить, всё равно продолжаем
+            }
+
+            this.profileData = {
+                ...this.profileData,
+                name,
+                birthdate,
+                email,
+            };
             this.updateView();
             settings.showSuccess('profileSuccessMessage', 'Данные успешно обновлены');
         } catch (err) {
@@ -224,13 +276,55 @@ class SettingsStore implements Store {
     ): Promise<void> {
         settings.clearErrors();
 
-        const {
-            age_min,
-            age_max,
-            max_distance,
-            show_gender,
-            global_search,
-        } = payload;
+        const errorMessages: string[] = [];
+        
+        const age_min = payload.age_min ?? 18;
+        const age_max = payload.age_max ?? 50;
+        const max_distance = payload.max_distance ?? 100;
+        const show_gender = payload.show_gender ?? 'both';
+        const global_search = payload.global_search ?? false;
+
+        // Валидация минимального возраста
+        if (age_min < 18) {
+            errorMessages.push('Минимальный возраст должен быть не менее 18 лет');
+        } else if (age_min > 99) {
+            errorMessages.push('Минимальный возраст не может быть больше 99 лет');
+        } else if (isNaN(age_min) || !Number.isInteger(age_min)) {
+            errorMessages.push('Минимальный возраст: введите корректное целое число');
+        }
+
+        // Валидация максимального возраста
+        if (age_max < 18) {
+            errorMessages.push('Максимальный возраст должен быть не менее 18 лет');
+        } else if (age_max > 99) {
+            errorMessages.push('Максимальный возраст не может быть больше 99 лет');
+        } else if (isNaN(age_max) || !Number.isInteger(age_max)) {
+            errorMessages.push('Максимальный возраст: введите корректное целое число');
+        }
+
+        // Проверка соотношения возрастов
+        if (errorMessages.length === 0 && age_min > age_max) {
+            errorMessages.push('Минимальный возраст не может быть больше максимального');
+        }
+
+        // Валидация максимального расстояния
+        if (!global_search) {
+            if (max_distance < 1) {
+                errorMessages.push('Расстояние должно быть не менее 1 км');
+            } else if (max_distance > 10000) {
+                errorMessages.push('Расстояние не может быть больше 10000 км');
+            } else if (isNaN(max_distance) || !Number.isInteger(max_distance)) {
+                errorMessages.push('Расстояние: введите корректное целое число');
+            }
+        }
+
+        // Если есть ошибки валидации, отображаем их и прерываем выполнение
+        if (errorMessages.length > 0) {
+            settings.showErrors({
+                filtersError: errorMessages.join('. '),
+            });
+            return;
+        }
 
         try {
             await ProfileApi.updatePreferences({
@@ -241,9 +335,10 @@ class SettingsStore implements Store {
                 global_search,
             });
             settings.showSuccess('filtersSuccessMessage', 'Фильтры успешно сохранены');
-        } catch (error) {
+        } catch (error: any) {
+            const errorMessage = error?.message || 'Не удалось сохранить фильтры';
             settings.showErrors({
-                filtersError: 'Не удалось сохранить фильтры',
+                filtersError: errorMessage,
             });
         }
     }
@@ -257,21 +352,13 @@ class SettingsStore implements Store {
         newPassword: string;
         confirmPassword: string;
     }): Promise<void> {
-        const errors: Record<string, string> = {};
         settings.clearErrors();
 
-        if (!oldPassword) {
-            errors.oldPasswordError = 'Введите старый пароль';
-        }
-        if (!newPassword) {
-            errors.newPasswordError = 'Введите новый пароль';
-        }
-        if (!confirmPassword) {
-            errors.confirmPasswordError = 'Подтвердите пароль';
-        }
-
-        if (Object.keys(errors).length) {
-            settings.showErrors(errors);
+        // Валидация
+        if (!oldPassword || !newPassword || !confirmPassword) {
+            settings.showErrors({
+                oldPasswordError: 'Заполните все поля',
+            });
             return;
         }
 
@@ -296,15 +383,46 @@ class SettingsStore implements Store {
             return;
         }
 
-        settings.showErrors({
-            oldPasswordError: 'Смена пароля появится в следующем релизе',
-        });
+        try {
+            await ProfileApi.updatePassword({
+                old_password: oldPassword,
+                new_password: newPassword,
+                new_password_confirm: confirmPassword,
+            });
+            
+            settings.showSuccess('passwordSuccessMessage', 'Пароль успешно изменен');
+            
+            // Очищаем поля
+            const oldPasswordInput = document.getElementById('oldPassword') as HTMLInputElement;
+            const newPasswordInput = document.getElementById('newPassword') as HTMLInputElement;
+            const confirmPasswordInput = document.getElementById('confirmPassword') as HTMLInputElement;
+            
+            if (oldPasswordInput) oldPasswordInput.value = '';
+            if (newPasswordInput) newPasswordInput.value = '';
+            if (confirmPasswordInput) confirmPasswordInput.value = '';
+        } catch (error) {
+            settings.showErrors({
+                oldPasswordError: 'Неверный старый пароль',
+            });
+        }
     }
 
     private async deleteAccount(): Promise<void> {
-        settings.showErrors({
-            generalError: 'Удаление аккаунта временно недоступно',
-        });
+        settings.clearErrors();
+        
+        try {
+            await ProfileApi.deleteProfile();
+            
+            // После успешного удаления перенаправляем на страницу логина
+            dispatcher.process({
+                type: Actions.NAVIGATE_TO,
+                payload: { path: '/login' },
+            });
+        } catch (error) {
+            settings.showErrors({
+                deleteAccountError: 'Не удалось удалить аккаунт',
+            });
+        }
     }
 }
 
