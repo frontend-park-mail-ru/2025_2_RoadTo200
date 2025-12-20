@@ -28,9 +28,9 @@ export class PremiumPage {
         if (!this.parent) return;
 
         this.plans = [
-            { id: 'week', label: 'Неделя', price: 1000, amount: 1000 },
-            { id: 'month', label: 'Месяц', price: 2000, amount: 2000, isActive: true },
-            { id: 'quarter', label: '3 Месяца', price: 5000, amount: 5000 },
+            { id: 'week', label: 'Неделя', price: 300, amount: 300 },
+            { id: 'month', label: 'Месяц', price: 600, amount: 600, isActive: true },
+            { id: 'quarter', label: '3 Месяца', price: 1000, amount: 1000 },
         ];
 
         const features: Feature[] = [
